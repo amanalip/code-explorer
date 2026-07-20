@@ -367,6 +367,7 @@ main {
   color: #06120e;
   background: var(--mint);
   box-shadow: 0 8px 32px var(--mint-soft);
+  text-decoration: none;
 }
 
 /* Keeps primary-button text readable when the light palette changes the meaning of the shared background token. */
@@ -1524,12 +1525,15 @@ main {
 
 /* Styles `.example-card`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment, motion and interaction feedback for the matching interface element. */
 .example-card {
+  display: block;
   padding: 20px;
   border: 1px solid var(--line);
   border-radius: 9px;
   color: var(--text);
   background: var(--bg-raised);
+  font: inherit;
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
   transition: 160ms ease;
 }

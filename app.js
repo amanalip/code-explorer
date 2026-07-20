@@ -137,7 +137,7 @@ print(squares)`,
 const els = Object.fromEntries(
   [
     "runtimeStatus", "runtimeLabel", "themeButton", "themeIcon", "welcomeScreen", "workspace",
-    "startButton", "heroExampleButton", "backButton", "examplesButton", "runButton", "stopButton",
+    "heroExampleButton", "backButton", "examplesButton", "runButton", "stopButton",
     "editor", "editorShell", "codeStats", "storyTab", "loopTab", "loopBadge", "storyView", "loopView",
     "emptyStory", "traceContent", "traceKicker", "executedCode", "explanation", "changeList",
     "variablesGrid", "callStackSection", "callStack", "emptyLoop", "loopContent", "loopType",
@@ -338,14 +338,6 @@ function focusLine(lineNumber) {
     selection: { anchor: line.from },
     scrollIntoView: true,
   });
-}
-
-/**
- * Navigates from the landing page to the dedicated execution workspace document.
- * A normal page URL makes the workspace bookmarkable and keeps it active after reloads.
- */
-function showWorkspace() {
-  window.location.assign("workspace.html");
 }
 
 /**
@@ -1091,32 +1083,38 @@ function showToast(message, isError = false) {
 
 /**
  * Creates example cards from the shared EXAMPLES data.
- * Each card saves source, closes the dialog, and either updates the open workspace or navigates there.
+ * Landing cards are native links to the workspace, while workspace cards are buttons that update the open editor.
  * Text nodes use textContent so example metadata remains safe by default.
  */
 function renderExamples() {
+  // The workspace marker determines whether a card should navigate or update in place.
+  const isWorkspace = Boolean(els.workspace);
   els.exampleGrid.replaceChildren(
     ...EXAMPLES.map((example) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "example-card";
-      button.innerHTML = `
+      // Native links make landing-page navigation reliable for file URLs and hosted URLs.
+      const card = document.createElement(isWorkspace ? "button" : "a");
+      if (isWorkspace) {
+        card.type = "button";
+      } else {
+        card.href = "workspace.html";
+      }
+      card.className = "example-card";
+      card.innerHTML = `
         <span class="example-topic"></span>
         <h3></h3>
         <p></p>`;
-      button.querySelector(".example-topic").textContent = example.topic;
-      button.querySelector("h3").textContent = example.title;
-      button.querySelector("p").textContent = example.description;
-      button.addEventListener("click", () => {
+      card.querySelector(".example-topic").textContent = example.topic;
+      card.querySelector("h3").textContent = example.title;
+      card.querySelector("p").textContent = example.description;
+      card.addEventListener("click", () => {
+        // Save before navigation so the chosen example is waiting in the new editor.
         setCode(example.code);
         els.examplesDialog.close();
-        if (els.workspace) {
+        if (isWorkspace) {
           showToast(`${example.title} loaded. Press Run trace when you are ready.`);
-        } else {
-          showWorkspace();
         }
       });
-      return button;
+      return card;
     }),
   );
 }
@@ -1134,7 +1132,6 @@ function openExamples() {
  */
 function bindEvents() {
   els.themeButton?.addEventListener("click", toggleTheme);
-  els.startButton?.addEventListener("click", showWorkspace);
   els.heroExampleButton?.addEventListener("click", openExamples);
   els.backButton?.addEventListener("click", (event) => {
     event.preventDefault();

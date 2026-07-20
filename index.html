@@ -73,11 +73,12 @@
             Paste a beginner Python program and follow every variable, loop, and output as it happens.
             Everything runs privately inside your browser.
           </p>
-          <!-- Both actions lead toward the workspace, either blank or with an example. -->
+          <!-- Both actions lead toward the workspace, either directly or through an example. -->
           <div class="hero-actions">
-            <button class="primary-button" id="startButton" type="button">
+            <!-- A native link works for local files, GitHub Pages, and browsers with scripts blocked. -->
+            <a class="primary-button" href="workspace.html">
               Start exploring <span aria-hidden="true">→</span>
-            </button>
+            </a>
             <button class="secondary-button" id="heroExampleButton" type="button">
               Load an example
             </button>
@@ -151,7 +152,7 @@
     <!-- Polite live-region announcements report completion and errors without stealing focus. -->
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <!-- The module script owns editor setup, worker messages, state, and rendering. -->
-    <script type="module" src="app.js"></script>
+    <!-- The version query prevents browsers from reusing navigation code cached before the page split. -->
+    <script type="module" src="app.js?v=20260720-2"></script>
   </body>
 </html>
