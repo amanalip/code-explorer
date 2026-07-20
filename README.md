@@ -329,6 +329,36 @@ This means the third recorded snapshot is selected out of nine total snapshots.
 
 The percentage below the slider reports the selected position between the start and end of the trace.
 
+### How one selected step updates the workspace
+
+Every view follows the same selected timeline position. Moving one control never creates a separate, conflicting version of program state.
+
+```text
+Previous, Next, Play, Restart, or slider
+                    |
+                    v
+             SELECTED TRACE STEP
+                    |
+        +-----------+-----------+
+        |           |           |
+        v           v           v
+   Source line   Variables    Console so far
+        |           |           |
+        +-----------+-----------+
+                    |
+        +-----------+-----------+
+        |           |           |
+        v           v           v
+      TRACE        DATA        FLOW
+   explanation   objects     path and loop
+                    |
+                    v
+                  LABS
+        bookmarks and comparisons
+```
+
+If two views appear to tell different stories, first confirm that they are describing the same selected step and remember that some views emphasize values before a loop body update.
+
 ## Trace views
 
 Trace views explain what Python is doing and why.
@@ -365,6 +395,35 @@ Python updated total from 0 to 5.
 ```
 
 Story explanations are educational summaries. They describe observed trace data and common Python statement patterns. They are not a replacement for reading the source line itself.
+
+#### Anatomy of a Story step
+
+```text
+STORY STEP
+|
++-- Where am I?
+|   +-- Trace step number
+|   +-- Source line number
+|   +-- Highlighted editor line
+|
++-- What instruction is this?
+|   +-- Assignment
+|   +-- Condition
+|   +-- Loop
+|   +-- Function call or return
+|   +-- Output or error
+|
++-- What changed?
+|   +-- Name created
+|   +-- Value updated
+|   +-- Name left scope
+|   +-- No visible value change
+|
++-- What context surrounds it?
+    +-- Visible variables
+    +-- Active function frames
+    +-- Output produced so far
+```
 
 ### Before and After
 
@@ -562,6 +621,38 @@ student                  dict(2)
 
 History rows are clickable. Selecting a history event jumps the complete workspace to that recorded step.
 
+#### Variable lifecycle map
+
+```text
+Name does not exist
+        |
+        | assignment or parameter binding
+        v
+Name is created in a scope
+        |
+        +-------------------------+
+        |                         |
+        v                         v
+Value remains unchanged     Value or object changes
+        |                         |
+        |                  +------+------+
+        |                  |             |
+        |                  v             v
+        |              reassigned     mutated
+        |                  |             |
+        +------------------+-------------+
+                           |
+                           v
+                    More trace steps
+                           |
+                 +---------+---------+
+                 |                   |
+                 v                   v
+          still in scope       leaves scope
+```
+
+Use Value History for the vertical timeline, References for shared objects, and Mutation Explorer when the distinction between reassignment and mutation matters.
+
 ### Watches
 
 **Best for:** following a small set of important variable names across a trace.
@@ -732,9 +823,60 @@ items -> Object A              items -> Object B
 
 The view also reports visible aliases, which are other names that reference the same captured object.
 
+#### Object-change decision tree
+
+```text
+Did the name exist before this step?
+|
++-- No
+|   +-- CREATION
+|       name -> Object A
+|
++-- Yes
+    |
+    +-- Does it still reference the same object?
+        |
+        +-- Yes
+        |   |
+        |   +-- Did visible contents change?
+        |       +-- Yes -> MUTATION
+        |       +-- No  -> UNCHANGED
+        |
+        +-- No
+            +-- REASSIGNMENT
+                name: Object A -> Object B
+```
+
+This decision tree is especially useful when Before and After shows different text but you still need to know whether object identity stayed the same.
+
 ## Flow views
 
 Flow views summarize paths, source coverage, and loop behavior.
+
+### How the Flow views divide the problem
+
+```text
+Latest execution
+|
++-- In what order did reached lines connect?
+|       -> Execution Path
+|
++-- Which source lines ran or did not run?
+|       -> Coverage
+|
++-- What values appeared at each loop entry?
+|       -> Loop Table
+|
++-- Which iteration is current, complete, or waiting?
+        -> Loop Lab
+```
+
+```text
+Execution Path asks: "Where did Python travel?"
+Coverage asks:       "Which source locations did this run touch?"
+Loop Table asks:     "How did values compare across iterations?"
+Loop Lab asks:       "Where am I inside the repeated process?"
+```
 
 ### Execution Path
 
@@ -866,9 +1008,71 @@ FOR LOOP: for number in range(1, 4)
 
 When a program has no detected `for` or `while` loop, both loop views explain that no loop data is available.
 
+#### Loop-reading map
+
+```text
+Enter loop
+    |
+    v
+Choose next value or check condition
+    |
+    +-- Cannot continue -> leave loop
+    |
+    +-- Can continue
+            |
+            v
+        Run loop body
+            |
+      +-----+------------------+
+      |                        |
+      v                        v
+  ordinary end           control statement
+      |                  +------+------+
+      |                  |             |
+      |                  v             v
+      |              continue        break
+      |                  |             |
+      +------------------+             v
+      |                              leave loop
+      v
+Choose next value or check again
+```
+
+Use Execution Path to see the arrows, Coverage to see skipped source, and Loop Table to see the values carried through the cycle.
+
 ## Labs
 
 Labs help you deliberately vary, compare, and organize executions.
+
+### Experiment cycle
+
+```text
+Choose one question
+        |
+        v
+Prepare input or change one source value
+        |
+        v
+Run and inspect the trace
+        |
+        +-- Save important step -> Trace Bookmarks
+        |
+        +-- Save complete run   -> Capture Run A
+        |
+        v
+Change exactly one factor
+        |
+        v
+Run and capture Run B
+        |
+        v
+Compare path, state, output, and error
+        |
+        v
+Explain why the first difference occurred
+```
+
+Keeping one deliberate change between runs makes the comparison easier to explain.
 
 ### Input Playground
 
@@ -1921,6 +2125,39 @@ Check your answer: the trace should finish successfully and print `purple`.
 
 ## Expected behavior
 
+### Workspace state map
+
+```text
+Open workspace
+     |
+     v
+READY FOR SOURCE
+     |
+     | select Run trace
+     v
+RUNNING
+     |
+     +-- Stop selected ---------> STOPPED
+     |
+     +-- Safety limit reached --> LIMIT MESSAGE
+     |
+     +-- Syntax failure --------> ERROR COACH, no timeline
+     |
+     +-- Runtime failure -------> ERROR COACH, partial timeline
+     |
+     +-- Success ---------------> TRACE READY
+                                      |
+                         +------------+------------+
+                         |                         |
+                         v                         v
+                    inspect steps             edit source
+                         |                         |
+                         +-------------------------+
+                                      |
+                                      v
+                              old trace is cleared
+```
+
 ### Before running
 
 - Empty views explain what data they need.
@@ -1985,6 +2222,29 @@ Check your answer: the trace should finish successfully and print `purple`.
 
 Limits keep the workspace responsive and the visual explanations readable.
 
+### What to do when a limit appears
+
+```text
+Program stopped by a safety limit
+|
++-- Message says 3,000 trace steps
+|   +-- Reduce loop iterations
+|   +-- Test a smaller collection
+|   +-- Isolate one function
+|   +-- Remove unnecessary repeated calls
+|
++-- Message says 30 seconds
+|   +-- Check for an infinite while loop
+|   +-- Confirm loop state changes toward an exit
+|   +-- Remove delays or intensive work
+|   +-- Use a smaller teaching input
+|
++-- A value preview says items were omitted
+    +-- Read the reported true length
+    +-- Inspect a smaller sample
+    +-- Remember that Python kept the complete live value
+```
+
 ### Execution safety limits
 
 | Limit | Value | What happens at the limit |
@@ -2027,6 +2287,34 @@ Code Explorer is not intended to replace a complete local Python development env
 ## Saved preferences and privacy
 
 Code Explorer runs the learner's program inside the browser.
+
+### What persists and what resets
+
+```text
+BROWSER-SAVED LEARNING SETUP
+|
++-- Python source
++-- Theme
++-- Editor wrap and font size
++-- Graph zoom
++-- Watched names
++-- Prepared input text
+
+CURRENT EXECUTION ONLY
+|
++-- Recorded trace snapshots
++-- Selected step
++-- Console at each step
++-- Coverage and execution path
++-- Loop results
++-- Trace bookmarks
++-- Playback state
+
+New run or changed source
+        |
+        v
+Execution-only state is cleared, then rebuilt by the next run
+```
 
 The following are saved locally when browser storage is available:
 
@@ -2091,6 +2379,36 @@ Two runs can print the same result while taking different paths or holding diffe
 When Coverage marks a line as missed, ask what condition or input would make Python reach it. Then run that case and compare.
 
 ## Troubleshooting
+
+### Fast troubleshooting map
+
+```text
+What is not working?
+|
++-- Run does not begin
+|   +-- Is the editor empty? -> Add or load source
+|   +-- Is Python loading?   -> Wait for Python ready
+|   +-- Runtime unavailable? -> Check connection and reload
+|
++-- Run begins but stops
+|   +-- Python error?        -> Open Error Coach
+|   +-- Missing input?       -> Add Input Playground lines
+|   +-- Safety limit?        -> Reduce repeated work
+|
++-- A view is empty
+|   +-- No trace?            -> Run the program
+|   +-- Wrong selected step? -> Move to where the concept exists
+|   +-- No relevant concept? -> Use another example or view
+|
++-- Graph is unavailable
+|   +-- Wait briefly
+|   +-- Check the connection
+|   +-- Continue with Story, Variables, or Coverage
+|
++-- Values seem to move backward
+    +-- Check the selected trace step
+    +-- Remember that output and state follow the timeline
+```
 
 ### Run trace does not start
 
@@ -2233,6 +2551,37 @@ Coverage describes which source lines were observed during one run. It does not 
 ### Reference map
 
 A reference map is a conceptual diagram connecting scopes, names, and captured objects. It is not a physical memory-address display.
+
+### How the glossary concepts connect
+
+```text
+PROGRAM EXECUTION
+|
++-- Trace step
+|   +-- source line
+|   +-- output so far
+|   +-- active call stack
+|       +-- frame
+|           +-- scope
+|               +-- assignment creates or changes names
+|
++-- Values and objects
+|   +-- immutable value
+|   |   +-- reassignment connects a name to another value
+|   |
+|   +-- mutable object
+|       +-- mutation changes existing contents
+|       +-- alias gives the same object another name
+|
++-- Repeated control flow
+|   +-- iteration
+|   +-- loop path
+|
++-- Whole-run evidence
+    +-- coverage
+    +-- reference map
+    +-- execution path
+```
 
 ## A final beginner workflow
 
