@@ -2954,7 +2954,7 @@ main {
 /* Examples */
 /* Styles `.examples-dialog`. This component rule controls sizing and spacing, color and visual emphasis, boundaries and focus treatment, overflow behavior for the matching interface element. */
 .examples-dialog {
-  width: min(900px, calc(100% - 32px));
+  width: min(980px, calc(100% - 32px));
   max-height: min(760px, calc(100vh - 40px));
   padding: 0;
   overflow: auto;
@@ -2986,6 +2986,55 @@ main {
   font-size: 1.8rem;
 }
 
+/* Places category filters and the result count between the dialog title and program cards. */
+.example-browser-toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-solid);
+}
+
+/* Allows the filter row to scroll inside narrow dialogs without widening the page. */
+.example-filters {
+  display: flex;
+  min-width: 0;
+  gap: 7px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+/* Gives each category a compact, keyboard-accessible segmented-control appearance. */
+.example-filter {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text-soft);
+  background: var(--bg-raised);
+  font: 600 0.63rem/1 var(--mono);
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+
+/* Highlights the category whose program cards are currently displayed. */
+.example-filter.active {
+  border-color: var(--mint);
+  color: var(--bg);
+  background: var(--mint);
+}
+
+/* Keeps the visible and total program counts stable beside the scrolling filters. */
+.example-count {
+  flex: 0 0 auto;
+  color: var(--text-dim);
+  font: 600 0.61rem/1.2 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 /* Styles `.dialog-close`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .dialog-close {
   width: 36px;
@@ -3009,7 +3058,9 @@ main {
 
 /* Styles `.example-card`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment, motion and interaction feedback for the matching interface element. */
 .example-card {
-  display: block;
+  display: flex;
+  min-height: 210px;
+  flex-direction: column;
   padding: 20px;
   border: 1px solid var(--line);
   border-radius: 9px;
@@ -3020,6 +3071,14 @@ main {
   text-decoration: none;
   cursor: pointer;
   transition: 160ms ease;
+}
+
+/* Aligns the topic and difficulty labels at opposite sides of every card. */
+.example-card-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* Defines hover feedback for `.example-card:hover`, using color and visual emphasis, boundaries and focus treatment, motion and interaction feedback to confirm that the element is interactive. */
@@ -3037,6 +3096,24 @@ main {
   text-transform: uppercase;
 }
 
+/* Uses a quiet badge to communicate the assumed experience level before selection. */
+.example-level {
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text-dim);
+  background: var(--panel-soft);
+  font: 600 0.54rem/1 var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* Gives intermediate programs a distinct purple cue without suggesting an error state. */
+.example-level.intermediate {
+  border-color: color-mix(in srgb, var(--purple) 44%, var(--line));
+  color: var(--purple);
+}
+
 /* Styles `.example-card h3`. This component rule controls sizing and spacing, typography for the matching interface element. */
 .example-card h3 {
   margin: 10px 0 7px;
@@ -3048,6 +3125,27 @@ main {
   margin: 0;
   color: var(--text-soft);
   line-height: 1.5;
+}
+
+/* Anchors view recommendations to the card bottom so rows remain visually aligned. */
+.example-views {
+  display: grid;
+  gap: 5px;
+  margin-top: auto;
+  padding-top: 17px;
+}
+
+/* Labels the recommendation as supporting metadata instead of part of the description. */
+.example-views > span {
+  color: var(--text-dim);
+  font: 600 0.52rem/1 var(--mono);
+  letter-spacing: 0.1em;
+}
+
+/* Keeps recommended view names readable and allows longer combinations to wrap. */
+.example-views strong {
+  color: var(--mint);
+  font: 600 0.62rem/1.45 var(--mono);
 }
 
 /* Styles `.toast`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment, motion and interaction feedback for the matching interface element. */
@@ -3412,6 +3510,23 @@ main {
   .example-grid {
     grid-template-columns: 1fr;
     padding: 14px;
+  }
+
+  /* Stacks the filter count below the horizontally scrollable categories on phones. */
+  .example-browser-toolbar {
+    display: grid;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  /* Lets the count follow the filter row naturally instead of reserving side space. */
+  .example-count {
+    justify-self: start;
+  }
+
+  /* Removes desktop row-height matching when every program occupies its own row. */
+  .example-card {
+    min-height: 0;
   }
 
   /* Styles `.dialog-header`. This component rule controls sizing and spacing for the matching interface element. */

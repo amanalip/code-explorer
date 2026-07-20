@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260720-11" />
+    <link rel="stylesheet" href="styles.css?v=20260720-12" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -542,6 +542,14 @@
         </div>
         <button class="dialog-close" id="closeExamplesButton" type="button" aria-label="Close examples">×</button>
       </div>
+      <!-- Category filters keep eighteen programs scannable without hiding the complete library. -->
+      <div class="example-browser-toolbar">
+        <!-- The generated filter buttons expose their current state through aria-pressed. -->
+        <div class="example-filters" id="exampleFilters" role="group" aria-label="Filter starter programs"></div>
+        <!-- This live count tells learners how much of the library is currently visible. -->
+        <span class="example-count" id="exampleCount"></span>
+      </div>
+      <!-- JavaScript fills this grid with the programs belonging to the selected category. -->
       <div class="example-grid" id="exampleGrid"></div>
     </dialog>
 
@@ -549,6 +557,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260720-22"></script>
+    <script type="module" src="app.js?v=20260720-23"></script>
   </body>
 </html>

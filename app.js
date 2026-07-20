@@ -188,6 +188,27 @@ function saveLearningPreferences() {
 }
 
 /**
+ * Prepares the sample responses bundled with an input-focused starter program.
+ * The value is written both to the open workspace and browser storage so a
+ * selection made on the landing page is ready after navigation.
+ * @param {string} inputs Newline-separated responses consumed by input().
+ */
+function prepareExampleInputs(inputs) {
+  if (els.programInputs) {
+    els.programInputs.value = inputs;
+    renderInputStatus();
+  }
+  try {
+    localStorage.setItem(LEARNING_PREFERENCES_STORAGE_KEY, JSON.stringify({
+      watches: [...state.watches],
+      inputs,
+    }));
+  } catch (error) {
+    console.warn("Code Explorer could not save the example inputs.", error);
+  }
+}
+
+/**
  * Curated programs displayed by the Examples dialog.
  *
  * Each object contains presentation metadata plus the exact Python source to
@@ -196,36 +217,36 @@ function saveLearningPreferences() {
  */
 const EXAMPLES = [
   {
+    category: "Basics",
     topic: "Variables",
+    level: "Beginner",
     title: "A tiny calculation",
     description: "Watch names appear and values move through an expression.",
+    views: ["Story", "Before and After", "Variables"],
     code: `price = 8
 quantity = 3
 total = price * quantity
 print("Total:", total)`,
   },
   {
-    topic: "For loop",
-    title: "Running total",
-    description: "See an accumulator change during each loop iteration.",
-    code: DEFAULT_CODE,
+    category: "Basics",
+    topic: "Strings",
+    level: "Beginner",
+    title: "Building a message",
+    description: "Combine text values and inspect the new string at each step.",
+    views: ["Story", "Before and After", "Structures"],
+    code: `language = "Python"
+adjective = "visual"
+message = language + " is " + adjective
+print(message)`,
   },
   {
-    topic: "While loop",
-    title: "Countdown",
-    description: "Follow a condition and changing counter until the loop ends.",
-    code: `count = 3
-
-while count > 0:
-    print(count)
-    count -= 1
-
-print("Lift off!")`,
-  },
-  {
+    category: "Decisions",
     topic: "Conditions",
+    level: "Beginner",
     title: "Pass or try again",
     description: "See which path Python chooses after checking a condition.",
+    views: ["Conditions", "Coverage", "Story"],
     code: `score = 72
 
 if score >= 50:
@@ -236,9 +257,104 @@ else:
 print(result)`,
   },
   {
+    category: "Decisions",
+    topic: "Boolean logic",
+    level: "Intermediate",
+    title: "Checking multiple conditions",
+    description: "Break an and expression into the two facts Python checks.",
+    views: ["Conditions", "Before and After", "Coverage"],
+    code: `age = 20
+has_ticket = True
+
+if age >= 18 and has_ticket:
+    result = "Enter"
+else:
+    result = "Wait"
+
+print(result)`,
+  },
+  {
+    category: "Decisions",
+    topic: "Input and branches",
+    level: "Beginner",
+    title: "Different inputs, different paths",
+    description: "Change one prepared score and compare the branch and output.",
+    views: ["Input Playground", "Compare Runs", "Conditions"],
+    inputs: "72",
+    code: `score = int(input("Score: "))
+
+if score >= 50:
+    message = "Pass"
+else:
+    message = "Try again"
+
+print(message)`,
+  },
+  {
+    category: "Loops",
+    topic: "For loop",
+    level: "Beginner",
+    title: "Running total",
+    description: "See an accumulator change during each loop iteration.",
+    views: ["Loop Table", "Loop Lab", "Coverage"],
+    code: DEFAULT_CODE,
+  },
+  {
+    category: "Loops",
+    topic: "While loop",
+    level: "Beginner",
+    title: "Countdown",
+    description: "Follow a condition and changing counter until the loop ends.",
+    views: ["Conditions", "Execution Path", "Loop Lab"],
+    code: `count = 3
+
+while count > 0:
+    print(count)
+    count -= 1
+
+print("Lift off!")`,
+  },
+  {
+    category: "Loops",
+    topic: "Break",
+    level: "Intermediate",
+    title: "Find the first match",
+    description: "Watch break end a search as soon as the target is found.",
+    views: ["Execution Path", "Coverage", "Loop Table"],
+    code: `numbers = [4, 7, 12, 15]
+target = 12
+found_at = -1
+
+for index in range(len(numbers)):
+    if numbers[index] == target:
+        found_at = index
+        break
+
+print("Found at:", found_at)`,
+  },
+  {
+    category: "Loops",
+    topic: "Continue",
+    level: "Intermediate",
+    title: "Skip unwanted values",
+    description: "See continue skip even values while the loop keeps moving.",
+    views: ["Execution Path", "Coverage", "Loop Table"],
+    code: `kept = []
+
+for number in range(1, 7):
+    if number % 2 == 0:
+        continue
+    kept.append(number)
+
+print(kept)`,
+  },
+  {
+    category: "Functions",
     topic: "Functions",
+    level: "Beginner",
     title: "A function call",
     description: "Watch a local frame appear, calculate, and return a value.",
+    views: ["Function Journey", "Story", "Variables"],
     code: `def double(number):
     result = number * 2
     return result
@@ -247,9 +363,29 @@ answer = double(4)
 print(answer)`,
   },
   {
+    category: "Functions",
+    topic: "Nested calls",
+    level: "Intermediate",
+    title: "One function calling another",
+    description: "Follow two function frames as a value moves down and back up.",
+    views: ["Function Journey", "Call Stack", "Variables"],
+    code: `def add_tax(price):
+    return price * 1.10
+
+def final_price(price, discount):
+    reduced = price - discount
+    return add_tax(reduced)
+
+total = final_price(50, 5)
+print(round(total, 2))`,
+  },
+  {
+    category: "Collections",
     topic: "Lists",
+    level: "Beginner",
     title: "Growing a list",
     description: "Observe a list as values are appended inside a loop.",
+    views: ["Structures", "Mutation Explorer", "Loop Table"],
     code: `squares = []
 
 for number in range(1, 4):
@@ -258,9 +394,75 @@ for number in range(1, 4):
 print(squares)`,
   },
   {
+    category: "Collections",
+    topic: "Aliases",
+    level: "Intermediate",
+    title: "Two names sharing one list",
+    description: "See how mutation through one name appears through the other.",
+    views: ["References", "Mutation Explorer", "Variables"],
+    code: `first = [1, 2]
+second = first
+second.append(3)
+
+print("first:", first)
+print("second:", second)`,
+  },
+  {
+    category: "Collections",
+    topic: "Object identity",
+    level: "Intermediate",
+    title: "Mutate or replace a list",
+    description: "Compare changing Object A with assigning a new Object B.",
+    views: ["Mutation Explorer", "References", "Before and After"],
+    code: `items = []
+original = items
+
+items.append("book")
+items = ["new"]
+
+print("original:", original)
+print("items:", items)`,
+  },
+  {
+    category: "Collections",
+    topic: "Nested data",
+    level: "Intermediate",
+    title: "Nested student data",
+    description: "Open a dictionary containing a list and follow a nested update.",
+    views: ["Variables", "Structures", "References"],
+    code: `student = {
+    "name": "Aman",
+    "scores": [72, 84]
+}
+
+student["scores"].append(91)
+average = sum(student["scores"]) / len(student["scores"])
+
+print(student["name"], round(average, 1))`,
+  },
+  {
+    category: "Collections",
+    topic: "Dictionaries",
+    level: "Intermediate",
+    title: "Counting words",
+    description: "Watch dictionary keys appear and counts change inside a loop.",
+    views: ["Structures", "Mutation Explorer", "Loop Table"],
+    code: `words = ["code", "learn", "code", "trace"]
+counts = {}
+
+for word in words:
+    counts[word] = counts.get(word, 0) + 1
+
+print(counts)`,
+  },
+  {
+    category: "Input and Errors",
     topic: "Input",
+    level: "Beginner",
     title: "A personalized greeting",
     description: "Prepare two input values and watch Python consume them in order.",
+    views: ["Input Playground", "Conditions", "Compare Runs"],
+    inputs: "Aman\n25",
     code: `name = input("Your name: ")
 age = int(input("Your age: "))
 
@@ -272,14 +474,28 @@ else:
 print(message)`,
   },
   {
+    category: "Input and Errors",
     topic: "Errors",
+    level: "Beginner",
     title: "An index to investigate",
     description: "Stop at an IndexError and inspect the state that explains it.",
+    views: ["Error Coach", "Variables", "Structures"],
     code: `colors = ["mint", "purple"]
 requested_index = 2
 print(colors[requested_index])`,
   },
 ];
+
+/** Ordered filters keep the larger example library easy to scan without hiding its complete size. */
+const EXAMPLE_CATEGORIES = Object.freeze([
+  "All",
+  "Basics",
+  "Decisions",
+  "Loops",
+  "Functions",
+  "Collections",
+  "Input and Errors",
+]);
 
 /**
  * Cached references to every interactive or dynamically updated DOM element.
@@ -314,7 +530,7 @@ const els = Object.fromEntries(
     "programInputs", "inputStatus", "captureRunAButton", "captureRunBButton", "clearComparisonsButton", "comparisonResult",
     "emptyBookmarks", "bookmarksContent", "stepCount", "previousButton",
     "playButton", "nextButton", "restartButton", "bookmarkButton", "stepSlider", "progressPercent", "speedSelect",
-    "consoleOutput", "clearOutputButton", "examplesDialog", "closeExamplesButton", "exampleGrid", "toast",
+    "consoleOutput", "clearOutputButton", "examplesDialog", "closeExamplesButton", "exampleFilters", "exampleCount", "exampleGrid", "toast",
   ].map((id) => [id, document.getElementById(id)]),
 );
 
@@ -390,6 +606,8 @@ const state = {
   heatmap: null,
   // Holds the dismissal timer for the temporary toast notification.
   toastTimer: null,
+  // Keeps the selected example category stable while cards are rerendered.
+  activeExampleCategory: "All",
 };
 
 /**
@@ -3165,15 +3383,37 @@ function showToast(message, isError = false) {
 }
 
 /**
- * Creates example cards from the shared EXAMPLES data.
- * Landing cards are native links to the workspace, while workspace cards are buttons that update the open editor.
- * Text nodes use textContent so example metadata remains safe by default.
+ * Creates category filters and example cards from the shared EXAMPLES data.
+ * Landing cards are native links to the workspace, while workspace cards are
+ * buttons that update the open editor. Text nodes keep all metadata safe.
  */
 function renderExamples() {
   // The workspace marker determines whether a card should navigate or update in place.
   const isWorkspace = Boolean(els.workspace);
+  // Reject an obsolete category value instead of rendering an unexplained empty dialog.
+  if (!EXAMPLE_CATEGORIES.includes(state.activeExampleCategory)) state.activeExampleCategory = "All";
+  // Recreate the compact filter row so pressed states always match the visible cards.
+  els.exampleFilters.replaceChildren(
+    ...EXAMPLE_CATEGORIES.map((category) => {
+      const filter = document.createElement("button");
+      filter.type = "button";
+      filter.className = `example-filter ${category === state.activeExampleCategory ? "active" : ""}`;
+      filter.textContent = category;
+      filter.setAttribute("aria-pressed", String(category === state.activeExampleCategory));
+      filter.addEventListener("click", () => {
+        state.activeExampleCategory = category;
+        renderExamples();
+      });
+      return filter;
+    }),
+  );
+  // All remains the complete library, while other filters expose one teaching family.
+  const visibleExamples = state.activeExampleCategory === "All"
+    ? EXAMPLES
+    : EXAMPLES.filter((example) => example.category === state.activeExampleCategory);
+  els.exampleCount.textContent = `Showing ${visibleExamples.length} of ${EXAMPLES.length} programs`;
   els.exampleGrid.replaceChildren(
-    ...EXAMPLES.map((example) => {
+    ...visibleExamples.map((example) => {
       // Native links make landing-page navigation reliable for file URLs and hosted URLs.
       const card = document.createElement(isWorkspace ? "button" : "a");
       if (isWorkspace) {
@@ -3183,15 +3423,28 @@ function renderExamples() {
       }
       card.className = "example-card";
       card.innerHTML = `
-        <span class="example-topic"></span>
+        <span class="example-card-meta">
+          <span class="example-topic"></span>
+          <span class="example-level"></span>
+        </span>
         <h3></h3>
-        <p></p>`;
+        <p></p>
+        <span class="example-views">
+          <span>BEST VIEWS</span>
+          <strong></strong>
+        </span>`;
       card.querySelector(".example-topic").textContent = example.topic;
+      const level = card.querySelector(".example-level");
+      level.textContent = example.level;
+      level.classList.add(example.level.toLowerCase());
       card.querySelector("h3").textContent = example.title;
       card.querySelector("p").textContent = example.description;
+      card.querySelector(".example-views strong").textContent = example.views.join(" · ");
       card.addEventListener("click", () => {
         // Save before navigation so the chosen example is waiting in the new editor.
         setCode(example.code);
+        // Input examples include safe starter responses so they can run immediately.
+        if (typeof example.inputs === "string") prepareExampleInputs(example.inputs);
         els.examplesDialog.close();
         if (isWorkspace) {
           showToast(`${example.title} loaded. Press Run trace when you are ready.`);
