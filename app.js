@@ -35,6 +35,12 @@ const SOURCE_STORAGE_KEY = "code-explorer-source";
 const EDITOR_PREFERENCES_STORAGE_KEY = "code-explorer-editor-preferences";
 
 /**
+ * The browser-storage key for independently remembered graph magnifications.
+ * A separate key keeps graph presentation unrelated to editor preferences.
+ */
+const GRAPH_ZOOM_STORAGE_KEY = "code-explorer-graph-zoom";
+
+/**
  * Safe defaults closely match the original editor presentation.
  * Wrapping starts enabled for beginner-friendly viewing, and fourteen pixels
  * preserves the previous visual size while remaining a clear numeric choice.
@@ -108,6 +114,43 @@ function saveEditorPreferences() {
     localStorage.setItem(EDITOR_PREFERENCES_STORAGE_KEY, JSON.stringify(state.editorPreferences));
   } catch (error) {
     console.warn("Code Explorer could not save editor preferences.", error);
+  }
+}
+
+/**
+ * Restores user-selected zoom percentages for both graph modes.
+ * Null means the graph should keep Cytoscape's automatic fitted scale until
+ * the learner deliberately uses a zoom control.
+ * @returns {{references: number|null, flow: number|null}} Valid saved percentages.
+ */
+function loadGraphZoomPreferences() {
+  try {
+    // Missing storage produces null so first-time graph layout remains content-aware.
+    const stored = JSON.parse(localStorage.getItem(GRAPH_ZOOM_STORAGE_KEY) || "null");
+    // Accept only finite percentages inside the same limits exposed by the sliders.
+    const validZoom = (value) => Number.isFinite(Number(value)) && Number(value) >= 40 && Number(value) <= 200
+      ? Number(value)
+      : null;
+    return {
+      references: validZoom(stored?.references),
+      flow: validZoom(stored?.flow),
+    };
+  } catch (error) {
+    // Invalid JSON or restricted storage should never block graph rendering.
+    console.warn("Code Explorer could not read graph zoom preferences.", error);
+    return { references: null, flow: null };
+  }
+}
+
+/**
+ * Saves the two graph zoom percentages after an intentional zoom interaction.
+ * @param {{references: number|null, flow: number|null}} preferences Current graph zoom state.
+ */
+function saveGraphZoomPreferences(preferences) {
+  try {
+    localStorage.setItem(GRAPH_ZOOM_STORAGE_KEY, JSON.stringify(preferences));
+  } catch (error) {
+    console.warn("Code Explorer could not save graph zoom preferences.", error);
   }
 }
 
@@ -199,8 +242,10 @@ const els = Object.fromEntries(
     "emptyStory", "traceContent", "traceKicker", "executedCode", "explanation", "changeList",
     "stepOutputSection", "stepOutput", "variablesGrid", "callStackSection", "callStack",
     "emptyVariables", "variablesContent", "scopeBrowser", "variableInspector", "emptyReferences",
-    "referencesContent", "referencesGraph", "fitReferencesButton", "emptyFlow", "flowContent",
-    "flowGraph", "fitFlowButton", "emptyLoop", "loopContent", "loopType",
+    "referencesContent", "referencesGraph", "referencesZoomSlider", "referencesZoomValue",
+    "decreaseReferencesZoomButton", "increaseReferencesZoomButton", "fitReferencesButton",
+    "emptyFlow", "flowContent", "flowGraph", "flowZoomSlider", "flowZoomValue",
+    "decreaseFlowZoomButton", "increaseFlowZoomButton", "fitFlowButton", "emptyLoop", "loopContent", "loopType",
     "iterationCount", "loopSource", "loopMeter", "iterationList", "stepCount", "previousButton",
     "playButton", "nextButton", "restartButton", "stepSlider", "progressPercent", "speedSelect",
     "consoleOutput", "clearOutputButton", "examplesDialog", "closeExamplesButton", "exampleGrid", "toast",
@@ -261,6 +306,8 @@ const state = {
   referencesGraph: null,
   // Reuses one graph instance for the observed execution-flow visualization.
   flowGraph: null,
+  // Remembers deliberate magnifications separately while allowing automatic first-use fitting.
+  graphZoom: loadGraphZoomPreferences(),
   // Stores the CodeMirror effect and field helpers used to paint executed lines.
   heatmap: null,
   // Holds the dismissal timer for the temporary toast notification.
@@ -1618,6 +1665,114 @@ function graphPixelRatio() {
 }
 
 /**
+ * Returns the live graph instance associated with one educational graph mode.
+ * @param {"references"|"flow"} kind Graph mode requested by a control.
+ * @returns {object|null} Cytoscape instance or null before that graph is mounted.
+ */
+function graphForKind(kind) {
+  return kind === "references" ? state.referencesGraph : state.flowGraph;
+}
+
+/**
+ * Returns the slider and output paired with one graph mode.
+ * @param {"references"|"flow"} kind Graph mode whose controls should update.
+ * @returns {{slider: HTMLInputElement|null, output: HTMLOutputElement|null}} Matching controls.
+ */
+function graphZoomControls(kind) {
+  return kind === "references"
+    ? { slider: els.referencesZoomSlider, output: els.referencesZoomValue }
+    : { slider: els.flowZoomSlider, output: els.flowZoomValue };
+}
+
+/**
+ * Clamps a requested graph percentage to the public slider range.
+ * @param {string|number} requestedZoom Candidate percentage from any input method.
+ * @returns {number} A finite percentage between forty and two hundred.
+ */
+function clampGraphZoom(requestedZoom) {
+  const numericZoom = Number(requestedZoom);
+  if (!Number.isFinite(numericZoom)) return 100;
+  return Math.min(200, Math.max(40, numericZoom));
+}
+
+/**
+ * Mirrors a Cytoscape zoom level into its range input and percentage output.
+ * Wheel and trackpad events pass through here, keeping every control truthful.
+ * @param {"references"|"flow"} kind Graph mode being synchronized.
+ * @param {boolean} persist Whether this zoom should be remembered after reload.
+ */
+function synchronizeGraphZoom(kind, persist = false) {
+  const graph = graphForKind(kind);
+  if (!graph) return;
+  // Cytoscape stores zoom as a multiplier, while the interface communicates percentages.
+  const percentage = Math.round(clampGraphZoom(graph.zoom() * 100));
+  const { slider, output } = graphZoomControls(kind);
+  if (slider) slider.value = String(percentage);
+  if (output) output.value = `${percentage}%`;
+  if (persist) {
+    state.graphZoom[kind] = percentage;
+    saveGraphZoomPreferences(state.graphZoom);
+  }
+}
+
+/**
+ * Applies a percentage around the visible canvas center instead of jumping its pan position.
+ * @param {"references"|"flow"} kind Graph mode being changed.
+ * @param {string|number} requestedZoom Percentage requested by a slider or button.
+ */
+function setGraphZoom(kind, requestedZoom) {
+  const graph = graphForKind(kind);
+  if (!graph) return;
+  const percentage = clampGraphZoom(requestedZoom);
+  const container = graph.container();
+  // renderedPosition makes zooming feel anchored to what the learner is currently viewing.
+  graph.zoom({
+    level: percentage / 100,
+    renderedPosition: { x: container.clientWidth / 2, y: container.clientHeight / 2 },
+  });
+  synchronizeGraphZoom(kind, true);
+}
+
+/**
+ * Advances one graph by a fixed five-percent step used by both plus and minus buttons.
+ * @param {"references"|"flow"} kind Graph mode being changed.
+ * @param {number} direction Positive one zooms in and negative one zooms out.
+ */
+function stepGraphZoom(kind, direction) {
+  const graph = graphForKind(kind);
+  if (!graph) return;
+  setGraphZoom(kind, Math.round(graph.zoom() * 100) + (direction * 5));
+}
+
+/**
+ * Fits all graph elements inside the viewport and synchronizes the resulting percentage.
+ * @param {"references"|"flow"} kind Graph mode that should return to its fitted view.
+ */
+function fitGraph(kind) {
+  const graph = graphForKind(kind);
+  if (!graph) return;
+  graph.fit(undefined, 28);
+  synchronizeGraphZoom(kind, true);
+}
+
+/**
+ * Connects a newly created Cytoscape instance to its persistent zoom controls.
+ * @param {"references"|"flow"} kind Graph mode being mounted.
+ * @param {object} graph Newly constructed Cytoscape instance.
+ */
+function connectGraphZoom(kind, graph) {
+  // Apply a saved scale only after layout has selected positions for every node.
+  if (state.graphZoom[kind] !== null) {
+    setGraphZoom(kind, state.graphZoom[kind]);
+  } else {
+    // First use displays Cytoscape's automatic fitted percentage without saving it.
+    synchronizeGraphZoom(kind, false);
+  }
+  // Native canvas gestures update the range and save the learner's latest scale.
+  graph.on("zoom", () => synchronizeGraphZoom(kind, true));
+}
+
+/**
  * Converts the active snapshot into scope, variable, object, and reference graph elements.
  * Complex object ids merge aliases into one object node, while primitives receive clear value nodes.
  * @param {object} step Active trace snapshot.
@@ -1716,9 +1871,9 @@ async function renderReferenceMap() {
     pixelRatio: graphPixelRatio(),
     // Stop very large maps from shrinking labels below a usable reading size.
     // Learners can pan the canvas when a program contains many objects.
-    minZoom: 0.7,
+    minZoom: 0.4,
     // A moderate upper limit prevents accidental extreme zooming on trackpads.
-    maxZoom: 2.5,
+    maxZoom: 2,
     layout: { name: "breadthfirst", directed: true, padding: 28, spacingFactor: 1.25 },
     style: [
       // Graph text is deliberately larger than decorative UI text because
@@ -1737,6 +1892,8 @@ async function renderReferenceMap() {
       { selector: "edge", style: { width: 1.6, "line-color": colors.line, "target-arrow-color": colors.mint, "target-arrow-shape": "triangle", "curve-style": "bezier", label: "data(label)", color: colors.dim, "font-family": colors.mono, "font-size": 10, "font-weight": 600, "text-background-color": colors.panel, "text-background-opacity": 1, "text-background-padding": 3 } },
     ],
   });
+  // Restore and connect the controls after the reference layout is complete.
+  connectGraphZoom("references", state.referencesGraph);
   // Remove the temporary overlay only after Cytoscape owns the canvas.
   els.referencesGraph.classList.remove("loading", "failed");
   delete els.referencesGraph.dataset.message;
@@ -1812,9 +1969,9 @@ async function renderFlowMap() {
     pixelRatio: graphPixelRatio(),
     // Preserve a readable floor for larger traces. Overflow remains pannable
     // inside the canvas instead of compressing every label into tiny pixels.
-    minZoom: 0.7,
+    minZoom: 0.4,
     // Keep trackpad and mouse-wheel zooming within a predictable teaching view.
-    maxZoom: 2.5,
+    maxZoom: 2,
     // A compact spacing factor lets typical beginner programs fit near their
     // natural label size instead of being reduced to roughly half scale.
     layout: { name: "breadthfirst", directed: true, padding: 24, spacingFactor: 0.78 },
@@ -1829,6 +1986,8 @@ async function renderFlowMap() {
       { selector: "edge.loop-edge", style: { "line-color": colors.purple, "target-arrow-color": colors.purple, "line-style": "dashed" } },
     ],
   });
+  // Restore and connect the controls before node-selection behavior is attached.
+  connectGraphZoom("flow", state.flowGraph);
   state.flowGraph.on("tap", "node", (event) => {
     const line = Number(event.target.data("line"));
     const stepIndex = state.trace.findIndex((step) => step.line === line);
@@ -2006,8 +2165,16 @@ function bindEvents() {
   els.referencesTab?.addEventListener("click", () => switchPanel("references"));
   els.flowTab?.addEventListener("click", () => switchPanel("flow"));
   els.loopTab?.addEventListener("click", () => switchPanel("loop"));
-  els.fitReferencesButton?.addEventListener("click", () => state.referencesGraph?.fit(undefined, 28));
-  els.fitFlowButton?.addEventListener("click", () => state.flowGraph?.fit(undefined, 28));
+  // Reference controls share one controller so slider, buttons, gestures, and Fit stay synchronized.
+  els.referencesZoomSlider?.addEventListener("input", (event) => setGraphZoom("references", event.target.value));
+  els.decreaseReferencesZoomButton?.addEventListener("click", () => stepGraphZoom("references", -1));
+  els.increaseReferencesZoomButton?.addEventListener("click", () => stepGraphZoom("references", 1));
+  els.fitReferencesButton?.addEventListener("click", () => fitGraph("references"));
+  // Flow receives identical interaction behavior while retaining its own saved percentage.
+  els.flowZoomSlider?.addEventListener("input", (event) => setGraphZoom("flow", event.target.value));
+  els.decreaseFlowZoomButton?.addEventListener("click", () => stepGraphZoom("flow", -1));
+  els.increaseFlowZoomButton?.addEventListener("click", () => stepGraphZoom("flow", 1));
+  els.fitFlowButton?.addEventListener("click", () => fitGraph("flow"));
   els.previousButton?.addEventListener("click", previousStep);
   els.nextButton?.addEventListener("click", nextStep);
   els.playButton?.addEventListener("click", togglePlayback);

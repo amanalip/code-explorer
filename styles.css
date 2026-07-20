@@ -1647,7 +1647,8 @@ main {
 
 /* Explains graph semantics and keeps a small viewport-reset control nearby. */
 .graph-toolbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -1660,6 +1661,30 @@ main {
     var(--bg-raised);
   /* Eleven-and-a-half pixel copy is the minimum comfortable size for this compact toolbar. */
   font: 500 0.72rem/1.5 var(--mono);
+}
+
+/* Arranges all graph magnification actions as one compact, stable-width instrument group. */
+.graph-zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+/* Gives the granular range enough travel while allowing it to shrink in narrow panels. */
+.graph-zoom-slider {
+  width: clamp(82px, 9vw, 124px);
+  min-width: 70px;
+  accent-color: var(--mint);
+  cursor: pointer;
+}
+
+/* Keeps changing percentages from moving neighboring controls horizontally. */
+.graph-zoom-value {
+  width: 42px;
+  color: var(--text-soft);
+  font: 600 0.62rem/1 var(--mono);
+  text-align: center;
 }
 
 /* Keeps the compact map label and explanation aligned as one readable unit. */
@@ -1700,6 +1725,18 @@ main {
   /* Utility actions use a full readable size because they are interactive text. */
   font: 600 0.7rem/1 var(--mono);
   cursor: pointer;
+}
+
+/* Overrides the general toolbar button width for the intentionally square step actions. */
+.graph-toolbar .graph-zoom-step {
+  min-width: 30px;
+  width: 30px;
+  padding: 8px 0;
+}
+
+/* Keeps the content-aware Fit action visually separate from incremental zoom steps. */
+.graph-fit-button {
+  margin-left: 3px;
 }
 
 /* Gives the utility action the same crisp hover language as workspace controls. */
@@ -2395,7 +2432,19 @@ main {
 
   /* Allows the graph explanation to wrap above its Fit control. */
   .graph-toolbar {
+    grid-template-columns: 1fr;
     align-items: flex-start;
+  }
+
+  /* Gives the complete graph control row the available phone width without overflow. */
+  .graph-zoom-controls {
+    width: 100%;
+  }
+
+  /* Lets the slider absorb remaining mobile space between fixed-size controls. */
+  .graph-zoom-slider {
+    flex: 1 1 auto;
+    width: auto;
   }
 
   /* Styles `.change-item`. This component rule controls layout, sizing and spacing for the matching interface element. */

@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260720-5" />
+    <link rel="stylesheet" href="styles.css?v=20260720-6" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -219,7 +219,19 @@
                     <span class="graph-toolbar-label">REFERENCE MAP</span>
                     <span>Names reference objects. This is a conceptual map, not a RAM address view.</span>
                   </span>
-                  <button id="fitReferencesButton" type="button">Fit</button>
+                  <!-- Every zoom control stays synchronized with Cytoscape's wheel and trackpad zoom. -->
+                  <div class="graph-zoom-controls" role="group" aria-label="Reference map zoom controls">
+                    <!-- The minus button changes zoom by five percent while the slider offers one-percent precision. -->
+                    <button class="graph-zoom-step" id="decreaseReferencesZoomButton" type="button" aria-label="Zoom reference map out">−</button>
+                    <!-- A native range input supplies keyboard support and granular pointer control. -->
+                    <input class="graph-zoom-slider" id="referencesZoomSlider" type="range" min="40" max="200" step="1" value="100" aria-label="Reference map zoom percentage" />
+                    <!-- The output exposes the exact current magnification in a stable-width label. -->
+                    <output class="graph-zoom-value" id="referencesZoomValue" for="referencesZoomSlider">100%</output>
+                    <!-- The plus button offers a quick alternative to dragging the slider. -->
+                    <button class="graph-zoom-step" id="increaseReferencesZoomButton" type="button" aria-label="Zoom reference map in">+</button>
+                    <!-- Fit remains available as a content-aware reset and now updates the slider. -->
+                    <button class="graph-fit-button" id="fitReferencesButton" type="button">Fit</button>
+                  </div>
                 </div>
                 <div class="graph-canvas" id="referencesGraph" aria-label="Python reference map"></div>
               </div>
@@ -240,7 +252,19 @@
                     <span class="graph-toolbar-label">EXECUTED PATH</span>
                     <span>Edge labels show how often a transition occurred.</span>
                   </span>
-                  <button id="fitFlowButton" type="button">Fit</button>
+                  <!-- Flow has independent zoom controls so each graph remembers its own useful scale. -->
+                  <div class="graph-zoom-controls" role="group" aria-label="Executed path zoom controls">
+                    <!-- Matching ids let JavaScript connect this button specifically to the Flow graph. -->
+                    <button class="graph-zoom-step" id="decreaseFlowZoomButton" type="button" aria-label="Zoom executed path out">−</button>
+                    <!-- Forty percent reveals larger programs, while two hundred percent supports close inspection. -->
+                    <input class="graph-zoom-slider" id="flowZoomSlider" type="range" min="40" max="200" step="1" value="100" aria-label="Executed path zoom percentage" />
+                    <!-- The live percentage changes for slider, button, Fit, wheel, and trackpad input. -->
+                    <output class="graph-zoom-value" id="flowZoomValue" for="flowZoomSlider">100%</output>
+                    <!-- The plus action advances five percent for a faster alternative to fine slider changes. -->
+                    <button class="graph-zoom-step" id="increaseFlowZoomButton" type="button" aria-label="Zoom executed path in">+</button>
+                    <!-- Fit uses the graph bounds but never leaves the percentage display stale. -->
+                    <button class="graph-fit-button" id="fitFlowButton" type="button">Fit</button>
+                  </div>
                 </div>
                 <div class="graph-canvas" id="flowGraph" aria-label="Executed Python flow map"></div>
               </div>
@@ -324,6 +348,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260720-12"></script>
+    <script type="module" src="app.js?v=20260720-13"></script>
   </body>
 </html>
