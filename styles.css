@@ -1,5 +1,15 @@
+/*
+ * Code Explorer visual system
+ *
+ * The stylesheet is organized from global design tokens to reusable controls,
+ * major workspace components, animations, and responsive overrides. Each rule
+ * has a teaching comment that explains its responsibility and the categories
+ * of CSS declarations used to fulfill that responsibility.
+ */
+/* Downloads the two type families used for prose and code-like interface text. */
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 
+/* Declares the dark theme design tokens. Components consume these variables instead of repeating raw colors, fonts, and shadows. */
 :root {
   color-scheme: dark;
   --bg: #080a0e;
@@ -24,6 +34,7 @@
   --sans: "DM Sans", system-ui, sans-serif;
 }
 
+/* Overrides the shared design tokens for light mode while leaving every component rule unchanged. */
 :root[data-theme="light"] {
   color-scheme: light;
   --bg: #eef2ee;
@@ -46,16 +57,19 @@
   --shadow: 0 22px 70px rgba(40, 54, 47, 0.13);
 }
 
+/* Styles `*`. This component rule controls boundaries and focus treatment for the matching interface element. */
 * {
   box-sizing: border-box;
 }
 
+/* Styles `html`. This component rule controls sizing and spacing, color and visual emphasis for the matching interface element. */
 html {
   min-width: 320px;
   background: var(--bg);
   scroll-behavior: smooth;
 }
 
+/* Styles `body`. This component rule controls sizing and spacing, color and visual emphasis, typography, overflow behavior for the matching interface element. */
 body {
   margin: 0;
   min-height: 100vh;
@@ -68,17 +82,20 @@ body {
   font-family: var(--sans);
 }
 
+/* Styles `button, select, input`. This component rule controls typography for the matching interface element. */
 button,
 select,
 input {
   font: inherit;
 }
 
+/* Styles `button, a`. This component rule controls color and visual emphasis for the matching interface element. */
 button,
 a {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Styles `button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible`. This component rule controls boundaries and focus treatment for the matching interface element. */
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
@@ -87,10 +104,12 @@ select:focus-visible {
   outline-offset: 3px;
 }
 
+/* Styles `.hidden`. This component rule controls layout for the matching interface element. */
 .hidden {
   display: none !important;
 }
 
+/* Styles `.ambient-grid`. This component rule controls layout, sizing and spacing, color and visual emphasis for the matching interface element. */
 .ambient-grid {
   position: fixed;
   inset: 0;
@@ -104,6 +123,7 @@ select:focus-visible {
   mask-image: linear-gradient(to bottom, black, transparent 82%);
 }
 
+/* Styles `.site-header`. This component rule controls layout, sizing and spacing, boundaries and focus treatment for the matching interface element. */
 .site-header {
   display: flex;
   align-items: center;
@@ -114,6 +134,7 @@ select:focus-visible {
   border-bottom: 1px solid var(--line);
 }
 
+/* Styles `.brand`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .brand {
   display: inline-flex;
   align-items: center;
@@ -124,6 +145,7 @@ select:focus-visible {
   text-decoration: none;
 }
 
+/* Styles `.brand-mark`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .brand-mark {
   display: grid;
   width: 34px;
@@ -137,6 +159,7 @@ select:focus-visible {
   letter-spacing: -0.15em;
 }
 
+/* Styles `.header-actions, .workspace-actions, .hero-actions`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .header-actions,
 .workspace-actions,
 .hero-actions {
@@ -145,6 +168,7 @@ select:focus-visible {
   gap: 10px;
 }
 
+/* Styles `.runtime-status`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, motion and interaction feedback for the matching interface element. */
 .runtime-status {
   display: inline-flex;
   align-items: center;
@@ -156,6 +180,7 @@ select:focus-visible {
   text-transform: uppercase;
 }
 
+/* Styles `.status-dot`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .status-dot {
   width: 7px;
   height: 7px;
@@ -163,29 +188,35 @@ select:focus-visible {
   background: var(--text-dim);
 }
 
+/* Defines the state-specific appearance of `.runtime-status.loading .status-dot`. The declarations control color and visual emphasis, motion and interaction feedback when that state class is present. */
 .runtime-status.loading .status-dot {
   background: var(--amber);
   box-shadow: 0 0 12px var(--amber);
   animation: pulse 1.2s infinite;
 }
 
+/* Defines the state-specific appearance of `.runtime-status.ready`. The declarations control color and visual emphasis when that state class is present. */
 .runtime-status.ready {
   color: var(--mint);
 }
 
+/* Defines the state-specific appearance of `.runtime-status.ready .status-dot`. The declarations control color and visual emphasis when that state class is present. */
 .runtime-status.ready .status-dot {
   background: var(--mint);
   box-shadow: 0 0 12px var(--mint);
 }
 
+/* Defines the state-specific appearance of `.runtime-status.error`. The declarations control color and visual emphasis when that state class is present. */
 .runtime-status.error {
   color: var(--red);
 }
 
+/* Defines the state-specific appearance of `.runtime-status.error .status-dot`. The declarations control color and visual emphasis when that state class is present. */
 .runtime-status.error .status-dot {
   background: var(--red);
 }
 
+/* Styles `.icon-button`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment, motion and interaction feedback for the matching interface element. */
 .icon-button {
   display: grid;
   width: 36px;
@@ -202,17 +233,20 @@ select:focus-visible {
   transition: 160ms ease;
 }
 
+/* Defines hover feedback for `.icon-button:hover`, using color and visual emphasis, boundaries and focus treatment, motion and interaction feedback to confirm that the element is interactive. */
 .icon-button:hover {
   border-color: var(--line-bright);
   color: var(--mint);
   transform: translateY(-1px);
 }
 
+/* Styles `main`. This component rule controls sizing and spacing for the matching interface element. */
 main {
   width: min(1440px, calc(100% - 48px));
   margin: 0 auto;
 }
 
+/* Styles `.welcome-screen`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .welcome-screen {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(520px, 1.15fr);
@@ -222,6 +256,7 @@ main {
   padding: 72px 0 100px;
 }
 
+/* Styles `.eyebrow`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, motion and interaction feedback for the matching interface element. */
 .eyebrow {
   display: flex;
   align-items: center;
@@ -232,6 +267,7 @@ main {
   text-transform: uppercase;
 }
 
+/* Styles `.eyebrow > span`. This component rule controls layout, sizing and spacing, color and visual emphasis for the matching interface element. */
 .eyebrow > span {
   display: inline-block;
   width: 30px;
@@ -240,6 +276,7 @@ main {
   box-shadow: 0 0 12px var(--mint);
 }
 
+/* Styles `.hero-copy h1`. This component rule controls sizing and spacing, typography for the matching interface element. */
 .hero-copy h1 {
   max-width: 700px;
   margin: 28px 0 24px;
@@ -248,12 +285,14 @@ main {
   letter-spacing: -0.065em;
 }
 
+/* Styles `.hero-copy h1 em`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .hero-copy h1 em {
   color: var(--mint);
   font-style: normal;
   text-shadow: 0 0 28px var(--mint-soft);
 }
 
+/* Styles `.hero-description`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .hero-description {
   max-width: 600px;
   margin: 0 0 34px;
@@ -262,6 +301,7 @@ main {
   line-height: 1.7;
 }
 
+/* Styles `.primary-button, .secondary-button, .danger-button, .text-button`. This component rule controls sizing and spacing, typography, boundaries and focus treatment, motion and interaction feedback for the matching interface element. */
 .primary-button,
 .secondary-button,
 .danger-button,
@@ -275,6 +315,7 @@ main {
   transition: 160ms ease;
 }
 
+/* Styles `.primary-button`. This component rule controls layout, sizing and spacing, color and visual emphasis, boundaries and focus treatment for the matching interface element. */
 .primary-button {
   display: inline-flex;
   align-items: center;
@@ -286,25 +327,30 @@ main {
   box-shadow: 0 8px 32px var(--mint-soft);
 }
 
+/* Keeps primary-button text readable when the light palette changes the meaning of the shared background token. */
 :root[data-theme="light"] .primary-button {
   color: white;
 }
 
+/* Defines hover feedback for `.primary-button:hover:not(:disabled)`, using motion and interaction feedback to confirm that the element is interactive. */
 .primary-button:hover:not(:disabled) {
   filter: brightness(1.08);
   transform: translateY(-2px);
 }
 
+/* Styles `.primary-button.compact`. This component rule controls sizing and spacing for the matching interface element. */
 .primary-button.compact {
   min-height: 38px;
   padding: 0 17px;
 }
 
+/* Defines the disabled state for `.primary-button:disabled`, using color and visual emphasis to show that interaction is temporarily unavailable. */
 .primary-button:disabled {
   opacity: 0.55;
   cursor: wait;
 }
 
+/* Styles `.secondary-button, .text-button`. This component rule controls color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .secondary-button,
 .text-button {
   border: 1px solid var(--line-bright);
@@ -312,17 +358,20 @@ main {
   background: var(--bg-raised);
 }
 
+/* Defines hover feedback for `.secondary-button:hover, .text-button:hover`, using color and visual emphasis, typography, boundaries and focus treatment to confirm that the element is interactive. */
 .secondary-button:hover,
 .text-button:hover {
   border-color: var(--mint);
   color: var(--mint);
 }
 
+/* Styles `.text-button`. This component rule controls sizing and spacing, typography for the matching interface element. */
 .text-button {
   min-height: 38px;
   padding: 0 15px;
 }
 
+/* Styles `.danger-button`. This component rule controls sizing and spacing, color and visual emphasis, boundaries and focus treatment for the matching interface element. */
 .danger-button {
   min-height: 38px;
   border: 1px solid var(--red);
@@ -330,6 +379,7 @@ main {
   background: rgba(255, 107, 122, 0.08);
 }
 
+/* Styles `.feature-chips`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .feature-chips {
   display: flex;
   flex-wrap: wrap;
@@ -337,6 +387,7 @@ main {
   margin-top: 38px;
 }
 
+/* Styles `.feature-chips span`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .feature-chips span {
   padding: 7px 11px;
   border: 1px solid var(--line);
@@ -346,11 +397,13 @@ main {
   font: 500 0.66rem/1 var(--mono);
 }
 
+/* Creates or styles the generated visual part `.feature-chips span::before`. It contributes color and visual emphasis without adding extra HTML. */
 .feature-chips span::before {
   content: "# ";
   color: var(--purple);
 }
 
+/* Styles `.hero-terminal`. This component rule controls color and visual emphasis, boundaries and focus treatment, motion and interaction feedback, overflow behavior for the matching interface element. */
 .hero-terminal {
   position: relative;
   overflow: hidden;
@@ -361,11 +414,13 @@ main {
   transform: perspective(1100px) rotateY(-2deg) rotateX(1deg);
 }
 
+/* Styles `:root[data-theme="light"] .hero-terminal`. This component rule controls color and visual emphasis for the matching interface element. */
 :root[data-theme="light"] .hero-terminal {
   background: #151a20;
   color: #ecf4f1;
 }
 
+/* Creates or styles the generated visual part `.hero-terminal::before`. It contributes sizing and spacing, color and visual emphasis, motion and interaction feedback without adding extra HTML. */
 .hero-terminal::before {
   content: "";
   position: absolute;
@@ -376,6 +431,7 @@ main {
   animation: scan 8s ease-in-out infinite;
 }
 
+/* Styles `.terminal-topbar, .terminal-footer`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .terminal-topbar,
 .terminal-footer {
   display: grid;
@@ -389,16 +445,19 @@ main {
   letter-spacing: 0.08em;
 }
 
+/* Styles `.terminal-topbar > :last-child`. This component rule controls layout, color and visual emphasis for the matching interface element. */
 .terminal-topbar > :last-child {
   justify-self: end;
   color: #63f3c0;
 }
 
+/* Styles `.terminal-dots`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .terminal-dots {
   display: flex;
   gap: 6px;
 }
 
+/* Styles `.terminal-dots span`. This component rule controls sizing and spacing, color and visual emphasis, boundaries and focus treatment for the matching interface element. */
 .terminal-dots span {
   width: 7px;
   height: 7px;
@@ -406,22 +465,27 @@ main {
   background: #363f4b;
 }
 
+/* Styles `.terminal-dots span:first-child`. This component rule controls color and visual emphasis for the matching interface element. */
 .terminal-dots span:first-child {
   background: #ff6b7a;
 }
 
+/* Styles `.terminal-dots span:nth-child(2)`. This component rule controls color and visual emphasis for the matching interface element. */
 .terminal-dots span:nth-child(2) {
   background: #ffc76a;
 }
 
+/* Styles `.terminal-dots span:last-child`. This component rule controls color and visual emphasis for the matching interface element. */
 .terminal-dots span:last-child {
   background: #63f3c0;
 }
 
+/* Styles `.terminal-body`. This component rule controls sizing and spacing for the matching interface element. */
 .terminal-body {
   padding: clamp(25px, 4vw, 44px);
 }
 
+/* Styles `.terminal-code`. This component rule controls layout, sizing and spacing, typography for the matching interface element. */
 .terminal-code {
   display: grid;
   grid-template-columns: 34px 1fr;
@@ -430,14 +494,17 @@ main {
   font: 500 clamp(0.76rem, 1.1vw, 0.92rem)/2.1 var(--mono);
 }
 
+/* Styles `.terminal-code .line-number`. This component rule controls color and visual emphasis for the matching interface element. */
 .terminal-code .line-number {
   color: #505b66;
 }
 
+/* Defines the state-specific appearance of `.terminal-code .line-number.active`. The declarations control color and visual emphasis when that state class is present. */
 .terminal-code .line-number.active {
   color: #63f3c0;
 }
 
+/* Styles `.terminal-code code`. This component rule controls layout, sizing and spacing, color and visual emphasis, boundaries and focus treatment for the matching interface element. */
 .terminal-code code {
   display: block;
   padding-left: 11px;
@@ -445,6 +512,7 @@ main {
   border-left: 1px solid transparent;
 }
 
+/* Defines the state-specific appearance of `.terminal-code code.active`. The declarations control color and visual emphasis, boundaries and focus treatment when that state class is present. */
 .terminal-code code.active {
   border-left-color: #63f3c0;
   color: white;
@@ -452,16 +520,19 @@ main {
   box-shadow: -10px 0 30px rgba(99, 243, 192, 0.05);
 }
 
+/* Styles `.terminal-code i`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .terminal-code i {
   color: #a98bff;
   font-style: normal;
 }
 
+/* Styles `.terminal-code b`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .terminal-code b {
   color: #63d7ff;
   font-weight: 500;
 }
 
+/* Styles `.trace-card-preview`. This component rule controls sizing and spacing, color and visual emphasis, boundaries and focus treatment for the matching interface element. */
 .trace-card-preview {
   margin-left: 45px;
   padding: 20px;
@@ -470,6 +541,7 @@ main {
   background: #10151c;
 }
 
+/* Styles `.trace-card-label`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .trace-card-label {
   margin-bottom: 14px;
   color: #a98bff;
@@ -477,17 +549,20 @@ main {
   letter-spacing: 0.11em;
 }
 
+/* Styles `.trace-card-preview p`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .trace-card-preview p {
   margin: 0 0 20px;
   color: #c0cac6;
   line-height: 1.55;
 }
 
+/* Styles `.trace-card-preview p code`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .trace-card-preview p code {
   color: #63f3c0;
   font-family: var(--mono);
 }
 
+/* Styles `.preview-change`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .preview-change {
   display: grid;
   grid-template-columns: 1fr 50px 30px 50px;
@@ -498,30 +573,36 @@ main {
   font: 500 0.72rem/1 var(--mono);
 }
 
+/* Styles `.preview-change strong`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .preview-change strong {
   color: #63f3c0;
   font-weight: 500;
 }
 
+/* Styles `.terminal-footer`. This component rule controls layout, boundaries and focus treatment for the matching interface element. */
 .terminal-footer {
   grid-template-columns: 1fr 1fr;
   border-top: 1px solid #252c36;
   border-bottom: 0;
 }
 
+/* Styles `.terminal-footer span:first-child`. This component rule controls color and visual emphasis for the matching interface element. */
 .terminal-footer span:first-child {
   color: #63f3c0;
 }
 
+/* Styles `.terminal-footer span:last-child`. This component rule controls layout for the matching interface element. */
 .terminal-footer span:last-child {
   justify-self: end;
 }
 
 /* Workspace */
+/* Styles `.workspace`. This component rule controls sizing and spacing for the matching interface element. */
 .workspace {
   padding: 42px 0 80px;
 }
 
+/* Styles `.workspace-heading`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .workspace-heading {
   display: flex;
   align-items: flex-end;
@@ -529,12 +610,14 @@ main {
   margin-bottom: 22px;
 }
 
+/* Styles `.workspace-heading h2`. This component rule controls sizing and spacing, typography for the matching interface element. */
 .workspace-heading h2 {
   margin: 7px 0 0;
   font-size: clamp(1.6rem, 3vw, 2.4rem);
   letter-spacing: -0.04em;
 }
 
+/* Styles `.back-button`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .back-button {
   padding: 0;
   border: 0;
@@ -544,10 +627,12 @@ main {
   cursor: pointer;
 }
 
+/* Defines hover feedback for `.back-button:hover`, using color and visual emphasis to confirm that the element is interactive. */
 .back-button:hover {
   color: var(--mint);
 }
 
+/* Styles `.workspace-grid`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .workspace-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(380px, 0.88fr);
@@ -558,6 +643,7 @@ main {
   gap: 12px;
 }
 
+/* Styles `.panel`. This component rule controls color and visual emphasis, boundaries and focus treatment, overflow behavior for the matching interface element. */
 .panel {
   overflow: hidden;
   border: 1px solid var(--line);
@@ -567,24 +653,29 @@ main {
   backdrop-filter: blur(16px);
 }
 
+/* Styles `.editor-panel`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .editor-panel {
   grid-area: editor;
   min-height: 620px;
 }
 
+/* Styles `.story-panel`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .story-panel {
   grid-area: story;
   min-height: 620px;
 }
 
+/* Styles `.controls-panel`. This component rule controls layout for the matching interface element. */
 .controls-panel {
   grid-area: controls;
 }
 
+/* Styles `.output-panel`. This component rule controls layout for the matching interface element. */
 .output-panel {
   grid-area: output;
 }
 
+/* Styles `.panel-header`. This component rule controls layout, sizing and spacing, color and visual emphasis, boundaries and focus treatment for the matching interface element. */
 .panel-header {
   display: flex;
   align-items: center;
@@ -595,6 +686,7 @@ main {
   background: var(--bg-raised);
 }
 
+/* Styles `.panel-index, .panel-title, .file-label, .step-count, .section-label`. This component rule controls typography for the matching interface element. */
 .panel-index,
 .panel-title,
 .file-label,
@@ -604,31 +696,37 @@ main {
   letter-spacing: 0.1em;
 }
 
+/* Styles `.panel-index`. This component rule controls sizing and spacing, color and visual emphasis for the matching interface element. */
 .panel-index {
   margin-right: 10px;
   color: var(--mint);
 }
 
+/* Styles `.panel-title`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .panel-title {
   color: var(--text-soft);
 }
 
+/* Styles `.file-label, .step-count`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .file-label,
 .step-count {
   color: var(--text-dim);
 }
 
+/* Styles `.editor-shell`. This component rule controls sizing and spacing, color and visual emphasis, overflow behavior for the matching interface element. */
 .editor-shell {
   height: 530px;
   overflow: auto;
   background: var(--panel-solid);
 }
 
+/* Styles `#editor, #editor > div`. This component rule controls sizing and spacing for the matching interface element. */
 #editor,
 #editor > div {
   height: 100%;
 }
 
+/* Styles `.fallback-editor`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .fallback-editor {
   width: 100%;
   height: 100%;
@@ -643,6 +741,7 @@ main {
   tab-size: 4;
 }
 
+/* Styles `.cm-editor`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .cm-editor {
   height: 100%;
   color: var(--text);
@@ -650,19 +749,23 @@ main {
   font: 500 0.86rem/1.75 var(--mono);
 }
 
+/* Styles `.cm-editor.cm-focused`. This component rule controls boundaries and focus treatment for the matching interface element. */
 .cm-editor.cm-focused {
   outline: none;
 }
 
+/* Styles `.cm-editor .cm-scroller`. This component rule controls sizing and spacing, typography for the matching interface element. */
 .cm-editor .cm-scroller {
   padding: 18px 0;
   font-family: var(--mono);
 }
 
+/* Styles `.cm-editor .cm-content`. This component rule controls color and visual emphasis for the matching interface element. */
 .cm-editor .cm-content {
   caret-color: var(--mint);
 }
 
+/* Styles `.cm-editor .cm-gutters`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .cm-editor .cm-gutters {
   min-width: 46px;
   border-right: 1px solid var(--line);
@@ -670,44 +773,53 @@ main {
   background: var(--panel-solid);
 }
 
+/* Styles `.cm-editor .cm-activeLine, .cm-editor .cm-activeLineGutter`. This component rule controls color and visual emphasis for the matching interface element. */
 .cm-editor .cm-activeLine,
 .cm-editor .cm-activeLineGutter {
   background: var(--mint-soft);
 }
 
+/* Styles `.cm-editor .cm-activeLine`. This component rule controls sizing and spacing, color and visual emphasis for the matching interface element. */
 .cm-editor .cm-activeLine {
   box-shadow: inset 2px 0 0 var(--mint);
 }
 
+/* Styles `.cm-editor .cm-selectionBackground, .cm-editor.cm-focused .cm-selectionBackground`. This component rule controls color and visual emphasis for the matching interface element. */
 .cm-editor .cm-selectionBackground,
 .cm-editor.cm-focused .cm-selectionBackground {
   background: var(--purple-soft) !important;
 }
 
+/* Styles `.cm-editor .tok-keyword, .cm-editor .tok-bool, .cm-editor .tok-null`. This component rule controls color and visual emphasis for the matching interface element. */
 .cm-editor .tok-keyword,
 .cm-editor .tok-bool,
 .cm-editor .tok-null {
   color: var(--purple);
 }
 
+/* Styles `.cm-editor .tok-variableName, .cm-editor .tok-propertyName`. This component rule controls color and visual emphasis for the matching interface element. */
 .cm-editor .tok-variableName,
 .cm-editor .tok-propertyName {
   color: var(--cyan);
 }
 
+/* Styles `.cm-editor .tok-string`. This component rule controls color and visual emphasis for the matching interface element. */
 .cm-editor .tok-string {
   color: var(--mint);
 }
 
+/* Styles `.cm-editor .tok-number`. This component rule controls color and visual emphasis for the matching interface element. */
 .cm-editor .tok-number {
   color: var(--amber);
 }
 
+/* Styles `.cm-editor .tok-comment`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .cm-editor .tok-comment {
   color: var(--text-dim);
   font-style: italic;
 }
 
+/* Styles `.editor-footer`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .editor-footer {
   display: flex;
   align-items: center;
@@ -720,15 +832,18 @@ main {
   font: 500 0.62rem/1 var(--mono);
 }
 
+/* Styles `.tabs-header`. This component rule controls sizing and spacing for the matching interface element. */
 .tabs-header {
   padding-left: 8px;
 }
 
+/* Styles `.panel-tabs`. This component rule controls layout for the matching interface element. */
 .panel-tabs {
   align-self: stretch;
   display: flex;
 }
 
+/* Styles `.panel-tab`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .panel-tab {
   position: relative;
   padding: 0 12px;
@@ -739,6 +854,7 @@ main {
   cursor: pointer;
 }
 
+/* Creates or styles the generated visual part `.panel-tab::after`. It contributes sizing and spacing, color and visual emphasis without adding extra HTML. */
 .panel-tab::after {
   content: "";
   position: absolute;
@@ -749,15 +865,18 @@ main {
   background: transparent;
 }
 
+/* Defines the state-specific appearance of `.panel-tab.active`. The declarations control color and visual emphasis when that state class is present. */
 .panel-tab.active {
   color: var(--text);
 }
 
+/* Defines the state-specific appearance of `.panel-tab.active::after`. The declarations control color and visual emphasis when that state class is present. */
 .panel-tab.active::after {
   background: var(--mint);
   box-shadow: 0 0 10px var(--mint);
 }
 
+/* Styles `.tab-badge`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .tab-badge {
   display: inline-grid;
   min-width: 18px;
@@ -770,12 +889,14 @@ main {
   font-size: 0.58rem;
 }
 
+/* Styles `.story-view, .loop-view`. This component rule controls sizing and spacing, overflow behavior for the matching interface element. */
 .story-view,
 .loop-view {
   height: 573px;
   overflow: auto;
 }
 
+/* Styles `.empty-state`. This component rule controls layout, sizing and spacing, typography for the matching interface element. */
 .empty-state {
   display: grid;
   height: 100%;
@@ -785,6 +906,7 @@ main {
   text-align: center;
 }
 
+/* Styles `.empty-glyph`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .empty-glyph {
   display: grid;
   width: 76px;
@@ -798,16 +920,19 @@ main {
   font: 500 1.25rem/1 var(--mono);
 }
 
+/* Styles `.empty-glyph.loop-glyph`. This component rule controls color and visual emphasis for the matching interface element. */
 .empty-glyph.loop-glyph {
   color: var(--mint);
   background: var(--mint-soft);
 }
 
+/* Styles `.empty-state h3`. This component rule controls sizing and spacing, typography for the matching interface element. */
 .empty-state h3 {
   margin: 0 0 8px;
   font-size: 1.15rem;
 }
 
+/* Styles `.empty-state p`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .empty-state p {
   max-width: 310px;
   margin: 0;
@@ -815,16 +940,19 @@ main {
   line-height: 1.6;
 }
 
+/* Styles `.empty-state code`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .empty-state code {
   color: var(--mint);
   font-family: var(--mono);
 }
 
+/* Styles `.trace-content, .loop-content`. This component rule controls sizing and spacing for the matching interface element. */
 .trace-content,
 .loop-content {
   padding: 28px;
 }
 
+/* Styles `.trace-kicker`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .trace-kicker {
   margin-bottom: 13px;
   color: var(--purple);
@@ -832,6 +960,7 @@ main {
   letter-spacing: 0.1em;
 }
 
+/* Styles `.executed-code`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment, overflow behavior for the matching interface element. */
 .executed-code {
   overflow-x: auto;
   padding: 15px 16px;
@@ -842,6 +971,7 @@ main {
   white-space: pre;
 }
 
+/* Styles `.explanation`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .explanation {
   margin: 20px 0 28px;
   color: var(--text-soft);
@@ -849,23 +979,27 @@ main {
   line-height: 1.65;
 }
 
+/* Styles `.section-label`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .section-label {
   margin-bottom: 11px;
   color: var(--text-dim);
 }
 
+/* Styles `.change-section, .variables-section, .call-stack-section`. This component rule controls sizing and spacing for the matching interface element. */
 .change-section,
 .variables-section,
 .call-stack-section {
   margin-top: 24px;
 }
 
+/* Styles `.change-list, .variables-grid`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .change-list,
 .variables-grid {
   display: grid;
   gap: 7px;
 }
 
+/* Styles `.change-item, .variable-card`. This component rule controls layout, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .change-item,
 .variable-card {
   display: grid;
@@ -876,6 +1010,7 @@ main {
   font: 500 0.72rem/1.35 var(--mono);
 }
 
+/* Styles `.change-item`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .change-item {
   grid-template-columns: minmax(90px, 1fr) minmax(65px, auto) 24px minmax(65px, auto);
   gap: 8px;
@@ -883,22 +1018,26 @@ main {
   padding: 8px 12px;
 }
 
+/* Styles `.change-item .change-name`. This component rule controls color and visual emphasis, typography, overflow behavior for the matching interface element. */
 .change-item .change-name {
   overflow: hidden;
   color: var(--cyan);
   text-overflow: ellipsis;
 }
 
+/* Styles `.change-item .old-value`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .change-item .old-value {
   color: var(--text-dim);
   text-align: right;
 }
 
+/* Styles `.change-item .arrow`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .change-item .arrow {
   color: var(--text-dim);
   text-align: center;
 }
 
+/* Styles `.change-item .new-value`. This component rule controls color and visual emphasis, typography, overflow behavior for the matching interface element. */
 .change-item .new-value {
   overflow: hidden;
   color: var(--mint);
@@ -906,14 +1045,17 @@ main {
   text-align: right;
 }
 
+/* Styles `.change-item.created`. This component rule controls color and visual emphasis, boundaries and focus treatment for the matching interface element. */
 .change-item.created {
   border-color: color-mix(in srgb, var(--mint) 35%, var(--line));
 }
 
+/* Styles `.change-item.removed .new-value`. This component rule controls color and visual emphasis for the matching interface element. */
 .change-item.removed .new-value {
   color: var(--red);
 }
 
+/* Styles `.no-changes`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .no-changes {
   padding: 12px;
   border: 1px dashed var(--line);
@@ -922,22 +1064,26 @@ main {
   font: 500 0.7rem/1.4 var(--mono);
 }
 
+/* Styles `.variables-grid`. This component rule controls layout for the matching interface element. */
 .variables-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* Styles `.variable-card`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .variable-card {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
   min-height: 48px;
   padding: 8px 11px;
 }
 
+/* Styles `.variable-name`. This component rule controls color and visual emphasis, typography, overflow behavior for the matching interface element. */
 .variable-name {
   overflow: hidden;
   color: var(--cyan);
   text-overflow: ellipsis;
 }
 
+/* Styles `.variable-value`. This component rule controls color and visual emphasis, typography, overflow behavior for the matching interface element. */
 .variable-value {
   overflow: hidden;
   color: var(--text);
@@ -945,6 +1091,7 @@ main {
   text-align: right;
 }
 
+/* Styles `.variable-type`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .variable-type {
   grid-column: 1 / -1;
   margin-top: 2px;
@@ -953,12 +1100,14 @@ main {
   text-align: right;
 }
 
+/* Styles `.call-stack`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .call-stack {
   display: flex;
   flex-direction: column-reverse;
   gap: 5px;
 }
 
+/* Styles `.stack-frame`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .stack-frame {
   display: flex;
   align-items: center;
@@ -973,16 +1122,19 @@ main {
   font: 500 0.68rem/1 var(--mono);
 }
 
+/* Defines the state-specific appearance of `.stack-frame.active`. The declarations control color and visual emphasis, boundaries and focus treatment when that state class is present. */
 .stack-frame.active {
   border-left-color: var(--mint);
   color: var(--text);
 }
 
+/* Styles `.stack-frame span:last-child`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .stack-frame span:last-child {
   color: var(--text-dim);
 }
 
 /* Loop lab */
+/* Styles `.loop-summary`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .loop-summary {
   display: flex;
   align-items: center;
@@ -990,20 +1142,24 @@ main {
   margin-bottom: 15px;
 }
 
+/* Styles `.loop-type, .iteration-count`. This component rule controls typography for the matching interface element. */
 .loop-type,
 .iteration-count {
   font: 600 0.65rem/1 var(--mono);
   letter-spacing: 0.08em;
 }
 
+/* Styles `.loop-type`. This component rule controls color and visual emphasis for the matching interface element. */
 .loop-type {
   color: var(--purple);
 }
 
+/* Styles `.iteration-count`. This component rule controls color and visual emphasis for the matching interface element. */
 .iteration-count {
   color: var(--mint);
 }
 
+/* Styles `.loop-source`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment, overflow behavior for the matching interface element. */
 .loop-source {
   display: block;
   overflow-x: auto;
@@ -1016,6 +1172,7 @@ main {
   white-space: pre;
 }
 
+/* Styles `.loop-meter`. This component rule controls sizing and spacing, color and visual emphasis, boundaries and focus treatment, overflow behavior for the matching interface element. */
 .loop-meter {
   height: 3px;
   margin: 22px 0 28px;
@@ -1024,6 +1181,7 @@ main {
   background: var(--line);
 }
 
+/* Styles `.loop-meter span`. This component rule controls layout, sizing and spacing, color and visual emphasis, motion and interaction feedback for the matching interface element. */
 .loop-meter span {
   display: block;
   width: 0;
@@ -1033,11 +1191,13 @@ main {
   transition: width 220ms ease;
 }
 
+/* Styles `.iteration-list`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .iteration-list {
   display: grid;
   gap: 7px;
 }
 
+/* Styles `.iteration-item`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .iteration-item {
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr) auto;
@@ -1052,11 +1212,13 @@ main {
   font: 500 0.68rem/1.35 var(--mono);
 }
 
+/* Defines the state-specific appearance of `.iteration-item.current`. The declarations control color and visual emphasis, boundaries and focus treatment when that state class is present. */
 .iteration-item.current {
   border-color: var(--mint);
   background: var(--mint-soft);
 }
 
+/* Styles `.iteration-number`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .iteration-number {
   display: grid;
   width: 23px;
@@ -1067,17 +1229,20 @@ main {
   background: var(--panel-soft);
 }
 
+/* Defines the state-specific appearance of `.iteration-item.current .iteration-number`. The declarations control color and visual emphasis when that state class is present. */
 .iteration-item.current .iteration-number {
   color: var(--bg);
   background: var(--mint);
 }
 
+/* Styles `.iteration-values`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .iteration-values {
   color: var(--text-dim);
   text-align: right;
 }
 
 /* Playback and output */
+/* Styles `.controls-panel`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .controls-panel {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -1087,11 +1252,13 @@ main {
   padding: 14px 18px;
 }
 
+/* Styles `.playback-controls`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .playback-controls {
   display: flex;
   gap: 7px;
 }
 
+/* Styles `.control-button, .play-button`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .control-button,
 .play-button {
   display: grid;
@@ -1106,6 +1273,7 @@ main {
   cursor: pointer;
 }
 
+/* Styles `.play-button`. This component rule controls sizing and spacing, color and visual emphasis, boundaries and focus treatment for the matching interface element. */
 .play-button {
   width: 44px;
   border-color: var(--mint);
@@ -1113,25 +1281,30 @@ main {
   background: var(--mint);
 }
 
+/* Defines hover feedback for `.control-button:hover:not(:disabled)`, using color and visual emphasis, boundaries and focus treatment to confirm that the element is interactive. */
 .control-button:hover:not(:disabled) {
   border-color: var(--mint);
   color: var(--mint);
 }
 
+/* Defines the disabled state for `.control-button:disabled, .play-button:disabled`, using color and visual emphasis to show that interaction is temporarily unavailable. */
 .control-button:disabled,
 .play-button:disabled {
   opacity: 0.28;
   cursor: not-allowed;
 }
 
+/* Styles `.restart-button`. This component rule controls sizing and spacing for the matching interface element. */
 .restart-button {
   margin-left: 4px;
 }
 
+/* Styles `.progress-area`. This component rule controls sizing and spacing for the matching interface element. */
 .progress-area {
   min-width: 0;
 }
 
+/* Styles `#stepSlider`. This component rule controls sizing and spacing, color and visual emphasis, boundaries and focus treatment for the matching interface element. */
 #stepSlider {
   width: 100%;
   height: 3px;
@@ -1142,6 +1315,7 @@ main {
   cursor: pointer;
 }
 
+/* Creates or styles the generated visual part `#stepSlider::-webkit-slider-thumb`. It contributes sizing and spacing, color and visual emphasis, boundaries and focus treatment without adding extra HTML. */
 #stepSlider::-webkit-slider-thumb {
   width: 14px;
   height: 14px;
@@ -1152,6 +1326,7 @@ main {
   box-shadow: 0 0 10px var(--mint);
 }
 
+/* Creates or styles the generated visual part `#stepSlider::-moz-range-thumb`. It contributes sizing and spacing, color and visual emphasis, boundaries and focus treatment without adding extra HTML. */
 #stepSlider::-moz-range-thumb {
   width: 10px;
   height: 10px;
@@ -1161,6 +1336,7 @@ main {
   box-shadow: 0 0 10px var(--mint);
 }
 
+/* Styles `.progress-labels`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .progress-labels {
   display: flex;
   justify-content: space-between;
@@ -1169,6 +1345,7 @@ main {
   font: 500 0.56rem/1 var(--mono);
 }
 
+/* Styles `.speed-control`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .speed-control {
   display: flex;
   align-items: center;
@@ -1178,6 +1355,7 @@ main {
   letter-spacing: 0.08em;
 }
 
+/* Styles `.speed-control select`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .speed-control select {
   min-height: 34px;
   padding: 0 24px 0 10px;
@@ -1188,6 +1366,7 @@ main {
   font: 500 0.66rem/1 var(--mono);
 }
 
+/* Styles `.clear-output`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .clear-output {
   padding: 5px 8px;
   border: 0;
@@ -1197,10 +1376,12 @@ main {
   cursor: pointer;
 }
 
+/* Defines hover feedback for `.clear-output:hover`, using color and visual emphasis to confirm that the element is interactive. */
 .clear-output:hover {
   color: var(--red);
 }
 
+/* Styles `.console`. This component rule controls sizing and spacing, color and visual emphasis, typography, overflow behavior for the matching interface element. */
 .console {
   min-height: 105px;
   max-height: 230px;
@@ -1213,15 +1394,18 @@ main {
   white-space: pre-wrap;
 }
 
+/* Styles `.console-muted`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .console-muted {
   color: var(--text-dim);
 }
 
+/* Styles `.console-error`. This component rule controls color and visual emphasis for the matching interface element. */
 .console-error {
   color: var(--red);
 }
 
 /* Examples */
+/* Styles `.examples-dialog`. This component rule controls sizing and spacing, color and visual emphasis, boundaries and focus treatment, overflow behavior for the matching interface element. */
 .examples-dialog {
   width: min(900px, calc(100% - 32px));
   max-height: min(760px, calc(100vh - 40px));
@@ -1234,11 +1418,13 @@ main {
   box-shadow: var(--shadow);
 }
 
+/* Creates or styles the generated visual part `.examples-dialog::backdrop`. It contributes color and visual emphasis without adding extra HTML. */
 .examples-dialog::backdrop {
   background: rgba(3, 5, 8, 0.78);
   backdrop-filter: blur(8px);
 }
 
+/* Styles `.dialog-header`. This component rule controls layout, sizing and spacing, boundaries and focus treatment for the matching interface element. */
 .dialog-header {
   display: flex;
   align-items: flex-start;
@@ -1247,11 +1433,13 @@ main {
   border-bottom: 1px solid var(--line);
 }
 
+/* Styles `.dialog-header h2`. This component rule controls sizing and spacing, typography for the matching interface element. */
 .dialog-header h2 {
   margin: 10px 0 0;
   font-size: 1.8rem;
 }
 
+/* Styles `.dialog-close`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .dialog-close {
   width: 36px;
   height: 36px;
@@ -1264,6 +1452,7 @@ main {
   cursor: pointer;
 }
 
+/* Styles `.example-grid`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .example-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1271,6 +1460,7 @@ main {
   padding: 22px;
 }
 
+/* Styles `.example-card`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment, motion and interaction feedback for the matching interface element. */
 .example-card {
   padding: 20px;
   border: 1px solid var(--line);
@@ -1282,12 +1472,14 @@ main {
   transition: 160ms ease;
 }
 
+/* Defines hover feedback for `.example-card:hover`, using color and visual emphasis, boundaries and focus treatment, motion and interaction feedback to confirm that the element is interactive. */
 .example-card:hover {
   border-color: var(--mint);
   background: var(--mint-soft);
   transform: translateY(-2px);
 }
 
+/* Styles `.example-topic`. This component rule controls color and visual emphasis, typography, motion and interaction feedback for the matching interface element. */
 .example-topic {
   color: var(--purple);
   font: 600 0.6rem/1 var(--mono);
@@ -1295,17 +1487,20 @@ main {
   text-transform: uppercase;
 }
 
+/* Styles `.example-card h3`. This component rule controls sizing and spacing, typography for the matching interface element. */
 .example-card h3 {
   margin: 10px 0 7px;
   font-size: 1rem;
 }
 
+/* Styles `.example-card p`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .example-card p {
   margin: 0;
   color: var(--text-soft);
   line-height: 1.5;
 }
 
+/* Styles `.toast`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment, motion and interaction feedback for the matching interface element. */
 .toast {
   position: fixed;
   z-index: 20;
@@ -1325,26 +1520,32 @@ main {
   transition: 180ms ease;
 }
 
+/* Styles `.toast.visible`. This component rule controls color and visual emphasis, motion and interaction feedback for the matching interface element. */
 .toast.visible {
   opacity: 1;
   transform: translateY(0);
 }
 
+/* Defines the state-specific appearance of `.toast.error`. The declarations control color and visual emphasis, boundaries and focus treatment when that state class is present. */
 .toast.error {
   border-color: var(--red);
   color: var(--red);
 }
 
+/* Defines the soft opacity pulse used while the Python runtime is loading. */
 @keyframes pulse {
   50% { opacity: 0.35; }
 }
 
+/* Defines the horizontal light sweep that gives the terminal preview a subtle active-screen effect. */
 @keyframes scan {
   0%, 70% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
 }
 
+/* Adapts the layout inside @media (max-width: 1050px) so the same interface remains usable on narrower screens. */
 @media (max-width: 1050px) {
+  /* Styles `.welcome-screen`. This component rule controls layout, sizing and spacing for the matching interface element. */
   .welcome-screen {
     grid-template-columns: 1fr;
     max-width: 760px;
@@ -1352,6 +1553,7 @@ main {
     padding-top: 62px;
   }
 
+  /* Styles `.workspace-grid`. This component rule controls layout for the matching interface element. */
   .workspace-grid {
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -1361,87 +1563,106 @@ main {
       "output";
   }
 
+  /* Styles `.editor-panel, .story-panel`. This component rule controls sizing and spacing for the matching interface element. */
   .editor-panel,
   .story-panel {
     min-height: 560px;
   }
 
+  /* Styles `.editor-shell`. This component rule controls sizing and spacing for the matching interface element. */
   .editor-shell {
     height: 470px;
   }
 
+  /* Styles `.story-view, .loop-view`. This component rule controls sizing and spacing for the matching interface element. */
   .story-view,
   .loop-view {
     height: 513px;
   }
 }
 
+/* Adapts the layout inside @media (max-width: 680px) so the same interface remains usable on narrower screens. */
 @media (max-width: 680px) {
+  /* Styles `.site-header, main`. This component rule controls sizing and spacing for the matching interface element. */
   .site-header,
   main {
     width: min(100% - 28px, 1440px);
   }
 
+  /* Styles `.runtime-status`. This component rule controls layout for the matching interface element. */
   .runtime-status {
     display: none;
   }
 
+  /* Styles `.welcome-screen`. This component rule controls sizing and spacing for the matching interface element. */
   .welcome-screen {
     gap: 48px;
     padding: 50px 0 70px;
   }
 
+  /* Styles `.hero-copy h1`. This component rule controls typography for the matching interface element. */
   .hero-copy h1 {
     font-size: clamp(2.75rem, 14vw, 4.4rem);
   }
 
+  /* Styles `.hero-actions`. This component rule controls layout for the matching interface element. */
   .hero-actions {
     align-items: stretch;
     flex-direction: column;
   }
 
+  /* Styles `.hero-terminal`. This component rule controls motion and interaction feedback for the matching interface element. */
   .hero-terminal {
     transform: none;
   }
 
+  /* Styles `.terminal-body`. This component rule controls sizing and spacing for the matching interface element. */
   .terminal-body {
     padding: 22px 16px;
   }
 
+  /* Styles `.trace-card-preview`. This component rule controls sizing and spacing for the matching interface element. */
   .trace-card-preview {
     margin-left: 0;
   }
 
+  /* Styles `.terminal-footer, .terminal-topbar`. This component rule controls sizing and spacing for the matching interface element. */
   .terminal-footer,
   .terminal-topbar {
     padding: 0 12px;
   }
 
+  /* Styles `.terminal-footer`. This component rule controls sizing and spacing, typography for the matching interface element. */
   .terminal-footer {
     gap: 12px;
     font-size: 0.52rem;
   }
 
+  /* Styles `.workspace`. This component rule controls sizing and spacing for the matching interface element. */
   .workspace {
     padding-top: 28px;
   }
 
+  /* Styles `.workspace-heading`. This component rule controls layout, sizing and spacing for the matching interface element. */
   .workspace-heading {
     align-items: stretch;
     flex-direction: column;
     gap: 20px;
   }
 
+  /* Styles `.workspace-actions`. This component rule controls layout for the matching interface element. */
   .workspace-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
 
+  /* Styles `.workspace-actions .primary-button, .workspace-actions .danger-button`. This component rule controls sizing and spacing for the matching interface element. */
   .workspace-actions .primary-button,
   .workspace-actions .danger-button {
     width: 100%;
   }
 
+  /* Styles `.tabs-header`. This component rule controls layout, sizing and spacing for the matching interface element. */
   .tabs-header {
     align-items: stretch;
     flex-direction: column-reverse;
@@ -1449,59 +1670,72 @@ main {
     padding: 10px 8px 0;
   }
 
+  /* Styles `.step-count`. This component rule controls layout, sizing and spacing for the matching interface element. */
   .step-count {
     align-self: flex-end;
     margin: 0 5px 7px;
   }
 
+  /* Styles `.panel-tabs`. This component rule controls sizing and spacing for the matching interface element. */
   .panel-tabs {
     min-height: 39px;
   }
 
+  /* Styles `.trace-content, .loop-content`. This component rule controls sizing and spacing for the matching interface element. */
   .trace-content,
   .loop-content {
     padding: 21px 16px;
   }
 
+  /* Styles `.variables-grid`. This component rule controls layout for the matching interface element. */
   .variables-grid {
     grid-template-columns: 1fr;
   }
 
+  /* Styles `.change-item`. This component rule controls layout, sizing and spacing for the matching interface element. */
   .change-item {
     grid-template-columns: minmax(70px, 1fr) minmax(45px, auto) 18px minmax(45px, auto);
     padding: 7px 9px;
   }
 
+  /* Styles `.controls-panel`. This component rule controls layout, sizing and spacing for the matching interface element. */
   .controls-panel {
     grid-template-columns: 1fr auto;
     gap: 18px 12px;
   }
 
+  /* Styles `.playback-controls`. This component rule controls layout for the matching interface element. */
   .playback-controls {
     grid-column: 1;
   }
 
+  /* Styles `.progress-area`. This component rule controls layout for the matching interface element. */
   .progress-area {
     grid-column: 1 / -1;
     grid-row: 2;
   }
 
+  /* Styles `.speed-control`. This component rule controls layout for the matching interface element. */
   .speed-control {
     grid-column: 2;
     grid-row: 1;
   }
 
+  /* Styles `.example-grid`. This component rule controls layout, sizing and spacing for the matching interface element. */
   .example-grid {
     grid-template-columns: 1fr;
     padding: 14px;
   }
 
+  /* Styles `.dialog-header`. This component rule controls sizing and spacing for the matching interface element. */
   .dialog-header {
     padding: 22px 18px 18px;
   }
 }
 
+/* Respects the learner's reduced-motion preference by minimizing decorative movement and transitions. */
 @media (prefers-reduced-motion: reduce) {
+  /* Creates or styles the generated visual part `*, *::before, *::after`. It contributes motion and interaction feedback without adding extra HTML. */
   *,
   *::before,
   *::after {

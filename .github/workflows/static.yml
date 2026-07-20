@@ -1,43 +1,58 @@
-# Simple workflow for deploying static content to GitHub Pages
+# This workflow publishes the repository's static files to GitHub Pages.
+# The application needs no compilation because browsers load its modules directly.
 name: Deploy static content to Pages
 
+# Define the repository events that are allowed to start a deployment.
 on:
-  # Runs on pushes targeting the default branch
+  # Every push to main updates the public site with the reviewed source state.
   push:
     branches: ["main"]
 
-  # Allows you to run this workflow manually from the Actions tab
+  # This empty mapping adds a manual Run workflow button in the Actions tab.
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Grant only the permissions required to read source and publish a Pages release.
 permissions:
+  # Checkout needs read access to repository contents.
   contents: read
+  # The deployment action needs permission to create a Pages deployment.
   pages: write
+  # OpenID Connect proves the workflow's identity to the Pages deployment service.
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Keep one Pages deployment active so simultaneous pushes cannot race each other.
 concurrency:
+  # All runs sharing this group participate in the same deployment queue.
   group: "pages"
+  # A deployment already publishing is allowed to finish instead of being interrupted.
   cancel-in-progress: false
 
+# Jobs contain the actual work performed on GitHub's temporary Linux runner.
 jobs:
-  # Single deploy job since we're just deploying
+  # One job is sufficient because this repository contains ready-to-serve assets.
   deploy:
+    # Connecting the job to this environment exposes the final Pages URL in GitHub.
     environment:
       name: github-pages
+      # The deploy step reports the exact public URL through this output value.
       url: ${{ steps.deployment.outputs.page_url }}
+    # GitHub provides a clean Ubuntu virtual machine for every deployment run.
     runs-on: ubuntu-latest
+    # Steps execute from top to bottom and share the checked-out workspace.
     steps:
+      # Download the repository contents into the temporary runner.
       - name: Checkout
         uses: actions/checkout@v4
+      # Configure GitHub Pages metadata and deployment settings for this repository.
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      # Package the static site into the artifact expected by the deploy action.
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
+          # Upload the root because index.html and all browser assets live there.
           path: '.'
+      # Publish the uploaded artifact and expose its URL through this named step.
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5

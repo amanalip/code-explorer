@@ -1,2 +1,3 @@
-# Auto detect text files and perform LF normalization
+# Ask Git to detect text files and normalize committed line endings to LF.
+# LF matches Linux development and prevents platform-only line-ending diffs.
 * text=auto

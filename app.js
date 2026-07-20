@@ -1,3 +1,19 @@
+/**
+ * Code Explorer browser application
+ *
+ * This module owns the visible application state and presentation logic. It
+ * initializes the editor, sends source code to the isolated Python worker,
+ * converts trace snapshots into beginner-friendly descriptions, and updates
+ * the workspace without a framework. Keeping these responsibilities in one
+ * module makes the MVP easy for a new contributor to follow from top to bottom.
+ */
+
+/**
+ * The initial program shown in the editor.
+ *
+ * It deliberately demonstrates assignment, a for loop, mutation through an
+ * augmented assignment, and console output so every major MVP panel has data.
+ */
 const DEFAULT_CODE = `total = 0
 
 for number in range(1, 4):
@@ -6,6 +22,13 @@ for number in range(1, 4):
 
 print("Total:", total)`;
 
+/**
+ * Curated programs displayed by the Examples dialog.
+ *
+ * Each object contains presentation metadata plus the exact Python source to
+ * place in the editor. Keeping the examples as data avoids duplicating dialog
+ * markup and makes a new example a small, reviewable addition.
+ */
 const EXAMPLES = [
   {
     topic: "Variables",
@@ -71,6 +94,13 @@ print(squares)`,
   },
 ];
 
+/**
+ * Cached references to every interactive or dynamically updated DOM element.
+ *
+ * Looking up each id once is both faster and easier to audit than scattering
+ * document.getElementById calls throughout rendering functions. The resulting
+ * object uses the id as its property name, such as els.runButton.
+ */
 const els = Object.fromEntries(
   [
     "runtimeStatus", "runtimeLabel", "themeButton", "themeIcon", "welcomeScreen", "workspace",
@@ -84,33 +114,66 @@ const els = Object.fromEntries(
   ].map((id) => [id, document.getElementById(id)]),
 );
 
+/**
+ * Mutable application state shared by the small controller functions below.
+ *
+ * UI state, worker state, trace data, and timer handles live together so every
+ * transition can be understood without a framework-specific state container.
+ */
 const state = {
+  // Holds the enhanced CodeMirror instance when its CDN modules load successfully.
   editorView: null,
+  // Holds the native textarea used when CodeMirror cannot be downloaded.
   fallbackEditor: null,
+  // Mirrors the current editor source before either editor implementation exists.
   code: DEFAULT_CODE,
+  // References the Web Worker that owns Pyodide and runs untrusted learner code.
   worker: null,
+  // Resolves only after Pyodide reports that the Python runtime is usable.
   workerReady: null,
+  // These callbacks settle workerReady from asynchronous worker events.
   resolveWorkerReady: null,
   rejectWorkerReady: null,
+  // Prevents duplicate runs and controls the Run and Stop button states.
   running: false,
+  // Distinguishes fresh worker responses from results belonging to an older run.
   runId: 0,
+  // Cancels code that exceeds the outer wall-clock safety limit.
   runTimeout: null,
+  // Stores the ordered execution snapshots returned by the Python tracer.
   trace: [],
+  // Stores static metadata for each for or while loop found in the source AST.
   loops: [],
+  // Retains the most recent syntax or runtime error for final-step rendering.
   error: null,
+  // Identifies the trace snapshot currently displayed to the learner.
   currentStep: 0,
+  // Indicates whether automatic playback is advancing through the trace.
   playing: false,
+  // Holds the playback timer so pause and speed changes can cancel it safely.
   playTimer: null,
+  // Records which explanatory tab is visible without changing trace state.
   activePanel: "story",
+  // Holds the dismissal timer for the temporary toast notification.
   toastTimer: null,
 };
 
+/**
+ * Chooses the theme used during startup.
+ * A saved explicit choice wins over the operating-system preference so returning learners see a stable interface.
+ * @returns {"light"|"dark"} The theme name that should be applied.
+ */
 function preferredTheme() {
   const saved = localStorage.getItem("code-explorer-theme");
   if (saved === "light" || saved === "dark") return saved;
   return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 }
 
+/**
+ * Applies and persists one of the two supported color themes.
+ * The data attribute lets CSS variables swap the whole palette, while the button label and glyph are updated for accessibility.
+ * @param {"light"|"dark"} theme The theme that should become active.
+ */
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   localStorage.setItem("code-explorer-theme", theme);
@@ -118,16 +181,29 @@ function applyTheme(theme) {
   els.themeButton.setAttribute("aria-label", `Switch to ${theme === "dark" ? "light" : "dark"} mode`);
 }
 
+/**
+ * Switches between light and dark themes.
+ * This is intentionally a tiny adapter so the click handler does not need to know how theme persistence works.
+ */
 function toggleTheme() {
   applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
 }
 
+/**
+ * Recalculates the line and character counts displayed below the editor.
+ * The function reads through getCode so it works for both CodeMirror and the native textarea fallback.
+ */
 function updateCodeStats() {
   const code = getCode();
   const lines = code ? code.split("\n").length : 0;
   els.codeStats.textContent = `${lines} line${lines === 1 ? "" : "s"} · ${code.length} chars`;
 }
 
+/**
+ * Loads CodeMirror from the CDN and mounts the Python editor.
+ * If any module fails to load, the catch branch creates a fully usable textarea so a network problem never blocks the core experience.
+ * @returns {Promise<void>} Resolves after either editor implementation is ready.
+ */
 async function initializeEditor() {
   try {
     const [{ basicSetup, EditorView }, { python }] = await Promise.all([
@@ -169,12 +245,22 @@ async function initializeEditor() {
   updateCodeStats();
 }
 
+/**
+ * Returns the latest Python source from whichever editor is active.
+ * The state copy is used only during the short period before an editor has mounted.
+ * @returns {string} The complete source currently visible to the learner.
+ */
 function getCode() {
   if (state.editorView) return state.editorView.state.doc.toString();
   if (state.fallbackEditor) return state.fallbackEditor.value;
   return state.code;
 }
 
+/**
+ * Replaces all editor content with a selected example or supplied program.
+ * The operation updates CodeMirror through a transaction, synchronizes statistics, and clears any trace that belongs to older source.
+ * @param {string} code The Python source that should replace the current document.
+ */
 function setCode(code) {
   state.code = code;
   if (state.editorView) {
@@ -189,6 +275,11 @@ function setCode(code) {
   clearTrace();
 }
 
+/**
+ * Moves the CodeMirror cursor to the line represented by the active trace step.
+ * The requested number is clamped to the document so malformed error metadata cannot create an invalid selection.
+ * @param {number} lineNumber One-based Python source line number.
+ */
 function focusLine(lineNumber) {
   if (!state.editorView || !lineNumber) return;
   const safeLine = Math.max(1, Math.min(lineNumber, state.editorView.state.doc.lines));
@@ -199,6 +290,10 @@ function focusLine(lineNumber) {
   });
 }
 
+/**
+ * Transitions from the welcome screen into the execution workspace.
+ * It also starts loading Pyodide and asks CodeMirror to measure itself after becoming visible.
+ */
 function showWorkspace() {
   els.welcomeScreen.classList.add("hidden");
   els.workspace.classList.remove("hidden");
@@ -207,6 +302,10 @@ function showWorkspace() {
   window.setTimeout(() => state.editorView?.requestMeasure(), 50);
 }
 
+/**
+ * Returns to the welcome screen without discarding the learner's source.
+ * Automatic playback is paused first so hidden UI does not continue changing in the background.
+ */
 function showWelcome() {
   pausePlayback();
   els.workspace.classList.add("hidden");
@@ -214,11 +313,22 @@ function showWelcome() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+/**
+ * Updates the shared runtime indicator in the site header.
+ * Both the modifier class and readable label change so state is conveyed by more than color alone.
+ * @param {string} status CSS state name such as loading, ready, or error.
+ * @param {string} label Human-readable runtime status.
+ */
 function setRuntimeStatus(status, label) {
   els.runtimeStatus.className = `runtime-status ${status}`;
   els.runtimeLabel.textContent = label;
 }
 
+/**
+ * Creates the Python Web Worker once and returns its readiness promise.
+ * Message and error listeners connect the isolated runtime to this UI controller. Later callers reuse the same worker until it is intentionally destroyed.
+ * @returns {Promise<void>} Resolves when Pyodide has finished loading.
+ */
 function ensureWorker() {
   if (state.worker) return state.workerReady;
 
@@ -240,6 +350,10 @@ function ensureWorker() {
   return state.workerReady;
 }
 
+/**
+ * Terminates the current Python worker and clears every related handle.
+ * A later run can call ensureWorker to create a clean runtime after cancellation or failure.
+ */
 function destroyWorker() {
   if (state.worker) state.worker.terminate();
   state.worker = null;
@@ -249,6 +363,11 @@ function destroyWorker() {
   window.clearTimeout(state.runTimeout);
 }
 
+/**
+ * Routes typed messages received from the Python worker.
+ * Readiness messages settle startup, result messages populate the visualizer, and stale run identifiers are ignored.
+ * @param {MessageEvent} event Browser event containing the worker message payload.
+ */
 function handleWorkerMessage(event) {
   const message = event.data;
   if (message.type === "ready") {
@@ -274,6 +393,11 @@ function handleWorkerMessage(event) {
   }
 }
 
+/**
+ * Validates the editor source and starts a traced Python execution.
+ * The function waits for Pyodide, switches the controls into a running state, sends a unique run id, and establishes an outer timeout.
+ * @returns {Promise<void>} Resolves after the run request is sent or startup fails.
+ */
 async function runCode() {
   const source = getCode().trimEnd();
   if (!source.trim()) {
@@ -302,6 +426,10 @@ async function runCode() {
   }
 }
 
+/**
+ * Restores the Run controls after any successful, failed, or cancelled execution.
+ * Keeping this transition centralized prevents the loading and stop buttons from becoming inconsistent.
+ */
 function finishRunning() {
   state.running = false;
   els.runButton.disabled = false;
@@ -310,6 +438,11 @@ function finishRunning() {
   els.stopButton.classList.add("hidden");
 }
 
+/**
+ * Cancels execution by terminating the entire worker.
+ * Worker termination is reliable even when learner code is trapped in a synchronous infinite loop.
+ * @param {string} reason Explanation displayed in both the console and toast.
+ */
 function stopExecution(reason = "Execution stopped.") {
   state.runId += 1;
   destroyWorker();
@@ -319,6 +452,11 @@ function stopExecution(reason = "Execution stopped.") {
   showToast(reason, true);
 }
 
+/**
+ * Loads a completed worker result into application state and enables playback.
+ * Syntax-only failures use the error path, while successful traces initialize the slider, tabs, and first visual snapshot.
+ * @param {object} result Serialized trace, loop metadata, output, and optional error.
+ */
 function loadResult(result) {
   state.trace = result.steps || [];
   state.loops = result.loops || [];
@@ -354,6 +492,10 @@ function loadResult(result) {
   }
 }
 
+/**
+ * Removes all visualization data that no longer matches the editor source.
+ * The editor itself is preserved while placeholders, counters, controls, and output return to their initial state.
+ */
 function clearTrace() {
   pausePlayback();
   state.trace = [];
@@ -370,6 +512,10 @@ function clearTrace() {
   clearPlaybackControls();
 }
 
+/**
+ * Disables and resets every playback control.
+ * This helper is shared by source edits and executions that produced no traceable steps.
+ */
 function clearPlaybackControls() {
   els.stepSlider.min = "0";
   els.stepSlider.max = "0";
@@ -382,6 +528,12 @@ function clearPlaybackControls() {
   els.progressPercent.textContent = "0%";
 }
 
+/**
+ * Builds the variable dictionary shown for one trace snapshot.
+ * Globals are combined with the active frame's locals, and implementation-only callable or module values are filtered from the beginner view.
+ * @param {object} step Serialized Python trace snapshot.
+ * @returns {Record<string, object>} Visible variable names mapped to serialized values.
+ */
 function variablesForStep(step) {
   const values = { ...step.globals };
   if (step.frames?.length) Object.assign(values, step.frames.at(-1).locals);
@@ -393,6 +545,12 @@ function variablesForStep(step) {
   );
 }
 
+/**
+ * Creates a stable comparison string for a serialized Python value.
+ * Only educational content is included, so changing object identifiers alone does not look like a variable mutation.
+ * @param {object|undefined} value Serialized value from the worker.
+ * @returns {string} JSON signature suitable for equality comparison.
+ */
 function valueSignature(value) {
   if (!value) return "";
   return JSON.stringify({
@@ -403,6 +561,12 @@ function valueSignature(value) {
   });
 }
 
+/**
+ * Computes the visible variable difference between one snapshot and its predecessor.
+ * Every name is classified as created, removed, changed, or omitted when unchanged.
+ * @param {number} index Zero-based trace index.
+ * @returns {Array<object>} Ordered descriptions consumed by the change-card renderer.
+ */
 function changesAt(index) {
   const current = variablesForStep(state.trace[index]);
   const previous = index > 0 ? variablesForStep(state.trace[index - 1]) : {};
@@ -426,15 +590,34 @@ function changesAt(index) {
   return changes;
 }
 
+/**
+ * Finds static loop metadata for the source line executed by a trace step.
+ * @param {object} step Active trace snapshot.
+ * @returns {object|undefined} Matching for or while loop metadata.
+ */
 function loopForStep(step) {
   return state.loops.find((loop) => loop.line === step.line);
 }
 
+/**
+ * Distinguishes a real loop iteration from Python's final loop-line event.
+ * The tracer records the next line, allowing the UI to recognize when control moved outside the loop body.
+ * @param {object} step Trace snapshot being inspected.
+ * @returns {boolean} True when this step represents leaving the loop.
+ */
 function isLoopExitStep(step) {
   const loop = loopForStep(step);
   return Boolean(loop && step.nextLine && (step.nextLine <= loop.line || step.nextLine > loop.endLine));
 }
 
+/**
+ * Classifies a source line into a short beginner-friendly category.
+ * The category is displayed beside the line number and is based on trace events plus deliberately small syntax patterns.
+ * @param {string} source Source text for the executed line.
+ * @param {string} event Python trace event name.
+ * @param {object} step Full step used for loop-exit detection.
+ * @returns {string} Uppercase category label.
+ */
 function statementKind(source, event, step) {
   const line = source.trim();
   if (event === "exception") return "ERROR";
@@ -451,6 +634,13 @@ function statementKind(source, event, step) {
   return "STATEMENT";
 }
 
+/**
+ * Generates the natural-language explanation for the active trace step.
+ * Specific cases cover errors, returns, function entry, loops, branches, definitions, output, and variable diffs before falling back to a neutral statement.
+ * @param {object} step Active trace snapshot.
+ * @param {Array<object>} changes Variable differences calculated for this snapshot.
+ * @returns {string} Explanation written for a beginning Python learner.
+ */
 function explainStep(step, changes) {
   const line = step.source.trim();
   const previousStep = state.currentStep > 0 ? state.trace[state.currentStep - 1] : null;
@@ -510,6 +700,10 @@ function explainStep(step, changes) {
   return "Python completed this instruction without changing a visible variable.";
 }
 
+/**
+ * Renders the complete workspace for the currently selected trace snapshot.
+ * This coordinator updates progress, explanation, variables, call stack, Loop Lab, editor focus, and synchronized console output together.
+ */
 function renderStep() {
   if (!state.trace.length) return;
   const index = Math.max(0, Math.min(state.currentStep, state.trace.length - 1));
@@ -547,6 +741,11 @@ function renderStep() {
   }
 }
 
+/**
+ * Renders variable-difference cards for the active step.
+ * Text is assigned with textContent after structural markup is created so values originating in learner code cannot inject HTML.
+ * @param {Array<object>} changes Created, updated, and removed variable descriptions.
+ */
 function renderChanges(changes) {
   if (!changes.length) {
     els.changeList.innerHTML = '<div class="no-changes">No visible variable changed in this step.</div>';
@@ -569,6 +768,11 @@ function renderChanges(changes) {
   );
 }
 
+/**
+ * Renders every visible variable as a name, value, and Python type card.
+ * Long representations remain available in the title tooltip even when CSS truncates the card.
+ * @param {Record<string, object>} variables Serialized variables for the active scope.
+ */
 function renderVariables(variables) {
   const entries = Object.entries(variables);
   if (!entries.length) {
@@ -595,6 +799,11 @@ function renderVariables(variables) {
   );
 }
 
+/**
+ * Renders user-code frames from global scope through the active function.
+ * The active frame receives a modifier class, and the visual order is reversed with CSS to resemble a stack.
+ * @param {Array<object>} frames Serialized Python frames.
+ */
 function renderCallStack(frames) {
   if (!frames.length) {
     els.callStackSection.classList.add("hidden");
@@ -614,6 +823,13 @@ function renderCallStack(frames) {
   );
 }
 
+/**
+ * Collects genuine iteration-entry steps for one loop.
+ * Exit checks are excluded so a three-item range produces exactly three visible iterations.
+ * @param {object} loop Static loop metadata.
+ * @param {number} throughIndex Last trace index to inspect.
+ * @returns {Array<object>} Occurrence indices plus variables and loop-target values.
+ */
 function loopOccurrences(loop, throughIndex = state.trace.length - 1) {
   const occurrences = [];
   for (let index = 0; index <= throughIndex; index += 1) {
@@ -626,6 +842,11 @@ function loopOccurrences(loop, throughIndex = state.trace.length - 1) {
   return occurrences;
 }
 
+/**
+ * Builds the loop-focused explanation for the currently selected trace position.
+ * It selects the most recently reached loop, calculates progress, and marks completed, current, and waiting iterations.
+ * @param {number} stepIndex Zero-based active trace position.
+ */
 function renderLoopLab(stepIndex) {
   if (!state.loops.length) {
     els.emptyLoop.classList.remove("hidden");
@@ -671,20 +892,34 @@ function renderLoopLab(stepIndex) {
   );
 }
 
+/**
+ * Moves directly to a requested trace snapshot after pausing playback.
+ * @param {number|string} index Target zero-based trace index.
+ */
 function goToStep(index) {
   pausePlayback();
   state.currentStep = Number(index);
   renderStep();
 }
 
+/**
+ * Moves one snapshot backward when an earlier step exists.
+ */
 function previousStep() {
   if (state.currentStep > 0) goToStep(state.currentStep - 1);
 }
 
+/**
+ * Moves one snapshot forward when a later step exists.
+ */
 function nextStep() {
   if (state.currentStep < state.trace.length - 1) goToStep(state.currentStep + 1);
 }
 
+/**
+ * Starts or pauses automatic trace playback.
+ * Restarting from the end begins at step zero so the Play button always has a useful result.
+ */
 function togglePlayback() {
   if (state.playing) {
     pausePlayback();
@@ -697,6 +932,10 @@ function togglePlayback() {
   scheduleNextStep();
 }
 
+/**
+ * Schedules one automatic playback advance using the selected speed.
+ * Each call replaces the prior timer, which makes speed changes safe while playback is active.
+ */
 function scheduleNextStep() {
   window.clearTimeout(state.playTimer);
   state.playTimer = window.setTimeout(() => {
@@ -711,16 +950,28 @@ function scheduleNextStep() {
   }, Number(els.speedSelect.value));
 }
 
+/**
+ * Stops automatic playback and restores the Play icon.
+ * The function is safe to call even when playback is already stopped.
+ */
 function pausePlayback() {
   state.playing = false;
   window.clearTimeout(state.playTimer);
   if (els.playButton) els.playButton.textContent = "▶";
 }
 
+/**
+ * Returns playback to the first recorded snapshot.
+ */
 function restartTrace() {
   goToStep(0);
 }
 
+/**
+ * Switches the explanatory panel between Execution Story and Loop Lab.
+ * ARIA selection values and hidden classes are updated together for visual and assistive-technology consistency.
+ * @param {"story"|"loop"} panel Panel that should become visible.
+ */
 function switchPanel(panel) {
   state.activePanel = panel;
   const storyActive = panel === "story";
@@ -732,6 +983,11 @@ function switchPanel(panel) {
   els.loopView.classList.toggle("hidden", storyActive);
 }
 
+/**
+ * Replaces console content with safely escaped text and an optional visual state.
+ * @param {string} text Output or message to display.
+ * @param {"normal"|"muted"|"error"} kind Presentation style.
+ */
 function setConsole(text, kind = "normal") {
   els.consoleOutput.replaceChildren();
   const span = document.createElement("span");
@@ -741,6 +997,10 @@ function setConsole(text, kind = "normal") {
   els.consoleOutput.append(span);
 }
 
+/**
+ * Appends a formatted runtime error after any output already produced.
+ * @param {object} error Serialized Python error with type, message, and optional line.
+ */
 function appendConsoleError(error) {
   const separator = els.consoleOutput.textContent?.trim() ? "\n\n" : "";
   const span = document.createElement("span");
@@ -750,6 +1010,11 @@ function appendConsoleError(error) {
   els.consoleOutput.append(span);
 }
 
+/**
+ * Presents a syntax or runtime error when no playable trace exists.
+ * The editor is focused on the reported line and a toast repeats the problem for immediate feedback.
+ * @param {object} error Serialized worker error.
+ */
 function showTraceError(error) {
   const location = error.line ? `Line ${error.line}\n` : "";
   setConsole(`${location}${error.type}: ${error.message}`, "error");
@@ -757,10 +1022,20 @@ function showTraceError(error) {
   showToast(`${error.type}: ${error.message}`, true);
 }
 
+/**
+ * Displays an infrastructure or cancellation message in the console.
+ * @param {string} message Human-readable problem description.
+ */
 function showError(message) {
   setConsole(message, "error");
 }
 
+/**
+ * Shows a temporary polite live-region notification.
+ * The previous dismissal timer is cancelled so rapid messages do not hide a newer notification early.
+ * @param {string} message Notification text.
+ * @param {boolean} isError Whether to apply error styling.
+ */
 function showToast(message, isError = false) {
   window.clearTimeout(state.toastTimer);
   els.toast.textContent = message;
@@ -769,6 +1044,11 @@ function showToast(message, isError = false) {
   state.toastTimer = window.setTimeout(() => els.toast.classList.remove("visible"), 4000);
 }
 
+/**
+ * Creates example cards from the shared EXAMPLES data.
+ * Each card loads source, closes the dialog, reveals the workspace, and confirms the action without duplicating HTML.
+ * Text nodes use textContent so example metadata remains safe by default.
+ */
 function renderExamples() {
   els.exampleGrid.replaceChildren(
     ...EXAMPLES.map((example) => {
@@ -793,10 +1073,17 @@ function renderExamples() {
   );
 }
 
+/**
+ * Opens the native examples dialog only when it is not already open.
+ */
 function openExamples() {
   if (!els.examplesDialog.open) els.examplesDialog.showModal();
 }
 
+/**
+ * Connects every static control to its controller function.
+ * The handlers cover navigation, dialogs, execution, playback, tabs, output, speed changes, and the Ctrl or Command plus Enter shortcut.
+ */
 function bindEvents() {
   els.themeButton.addEventListener("click", toggleTheme);
   els.startButton.addEventListener("click", showWorkspace);
@@ -828,11 +1115,20 @@ function bindEvents() {
   });
 }
 
+/**
+ * Performs the one-time application startup sequence.
+ * Theme and static event wiring happen immediately, then the asynchronous editor loader completes the workspace.
+ * @returns {Promise<void>} Resolves when startup has selected an editor implementation.
+ */
 async function initialize() {
+  // Apply colors before async work so the page does not flash the wrong theme.
   applyTheme(preferredTheme());
+  // Render data-driven cards and connect controls while the editor modules download.
   renderExamples();
   bindEvents();
+  // Awaiting initialization guarantees either CodeMirror or its fallback is mounted.
   await initializeEditor();
 }
 
+// Start the application after the module script is parsed at the end of document body.
 initialize();

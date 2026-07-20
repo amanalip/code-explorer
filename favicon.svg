@@ -1,5 +1,9 @@
+<!-- The scalable favicon stays sharp at every browser-tab and bookmark size. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- A rounded near-black tile provides strong contrast in both browser themes. -->
   <rect width="64" height="64" rx="14" fill="#0a0c10"/>
+  <!-- This mint chevron represents a familiar terminal command prompt. -->
   <path d="M15 20l14 12-14 12" fill="none" stroke="#63f3c0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- This purple baseline completes the compact greater-than and underscore mark. -->
   <path d="M34 45h15" fill="none" stroke="#a98bff" stroke-width="6" stroke-linecap="round"/>
 </svg>
