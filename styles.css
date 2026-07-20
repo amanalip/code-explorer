@@ -708,6 +708,41 @@ main {
   min-height: 620px;
 }
 
+/* Groups the expanded toolset into four stable learning areas above contextual secondary tabs. */
+.learning-mode-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  min-height: 44px;
+  padding: 5px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel-soft) 72%, transparent);
+}
+
+/* Gives primary learning modes a wide segmented-control target without visual clutter. */
+.learning-mode {
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: var(--text-dim);
+  background: transparent;
+  font: 600 0.67rem/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+/* Uses a clear surface and mint edge to identify the selected learning area. */
+.learning-mode.active {
+  border-color: var(--line);
+  color: var(--mint);
+  background: var(--bg-raised);
+  box-shadow: inset 0 -2px 0 var(--mint);
+}
+
+/* Completely removes secondary tabs belonging to other primary areas. */
+.panel-tab.mode-hidden {
+  display: none;
+}
+
 /* Styles `.controls-panel`. This component rule controls layout for the matching interface element. */
 .controls-panel {
   grid-area: controls;
@@ -1036,9 +1071,605 @@ main {
 .variables-view,
 .references-view,
 .flow-view,
-.loop-view {
-  height: 573px;
+.loop-view,
+.learning-view {
+  height: 529px;
   overflow: auto;
+}
+
+/* Supplies consistent interior spacing for all newly grouped learning tools. */
+.learning-detail,
+.scenario-grid {
+  padding: 22px;
+}
+
+/* Establishes the common elevated card used by comparisons, explanations, and scenarios. */
+.learning-card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--bg-raised) 82%, transparent);
+}
+
+/* Keeps a technical label and its compact status aligned at opposite card edges. */
+.learning-card-heading,
+.structure-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Removes the default lower label gap when the label participates in a flex heading. */
+.learning-card-heading .section-label {
+  margin-bottom: 0;
+}
+
+/* Presents contextual counts as readable status pills in both themes. */
+.context-badge {
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: var(--mint);
+  background: var(--mint-soft);
+  font: 600 0.59rem/1 var(--mono);
+}
+
+/* Separates the state comparison from the main explanation without excessive vertical space. */
+.before-after-card {
+  margin-bottom: 24px;
+}
+
+/* Lays out a sequence of state transitions as a readable vertical table. */
+.before-after-grid {
+  display: grid;
+  gap: 6px;
+  margin-top: 13px;
+}
+
+/* Aligns name, prior value, arrow, and resulting value for fast visual comparison. */
+.state-comparison-row {
+  display: grid;
+  grid-template-columns: minmax(68px, 0.7fr) minmax(70px, 1fr) 20px minmax(70px, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: var(--text-soft);
+  background: var(--panel-soft);
+}
+
+/* Highlights only rows that actually changed between adjacent snapshots. */
+.state-comparison-row.changed {
+  box-shadow: inset 2px 0 0 var(--mint);
+}
+
+/* Keeps possibly long representations contained inside the comparison grid. */
+.state-comparison-row code {
+  overflow: hidden;
+  color: var(--text);
+  font: 500 0.68rem/1.4 var(--mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Makes the transition arrow visible while keeping it visually secondary. */
+.comparison-arrow {
+  color: var(--mint);
+  text-align: center;
+}
+
+/* Styles an empty comparison message consistently with other supporting copy. */
+.learning-empty-copy {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+/* Gives the error coach an unmistakable but calm error boundary. */
+.error-coach {
+  margin-bottom: 24px;
+  border-color: color-mix(in srgb, var(--red) 42%, var(--line));
+  background: color-mix(in srgb, var(--red) 7%, var(--bg-raised));
+}
+
+/* Keeps coach headings compact so the original Python message remains prominent. */
+.error-coach h3 {
+  margin: 5px 0 8px;
+  color: var(--red);
+  font-size: 0.95rem;
+}
+
+/* Styles the actionable error suggestion separately from the definition. */
+.coach-tip {
+  margin-bottom: 0;
+  color: var(--text-soft);
+}
+
+/* Makes the exact observed condition the strongest element in its investigator card. */
+.condition-code {
+  display: block;
+  overflow-x: auto;
+  margin: 10px 0 14px;
+  padding: 13px;
+  border-radius: 7px;
+  color: var(--cyan);
+  background: var(--panel-solid);
+  font: 600 0.82rem/1.5 var(--mono);
+}
+
+/* Gives true, false, and unknown outcomes a shared readable pill treatment. */
+.condition-outcome {
+  display: inline-flex;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: var(--text-soft);
+  background: var(--panel-soft);
+  font: 600 0.65rem/1 var(--mono);
+}
+
+/* Uses mint for an observed true path. */
+.condition-outcome.true {
+  color: var(--mint);
+  background: var(--mint-soft);
+}
+
+/* Uses the error accent for an observed false path without implying a program error. */
+.condition-outcome.false {
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 10%, transparent);
+}
+
+/* Wraps boolean components so narrow screens never force horizontal page scrolling. */
+.condition-pieces {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+}
+
+/* Presents individual condition components as code tokens. */
+.condition-piece {
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+  background: var(--panel-solid);
+  font-size: 0.68rem;
+}
+
+/* Distinguishes the boolean relationship between adjacent expression pieces. */
+.boolean-operator {
+  color: var(--purple);
+  font: 600 0.66rem/1 var(--mono);
+  text-transform: uppercase;
+}
+
+/* Explains the investigator's safety boundary in intentionally quiet prose. */
+.safety-note {
+  margin: 18px 0 0;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+/* Centers the function flow while retaining a comfortable reading width. */
+.function-journey {
+  display: grid;
+  width: min(430px, 100%);
+  margin: 0 auto;
+  justify-items: stretch;
+}
+
+/* Gives each function stage a distinct instrument-card surface. */
+.journey-stage {
+  padding: 14px 16px;
+  border: 1px solid var(--line-bright);
+  border-radius: 9px;
+  background: var(--bg-raised);
+}
+
+/* Labels each function stage in the same technical language as the wider interface. */
+.journey-stage span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--mint);
+  font: 600 0.59rem/1 var(--mono);
+  letter-spacing: 0.1em;
+}
+
+/* Preserves local values on separate lines inside a function stage. */
+.journey-stage code {
+  color: var(--text);
+  font: 500 0.74rem/1.55 var(--mono);
+  white-space: pre-wrap;
+}
+
+/* Connects function stages without animated movement. */
+.journey-connector {
+  padding: 6px;
+  color: var(--purple);
+  text-align: center;
+}
+
+/* Holds persistent watched values above the selected variable details. */
+.watch-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-dim);
+  font-size: 0.73rem;
+}
+
+/* Cancels the normal section-label margin inside the horizontal watch strip. */
+.watch-strip .section-label {
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+/* Displays watched values as compact, clickable inspector shortcuts. */
+.watch-chip,
+.small-action,
+.structure-choice {
+  padding: 6px 9px;
+  border: 1px solid var(--line-bright);
+  border-radius: 6px;
+  color: var(--text-soft);
+  background: var(--panel-solid);
+  font: 600 0.62rem/1.2 var(--mono);
+  cursor: pointer;
+}
+
+/* Uses mint to confirm selected watch and structure states. */
+.small-action.active,
+.structure-choice.active,
+.watch-chip:hover,
+.small-action:hover,
+.structure-choice:hover {
+  border-color: var(--mint);
+  color: var(--mint);
+}
+
+/* Allows selection among several supported container values without another tab layer. */
+.structure-picker {
+  display: flex;
+  overflow-x: auto;
+  gap: 7px;
+  margin-bottom: 14px;
+  padding-bottom: 3px;
+}
+
+/* Resets structure card heading spacing inherited from ordinary semantic headings. */
+.structure-heading h3 {
+  margin: 0;
+}
+
+/* Arranges container positions as wrapping cells suitable for both indexes and dictionary keys. */
+.structure-cells {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+/* Separates each structure label from its value in a concrete visual unit. */
+.structure-cell {
+  display: grid;
+  min-width: 72px;
+  border: 1px solid var(--line-bright);
+  border-radius: 7px;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Uses a quiet header for list indexes or dictionary keys. */
+.structure-cell span {
+  padding: 5px 8px;
+  color: var(--text-dim);
+  background: var(--panel-soft);
+  font: 600 0.58rem/1 var(--mono);
+}
+
+/* Gives each structure value enough space to remain legible. */
+.structure-cell code {
+  overflow: hidden;
+  padding: 10px 8px;
+  color: var(--text);
+  font: 500 0.7rem/1 var(--mono);
+  text-overflow: ellipsis;
+}
+
+/* Explains whether a structure changed in place or was replaced. */
+.mutation-note {
+  padding: 10px 12px;
+  border-radius: 7px;
+  color: var(--text-soft);
+  background: var(--panel-soft);
+  font-size: 0.82rem;
+}
+
+/* Marks confirmed same-object mutation with the teaching accent. */
+.mutation-note.mutated {
+  color: var(--mint);
+  background: var(--mint-soft);
+}
+
+/* Displays the numeric coverage result beside a plain-language fraction. */
+.coverage-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+/* Makes the percentage glanceable without becoming a decorative dashboard metric. */
+.coverage-summary strong {
+  color: var(--mint);
+  font: 600 1.8rem/1 var(--mono);
+}
+
+/* Stacks clickable source coverage rows in document order. */
+.coverage-list {
+  display: grid;
+  gap: 4px;
+}
+
+/* Aligns count, line number, and source while keeping learner text safely inside the panel. */
+.coverage-line {
+  display: grid;
+  grid-template-columns: 34px 34px minmax(0, 1fr);
+  gap: 7px;
+  width: 100%;
+  padding: 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text-dim);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Keeps source snippets on one scan-friendly row. */
+.coverage-line code {
+  overflow: hidden;
+  color: var(--text-soft);
+  font: 500 0.67rem/1.3 var(--mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Uses mint for source reached once. */
+.coverage-line.reached {
+  color: var(--mint);
+  background: color-mix(in srgb, var(--mint-soft) 60%, transparent);
+}
+
+/* Uses amber for repeated lines so loops stand out immediately. */
+.coverage-line.repeated {
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 8%, transparent);
+}
+
+/* Allows missed source to remain visible without competing with reached source. */
+.coverage-line.missed {
+  opacity: 0.72;
+}
+
+/* Adds a clear breakpoint dot to a clicked CodeMirror line number. */
+.cm-lineNumbers .cm-gutterElement {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Draws the breakpoint marker without changing gutter width or editor geometry. */
+.cm-lineNumbers .cm-gutterElement.cm-breakpoint-gutter::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  transform: translateY(-50%);
+}
+
+/* Colors an active trace bookmark without changing the control's dimensions. */
+.bookmark-button[aria-pressed="true"] {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 10%, transparent);
+}
+
+/* Creates a stable horizontal scroll region for wider loop comparisons. */
+.loop-table-wrap {
+  overflow-x: auto;
+}
+
+/* Separates the loop table from the iteration cards above it. */
+.loop-table-label {
+  margin-top: 26px;
+}
+
+/* Uses collapsed borders for a compact, familiar data-table representation. */
+.loop-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: 500 0.65rem/1.35 var(--mono);
+}
+
+/* Defines consistent cells for headings and observed values. */
+.loop-table th,
+.loop-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-soft);
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Distinguishes column labels from captured values. */
+.loop-table thead th {
+  color: var(--text-dim);
+  background: var(--panel-soft);
+}
+
+/* Allows an iteration number to navigate without looking like a large button. */
+.loop-table button {
+  border: 0;
+  color: var(--mint);
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Arranges input and comparison cards side by side when the workspace has enough width. */
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* Styles explanatory paragraphs within scenarios consistently. */
+.scenario-grid p {
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+/* Makes prepared stdin comfortable for multiline editing in either theme. */
+#programInputs {
+  width: 100%;
+  resize: vertical;
+  padding: 11px;
+  border: 1px solid var(--line-bright);
+  border-radius: 7px;
+  outline: 0;
+  color: var(--text);
+  background: var(--panel-solid);
+  font: 500 0.72rem/1.5 var(--mono);
+}
+
+/* Shows keyboard focus on the Input Playground using the shared teaching accent. */
+#programInputs:focus {
+  border-color: var(--mint);
+  box-shadow: 0 0 0 3px var(--mint-soft);
+}
+
+/* Reports prepared or consumed input beneath the textarea. */
+.input-status {
+  margin-top: 9px;
+  color: var(--text-dim);
+  font: 500 0.61rem/1.4 var(--mono);
+}
+
+/* Keeps the two capture actions aligned and able to wrap on a narrow card. */
+.comparison-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+/* Provides a stable result surface before and after both comparison runs exist. */
+.comparison-result {
+  padding: 12px;
+  border-radius: 7px;
+  color: var(--text-dim);
+  background: var(--panel-soft);
+  font-size: 0.76rem;
+}
+
+/* Places captured runs next to each other for direct comparison. */
+.run-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+/* Stacks each run's input, output, and trace size inside a bounded card. */
+.run-comparison-grid > div {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg-raised);
+}
+
+/* Prevents captured program output from expanding the comparison horizontally. */
+.run-comparison-grid pre,
+.run-comparison-grid code {
+  overflow: hidden;
+  margin: 0;
+  color: var(--text-soft);
+  font: 500 0.62rem/1.4 var(--mono);
+  text-overflow: ellipsis;
+  white-space: pre-wrap;
+}
+
+/* States the first behavioral difference beneath both run cards. */
+.comparison-conclusion {
+  margin: 10px 0 0 !important;
+  color: var(--text) !important;
+}
+
+/* Creates a chronological bookmark row with a large jump target and small removal action. */
+.bookmark-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-raised);
+}
+
+/* Highlights the bookmark matching the currently displayed trace position. */
+.bookmark-row.active {
+  border-color: var(--mint);
+  box-shadow: inset 2px 0 0 var(--mint);
+}
+
+/* Allows the bookmark's full descriptive area to navigate to its trace step. */
+.bookmark-jump {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px;
+  border: 0;
+  color: var(--text);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Truncates long bookmarked source while preserving it in the trace itself. */
+.bookmark-jump code {
+  overflow: hidden;
+  color: var(--text-soft);
+  font: 500 0.68rem/1.4 var(--mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Gives bookmark removal a compact, clearly separate target. */
+.bookmark-remove {
+  align-self: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text-dim);
+  background: var(--panel-solid);
+  cursor: pointer;
 }
 
 /*
@@ -2287,8 +2918,9 @@ main {
   .variables-view,
   .references-view,
   .flow-view,
-  .loop-view {
-    height: 513px;
+  .loop-view,
+  .learning-view {
+    height: 469px;
   }
 }
 
@@ -2416,10 +3048,52 @@ main {
     min-height: 39px;
   }
 
+  /* Keeps the four primary areas equally sized and readable on phone widths. */
+  .learning-mode-nav {
+    min-height: 48px;
+  }
+
+  /* Uses slightly smaller type so all primary labels remain on one row. */
+  .learning-mode {
+    font-size: 0.6rem;
+  }
+
   /* Styles `.trace-content, .loop-content`. This component rule controls sizing and spacing for the matching interface element. */
   .trace-content,
   .loop-content {
     padding: 21px 16px;
+  }
+
+  /* Reduces new learning-view padding while preserving comfortable touch targets. */
+  .learning-detail,
+  .scenario-grid {
+    padding: 16px;
+  }
+
+  /* Stacks Input Playground above Compare Runs when two cards would be cramped. */
+  .scenario-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Makes state transitions a labelled two-column comparison on narrow screens. */
+  .state-comparison-row {
+    grid-template-columns: minmax(65px, 0.7fr) minmax(0, 1fr);
+  }
+
+  /* Hides the decorative arrow after the mobile comparison becomes vertical. */
+  .state-comparison-row .comparison-arrow {
+    display: none;
+  }
+
+  /* Labels before and after values so the stacked mobile layout remains self-explanatory. */
+  .state-comparison-row code::before {
+    content: attr(data-label) ": ";
+    color: var(--text-dim);
+  }
+
+  /* Stacks comparison runs inside a narrow Scenario Lab card. */
+  .run-comparison-grid {
+    grid-template-columns: 1fr;
   }
 
   /* Styles `.variables-grid`. This component rule controls layout for the matching interface element. */
@@ -2476,6 +3150,24 @@ main {
   /* Styles `.playback-controls`. This component rule controls layout for the matching interface element. */
   .playback-controls {
     grid-column: 1;
+    gap: 4px;
+  }
+
+  /* Fits five playback actions beside the speed selector without internal clipping. */
+  .control-button,
+  .play-button {
+    width: 34px;
+    height: 36px;
+  }
+
+  /* Keeps Play slightly more prominent while remaining inside the mobile grid. */
+  .play-button {
+    width: 38px;
+  }
+
+  /* Removes desktop-only separation when horizontal space is scarce. */
+  .restart-button {
+    margin-left: 0;
   }
 
   /* Styles `.progress-area`. This component rule controls layout for the matching interface element. */

@@ -255,11 +255,12 @@ def _condition_metadata(tree, source_lines):
     return conditions
 
 # Coordinate parsing, tracing, output capture, execution, and final serialization.
-def run_trace(source):
+def run_trace(source, prepared_inputs=None):
     """Compile and execute learner source while recording educational snapshots.
 
     Args:
         source: Complete Python program supplied by the browser editor.
+        prepared_inputs: Ordered strings returned by calls to input().
 
     Returns:
         A dictionary containing steps, loop metadata, stdout, and an optional error.
@@ -268,6 +269,10 @@ def run_trace(source):
     source_lines = source.splitlines()
     # All print output accumulates in this stream and is copied into each snapshot.
     stdout = io.StringIO()
+    # A private queue provides deterministic stdin without browser prompts or server state.
+    input_values = iter(prepared_inputs or [])
+    # The log lets the interface explain which prepared response each prompt consumed.
+    input_log = []
     # steps preserves execution order for forward and backward UI playback.
     steps = []
     # The last line per frame lets a later trace event capture the effects of that line.
@@ -290,7 +295,23 @@ def run_trace(source):
             "offset": error.offset or 0,
             "source": error.text.strip() if error.text else "",
         }
-        return {"steps": [], "loops": [], "conditions": [], "output": "", "error": syntax_error}
+        return {"steps": [], "loops": [], "conditions": [], "output": "", "error": syntax_error, "inputLog": []}
+
+    # This replacement follows Python's input contract while consuming only learner-prepared values.
+    def teaching_input(prompt=""):
+        """Print the prompt, consume one prepared response, and record the exchange."""
+        # input() normally writes its prompt without a trailing newline.
+        if prompt:
+            print(prompt, end="")
+        # Running out of responses is explicit and teachable instead of silently returning empty text.
+        try:
+            value = next(input_values)
+        except StopIteration as error:
+            raise EOFError("Input Playground has no prepared value left") from error
+        # Echoing the response makes captured console output resemble an interactive terminal session.
+        print(value)
+        input_log.append({"prompt": str(prompt), "value": value})
+        return value
 
     # This nested helper freezes the current interpreter state into one timeline item.
     def capture(frame, line_number, event, detail=None, next_line=None):
@@ -364,9 +385,12 @@ def run_trace(source):
         return tracer
 
     # The learner receives an ordinary module-like global scope with Python builtins.
+    # Copying the builtin namespace lets input() be replaced for this run without mutating Pyodide globally.
+    program_builtins = dict(vars(builtins))
+    program_builtins["input"] = teaching_input
     program_globals = {
         "__name__": "__main__",
-        "__builtins__": builtins,
+        "__builtins__": program_builtins,
     }
     # A null error marks successful execution unless the guarded exec branch replaces it.
     runtime_error = None
@@ -401,10 +425,11 @@ def run_trace(source):
         "conditions": conditions,
         "output": stdout.getvalue(),
         "error": runtime_error,
+        "inputLog": input_log,
     }
 
 # USER_SOURCE is injected by JavaScript immediately before this harness runs.
-result_json = json.dumps(run_trace(USER_SOURCE))
+result_json = json.dumps(run_trace(USER_SOURCE, json.loads(USER_INPUTS_JSON)))
 `;
 
 /**
@@ -448,6 +473,8 @@ self.addEventListener("message", async (event) => {
     const pyodide = await getPyodide();
     // USER_SOURCE becomes a Python global read by the final line of tracerSource.
     pyodide.globals.set("USER_SOURCE", event.data.source);
+    // Prepared input is serialized explicitly so all values remain strings, matching Python input().
+    pyodide.globals.set("USER_INPUTS_JSON", JSON.stringify(event.data.inputs || []));
     // The harness runs asynchronously from JavaScript, though Python itself is synchronous.
     await pyodide.runPythonAsync(tracerSource);
     // JSON avoids leaking live PyProxy objects across the worker boundary.
@@ -455,6 +482,7 @@ self.addEventListener("message", async (event) => {
     const result = JSON.parse(resultJson);
     // Removing temporary globals allows their Python and WebAssembly memory to be reclaimed.
     pyodide.globals.delete("USER_SOURCE");
+    pyodide.globals.delete("USER_INPUTS_JSON");
     pyodide.globals.delete("result_json");
     // The run id pairs this response with the request that produced it.
     self.postMessage({ type: "result", runId: event.data.runId, result });

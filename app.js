@@ -40,6 +40,9 @@ const EDITOR_PREFERENCES_STORAGE_KEY = "code-explorer-editor-preferences";
  */
 const GRAPH_ZOOM_STORAGE_KEY = "code-explorer-graph-zoom";
 
+/** Browser storage key for learner-selected watch names and prepared stdin values. */
+const LEARNING_PREFERENCES_STORAGE_KEY = "code-explorer-learning-preferences";
+
 /**
  * Safe defaults closely match the original editor presentation.
  * Wrapping starts enabled for beginner-friendly viewing, and fourteen pixels
@@ -155,6 +158,36 @@ function saveGraphZoomPreferences(preferences) {
 }
 
 /**
+ * Restores the small pieces of learner-authored workspace state that remain useful across reloads.
+ * Trace bookmarks are intentionally excluded because they belong to one specific execution.
+ * @returns {{watches: string[], inputs: string}} Valid local learning preferences.
+ */
+function loadLearningPreferences() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(LEARNING_PREFERENCES_STORAGE_KEY) || "null");
+    const watches = Array.isArray(stored?.watches)
+      ? stored.watches.filter((name) => typeof name === "string" && /^[A-Za-z_]\w*$/.test(name)).slice(0, 12)
+      : [];
+    return { watches, inputs: typeof stored?.inputs === "string" ? stored.inputs : "" };
+  } catch (error) {
+    console.warn("Code Explorer could not read learning preferences.", error);
+    return { watches: [], inputs: "" };
+  }
+}
+
+/** Saves watches and prepared input without coupling them to the Python source document. */
+function saveLearningPreferences() {
+  try {
+    localStorage.setItem(LEARNING_PREFERENCES_STORAGE_KEY, JSON.stringify({
+      watches: [...state.watches],
+      inputs: els.programInputs?.value || "",
+    }));
+  } catch (error) {
+    console.warn("Code Explorer could not save learning preferences.", error);
+  }
+}
+
+/**
  * Curated programs displayed by the Examples dialog.
  *
  * Each object contains presentation metadata plus the exact Python source to
@@ -224,6 +257,28 @@ for number in range(1, 4):
 
 print(squares)`,
   },
+  {
+    topic: "Input",
+    title: "A personalized greeting",
+    description: "Prepare two input values and watch Python consume them in order.",
+    code: `name = input("Your name: ")
+age = int(input("Your age: "))
+
+if age >= 18 and name:
+    message = "Welcome, " + name
+else:
+    message = "Keep learning, " + name
+
+print(message)`,
+  },
+  {
+    topic: "Errors",
+    title: "An index to investigate",
+    description: "Stop at an IndexError and inspect the state that explains it.",
+    code: `colors = ["mint", "purple"]
+requested_index = 2
+print(colors[requested_index])`,
+  },
 ];
 
 /**
@@ -238,17 +293,23 @@ const els = Object.fromEntries(
     "runtimeStatus", "runtimeLabel", "themeButton", "themeIcon", "welcomeScreen", "workspace",
     "heroExampleButton", "backButton", "examplesButton", "runButton", "stopButton",
     "editor", "editorShell", "editorWrapButton", "editorFontSizeSelect", "editorCopyButton", "editorPasteButton",
-    "codeStats", "storyTab", "variablesTab", "referencesTab", "flowTab",
-    "loopTab", "loopBadge", "storyView", "variablesView", "referencesView", "flowView", "loopView",
+    "codeStats", "storyTab", "conditionsTab", "functionsTab", "variablesTab", "structuresTab", "referencesTab", "flowTab",
+    "coverageTab", "loopTab", "scenariosTab", "bookmarksTab", "loopBadge", "bookmarkBadge",
+    "storyView", "conditionsView", "functionsView", "variablesView", "structuresView", "referencesView", "flowView",
+    "coverageView", "loopView", "scenariosView", "bookmarksView",
     "emptyStory", "traceContent", "traceKicker", "executedCode", "explanation", "changeList",
+    "beforeAfterGrid", "changeSummary", "errorCoach", "errorCoachTitle", "errorCoachMeaning", "errorCoachTip",
     "stepOutputSection", "stepOutput", "variablesGrid", "callStackSection", "callStack",
+    "emptyConditions", "conditionsContent", "emptyFunctions", "functionsContent",
     "emptyVariables", "variablesContent", "scopeBrowser", "variableInspector", "emptyReferences",
     "referencesContent", "referencesGraph", "referencesZoomSlider", "referencesZoomValue",
     "decreaseReferencesZoomButton", "increaseReferencesZoomButton", "fitReferencesButton",
-    "emptyFlow", "flowContent", "flowGraph", "flowZoomSlider", "flowZoomValue",
+    "emptyStructures", "structuresContent", "emptyFlow", "flowContent", "flowGraph", "flowZoomSlider", "flowZoomValue",
     "decreaseFlowZoomButton", "increaseFlowZoomButton", "fitFlowButton", "emptyLoop", "loopContent", "loopType",
-    "iterationCount", "loopSource", "loopMeter", "iterationList", "stepCount", "previousButton",
-    "playButton", "nextButton", "restartButton", "stepSlider", "progressPercent", "speedSelect",
+    "emptyCoverage", "coverageContent", "iterationCount", "loopSource", "loopMeter", "iterationList", "loopTable",
+    "programInputs", "inputStatus", "captureRunAButton", "captureRunBButton", "clearComparisonsButton", "comparisonResult",
+    "emptyBookmarks", "bookmarksContent", "stepCount", "previousButton",
+    "playButton", "nextButton", "restartButton", "bookmarkButton", "stepSlider", "progressPercent", "speedSelect",
     "consoleOutput", "clearOutputButton", "examplesDialog", "closeExamplesButton", "exampleGrid", "toast",
   ].map((id) => [id, document.getElementById(id)]),
 );
@@ -299,8 +360,20 @@ const state = {
   playTimer: null,
   // Records which explanatory tab is visible without changing trace state.
   activePanel: "story",
+  // The primary learning area filters secondary tabs so the growing workspace remains scannable.
+  activeMode: "trace",
   // Remembers the variable selected in the detailed inspector across trace steps.
   selectedVariable: null,
+  // Learner-selected watch names remain visible regardless of the active detail view.
+  watches: new Set(loadLearningPreferences().watches),
+  // Breakpoints are source-line markers that pause trace replay before the selected line advances.
+  breakpoints: new Set(),
+  // Bookmarks belong to the current execution and form a learner-authored trace index.
+  bookmarks: new Set(),
+  // Two bounded snapshots support scenario comparison without retaining unlimited traces.
+  comparisonRuns: { a: null, b: null },
+  // The worker reports every controlled input exchange so the Scenario Lab can confirm consumption.
+  inputLog: [],
   // Holds the lazily loaded Cytoscape constructor used by both graph views.
   graphLibrary: null,
   // Reuses one graph instance for the active reference map instead of leaking canvases.
@@ -824,7 +897,10 @@ async function runCode() {
 
   try {
     await ensureWorker();
-    state.worker.postMessage({ type: "run", runId: state.runId, source });
+    // Every nonempty line is one deterministic response returned by Python's input().
+    const preparedInputText = els.programInputs?.value || "";
+    const inputs = preparedInputText === "" ? [] : preparedInputText.split("\n");
+    state.worker.postMessage({ type: "run", runId: state.runId, source, inputs });
     state.runTimeout = window.setTimeout(() => {
       stopExecution("Execution time limit reached: the program was stopped after 30 seconds. Check for an infinite loop or reduce the amount of work.");
     }, EXECUTION_TIMEOUT_MS);
@@ -870,8 +946,12 @@ function loadResult(result) {
   state.loops = result.loops || [];
   state.conditions = result.conditions || [];
   state.error = result.error || null;
+  state.inputLog = result.inputLog || [];
   state.currentStep = 0;
   state.selectedVariable = null;
+  state.bookmarks.clear();
+  updateBookmarkControls();
+  renderInputStatus();
   els.loopBadge.textContent = String(state.loops.length);
 
   if (!state.trace.length) {
@@ -893,6 +973,7 @@ function loadResult(result) {
   els.playButton.disabled = false;
   els.nextButton.disabled = false;
   els.restartButton.disabled = false;
+  els.bookmarkButton.disabled = false;
   renderStep();
 
   if (state.error) {
@@ -912,8 +993,10 @@ function clearTrace() {
   state.loops = [];
   state.conditions = [];
   state.error = null;
+  state.inputLog = [];
   state.currentStep = 0;
   state.selectedVariable = null;
+  state.bookmarks.clear();
   state.referencesGraph?.destroy();
   state.referencesGraph = null;
   state.flowGraph?.destroy();
@@ -929,6 +1012,8 @@ function clearTrace() {
   els.emptyLoop.classList.remove("hidden");
   els.loopContent.classList.add("hidden");
   els.loopBadge.textContent = "0";
+  updateBookmarkControls();
+  renderInputStatus();
   els.stepCount.textContent = "STEP 00 / 00";
   setConsole("// Output will appear here", "muted");
   renderEditorHeatmap();
@@ -948,6 +1033,7 @@ function clearPlaybackControls() {
   els.playButton.disabled = true;
   els.nextButton.disabled = true;
   els.restartButton.disabled = true;
+  if (els.bookmarkButton) els.bookmarkButton.disabled = true;
   els.progressPercent.textContent = "0%";
 }
 
@@ -1152,6 +1238,256 @@ function explainStep(step, changes) {
   return "Python completed this instruction without changing a visible variable.";
 }
 
+/** Returns the previous visible value map used by side-by-side state explanations. */
+function previousVariables(index) {
+  return index > 0 ? variablesForStep(state.trace[index - 1]) : {};
+}
+
+/**
+ * Renders a compact before-and-after table for every value affected by the current instruction.
+ * Creation and removal use plain phrases so a beginner never has to interpret an empty cell.
+ */
+function renderBeforeAfter(index) {
+  const current = variablesForStep(state.trace[index]);
+  const previous = previousVariables(index);
+  const changes = changesAt(index);
+  els.changeSummary.textContent = changes.length
+    ? `${changes.length} change${changes.length === 1 ? "" : "s"}`
+    : "No visible change";
+  els.beforeAfterGrid.replaceChildren();
+  const names = changes.length ? changes.map((change) => change.name) : Object.keys(current).slice(0, 4);
+  if (!names.length) {
+    const empty = document.createElement("p");
+    empty.className = "learning-empty-copy";
+    empty.textContent = "No visible variables exist at this step.";
+    els.beforeAfterGrid.append(empty);
+    return;
+  }
+  names.slice(0, 8).forEach((name) => {
+    const row = document.createElement("div");
+    row.className = `state-comparison-row ${changes.some((change) => change.name === name) ? "changed" : ""}`;
+    const label = document.createElement("strong");
+    label.textContent = name;
+    const before = document.createElement("code");
+    before.dataset.label = "Before";
+    before.textContent = previous[name]?.display ?? "not created";
+    const arrow = document.createElement("span");
+    arrow.className = "comparison-arrow";
+    arrow.textContent = "→";
+    const after = document.createElement("code");
+    after.dataset.label = "After";
+    after.textContent = current[name]?.display ?? "out of scope";
+    row.append(label, before, arrow, after);
+    els.beforeAfterGrid.append(row);
+  });
+}
+
+/** Beginner-safe explanations for the most common Python runtime and syntax failures. */
+const ERROR_GUIDANCE = Object.freeze({
+  SyntaxError: ["Python could not understand the program's grammar.", "Check punctuation, brackets, colons, and the highlighted line."],
+  IndentationError: ["A block is not indented in the structure Python expects.", "Use consistent spaces and align statements that belong to the same block."],
+  NameError: ["Python tried to use a name that does not exist in the current scope.", "Check spelling and make sure the variable is created before this line."],
+  TypeError: ["The operation does not support the type of value it received.", "Inspect the visible value types and convert them only when that matches your intention."],
+  ValueError: ["The value has the right general type but an unacceptable value.", "Inspect the exact input and the conversion or operation performed here."],
+  IndexError: ["The program requested a sequence position that does not exist.", "Remember that the first index is 0 and the final index is length minus 1."],
+  KeyError: ["The requested dictionary key is not present.", "Inspect the dictionary keys or use get() when a missing key is expected."],
+  ZeroDivisionError: ["The program attempted to divide by zero.", "Check the divisor before performing the calculation."],
+  AttributeError: ["This value does not provide the requested attribute or method.", "Inspect its type and check the method name for spelling."],
+  EOFError: ["The program requested an input value that was not prepared.", "Add another line in Input Playground and run the trace again."],
+});
+
+/** Shows rule-based error guidance only at the failing step or terminal trace position. */
+function renderErrorCoach(step, index) {
+  const detail = step.event === "exception" ? step.detail : index === state.trace.length - 1 ? state.error : null;
+  els.errorCoach.classList.toggle("hidden", !detail);
+  if (!detail) return;
+  const [meaning, tip] = ERROR_GUIDANCE[detail.type] || [
+    "Python stopped because this instruction raised an exception.",
+    "Inspect the state immediately before this step and read the original message carefully.",
+  ];
+  els.errorCoachTitle.textContent = `${detail.type}: ${detail.message}`;
+  els.errorCoachMeaning.textContent = meaning;
+  els.errorCoachTip.textContent = `Try this: ${tip}`;
+}
+
+/** Finds the most recently reached condition so the investigator remains useful after a branch line. */
+function conditionNearStep(index) {
+  for (let cursor = index; cursor >= 0; cursor -= 1) {
+    const step = state.trace[cursor];
+    const metadata = state.conditions.find((item) => item.line === step.line)
+      || state.loops.find((item) => item.type === "while" && item.line === step.line);
+    if (metadata) return { metadata, step, index: cursor };
+  }
+  return null;
+}
+
+/** Converts a supported serialized primitive into its real JavaScript value for display-only condition reasoning. */
+function conditionOperand(token, variables) {
+  const text = token.trim();
+  if (Object.hasOwn(variables, text) && ["NoneType", "bool", "int", "float", "str"].includes(variables[text].type)) {
+    return { supported: true, value: variables[text].value };
+  }
+  const lengthMatch = text.match(/^len\(([A-Za-z_]\w*)\)$/);
+  if (lengthMatch && Number.isFinite(variables[lengthMatch[1]]?.length)) {
+    return { supported: true, value: variables[lengthMatch[1]].length };
+  }
+  if (/^-?\d+(?:\.\d+)?$/.test(text)) return { supported: true, value: Number(text) };
+  if (text === "True") return { supported: true, value: true };
+  if (text === "False") return { supported: true, value: false };
+  if (text === "None") return { supported: true, value: null };
+  if ((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))) {
+    return { supported: true, value: text.slice(1, -1) };
+  }
+  return { supported: false, value: undefined };
+}
+
+/**
+ * Explains only simple, side-effect-free Boolean terms from captured values.
+ * Unsupported calls or compound syntax return null instead of being executed or guessed.
+ */
+function evaluateSimpleConditionTerm(term, variables) {
+  const text = term.trim();
+  const negated = text.startsWith("not ");
+  const candidate = negated ? text.slice(4).trim() : text;
+  const comparison = candidate.match(/^(.+?)\s*(==|!=|>=|<=|>|<)\s*(.+)$/);
+  let result;
+  if (comparison) {
+    const left = conditionOperand(comparison[1], variables);
+    const right = conditionOperand(comparison[3], variables);
+    if (!left.supported || !right.supported) return null;
+    // Python treats bool as a numeric subtype for equality, unlike JavaScript's strict equality.
+    const bothNumeric = [left.value, right.value].every((value) => typeof value === "number" || typeof value === "boolean");
+    const equal = bothNumeric ? Number(left.value) === Number(right.value) : left.value === right.value;
+    const operations = {
+      "==": () => equal,
+      "!=": () => !equal,
+      ">=": () => left.value >= right.value,
+      "<=": () => left.value <= right.value,
+      ">": () => left.value > right.value,
+      "<": () => left.value < right.value,
+    };
+    result = operations[comparison[2]]();
+  } else {
+    const operand = conditionOperand(candidate, variables);
+    if (!operand.supported) return null;
+    result = Boolean(operand.value);
+  }
+  return negated ? !result : result;
+}
+
+/** Renders the observed condition result and a readable decomposition without reevaluating user code. */
+function renderConditionInvestigator() {
+  const found = state.trace.length ? conditionNearStep(state.currentStep) : null;
+  els.emptyConditions.classList.toggle("hidden", Boolean(found));
+  els.conditionsContent.classList.toggle("hidden", !found);
+  if (!found) return;
+  const source = found.metadata.source || found.step.source.trim();
+  const expression = source.replace(/^(?:if|elif|while)\s+/, "").replace(/:\s*$/, "");
+  const outcome = conditionOutcome(found.step);
+  const operators = expression.split(/\s+(and|or)\s+/);
+  els.conditionsContent.replaceChildren();
+  const header = document.createElement("section");
+  header.className = "learning-card condition-result-card";
+  header.innerHTML = '<div class="section-label">OBSERVED CONDITION</div>';
+  const code = document.createElement("code");
+  code.className = "condition-code";
+  code.textContent = expression;
+  const result = document.createElement("div");
+  result.className = `condition-outcome ${outcome === true ? "true" : outcome === false ? "false" : "unknown"}`;
+  result.textContent = outcome === null ? "Result could not be isolated safely" : `${outcome ? "True" : "False"} path observed`;
+  header.append(code, result);
+  if (operators.length > 1) {
+    const pieces = document.createElement("div");
+    pieces.className = "condition-pieces";
+    const variables = variablesForStep(found.step);
+    const booleanOperators = operators.filter((_, pieceIndex) => pieceIndex % 2 === 1);
+    const uniformOperator = booleanOperators.every((operator) => operator === booleanOperators[0]);
+    let shortCircuited = false;
+    let previousResult = null;
+    operators.forEach((piece, pieceIndex) => {
+      const token = document.createElement(pieceIndex % 2 ? "span" : "code");
+      token.className = pieceIndex % 2 ? "boolean-operator" : "condition-piece";
+      if (pieceIndex % 2) {
+        token.textContent = piece;
+      } else {
+        const priorOperator = pieceIndex > 0 ? operators[pieceIndex - 1] : null;
+        if (uniformOperator && ((priorOperator === "and" && previousResult === false) || (priorOperator === "or" && previousResult === true))) {
+          shortCircuited = true;
+        }
+        const termResult = shortCircuited ? null : evaluateSimpleConditionTerm(piece, variables);
+        token.textContent = shortCircuited
+          ? `${piece} · not evaluated`
+          : termResult === null
+            ? piece
+            : `${piece} · ${termResult ? "True" : "False"}`;
+        if (termResult !== null) previousResult = termResult;
+      }
+      pieces.append(token);
+    });
+    header.append(pieces);
+  }
+  const note = document.createElement("p");
+  note.className = "safety-note";
+  note.textContent = "Code Explorer reports the path Python actually took. It does not run the expression a second time.";
+  header.append(note);
+  els.conditionsContent.append(header);
+}
+
+/** Renders caller, active function frame, visible locals, and the latest observed return value. */
+function renderFunctionJourney() {
+  if (!state.trace.length) return;
+  const step = state.trace[state.currentStep];
+  let journeyIndex = state.currentStep;
+  while (journeyIndex >= 0 && (state.trace[journeyIndex].frames?.length || 0) < 2) journeyIndex -= 1;
+  const journeyStep = journeyIndex >= 0 ? state.trace[journeyIndex] : null;
+  const frames = journeyStep?.frames || [];
+  const hasJourney = frames.length > 1;
+  els.emptyFunctions.classList.toggle("hidden", hasJourney);
+  els.functionsContent.classList.toggle("hidden", !hasJourney);
+  if (!hasJourney) return;
+  const caller = frames.at(-2);
+  const active = frames.at(-1);
+  const returnStep = state.trace.slice(journeyIndex).find((candidate) => candidate.event === "return" && candidate.source.trim().startsWith("return"));
+  els.functionsContent.replaceChildren();
+  const journey = document.createElement("div");
+  journey.className = "function-journey";
+  const stages = [
+    ["CALLER", caller.name === "<module>" ? "global frame" : `${caller.name}()`],
+    ["FUNCTION", `${active.name}()`],
+    ["LOCAL VALUES", Object.entries(active.locals || {}).filter(([, value]) => !["function", "module"].includes(value.type)).map(([name, value]) => `${name} = ${value.display}`).join("\n") || "No visible locals"],
+    ["RETURN", returnStep?.detail?.display ?? "Not returned yet"],
+  ];
+  stages.forEach(([label, value], index) => {
+    const stage = document.createElement("section");
+    stage.className = "journey-stage";
+    const kicker = document.createElement("span");
+    kicker.textContent = label;
+    const content = document.createElement("code");
+    content.textContent = value;
+    stage.append(kicker, content);
+    journey.append(stage);
+    if (index < stages.length - 1) {
+      const connector = document.createElement("div");
+      connector.className = "journey-connector";
+      connector.textContent = "↓";
+      journey.append(connector);
+    }
+  });
+  els.functionsContent.append(journey);
+}
+
+/** Updates all derived learning panels that follow the current trace position. */
+function renderLearningPanels(step, index) {
+  renderBeforeAfter(index);
+  renderErrorCoach(step, index);
+  renderConditionInvestigator();
+  renderFunctionJourney();
+  renderStructures();
+  renderCoverage();
+  renderBookmarks();
+  updateBookmarkControls();
+}
+
 /**
  * Renders the complete workspace for the currently selected trace snapshot.
  * This coordinator updates progress, explanation, variables, call stack, Loop Lab, editor focus, and synchronized console output together.
@@ -1160,7 +1496,11 @@ function renderStep() {
   if (!state.trace.length) return;
   const index = Math.max(0, Math.min(state.currentStep, state.trace.length - 1));
   state.currentStep = index;
-  const step = state.trace[index];
+  const recordedStep = state.trace[index];
+  // Python can emit a final return event while unwinding after an exception; the terminal view should still teach the real failure.
+  const step = state.error && index === state.trace.length - 1 && state.error.line === recordedStep.line
+    ? { ...recordedStep, event: "exception", detail: state.error }
+    : recordedStep;
   const changes = changesAt(index);
   const percent = state.trace.length <= 1 ? 100 : Math.round((index / (state.trace.length - 1)) * 100);
 
@@ -1180,7 +1520,9 @@ function renderStep() {
   renderStepOutput(index);
   renderVariableExplorer();
   renderLoopLab(index);
+  renderLearningPanels(step, index);
   renderEditorHeatmap();
+  renderBreakpointGutter();
   updateFlowSelection();
   // Manual stepping should update the reference map immediately. Automatic
   // playback defers that work until pausePlayback so the canvas remains still.
@@ -1458,7 +1800,12 @@ function renderVariableExplorer() {
   const typeBadge = document.createElement("span");
   typeBadge.className = "inspector-type";
   typeBadge.textContent = value.type;
-  heading.append(title, typeBadge);
+  const watchButton = document.createElement("button");
+  watchButton.type = "button";
+  watchButton.className = `small-action ${state.watches.has(name) ? "active" : ""}`;
+  watchButton.textContent = state.watches.has(name) ? "Watching" : "Watch";
+  watchButton.addEventListener("click", () => toggleWatch(name));
+  heading.append(title, typeBadge, watchButton);
 
   const metadata = document.createElement("div");
   metadata.className = "inspector-metadata";
@@ -1505,7 +1852,113 @@ function renderVariableExplorer() {
     historyTable.append(row);
   });
 
-  els.variableInspector.append(heading, metadata, contentsLabel, tree, historyLabel, historyTable);
+  const watches = document.createElement("section");
+  watches.className = "watch-strip";
+  const watchLabel = document.createElement("span");
+  watchLabel.className = "section-label";
+  watchLabel.textContent = "WATCHES";
+  watches.append(watchLabel);
+  if (!state.watches.size) {
+    const empty = document.createElement("span");
+    empty.textContent = "Select a variable and choose Watch.";
+    watches.append(empty);
+  } else {
+    [...state.watches].forEach((watchName) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "watch-chip";
+      chip.textContent = `${watchName} = ${variables[watchName]?.display ?? "not in scope"}`;
+      chip.addEventListener("click", () => {
+        if (variables[watchName]) state.selectedVariable = watchName;
+        renderVariableExplorer();
+      });
+      watches.append(chip);
+    });
+  }
+  els.variableInspector.append(watches, heading, metadata, contentsLabel, tree, historyLabel, historyTable);
+}
+
+/** Adds or removes one safe identifier from the persistent watch collection. */
+function toggleWatch(name) {
+  if (state.watches.has(name)) state.watches.delete(name);
+  else if (state.watches.size < 12) state.watches.add(name);
+  else {
+    showToast("Watch up to 12 variables at a time.", true);
+    return;
+  }
+  saveLearningPreferences();
+  renderVariableExplorer();
+  showToast(state.watches.has(name) ? `${name} added to Watches.` : `${name} removed from Watches.`);
+}
+
+/** Selects a container-like value and renders its indexes, keys, contents, and identity behavior. */
+function renderStructures() {
+  if (!state.trace.length) return;
+  const variables = variablesForStep(state.trace[state.currentStep]);
+  const supported = Object.entries(variables).filter(([, value]) =>
+    ["list", "tuple", "dict", "set", "frozenset", "str"].includes(value.type));
+  els.emptyStructures.classList.toggle("hidden", supported.length > 0);
+  els.structuresContent.classList.toggle("hidden", supported.length === 0);
+  if (!supported.length) return;
+  let [name, value] = supported.find(([candidate]) => candidate === state.selectedVariable) || supported[0];
+  state.selectedVariable = name;
+  const history = variableHistory(name).filter((entry) => entry.index <= state.currentStep);
+  const latest = history.at(-1);
+  const mutationText = latest?.kind === "mutated"
+    ? "The same object changed its contents."
+    : latest?.kind === "changed"
+      ? "The name now references a different value or object."
+      : "This value has not changed since it was created.";
+  els.structuresContent.replaceChildren();
+  const picker = document.createElement("div");
+  picker.className = "structure-picker";
+  supported.forEach(([candidate, candidateValue]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `structure-choice ${candidate === name ? "active" : ""}`;
+    button.textContent = `${candidate} · ${candidateValue.type}`;
+    button.addEventListener("click", () => {
+      state.selectedVariable = candidate;
+      renderStructures();
+    });
+    picker.append(button);
+  });
+  const card = document.createElement("section");
+  card.className = "learning-card structure-card";
+  const header = document.createElement("div");
+  header.className = "structure-heading";
+  const title = document.createElement("h3");
+  title.textContent = name;
+  const badge = document.createElement("span");
+  badge.className = "inspector-type";
+  badge.textContent = `${value.type}${Number.isFinite(value.length) ? ` · ${value.length} item${value.length === 1 ? "" : "s"}` : ""}`;
+  header.append(title, badge);
+  const cells = document.createElement("div");
+  cells.className = "structure-cells";
+  if (value.type === "str") {
+    [...(value.value || "")].slice(0, 30).forEach((character, index) => cells.append(createStructureCell(index, character)));
+  } else if (Array.isArray(value.items)) {
+    value.items.forEach((item, index) => cells.append(createStructureCell(index, item.display)));
+  } else if (Array.isArray(value.entries)) {
+    value.entries.forEach((entry) => cells.append(createStructureCell(entry.key?.display ?? "?", entry.value?.display ?? "?")));
+  }
+  const behavior = document.createElement("div");
+  behavior.className = `mutation-note ${latest?.kind || "created"}`;
+  behavior.textContent = mutationText;
+  card.append(header, cells, behavior);
+  els.structuresContent.append(picker, card);
+}
+
+/** Creates one index or key cell without using learner text as HTML. */
+function createStructureCell(label, display) {
+  const cell = document.createElement("div");
+  cell.className = "structure-cell";
+  const index = document.createElement("span");
+  index.textContent = String(label);
+  const value = document.createElement("code");
+  value.textContent = String(display);
+  cell.append(index, value);
+  return cell;
 }
 
 /**
@@ -1641,6 +2094,255 @@ function renderLoopLab(stepIndex) {
       return item;
     }),
   );
+
+  // A real table makes changing loop values easier to compare than an animation alone.
+  const variableNames = [...new Set(allOccurrences.flatMap((occurrence) => Object.keys(occurrence.variables)))].slice(0, 5);
+  els.loopTable.replaceChildren();
+  const head = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  ["Iteration", ...variableNames].forEach((label) => {
+    const cell = document.createElement("th");
+    cell.scope = "col";
+    cell.textContent = label;
+    headRow.append(cell);
+  });
+  head.append(headRow);
+  const body = document.createElement("tbody");
+  allOccurrences.slice(0, 100).forEach((occurrence, index) => {
+    const row = document.createElement("tr");
+    if (occurrence.index <= stepIndex) row.classList.add("reached");
+    const iterationCell = document.createElement("th");
+    iterationCell.scope = "row";
+    const jump = document.createElement("button");
+    jump.type = "button";
+    jump.textContent = String(index + 1);
+    jump.addEventListener("click", () => goToStep(occurrence.index));
+    iterationCell.append(jump);
+    row.append(iterationCell);
+    variableNames.forEach((name) => {
+      const cell = document.createElement("td");
+      cell.textContent = occurrence.variables[name]?.display ?? "not set";
+      row.append(cell);
+    });
+    body.append(row);
+  });
+  els.loopTable.append(head, body);
+}
+
+/** Returns source lines that are likely executable while excluding blank lines and comments. */
+function executableSourceLines() {
+  return getCode().split("\n").map((source, index) => ({ line: index + 1, source }))
+    .filter(({ source }) => source.trim() && !source.trim().startsWith("#"));
+}
+
+/** Renders actual execution counts and clearly separates missed source from reached source. */
+function renderCoverage() {
+  const lines = executableSourceLines();
+  const counts = new Map();
+  state.trace.forEach((step) => counts.set(step.line, (counts.get(step.line) || 0) + 1));
+  const hasCoverage = state.trace.length > 0;
+  els.emptyCoverage.classList.toggle("hidden", hasCoverage);
+  els.coverageContent.classList.toggle("hidden", !hasCoverage);
+  if (!hasCoverage) return;
+  const reached = lines.filter(({ line }) => counts.has(line)).length;
+  els.coverageContent.replaceChildren();
+  const summary = document.createElement("section");
+  summary.className = "coverage-summary learning-card";
+  const percent = lines.length ? Math.round((reached / lines.length) * 100) : 100;
+  const number = document.createElement("strong");
+  number.textContent = `${percent}%`;
+  const copy = document.createElement("span");
+  copy.textContent = `${reached} of ${lines.length} source lines reached`;
+  summary.append(number, copy);
+  const list = document.createElement("div");
+  list.className = "coverage-list";
+  lines.forEach(({ line, source }) => {
+    const count = counts.get(line) || 0;
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = `coverage-line ${count ? count > 1 ? "repeated" : "reached" : "missed"}`;
+    const status = document.createElement("span");
+    status.textContent = count ? (count > 1 ? `${count}x` : "✓") : "○";
+    const number = document.createElement("span");
+    number.textContent = String(line);
+    const code = document.createElement("code");
+    code.textContent = source.trim();
+    item.append(status, number, code);
+    item.addEventListener("click", () => {
+      const traceIndex = state.trace.findIndex((step) => step.line === line);
+      if (traceIndex >= 0) goToStep(traceIndex);
+      else focusLine(line);
+    });
+    list.append(item);
+  });
+  els.coverageContent.append(summary, list);
+}
+
+/** Synchronizes the bookmark star, count badge, and accessible pressed state. */
+function updateBookmarkControls() {
+  if (!els.bookmarkButton) return;
+  const active = state.bookmarks.has(state.currentStep);
+  els.bookmarkButton.textContent = active ? "★" : "☆";
+  els.bookmarkButton.setAttribute("aria-pressed", String(active));
+  els.bookmarkBadge.textContent = String(state.bookmarks.size);
+}
+
+/** Adds or removes the current trace position from the temporary bookmark collection. */
+function toggleBookmark() {
+  if (!state.trace.length) return;
+  if (state.bookmarks.has(state.currentStep)) state.bookmarks.delete(state.currentStep);
+  else state.bookmarks.add(state.currentStep);
+  updateBookmarkControls();
+  renderBookmarks();
+  showToast(state.bookmarks.has(state.currentStep) ? "Trace step bookmarked." : "Bookmark removed.");
+}
+
+/** Builds a chronological, clickable table of contents for learner-selected trace moments. */
+function renderBookmarks() {
+  const indexes = [...state.bookmarks].sort((first, second) => first - second);
+  els.emptyBookmarks.classList.toggle("hidden", indexes.length > 0);
+  els.bookmarksContent.classList.toggle("hidden", indexes.length === 0);
+  if (!indexes.length) return;
+  els.bookmarksContent.replaceChildren();
+  indexes.forEach((index) => {
+    const step = state.trace[index];
+    if (!step) return;
+    const row = document.createElement("div");
+    row.className = `bookmark-row ${index === state.currentStep ? "active" : ""}`;
+    const jump = document.createElement("button");
+    jump.type = "button";
+    jump.className = "bookmark-jump";
+    const label = document.createElement("strong");
+    label.textContent = `Step ${index + 1} · Line ${step.line}`;
+    const code = document.createElement("code");
+    code.textContent = step.source.trim();
+    jump.append(label, code);
+    jump.addEventListener("click", () => goToStep(index));
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "bookmark-remove";
+    remove.setAttribute("aria-label", `Remove bookmark at step ${index + 1}`);
+    remove.textContent = "×";
+    remove.addEventListener("click", () => {
+      state.bookmarks.delete(index);
+      updateBookmarkControls();
+      renderBookmarks();
+    });
+    row.append(jump, remove);
+    els.bookmarksContent.append(row);
+  });
+}
+
+/** Reports prepared and consumed stdin values without exposing a modal prompt during execution. */
+function renderInputStatus() {
+  if (!els.inputStatus) return;
+  const prepared = (els.programInputs.value || "").split("\n").filter((value) => value.length > 0).length;
+  const consumed = state.inputLog.length;
+  els.inputStatus.textContent = consumed
+    ? `${consumed} prepared value${consumed === 1 ? "" : "s"} consumed by the latest run.`
+    : prepared
+      ? `${prepared} input value${prepared === 1 ? "" : "s"} prepared.`
+      : "No input values prepared.";
+}
+
+/** Creates a bounded, detached comparison snapshot from the latest result. */
+function currentRunSummary() {
+  if (!state.trace.length) return null;
+  return {
+    source: getCode(),
+    // Comparison reports only values the program actually consumed, not unrelated prepared leftovers.
+    inputs: state.inputLog.map((entry) => entry.value).join("\n"),
+    // Visible variable signatures let comparison detect different state even when both runs print the same text.
+    steps: state.trace.map((step) => ({
+      line: step.line,
+      source: step.source,
+      output: step.output,
+      variables: Object.fromEntries(Object.entries(variablesForStep(step)).map(([name, value]) => [name, valueSignature(value)])),
+    })),
+    output: state.trace.at(-1)?.output || "",
+    error: state.error ? { ...state.error } : null,
+  };
+}
+
+/** Captures the current trace in one of two fixed comparison slots. */
+function captureComparison(slot) {
+  const summary = currentRunSummary();
+  if (!summary) {
+    showToast("Run a trace before capturing it for comparison.", true);
+    return;
+  }
+  state.comparisonRuns[slot] = summary;
+  renderComparison();
+  showToast(`Run ${slot.toUpperCase()} captured.`);
+}
+
+/** Finds and explains the earliest behavioral difference between the two captured runs. */
+function renderComparison() {
+  const { a, b } = state.comparisonRuns;
+  els.comparisonResult.replaceChildren();
+  if (!a || !b) {
+    els.comparisonResult.textContent = `${a ? "Run A captured" : "Run A waiting"} · ${b ? "Run B captured" : "Run B waiting"}`;
+    return;
+  }
+  const limit = Math.max(a.steps.length, b.steps.length);
+  let firstDifference = -1;
+  for (let index = 0; index < limit; index += 1) {
+    const first = a.steps[index];
+    const second = b.steps[index];
+    if (!first || !second || first.line !== second.line || first.output !== second.output
+      || JSON.stringify(first.variables) !== JSON.stringify(second.variables)) {
+      firstDifference = index;
+      break;
+    }
+  }
+  const grid = document.createElement("div");
+  grid.className = "run-comparison-grid";
+  [["RUN A", a], ["RUN B", b]].forEach(([label, run]) => {
+    const card = document.createElement("div");
+    const heading = document.createElement("strong");
+    heading.textContent = label;
+    const inputs = document.createElement("code");
+    inputs.textContent = run.inputs || "No prepared input";
+    const output = document.createElement("pre");
+    output.textContent = run.output || "No output";
+    const steps = document.createElement("span");
+    steps.textContent = `${run.steps.length} trace steps${run.error ? ` · ${run.error.type}` : ""}`;
+    card.append(heading, inputs, output, steps);
+    grid.append(card);
+  });
+  const conclusion = document.createElement("p");
+  conclusion.className = "comparison-conclusion";
+  conclusion.textContent = firstDifference < 0
+    ? "Both runs followed the same recorded path and produced the same output."
+    : `The first observed difference occurs around trace step ${firstDifference + 1}.`;
+  els.comparisonResult.append(grid, conclusion);
+}
+
+/** Clears both bounded comparison slots without affecting the current trace. */
+function clearComparisons() {
+  state.comparisonRuns = { a: null, b: null };
+  renderComparison();
+  showToast("Run comparison cleared.");
+}
+
+/** Adds or removes a source-line breakpoint when the learner clicks the CodeMirror number gutter. */
+function toggleBreakpoint(line) {
+  if (!Number.isInteger(line) || line < 1) return;
+  if (state.breakpoints.has(line)) state.breakpoints.delete(line);
+  else state.breakpoints.add(line);
+  renderBreakpointGutter();
+  showToast(state.breakpoints.has(line) ? `Breakpoint added at line ${line}.` : `Breakpoint removed from line ${line}.`);
+}
+
+/** Applies breakpoint styling to CodeMirror's rendered gutter without rebuilding the editor. */
+function renderBreakpointGutter() {
+  window.requestAnimationFrame(() => {
+    els.editorShell?.querySelectorAll(".cm-lineNumbers .cm-gutterElement").forEach((element) => {
+      const line = Number(element.textContent);
+      element.classList.toggle("cm-breakpoint-gutter", state.breakpoints.has(line));
+      if (line) element.title = state.breakpoints.has(line) ? "Remove breakpoint" : "Add breakpoint";
+    });
+  });
 }
 
 /**
@@ -1703,6 +2405,12 @@ function scheduleNextStep() {
     }
     state.currentStep += 1;
     renderStep();
+    // A replay breakpoint pauses on arrival, preserving the fully captured and deterministic trace.
+    if (state.breakpoints.has(state.trace[state.currentStep].line)) {
+      pausePlayback();
+      showToast(`Paused at breakpoint on line ${state.trace[state.currentStep].line}.`);
+      return;
+    }
     scheduleNextStep();
   }, Number(els.speedSelect.value));
 }
@@ -2120,18 +2828,24 @@ function updateFlowSelection() {
 }
 
 /**
- * Switches among Story, Variables, References, Flow, and Loop Lab views.
+ * Switches among every secondary learning view while preserving one visible panel at a time.
  * ARIA selection and hidden states are updated from one mapping to prevent tab inconsistencies.
- * @param {"story"|"variables"|"references"|"flow"|"loop"} panel Panel that should become visible.
+ * @param {string} panel Panel that should become visible.
  */
 function switchPanel(panel) {
   state.activePanel = panel;
   const views = [
     ["story", els.storyTab, els.storyView],
+    ["conditions", els.conditionsTab, els.conditionsView],
+    ["functions", els.functionsTab, els.functionsView],
     ["variables", els.variablesTab, els.variablesView],
+    ["structures", els.structuresTab, els.structuresView],
     ["references", els.referencesTab, els.referencesView],
     ["flow", els.flowTab, els.flowView],
+    ["coverage", els.coverageTab, els.coverageView],
     ["loop", els.loopTab, els.loopView],
+    ["scenarios", els.scenariosTab, els.scenariosView],
+    ["bookmarks", els.bookmarksTab, els.bookmarksView],
   ];
   views.forEach(([name, tab, view]) => {
     const active = panel === name;
@@ -2140,8 +2854,30 @@ function switchPanel(panel) {
     view.classList.toggle("hidden", !active);
   });
   if (panel === "variables") renderVariableExplorer();
+  if (panel === "conditions") renderConditionInvestigator();
+  if (panel === "functions") renderFunctionJourney();
+  if (panel === "structures") renderStructures();
   if (panel === "references") renderReferenceMap();
   if (panel === "flow") renderFlowMap();
+  if (panel === "coverage") renderCoverage();
+  if (panel === "bookmarks") renderBookmarks();
+  if (panel === "scenarios") renderComparison();
+}
+
+/**
+ * Changes the primary learning area, filters its secondary tabs, and opens the area's remembered default.
+ * @param {"trace"|"data"|"flow"|"labs"} mode Learning area to reveal.
+ */
+function switchLearningMode(mode) {
+  state.activeMode = mode;
+  document.querySelectorAll(".learning-mode").forEach((button) => {
+    button.classList.toggle("active", button.dataset.mode === mode);
+  });
+  document.querySelectorAll(".panel-tab[data-mode]").forEach((tab) => {
+    tab.classList.toggle("mode-hidden", tab.dataset.mode !== mode);
+  });
+  const defaults = { trace: "story", data: "variables", flow: "flow", labs: "scenarios" };
+  switchPanel(defaults[mode]);
 }
 
 /**
@@ -2179,6 +2915,23 @@ function appendConsoleError(error) {
 function showTraceError(error) {
   const location = error.line ? `Line ${error.line}\n` : "";
   setConsole(`${location}${error.type}: ${error.message}`, "error");
+  // Syntax failures have no trace snapshots, so the Story panel becomes a dedicated error lesson.
+  els.emptyStory.classList.add("hidden");
+  els.traceContent.classList.remove("hidden");
+  els.traceKicker.textContent = `${error.line ? `LINE ${String(error.line).padStart(2, "0")} // ` : ""}ERROR`;
+  els.executedCode.textContent = error.source || "Python could not compile this program.";
+  els.explanation.textContent = "Python stopped before execution because the program could not be parsed.";
+  els.beforeAfterGrid.replaceChildren();
+  els.changeSummary.textContent = "Execution did not start";
+  els.stepOutputSection.classList.add("hidden");
+  els.changeList.innerHTML = '<div class="no-changes">Fix the syntax error, then run the trace again.</div>';
+  els.variablesGrid.innerHTML = '<div class="no-changes">No variables were created.</div>';
+  els.callStackSection.classList.add("hidden");
+  const [meaning, tip] = ERROR_GUIDANCE[error.type] || ERROR_GUIDANCE.SyntaxError;
+  els.errorCoach.classList.remove("hidden");
+  els.errorCoachTitle.textContent = `${error.type}: ${error.message}`;
+  els.errorCoachMeaning.textContent = meaning;
+  els.errorCoachTip.textContent = `Try this: ${tip}`;
   if (error.line) focusLine(error.line);
   showToast(`${error.type}: ${error.message}`, true);
 }
@@ -2275,10 +3028,20 @@ function bindEvents() {
   els.runButton?.addEventListener("click", runCode);
   els.stopButton?.addEventListener("click", () => stopExecution("Execution stopped by you."));
   els.storyTab?.addEventListener("click", () => switchPanel("story"));
+  els.conditionsTab?.addEventListener("click", () => switchPanel("conditions"));
+  els.functionsTab?.addEventListener("click", () => switchPanel("functions"));
   els.variablesTab?.addEventListener("click", () => switchPanel("variables"));
+  els.structuresTab?.addEventListener("click", () => switchPanel("structures"));
   els.referencesTab?.addEventListener("click", () => switchPanel("references"));
   els.flowTab?.addEventListener("click", () => switchPanel("flow"));
+  els.coverageTab?.addEventListener("click", () => switchPanel("coverage"));
   els.loopTab?.addEventListener("click", () => switchPanel("loop"));
+  els.scenariosTab?.addEventListener("click", () => switchPanel("scenarios"));
+  els.bookmarksTab?.addEventListener("click", () => switchPanel("bookmarks"));
+  // Primary navigation filters secondary views instead of exposing an unmanageable tab collection.
+  document.querySelectorAll(".learning-mode").forEach((button) => {
+    button.addEventListener("click", () => switchLearningMode(button.dataset.mode));
+  });
   // Reference controls share one controller so slider, buttons, gestures, and Fit stay synchronized.
   els.referencesZoomSlider?.addEventListener("input", (event) => setGraphZoom("references", event.target.value));
   els.decreaseReferencesZoomButton?.addEventListener("click", () => stepGraphZoom("references", -1));
@@ -2293,11 +3056,25 @@ function bindEvents() {
   els.nextButton?.addEventListener("click", nextStep);
   els.playButton?.addEventListener("click", togglePlayback);
   els.restartButton?.addEventListener("click", restartTrace);
+  els.bookmarkButton?.addEventListener("click", toggleBookmark);
   els.stepSlider?.addEventListener("input", (event) => goToStep(event.target.value));
   els.speedSelect?.addEventListener("change", () => {
     if (state.playing) scheduleNextStep();
   });
   els.clearOutputButton?.addEventListener("click", () => setConsole("// Output cleared", "muted"));
+  // Scenario controls are local-only and never send data anywhere except the isolated worker.
+  els.programInputs?.addEventListener("input", () => {
+    saveLearningPreferences();
+    renderInputStatus();
+  });
+  els.captureRunAButton?.addEventListener("click", () => captureComparison("a"));
+  els.captureRunBButton?.addEventListener("click", () => captureComparison("b"));
+  els.clearComparisonsButton?.addEventListener("click", clearComparisons);
+  // A click on a rendered line number toggles a replay breakpoint for that source line.
+  els.editorShell?.addEventListener("click", (event) => {
+    const gutter = event.target.closest(".cm-lineNumbers .cm-gutterElement");
+    if (gutter) toggleBreakpoint(Number(gutter.textContent));
+  });
   window.addEventListener("keydown", (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
       event.preventDefault();
@@ -2319,6 +3096,11 @@ async function initialize() {
   bindEvents();
   // The landing page has no editor, so expensive workspace dependencies stay unloaded there.
   if (els.editor) {
+    // Restore prepared stdin before the first status render so reloads preserve learning scenarios.
+    const learningPreferences = loadLearningPreferences();
+    els.programInputs.value = learningPreferences.inputs;
+    renderInputStatus();
+    renderComparison();
     // Begin downloading Python while CodeMirror initializes to reduce perceived waiting time.
     ensureWorker();
     // Awaiting initialization guarantees either CodeMirror or its fallback is mounted.

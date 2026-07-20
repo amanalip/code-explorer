@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260720-7" />
+    <link rel="stylesheet" href="styles.css?v=20260720-10" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -134,23 +134,48 @@
 
           <!-- This panel switches among complementary beginner-focused execution views. -->
           <section class="panel story-panel">
+            <!-- Four stable learning areas prevent the growing toolset from becoming one overwhelming tab row. -->
+            <nav class="learning-mode-nav" aria-label="Learning area">
+              <button class="learning-mode active" data-mode="trace" type="button">Trace</button>
+              <button class="learning-mode" data-mode="data" type="button">Data</button>
+              <button class="learning-mode" data-mode="flow" type="button">Flow</button>
+              <button class="learning-mode" data-mode="labs" type="button">Labs</button>
+            </nav>
             <!-- Accessible tabs select a view without navigating away from the workspace. -->
             <div class="panel-header tabs-header">
               <div class="panel-tabs" role="tablist" aria-label="Visualization mode">
-                <button class="panel-tab active" id="storyTab" role="tab" aria-selected="true" type="button">
+                <button class="panel-tab active" id="storyTab" data-mode="trace" role="tab" aria-selected="true" type="button">
                   Story
                 </button>
-                <button class="panel-tab" id="variablesTab" role="tab" aria-selected="false" type="button">
+                <button class="panel-tab" id="conditionsTab" data-mode="trace" role="tab" aria-selected="false" type="button">
+                  Conditions
+                </button>
+                <button class="panel-tab" id="functionsTab" data-mode="trace" role="tab" aria-selected="false" type="button">
+                  Functions
+                </button>
+                <button class="panel-tab mode-hidden" id="variablesTab" data-mode="data" role="tab" aria-selected="false" type="button">
                   Variables
                 </button>
-                <button class="panel-tab" id="referencesTab" role="tab" aria-selected="false" type="button">
+                <button class="panel-tab mode-hidden" id="structuresTab" data-mode="data" role="tab" aria-selected="false" type="button">
+                  Structures
+                </button>
+                <button class="panel-tab mode-hidden" id="referencesTab" data-mode="data" role="tab" aria-selected="false" type="button">
                   References
                 </button>
-                <button class="panel-tab" id="flowTab" role="tab" aria-selected="false" type="button">
-                  Flow
+                <button class="panel-tab mode-hidden" id="flowTab" data-mode="flow" role="tab" aria-selected="false" type="button">
+                  Path
                 </button>
-                <button class="panel-tab" id="loopTab" role="tab" aria-selected="false" type="button">
+                <button class="panel-tab mode-hidden" id="coverageTab" data-mode="flow" role="tab" aria-selected="false" type="button">
+                  Coverage
+                </button>
+                <button class="panel-tab mode-hidden" id="loopTab" data-mode="flow" role="tab" aria-selected="false" type="button">
                   Loop Lab <span class="tab-badge" id="loopBadge">0</span>
+                </button>
+                <button class="panel-tab mode-hidden" id="scenariosTab" data-mode="labs" role="tab" aria-selected="false" type="button">
+                  Input &amp; Compare
+                </button>
+                <button class="panel-tab mode-hidden" id="bookmarksTab" data-mode="labs" role="tab" aria-selected="false" type="button">
+                  Bookmarks <span class="tab-badge" id="bookmarkBadge">0</span>
                 </button>
               </div>
               <span class="step-count" id="stepCount">STEP 00 / 00</span>
@@ -170,6 +195,23 @@
                 <div class="trace-kicker" id="traceKicker">LINE 01 // ASSIGNMENT</div>
                 <div class="executed-code"><code id="executedCode"></code></div>
                 <p class="explanation" id="explanation"></p>
+
+                <!-- Adjacent snapshots make assignment and mutation concrete without requiring mental bookkeeping. -->
+                <section class="learning-card before-after-card" id="beforeAfterCard">
+                  <div class="learning-card-heading">
+                    <span class="section-label">BEFORE AND AFTER</span>
+                    <span class="context-badge" id="changeSummary">No changes</span>
+                  </div>
+                  <div class="before-after-grid" id="beforeAfterGrid"></div>
+                </section>
+
+                <!-- Runtime failures receive a plain-language explanation beside the exact state that preceded them. -->
+                <section class="learning-card error-coach hidden" id="errorCoach">
+                  <div class="section-label">BEGINNER ERROR COACH</div>
+                  <h3 id="errorCoachTitle"></h3>
+                  <p id="errorCoachMeaning"></p>
+                  <p class="coach-tip" id="errorCoachTip"></p>
+                </section>
 
                 <!-- This card isolates only the console text added by the current step. -->
                 <div class="step-output hidden" id="stepOutputSection">
@@ -197,6 +239,26 @@
               </div>
             </div>
 
+            <!-- The condition view reports observed branch behavior without reevaluating learner expressions. -->
+            <div class="learning-view hidden" id="conditionsView" role="tabpanel">
+              <div class="empty-state" id="emptyConditions">
+                <div class="empty-glyph" aria-hidden="true">?</div>
+                <h2>No condition selected</h2>
+                <p>Move to an <code>if</code>, <code>elif</code>, or <code>while</code> step to investigate its result.</p>
+              </div>
+              <div class="learning-detail hidden" id="conditionsContent"></div>
+            </div>
+
+            <!-- Function Journey connects caller state, parameter binding, local work, and returns. -->
+            <div class="learning-view hidden" id="functionsView" role="tabpanel">
+              <div class="empty-state" id="emptyFunctions">
+                <div class="empty-glyph" aria-hidden="true">ƒ</div>
+                <h2>No function journey yet</h2>
+                <p>Run a program with a function call, then step into that function.</p>
+              </div>
+              <div class="learning-detail hidden" id="functionsContent"></div>
+            </div>
+
             <!-- The variable view exposes scope, nested contents, and value history. -->
             <div class="variables-view hidden" id="variablesView" role="tabpanel">
               <!-- This placeholder is replaced after a trace supplies visible variables. -->
@@ -210,6 +272,16 @@
                 <div class="scope-browser" id="scopeBrowser"></div>
                 <div class="variable-inspector" id="variableInspector"></div>
               </div>
+            </div>
+
+            <!-- Structure cards show indexes, keys, mutations, aliases, and object replacement. -->
+            <div class="learning-view hidden" id="structuresView" role="tabpanel">
+              <div class="empty-state" id="emptyStructures">
+                <div class="empty-glyph" aria-hidden="true">[ ]</div>
+                <h2>No structure selected</h2>
+                <p>Run a program containing a list, tuple, dictionary, set, or string.</p>
+              </div>
+              <div class="learning-detail hidden" id="structuresContent"></div>
             </div>
 
             <!-- The reference view teaches names, scopes, objects, and shared references. -->
@@ -243,6 +315,16 @@
                 </div>
                 <div class="graph-canvas" id="referencesGraph" aria-label="Python reference map"></div>
               </div>
+            </div>
+
+            <!-- Coverage separates reached, repeated, missed, and failing source lines. -->
+            <div class="learning-view hidden" id="coverageView" role="tabpanel">
+              <div class="empty-state" id="emptyCoverage">
+                <div class="empty-glyph" aria-hidden="true">%</div>
+                <h2>No coverage yet</h2>
+                <p>Run the program to see which executable lines Python reached.</p>
+              </div>
+              <div class="learning-detail hidden" id="coverageContent"></div>
             </div>
 
             <!-- The flow view summarizes the path the completed execution actually followed. -->
@@ -296,7 +378,44 @@
                 <div class="loop-meter"><span id="loopMeter"></span></div>
                 <div class="section-label">ITERATION HISTORY</div>
                 <div class="iteration-list" id="iterationList"></div>
+                <!-- The table offers a compact alternative to animated loop playback. -->
+                <div class="section-label loop-table-label">LOOP TABLE</div>
+                <div class="loop-table-wrap"><table class="loop-table" id="loopTable"></table></div>
               </div>
+            </div>
+
+            <!-- Scenario Lab owns controlled stdin values and two-run comparison. -->
+            <div class="learning-view hidden" id="scenariosView" role="tabpanel">
+              <div class="scenario-grid">
+                <section class="learning-card">
+                  <div class="section-label">INPUT PLAYGROUND</div>
+                  <p>Enter one response per line. Python consumes them from top to bottom whenever <code>input()</code> runs.</p>
+                  <textarea id="programInputs" rows="6" spellcheck="false" placeholder="Aman&#10;25"></textarea>
+                  <div class="input-status" id="inputStatus">No input values prepared.</div>
+                </section>
+                <section class="learning-card">
+                  <div class="learning-card-heading">
+                    <span class="section-label">COMPARE TWO RUNS</span>
+                    <button class="small-action" id="clearComparisonsButton" type="button">Clear</button>
+                  </div>
+                  <p>Capture the current trace as Run A or Run B, then inspect their first difference.</p>
+                  <div class="comparison-actions">
+                    <button class="text-button" id="captureRunAButton" type="button">Capture Run A</button>
+                    <button class="text-button" id="captureRunBButton" type="button">Capture Run B</button>
+                  </div>
+                  <div class="comparison-result" id="comparisonResult">Run A and Run B are waiting.</div>
+                </section>
+              </div>
+            </div>
+
+            <!-- Bookmarks turn a long trace into a learner-authored table of contents. -->
+            <div class="learning-view hidden" id="bookmarksView" role="tabpanel">
+              <div class="empty-state" id="emptyBookmarks">
+                <div class="empty-glyph" aria-hidden="true">★</div>
+                <h2>No bookmarks yet</h2>
+                <p>Use the star beside the playback controls to save an important trace moment.</p>
+              </div>
+              <div class="learning-detail hidden" id="bookmarksContent"></div>
             </div>
           </section>
 
@@ -308,6 +427,8 @@
               <button class="play-button" id="playButton" type="button" disabled aria-label="Play trace">▶</button>
               <button class="control-button" id="nextButton" type="button" disabled aria-label="Next step">→</button>
               <button class="control-button restart-button" id="restartButton" type="button" disabled aria-label="Restart trace">↺</button>
+              <!-- A bookmark records the current trace position without changing execution. -->
+              <button class="control-button bookmark-button" id="bookmarkButton" type="button" disabled aria-label="Bookmark current step" aria-pressed="false">☆</button>
             </div>
             <!-- The range input supports direct movement through longer traces. -->
             <div class="progress-area">
@@ -356,6 +477,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260720-15"></script>
+    <script type="module" src="app.js?v=20260720-21"></script>
   </body>
 </html>
