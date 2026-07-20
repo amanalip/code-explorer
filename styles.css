@@ -1325,6 +1325,81 @@ main {
   cursor: pointer;
 }
 
+/* Aligns the dedicated Watches title with its persistent pin count. */
+.watch-dashboard-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+/* Removes ordinary label spacing inside the dedicated watch heading. */
+.watch-dashboard-heading .section-label {
+  margin-bottom: 0;
+}
+
+/* Arranges watched variables in a responsive dashboard rather than a narrow chip strip. */
+.watch-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* Gives each watched name room for value, type, and management actions. */
+.watch-dashboard-card {
+  display: grid;
+  gap: 13px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--bg-raised);
+}
+
+/* Aligns a watched name with its current Python type. */
+.watch-dashboard-card > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Resets the semantic watch-card heading to the compact dashboard scale. */
+.watch-dashboard-card h3 {
+  overflow: hidden;
+  margin: 0;
+  font-size: 0.92rem;
+  text-overflow: ellipsis;
+}
+
+/* Keeps long watched values inside the card while preserving their exact representation in text. */
+.watch-dashboard-card > code {
+  overflow: hidden;
+  color: var(--mint);
+  font: 500 0.72rem/1.5 var(--mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Visually quiets a name that is not available at the selected trace position. */
+.watch-dashboard-card.out-of-scope {
+  opacity: 0.72;
+}
+
+/* Keeps inspect and removal controls grouped beneath one watched value. */
+.watch-dashboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+/* Communicates that inspection is unavailable before a watched name enters scope. */
+.watch-dashboard-actions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* Uses mint to confirm selected watch and structure states. */
 .small-action.active,
 .structure-choice.active,
@@ -1397,6 +1472,135 @@ main {
 .mutation-note.mutated {
   color: var(--mint);
   background: var(--mint-soft);
+}
+
+/* Adds category color to the full Mutation Explorer without relying on text alone. */
+.mutation-explorer-card.mutation {
+  border-color: color-mix(in srgb, var(--mint) 48%, var(--line));
+}
+
+/* Uses purple to distinguish a new object connection from an in-place change. */
+.mutation-explorer-card.reassignment {
+  border-color: color-mix(in srgb, var(--purple) 55%, var(--line));
+}
+
+/* Displays the detected object-change category as an uppercase status pill. */
+.mutation-kind {
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: var(--text-soft);
+  background: var(--panel-soft);
+  font: 600 0.58rem/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Uses mint for an in-place mutation. */
+.mutation-kind.mutation {
+  color: var(--mint);
+  background: var(--mint-soft);
+}
+
+/* Uses purple for reassignment to a different object. */
+.mutation-kind.reassignment {
+  color: var(--purple);
+  background: var(--purple-soft);
+}
+
+/* Places before and after reference diagrams around a compact identity connector. */
+.mutation-diagram {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+/* Labels each captured side in the shared technical typography. */
+.mutation-stage > span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-dim);
+  font: 600 0.58rem/1 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+/* Connects the variable name to its conceptual object without exposing RAM addresses. */
+.mutation-reference {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+}
+
+/* Gives the reference arrow the shared teaching accent. */
+.mutation-reference > span {
+  color: var(--mint);
+}
+
+/* Represents one conceptual Python object with a bounded value preview. */
+.mutation-object {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  padding: 11px;
+  border: 1px solid var(--line-bright);
+  border-radius: 8px;
+  background: var(--panel-solid);
+}
+
+/* Names conceptual objects A and B without pretending to display physical memory. */
+.mutation-object small {
+  color: var(--purple);
+  font: 600 0.57rem/1 var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* Keeps the object contents readable within either diagram column. */
+.mutation-object code {
+  overflow: hidden;
+  color: var(--text);
+  font: 500 0.68rem/1.4 var(--mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* States whether identity remained stable between the two captured values. */
+.mutation-connector {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* Keeps the identity label compact above its directional arrow. */
+.mutation-connector span {
+  max-width: 70px;
+  font: 500 0.55rem/1.3 var(--mono);
+  text-transform: uppercase;
+}
+
+/* Makes the transition direction visible between conceptual objects. */
+.mutation-connector strong {
+  color: var(--mint);
+  font-size: 1.1rem;
+}
+
+/* Provides the plain-language conclusion beneath the reference diagram. */
+.mutation-explanation {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* Explains whether another visible name shares the selected object. */
+.alias-note {
+  margin: 9px 0 0;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  line-height: 1.5;
 }
 
 /* Displays the numeric coverage result beside a plain-language fraction. */
@@ -1536,10 +1740,17 @@ main {
 }
 
 /* Styles explanatory paragraphs within scenarios consistently. */
-.scenario-grid p {
+.scenario-grid p,
+.scenario-card p {
   color: var(--text-soft);
   font-size: 0.82rem;
   line-height: 1.55;
+}
+
+/* Uses the available panel width now that Input and Compare are independent destinations. */
+.scenario-card {
+  width: min(620px, 100%);
+  margin: 0 auto;
 }
 
 /* Makes prepared stdin comfortable for multiline editing in either theme. */
@@ -3094,6 +3305,21 @@ main {
   /* Stacks comparison runs inside a narrow Scenario Lab card. */
   .run-comparison-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Gives each watched variable the full phone width. */
+  .watch-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Stacks object states vertically so Mutation Explorer remains readable on phones. */
+  .mutation-diagram {
+    grid-template-columns: 1fr;
+  }
+
+  /* Rotates the conceptual transition into the vertical mobile reading direction. */
+  .mutation-connector strong {
+    transform: rotate(90deg);
   }
 
   /* Styles `.variables-grid`. This component rule controls layout for the matching interface element. */

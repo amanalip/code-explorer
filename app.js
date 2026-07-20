@@ -293,20 +293,24 @@ const els = Object.fromEntries(
     "runtimeStatus", "runtimeLabel", "themeButton", "themeIcon", "welcomeScreen", "workspace",
     "heroExampleButton", "backButton", "examplesButton", "runButton", "stopButton",
     "editor", "editorShell", "editorWrapButton", "editorFontSizeSelect", "editorCopyButton", "editorPasteButton",
-    "codeStats", "storyTab", "conditionsTab", "functionsTab", "variablesTab", "structuresTab", "referencesTab", "flowTab",
-    "coverageTab", "loopTab", "scenariosTab", "bookmarksTab", "loopBadge", "bookmarkBadge",
-    "storyView", "conditionsView", "functionsView", "variablesView", "structuresView", "referencesView", "flowView",
-    "coverageView", "loopView", "scenariosView", "bookmarksView",
+    "codeStats", "storyTab", "beforeAfterTab", "conditionsTab", "functionsTab", "errorTab",
+    "variablesTab", "watchesTab", "structuresTab", "referencesTab", "mutationTab", "flowTab",
+    "coverageTab", "loopTableTab", "loopTab", "inputTab", "compareTab", "bookmarksTab",
+    "loopBadge", "watchBadge", "bookmarkBadge", "storyView", "beforeAfterView", "conditionsView", "functionsView",
+    "errorView", "variablesView", "watchesView", "structuresView", "referencesView", "mutationView", "flowView",
+    "coverageView", "loopTableView", "loopView", "inputView", "compareView", "bookmarksView",
     "emptyStory", "traceContent", "traceKicker", "executedCode", "explanation", "changeList",
-    "beforeAfterGrid", "changeSummary", "errorCoach", "errorCoachTitle", "errorCoachMeaning", "errorCoachTip",
+    "emptyBeforeAfter", "beforeAfterContent", "beforeAfterGrid", "changeSummary",
+    "emptyErrorCoach", "errorContent", "errorCoach", "errorCoachTitle", "errorCoachMeaning", "errorCoachTip",
     "stepOutputSection", "stepOutput", "variablesGrid", "callStackSection", "callStack",
     "emptyConditions", "conditionsContent", "emptyFunctions", "functionsContent",
     "emptyVariables", "variablesContent", "scopeBrowser", "variableInspector", "emptyReferences",
     "referencesContent", "referencesGraph", "referencesZoomSlider", "referencesZoomValue",
     "decreaseReferencesZoomButton", "increaseReferencesZoomButton", "fitReferencesButton",
-    "emptyStructures", "structuresContent", "emptyFlow", "flowContent", "flowGraph", "flowZoomSlider", "flowZoomValue",
+    "emptyWatches", "watchesContent", "emptyStructures", "structuresContent", "emptyMutation", "mutationContent",
+    "emptyFlow", "flowContent", "flowGraph", "flowZoomSlider", "flowZoomValue",
     "decreaseFlowZoomButton", "increaseFlowZoomButton", "fitFlowButton", "emptyLoop", "loopContent", "loopType",
-    "emptyCoverage", "coverageContent", "iterationCount", "loopSource", "loopMeter", "iterationList", "loopTable",
+    "emptyCoverage", "coverageContent", "emptyLoopTable", "loopTableContent", "iterationCount", "loopSource", "loopMeter", "iterationList", "loopTable",
     "programInputs", "inputStatus", "captureRunAButton", "captureRunBButton", "clearComparisonsButton", "comparisonResult",
     "emptyBookmarks", "bookmarksContent", "stepCount", "previousButton",
     "playButton", "nextButton", "restartButton", "bookmarkButton", "stepSlider", "progressPercent", "speedSelect",
@@ -1003,6 +1007,10 @@ function clearTrace() {
   state.flowGraph = null;
   els.emptyVariables.classList.remove("hidden");
   els.variablesContent.classList.add("hidden");
+  els.emptyBeforeAfter.classList.remove("hidden");
+  els.beforeAfterContent.classList.add("hidden");
+  els.emptyErrorCoach.classList.remove("hidden");
+  els.errorContent.classList.add("hidden");
   els.emptyReferences.classList.remove("hidden");
   els.referencesContent.classList.add("hidden");
   els.emptyFlow.classList.remove("hidden");
@@ -1011,12 +1019,17 @@ function clearTrace() {
   els.traceContent.classList.add("hidden");
   els.emptyLoop.classList.remove("hidden");
   els.loopContent.classList.add("hidden");
+  els.emptyLoopTable.classList.remove("hidden");
+  els.loopTableContent.classList.add("hidden");
+  els.emptyMutation.classList.remove("hidden");
+  els.mutationContent.classList.add("hidden");
   els.loopBadge.textContent = "0";
   updateBookmarkControls();
   renderInputStatus();
   els.stepCount.textContent = "STEP 00 / 00";
   setConsole("// Output will appear here", "muted");
   renderEditorHeatmap();
+  renderWatches();
   clearPlaybackControls();
 }
 
@@ -1248,6 +1261,10 @@ function previousVariables(index) {
  * Creation and removal use plain phrases so a beginner never has to interpret an empty cell.
  */
 function renderBeforeAfter(index) {
+  const hasTrace = state.trace.length > 0;
+  els.emptyBeforeAfter.classList.toggle("hidden", hasTrace);
+  els.beforeAfterContent.classList.toggle("hidden", !hasTrace);
+  if (!hasTrace) return;
   const current = variablesForStep(state.trace[index]);
   const previous = previousVariables(index);
   const changes = changesAt(index);
@@ -1299,7 +1316,8 @@ const ERROR_GUIDANCE = Object.freeze({
 /** Shows rule-based error guidance only at the failing step or terminal trace position. */
 function renderErrorCoach(step, index) {
   const detail = step.event === "exception" ? step.detail : index === state.trace.length - 1 ? state.error : null;
-  els.errorCoach.classList.toggle("hidden", !detail);
+  els.emptyErrorCoach.classList.toggle("hidden", Boolean(detail));
+  els.errorContent.classList.toggle("hidden", !detail);
   if (!detail) return;
   const [meaning, tip] = ERROR_GUIDANCE[detail.type] || [
     "Python stopped because this instruction raised an exception.",
@@ -1482,7 +1500,9 @@ function renderLearningPanels(step, index) {
   renderErrorCoach(step, index);
   renderConditionInvestigator();
   renderFunctionJourney();
+  renderWatches();
   renderStructures();
+  renderMutationExplorer();
   renderCoverage();
   renderBookmarks();
   updateBookmarkControls();
@@ -1888,7 +1908,64 @@ function toggleWatch(name) {
   }
   saveLearningPreferences();
   renderVariableExplorer();
+  renderWatches();
   showToast(state.watches.has(name) ? `${name} added to Watches.` : `${name} removed from Watches.`);
+}
+
+/** Renders persistent watched names as a dedicated dashboard with value, type, and lifetime context. */
+function renderWatches() {
+  const names = [...state.watches];
+  els.watchBadge.textContent = String(names.length);
+  els.emptyWatches.classList.toggle("hidden", names.length > 0);
+  els.watchesContent.classList.toggle("hidden", names.length === 0);
+  if (!names.length) return;
+  const variables = state.trace.length ? variablesForStep(state.trace[state.currentStep]) : {};
+  els.watchesContent.replaceChildren();
+  const heading = document.createElement("div");
+  heading.className = "watch-dashboard-heading";
+  const title = document.createElement("div");
+  title.className = "section-label";
+  title.textContent = "WATCHED VARIABLES";
+  const count = document.createElement("span");
+  count.className = "context-badge";
+  count.textContent = `${names.length} pinned`;
+  heading.append(title, count);
+  const grid = document.createElement("div");
+  grid.className = "watch-dashboard-grid";
+  names.forEach((name) => {
+    const value = variables[name];
+    const card = document.createElement("article");
+    card.className = `watch-dashboard-card ${value ? "in-scope" : "out-of-scope"}`;
+    const cardHeading = document.createElement("div");
+    const variableName = document.createElement("h3");
+    variableName.textContent = name;
+    const type = document.createElement("span");
+    type.className = "inspector-type";
+    type.textContent = value?.type || "not in scope";
+    cardHeading.append(variableName, type);
+    const display = document.createElement("code");
+    display.textContent = value?.display ?? "This name has not been created at the selected step.";
+    const actions = document.createElement("div");
+    actions.className = "watch-dashboard-actions";
+    const inspect = document.createElement("button");
+    inspect.type = "button";
+    inspect.className = "small-action";
+    inspect.textContent = "Inspect";
+    inspect.disabled = !value;
+    inspect.addEventListener("click", () => {
+      state.selectedVariable = name;
+      switchPanel("variables");
+    });
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "small-action";
+    remove.textContent = "Remove";
+    remove.addEventListener("click", () => toggleWatch(name));
+    actions.append(inspect, remove);
+    card.append(cardHeading, display, actions);
+    grid.append(card);
+  });
+  els.watchesContent.append(heading, grid);
 }
 
 /** Selects a container-like value and renders its indexes, keys, contents, and identity behavior. */
@@ -1959,6 +2036,116 @@ function createStructureCell(label, display) {
   value.textContent = String(display);
   cell.append(index, value);
   return cell;
+}
+
+/**
+ * Renders a complete object-identity lesson for the selected mutable variable.
+ * The view distinguishes creation, in-place mutation, and reassignment using captured object ids and value history.
+ */
+function renderMutationExplorer() {
+  if (!state.trace.length) {
+    els.emptyMutation.classList.remove("hidden");
+    els.mutationContent.classList.add("hidden");
+    return;
+  }
+  const variables = variablesForStep(state.trace[state.currentStep]);
+  const mutableEntries = Object.entries(variables).filter(([, value]) => ["list", "dict", "set"].includes(value.type));
+  els.emptyMutation.classList.toggle("hidden", mutableEntries.length > 0);
+  els.mutationContent.classList.toggle("hidden", mutableEntries.length === 0);
+  if (!mutableEntries.length) return;
+  const [name, value] = mutableEntries.find(([candidate]) => candidate === state.selectedVariable) || mutableEntries[0];
+  state.selectedVariable = name;
+  const history = variableHistory(name).filter((entry) => entry.index <= state.currentStep);
+  const event = history.at(-1);
+  const before = event?.index > 0 ? variablesForStep(state.trace[event.index - 1])[name] : null;
+  const sameObject = Boolean(before?.objectId && value.objectId && before.objectId === value.objectId);
+  const kind = event?.kind === "mutated" || (before && sameObject && valueSignature(before) !== valueSignature(value))
+    ? "mutation"
+    : before && !sameObject
+      ? "reassignment"
+      : event?.kind === "created"
+        ? "creation"
+        : "unchanged";
+  const aliases = Object.entries(variables)
+    .filter(([otherName, otherValue]) => otherName !== name && value.objectId && otherValue.objectId === value.objectId)
+    .map(([otherName]) => otherName);
+
+  els.mutationContent.replaceChildren();
+  const picker = document.createElement("div");
+  picker.className = "structure-picker";
+  mutableEntries.forEach(([candidate, candidateValue]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `structure-choice ${candidate === name ? "active" : ""}`;
+    button.textContent = `${candidate} · ${candidateValue.type}`;
+    button.addEventListener("click", () => {
+      state.selectedVariable = candidate;
+      renderMutationExplorer();
+    });
+    picker.append(button);
+  });
+
+  const lesson = document.createElement("section");
+  lesson.className = `learning-card mutation-explorer-card ${kind}`;
+  const heading = document.createElement("div");
+  heading.className = "learning-card-heading";
+  const label = document.createElement("span");
+  label.className = "section-label";
+  label.textContent = "OBJECT CHANGE";
+  const badge = document.createElement("span");
+  badge.className = `mutation-kind ${kind}`;
+  badge.textContent = kind;
+  heading.append(label, badge);
+
+  const diagram = document.createElement("div");
+  diagram.className = "mutation-diagram";
+  const beforeStage = createMutationStage("BEFORE", name, before, kind === "creation" ? "Name did not exist" : "Object A");
+  const connector = document.createElement("div");
+  connector.className = "mutation-connector";
+  connector.innerHTML = `<span>${kind === "mutation" ? "same object" : kind === "reassignment" ? "new object" : "observed state"}</span><strong>→</strong>`;
+  const afterStage = createMutationStage("AFTER", name, value, kind === "reassignment" ? "Object B" : "Object A");
+  diagram.append(beforeStage, connector, afterStage);
+
+  const explanation = document.createElement("p");
+  explanation.className = "mutation-explanation";
+  const messages = {
+    mutation: `${name} still references the same ${value.type} object, but that object's contents changed.`,
+    reassignment: `${name} stopped referencing the earlier object and now references a different ${value.type} object.`,
+    creation: `${name} was created and connected to this ${value.type} object.`,
+    unchanged: `${name} still references the same object and its visible contents have not changed since the latest recorded event.`,
+  };
+  explanation.textContent = messages[kind];
+  const aliasNote = document.createElement("p");
+  aliasNote.className = "alias-note";
+  aliasNote.textContent = aliases.length
+    ? `Shared reference: ${aliases.join(", ")} ${aliases.length === 1 ? "points" : "point"} to the same object.`
+    : "No other visible name references this object at the selected step.";
+  lesson.append(heading, diagram, explanation, aliasNote);
+  els.mutationContent.append(picker, lesson);
+}
+
+/** Creates one side of the Mutation Explorer reference diagram using safe text nodes. */
+function createMutationStage(label, name, value, objectLabel) {
+  const stage = document.createElement("div");
+  stage.className = "mutation-stage";
+  const kicker = document.createElement("span");
+  kicker.textContent = label;
+  const reference = document.createElement("div");
+  reference.className = "mutation-reference";
+  const variable = document.createElement("strong");
+  variable.textContent = name;
+  const arrow = document.createElement("span");
+  arrow.textContent = "→";
+  const object = document.createElement("div");
+  object.className = "mutation-object";
+  const objectName = document.createElement("small");
+  objectName.textContent = objectLabel;
+  const objectValue = document.createElement("code");
+  objectValue.textContent = value?.display ?? "not created";
+  object.append(objectName, objectValue);
+  reference.append(variable, arrow, object);
+  stage.append(kicker, reference);
+  return stage;
 }
 
 /**
@@ -2055,6 +2242,8 @@ function renderLoopLab(stepIndex) {
   if (!state.loops.length) {
     els.emptyLoop.classList.remove("hidden");
     els.loopContent.classList.add("hidden");
+    els.emptyLoopTable.classList.remove("hidden");
+    els.loopTableContent.classList.add("hidden");
     return;
   }
 
@@ -2066,6 +2255,8 @@ function renderLoopLab(stepIndex) {
 
   els.emptyLoop.classList.add("hidden");
   els.loopContent.classList.remove("hidden");
+  els.emptyLoopTable.classList.add("hidden");
+  els.loopTableContent.classList.remove("hidden");
   els.loopType.textContent = `${activeLoop.type.toUpperCase()} LOOP`;
   els.iterationCount.textContent = currentIteration
     ? `ITERATION ${String(currentIteration).padStart(2, "0")}`
@@ -2836,15 +3027,21 @@ function switchPanel(panel) {
   state.activePanel = panel;
   const views = [
     ["story", els.storyTab, els.storyView],
+    ["beforeAfter", els.beforeAfterTab, els.beforeAfterView],
     ["conditions", els.conditionsTab, els.conditionsView],
     ["functions", els.functionsTab, els.functionsView],
+    ["error", els.errorTab, els.errorView],
     ["variables", els.variablesTab, els.variablesView],
+    ["watches", els.watchesTab, els.watchesView],
     ["structures", els.structuresTab, els.structuresView],
     ["references", els.referencesTab, els.referencesView],
+    ["mutation", els.mutationTab, els.mutationView],
     ["flow", els.flowTab, els.flowView],
     ["coverage", els.coverageTab, els.coverageView],
+    ["loopTable", els.loopTableTab, els.loopTableView],
     ["loop", els.loopTab, els.loopView],
-    ["scenarios", els.scenariosTab, els.scenariosView],
+    ["input", els.inputTab, els.inputView],
+    ["compare", els.compareTab, els.compareView],
     ["bookmarks", els.bookmarksTab, els.bookmarksView],
   ];
   views.forEach(([name, tab, view]) => {
@@ -2854,14 +3051,19 @@ function switchPanel(panel) {
     view.classList.toggle("hidden", !active);
   });
   if (panel === "variables") renderVariableExplorer();
+  if (panel === "beforeAfter" && state.trace.length) renderBeforeAfter(state.currentStep);
   if (panel === "conditions") renderConditionInvestigator();
   if (panel === "functions") renderFunctionJourney();
+  if (panel === "error" && state.trace.length) renderErrorCoach(state.trace[state.currentStep], state.currentStep);
+  if (panel === "watches") renderWatches();
   if (panel === "structures") renderStructures();
+  if (panel === "mutation") renderMutationExplorer();
   if (panel === "references") renderReferenceMap();
   if (panel === "flow") renderFlowMap();
   if (panel === "coverage") renderCoverage();
+  if (panel === "loopTable" && state.trace.length) renderLoopLab(state.currentStep);
   if (panel === "bookmarks") renderBookmarks();
-  if (panel === "scenarios") renderComparison();
+  if (panel === "compare") renderComparison();
 }
 
 /**
@@ -2876,7 +3078,7 @@ function switchLearningMode(mode) {
   document.querySelectorAll(".panel-tab[data-mode]").forEach((tab) => {
     tab.classList.toggle("mode-hidden", tab.dataset.mode !== mode);
   });
-  const defaults = { trace: "story", data: "variables", flow: "flow", labs: "scenarios" };
+  const defaults = { trace: "story", data: "variables", flow: "flow", labs: "input" };
   switchPanel(defaults[mode]);
 }
 
@@ -2928,11 +3130,15 @@ function showTraceError(error) {
   els.variablesGrid.innerHTML = '<div class="no-changes">No variables were created.</div>';
   els.callStackSection.classList.add("hidden");
   const [meaning, tip] = ERROR_GUIDANCE[error.type] || ERROR_GUIDANCE.SyntaxError;
-  els.errorCoach.classList.remove("hidden");
+  els.emptyErrorCoach.classList.add("hidden");
+  els.errorContent.classList.remove("hidden");
   els.errorCoachTitle.textContent = `${error.type}: ${error.message}`;
   els.errorCoachMeaning.textContent = meaning;
   els.errorCoachTip.textContent = `Try this: ${tip}`;
   if (error.line) focusLine(error.line);
+  // Compilation failures have no playable Story step, so open the dedicated coach automatically.
+  switchLearningMode("trace");
+  switchPanel("error");
   showToast(`${error.type}: ${error.message}`, true);
 }
 
@@ -3028,15 +3234,21 @@ function bindEvents() {
   els.runButton?.addEventListener("click", runCode);
   els.stopButton?.addEventListener("click", () => stopExecution("Execution stopped by you."));
   els.storyTab?.addEventListener("click", () => switchPanel("story"));
+  els.beforeAfterTab?.addEventListener("click", () => switchPanel("beforeAfter"));
   els.conditionsTab?.addEventListener("click", () => switchPanel("conditions"));
   els.functionsTab?.addEventListener("click", () => switchPanel("functions"));
+  els.errorTab?.addEventListener("click", () => switchPanel("error"));
   els.variablesTab?.addEventListener("click", () => switchPanel("variables"));
+  els.watchesTab?.addEventListener("click", () => switchPanel("watches"));
   els.structuresTab?.addEventListener("click", () => switchPanel("structures"));
   els.referencesTab?.addEventListener("click", () => switchPanel("references"));
+  els.mutationTab?.addEventListener("click", () => switchPanel("mutation"));
   els.flowTab?.addEventListener("click", () => switchPanel("flow"));
   els.coverageTab?.addEventListener("click", () => switchPanel("coverage"));
+  els.loopTableTab?.addEventListener("click", () => switchPanel("loopTable"));
   els.loopTab?.addEventListener("click", () => switchPanel("loop"));
-  els.scenariosTab?.addEventListener("click", () => switchPanel("scenarios"));
+  els.inputTab?.addEventListener("click", () => switchPanel("input"));
+  els.compareTab?.addEventListener("click", () => switchPanel("compare"));
   els.bookmarksTab?.addEventListener("click", () => switchPanel("bookmarks"));
   // Primary navigation filters secondary views instead of exposing an unmanageable tab collection.
   document.querySelectorAll(".learning-mode").forEach((button) => {
@@ -3101,6 +3313,7 @@ async function initialize() {
     els.programInputs.value = learningPreferences.inputs;
     renderInputStatus();
     renderComparison();
+    renderWatches();
     // Begin downloading Python while CodeMirror initializes to reduce perceived waiting time.
     ensureWorker();
     // Awaiting initialization guarantees either CodeMirror or its fallback is mounted.

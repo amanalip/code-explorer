@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260720-10" />
+    <link rel="stylesheet" href="styles.css?v=20260720-11" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -147,14 +147,23 @@
                 <button class="panel-tab active" id="storyTab" data-mode="trace" role="tab" aria-selected="true" type="button">
                   Story
                 </button>
+                <button class="panel-tab" id="beforeAfterTab" data-mode="trace" role="tab" aria-selected="false" type="button">
+                  Before &amp; After
+                </button>
                 <button class="panel-tab" id="conditionsTab" data-mode="trace" role="tab" aria-selected="false" type="button">
                   Conditions
                 </button>
                 <button class="panel-tab" id="functionsTab" data-mode="trace" role="tab" aria-selected="false" type="button">
-                  Functions
+                  Function Journey
+                </button>
+                <button class="panel-tab" id="errorTab" data-mode="trace" role="tab" aria-selected="false" type="button">
+                  Error Coach
                 </button>
                 <button class="panel-tab mode-hidden" id="variablesTab" data-mode="data" role="tab" aria-selected="false" type="button">
                   Variables
+                </button>
+                <button class="panel-tab mode-hidden" id="watchesTab" data-mode="data" role="tab" aria-selected="false" type="button">
+                  Watches <span class="tab-badge" id="watchBadge">0</span>
                 </button>
                 <button class="panel-tab mode-hidden" id="structuresTab" data-mode="data" role="tab" aria-selected="false" type="button">
                   Structures
@@ -162,17 +171,26 @@
                 <button class="panel-tab mode-hidden" id="referencesTab" data-mode="data" role="tab" aria-selected="false" type="button">
                   References
                 </button>
+                <button class="panel-tab mode-hidden" id="mutationTab" data-mode="data" role="tab" aria-selected="false" type="button">
+                  Mutation Explorer
+                </button>
                 <button class="panel-tab mode-hidden" id="flowTab" data-mode="flow" role="tab" aria-selected="false" type="button">
                   Path
                 </button>
                 <button class="panel-tab mode-hidden" id="coverageTab" data-mode="flow" role="tab" aria-selected="false" type="button">
                   Coverage
                 </button>
+                <button class="panel-tab mode-hidden" id="loopTableTab" data-mode="flow" role="tab" aria-selected="false" type="button">
+                  Loop Table
+                </button>
                 <button class="panel-tab mode-hidden" id="loopTab" data-mode="flow" role="tab" aria-selected="false" type="button">
                   Loop Lab <span class="tab-badge" id="loopBadge">0</span>
                 </button>
-                <button class="panel-tab mode-hidden" id="scenariosTab" data-mode="labs" role="tab" aria-selected="false" type="button">
-                  Input &amp; Compare
+                <button class="panel-tab mode-hidden" id="inputTab" data-mode="labs" role="tab" aria-selected="false" type="button">
+                  Input Playground
+                </button>
+                <button class="panel-tab mode-hidden" id="compareTab" data-mode="labs" role="tab" aria-selected="false" type="button">
+                  Compare Runs
                 </button>
                 <button class="panel-tab mode-hidden" id="bookmarksTab" data-mode="labs" role="tab" aria-selected="false" type="button">
                   Bookmarks <span class="tab-badge" id="bookmarkBadge">0</span>
@@ -195,23 +213,6 @@
                 <div class="trace-kicker" id="traceKicker">LINE 01 // ASSIGNMENT</div>
                 <div class="executed-code"><code id="executedCode"></code></div>
                 <p class="explanation" id="explanation"></p>
-
-                <!-- Adjacent snapshots make assignment and mutation concrete without requiring mental bookkeeping. -->
-                <section class="learning-card before-after-card" id="beforeAfterCard">
-                  <div class="learning-card-heading">
-                    <span class="section-label">BEFORE AND AFTER</span>
-                    <span class="context-badge" id="changeSummary">No changes</span>
-                  </div>
-                  <div class="before-after-grid" id="beforeAfterGrid"></div>
-                </section>
-
-                <!-- Runtime failures receive a plain-language explanation beside the exact state that preceded them. -->
-                <section class="learning-card error-coach hidden" id="errorCoach">
-                  <div class="section-label">BEGINNER ERROR COACH</div>
-                  <h3 id="errorCoachTitle"></h3>
-                  <p id="errorCoachMeaning"></p>
-                  <p class="coach-tip" id="errorCoachTip"></p>
-                </section>
 
                 <!-- This card isolates only the console text added by the current step. -->
                 <div class="step-output hidden" id="stepOutputSection">
@@ -239,6 +240,24 @@
               </div>
             </div>
 
+            <!-- Before and After receives a dedicated view so it is discoverable instead of being buried inside Story. -->
+            <div class="learning-view hidden" id="beforeAfterView" role="tabpanel">
+              <div class="empty-state" id="emptyBeforeAfter">
+                <div class="empty-glyph" aria-hidden="true">A/B</div>
+                <h2>No state comparison yet</h2>
+                <p>Run a program to compare visible values before and after every instruction.</p>
+              </div>
+              <div class="learning-detail hidden" id="beforeAfterContent">
+                <section class="learning-card before-after-card" id="beforeAfterCard">
+                  <div class="learning-card-heading">
+                    <span class="section-label">BEFORE AND AFTER</span>
+                    <span class="context-badge" id="changeSummary">No changes</span>
+                  </div>
+                  <div class="before-after-grid" id="beforeAfterGrid"></div>
+                </section>
+              </div>
+            </div>
+
             <!-- The condition view reports observed branch behavior without reevaluating learner expressions. -->
             <div class="learning-view hidden" id="conditionsView" role="tabpanel">
               <div class="empty-state" id="emptyConditions">
@@ -259,6 +278,23 @@
               <div class="learning-detail hidden" id="functionsContent"></div>
             </div>
 
+            <!-- Error Coach is a persistent destination with a calm empty state until a failure occurs. -->
+            <div class="learning-view hidden" id="errorView" role="tabpanel">
+              <div class="empty-state" id="emptyErrorCoach">
+                <div class="empty-glyph" aria-hidden="true">!</div>
+                <h2>No error to explain</h2>
+                <p>When Python stops, this view will explain the message and show a practical next check.</p>
+              </div>
+              <div class="learning-detail hidden" id="errorContent">
+                <section class="learning-card error-coach" id="errorCoach">
+                  <div class="section-label">BEGINNER ERROR COACH</div>
+                  <h3 id="errorCoachTitle"></h3>
+                  <p id="errorCoachMeaning"></p>
+                  <p class="coach-tip" id="errorCoachTip"></p>
+                </section>
+              </div>
+            </div>
+
             <!-- The variable view exposes scope, nested contents, and value history. -->
             <div class="variables-view hidden" id="variablesView" role="tabpanel">
               <!-- This placeholder is replaced after a trace supplies visible variables. -->
@@ -274,6 +310,16 @@
               </div>
             </div>
 
+            <!-- Watches has its own persistent dashboard while the Variables view remains focused on inspection. -->
+            <div class="learning-view hidden" id="watchesView" role="tabpanel">
+              <div class="empty-state" id="emptyWatches">
+                <div class="empty-glyph" aria-hidden="true">◎</div>
+                <h2>No watched variables</h2>
+                <p>Open Variables, choose a name, and select Watch to pin it here.</p>
+              </div>
+              <div class="learning-detail hidden" id="watchesContent"></div>
+            </div>
+
             <!-- Structure cards show indexes, keys, mutations, aliases, and object replacement. -->
             <div class="learning-view hidden" id="structuresView" role="tabpanel">
               <div class="empty-state" id="emptyStructures">
@@ -282,6 +328,16 @@
                 <p>Run a program containing a list, tuple, dictionary, set, or string.</p>
               </div>
               <div class="learning-detail hidden" id="structuresContent"></div>
+            </div>
+
+            <!-- Mutation Explorer distinguishes same-object changes from name reassignment. -->
+            <div class="learning-view hidden" id="mutationView" role="tabpanel">
+              <div class="empty-state" id="emptyMutation">
+                <div class="empty-glyph" aria-hidden="true">↺</div>
+                <h2>No object change yet</h2>
+                <p>Run a program that mutates or reassigns a list, dictionary, or set.</p>
+              </div>
+              <div class="learning-detail hidden" id="mutationContent"></div>
             </div>
 
             <!-- The reference view teaches names, scopes, objects, and shared references. -->
@@ -378,22 +434,38 @@
                 <div class="loop-meter"><span id="loopMeter"></span></div>
                 <div class="section-label">ITERATION HISTORY</div>
                 <div class="iteration-list" id="iterationList"></div>
-                <!-- The table offers a compact alternative to animated loop playback. -->
-                <div class="section-label loop-table-label">LOOP TABLE</div>
+              </div>
+            </div>
+
+            <!-- Loop Table receives its own comparison-focused view apart from Loop Lab animation. -->
+            <div class="learning-view hidden" id="loopTableView" role="tabpanel">
+              <div class="empty-state" id="emptyLoopTable">
+                <div class="empty-glyph loop-glyph" aria-hidden="true">▦</div>
+                <h2>No loop table yet</h2>
+                <p>Run code containing a <code>for</code> or <code>while</code> loop.</p>
+              </div>
+              <div class="learning-detail hidden" id="loopTableContent">
+                <div class="section-label">LOOP TABLE</div>
                 <div class="loop-table-wrap"><table class="loop-table" id="loopTable"></table></div>
               </div>
             </div>
 
-            <!-- Scenario Lab owns controlled stdin values and two-run comparison. -->
-            <div class="learning-view hidden" id="scenariosView" role="tabpanel">
-              <div class="scenario-grid">
-                <section class="learning-card">
+            <!-- Input Playground owns controlled stdin values without sharing space with comparison. -->
+            <div class="learning-view hidden" id="inputView" role="tabpanel">
+              <div class="learning-detail">
+                <section class="learning-card scenario-card">
                   <div class="section-label">INPUT PLAYGROUND</div>
                   <p>Enter one response per line. Python consumes them from top to bottom whenever <code>input()</code> runs.</p>
-                  <textarea id="programInputs" rows="6" spellcheck="false" placeholder="Aman&#10;25"></textarea>
+                  <textarea id="programInputs" rows="9" spellcheck="false" placeholder="Aman&#10;25"></textarea>
                   <div class="input-status" id="inputStatus">No input values prepared.</div>
                 </section>
-                <section class="learning-card">
+              </div>
+            </div>
+
+            <!-- Compare Runs owns the two bounded trace snapshots and their first behavioral difference. -->
+            <div class="learning-view hidden" id="compareView" role="tabpanel">
+              <div class="learning-detail">
+                <section class="learning-card scenario-card">
                   <div class="learning-card-heading">
                     <span class="section-label">COMPARE TWO RUNS</span>
                     <button class="small-action" id="clearComparisonsButton" type="button">Clear</button>
@@ -477,6 +549,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260720-21"></script>
+    <script type="module" src="app.js?v=20260720-22"></script>
   </body>
 </html>
