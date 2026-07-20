@@ -368,7 +368,7 @@ print(answer)`,
     level: "Intermediate",
     title: "One function calling another",
     description: "Follow two function frames as a value moves down and back up.",
-    views: ["Function Journey", "Call Stack", "Variables"],
+    views: ["Function Journey", "Story", "Variables"],
     code: `def add_tax(price):
     return price * 1.10
 
