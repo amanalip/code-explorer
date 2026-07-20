@@ -756,6 +756,61 @@ main {
   color: var(--text-dim);
 }
 
+/* Keeps filename and editor display controls aligned inside the compact panel header. */
+.editor-header-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Gives the wrapping toggle the same quiet utility styling as other workspace controls. */
+.editor-tool-button {
+  padding: 6px 9px;
+  border: 1px solid var(--line-bright);
+  border-radius: 6px;
+  color: var(--text-soft);
+  background: var(--panel-solid);
+  font: 600 0.62rem/1 var(--mono);
+  cursor: pointer;
+}
+
+/* Uses the mint treatment to make enabled wrapping visible without relying on wording alone. */
+.editor-tool-button[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--mint) 45%, var(--line));
+  color: var(--mint);
+  background: var(--mint-soft);
+}
+
+/* Provides consistent hover feedback for either wrapping state. */
+.editor-tool-button:hover {
+  border-color: var(--mint);
+  color: var(--mint);
+}
+
+/* Groups the visible Font label and native size selector as one accessible control. */
+.editor-font-control {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-dim);
+  font: 600 0.58rem/1 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Keeps the font-size selector compact while preserving a comfortable click target. */
+.editor-font-control select {
+  min-height: 29px;
+  padding: 0 24px 0 8px;
+  border: 1px solid var(--line-bright);
+  border-radius: 6px;
+  color: var(--text);
+  background: var(--panel-solid);
+  font: 600 0.62rem/1 var(--mono);
+  cursor: pointer;
+}
+
 /* Styles `.editor-shell`. This component rule controls sizing and spacing, color and visual emphasis, overflow behavior for the matching interface element. */
 .editor-shell {
   height: 530px;
@@ -779,9 +834,15 @@ main {
   outline: 0;
   color: var(--text);
   background: var(--panel-solid);
-  font: 500 0.86rem/1.75 var(--mono);
+  font: 500 var(--editor-font-size, 14px)/1.75 var(--mono);
   caret-color: var(--mint);
   tab-size: 4;
+}
+
+/* Preserves long source lines when wrapping is disabled in the fallback editor. */
+.fallback-editor.wrap-disabled {
+  overflow-wrap: normal;
+  white-space: pre;
 }
 
 /* Styles `.cm-editor`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
@@ -789,7 +850,7 @@ main {
   height: 100%;
   color: var(--code-plain);
   background: var(--panel-solid);
-  font: 500 0.86rem/1.75 var(--mono);
+  font: 500 var(--editor-font-size, 14px)/1.75 var(--mono);
 }
 
 /* Styles `.cm-editor.cm-focused`. This component rule controls boundaries and focus treatment for the matching interface element. */
@@ -2268,6 +2329,21 @@ main {
   .workspace-actions .primary-button,
   .workspace-actions .danger-button {
     width: 100%;
+  }
+
+  /* Preserves room for the useful editor controls on narrow phone headers. */
+  .editor-panel .panel-header {
+    padding: 0 10px;
+  }
+
+  /* The panel title already identifies the editor, so the filename can yield space on phones. */
+  .editor-header-tools .file-label {
+    display: none;
+  }
+
+  /* The select's values already include px, allowing the extra Font label to hide safely. */
+  .editor-font-control > span {
+    display: none;
   }
 
   /* Styles `.tabs-header`. This component rule controls layout, sizing and spacing for the matching interface element. */

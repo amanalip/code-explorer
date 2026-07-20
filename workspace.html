@@ -91,7 +91,27 @@
                 <span class="panel-index">01</span>
                 <span class="panel-title">PYTHON SOURCE</span>
               </div>
-              <span class="file-label">main.py</span>
+              <!-- These compact controls change only editor presentation, never the Python source. -->
+              <div class="editor-header-tools">
+                <!-- aria-pressed exposes the current wrapping state to assistive technology. -->
+                <button class="editor-tool-button" id="editorWrapButton" type="button" aria-pressed="true">
+                  Wrap on
+                </button>
+                <!-- A visible label makes the numeric choices understandable without relying on context. -->
+                <label class="editor-font-control" for="editorFontSizeSelect">
+                  <span>Font</span>
+                  <select id="editorFontSizeSelect" aria-label="Editor font size">
+                    <option value="12">12 px</option>
+                    <option value="14" selected>14 px</option>
+                    <option value="16">16 px</option>
+                    <option value="18">18 px</option>
+                    <option value="20">20 px</option>
+                    <option value="22">22 px</option>
+                  </select>
+                </label>
+                <!-- The filename remains visible as orientation for the single-file MVP. -->
+                <span class="file-label">main.py</span>
+              </div>
             </div>
             <!-- CodeMirror mounts itself into this empty element after its modules load. -->
             <div class="editor-shell" id="editorShell">
@@ -304,6 +324,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260720-11"></script>
+    <script type="module" src="app.js?v=20260720-12"></script>
   </body>
 </html>

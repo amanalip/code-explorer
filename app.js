@@ -29,6 +29,19 @@ print("Total:", total)`;
 const SOURCE_STORAGE_KEY = "code-explorer-source";
 
 /**
+ * The browser-storage key for editor-only display preferences.
+ * Keeping it separate from source code lets either value evolve independently.
+ */
+const EDITOR_PREFERENCES_STORAGE_KEY = "code-explorer-editor-preferences";
+
+/**
+ * Safe defaults closely match the original editor presentation.
+ * Wrapping starts enabled for beginner-friendly viewing, and fourteen pixels
+ * preserves the previous visual size while remaining a clear numeric choice.
+ */
+const DEFAULT_EDITOR_PREFERENCES = Object.freeze({ wrap: true, fontSize: 14 });
+
+/**
  * Maximum wall-clock time allowed for one Python execution in the worker.
  * Thirty seconds supports larger learning programs without leaving runaway code active indefinitely.
  */
@@ -58,6 +71,43 @@ function saveCode(code) {
     localStorage.setItem(SOURCE_STORAGE_KEY, code);
   } catch (error) {
     console.warn("Code Explorer could not save the current source.", error);
+  }
+}
+
+/**
+ * Restores validated editor display preferences from browser storage.
+ * Unknown font sizes are rejected so edited storage cannot produce an unusable editor.
+ * @returns {{wrap: boolean, fontSize: number}} Safe wrapping and font-size settings.
+ */
+function loadEditorPreferences() {
+  try {
+    // Parse the stored object only when the key exists.
+    const stored = JSON.parse(localStorage.getItem(EDITOR_PREFERENCES_STORAGE_KEY) || "null");
+    // The allowed list exactly mirrors the options presented in workspace.html.
+    const allowedFontSizes = [12, 14, 16, 18, 20, 22];
+    // Accept only an explicit boolean so strings such as "false" are not misread as true.
+    const wrap = typeof stored?.wrap === "boolean" ? stored.wrap : DEFAULT_EDITOR_PREFERENCES.wrap;
+    // Convert a valid stored number while falling back safely for missing or modified data.
+    const fontSize = allowedFontSizes.includes(Number(stored?.fontSize))
+      ? Number(stored.fontSize)
+      : DEFAULT_EDITOR_PREFERENCES.fontSize;
+    return { wrap, fontSize };
+  } catch (error) {
+    // Storage or JSON failures must never prevent the editor from loading.
+    console.warn("Code Explorer could not read editor preferences.", error);
+    return { ...DEFAULT_EDITOR_PREFERENCES };
+  }
+}
+
+/**
+ * Persists the current editor presentation without touching the learner's code.
+ * Storage failures remain non-fatal for privacy-focused browser configurations.
+ */
+function saveEditorPreferences() {
+  try {
+    localStorage.setItem(EDITOR_PREFERENCES_STORAGE_KEY, JSON.stringify(state.editorPreferences));
+  } catch (error) {
+    console.warn("Code Explorer could not save editor preferences.", error);
   }
 }
 
@@ -144,7 +194,7 @@ const els = Object.fromEntries(
   [
     "runtimeStatus", "runtimeLabel", "themeButton", "themeIcon", "welcomeScreen", "workspace",
     "heroExampleButton", "backButton", "examplesButton", "runButton", "stopButton",
-    "editor", "editorShell", "codeStats", "storyTab", "variablesTab", "referencesTab", "flowTab",
+    "editor", "editorShell", "editorWrapButton", "editorFontSizeSelect", "codeStats", "storyTab", "variablesTab", "referencesTab", "flowTab",
     "loopTab", "loopBadge", "storyView", "variablesView", "referencesView", "flowView", "loopView",
     "emptyStory", "traceContent", "traceKicker", "executedCode", "explanation", "changeList",
     "stepOutputSection", "stepOutput", "variablesGrid", "callStackSection", "callStack",
@@ -170,6 +220,10 @@ const state = {
   fallbackEditor: null,
   // Restores saved source before either editor implementation is mounted.
   code: loadSavedCode(),
+  // Restores wrapping and font size independently from the saved Python source.
+  editorPreferences: loadEditorPreferences(),
+  // Holds CodeMirror's dynamic wrapping compartment after its modules load.
+  editorConfiguration: null,
   // References the Web Worker that owns Pyodide and runs untrusted learner code.
   worker: null,
   // Resolves only after Pyodide reports that the Python runtime is usable.
@@ -259,6 +313,69 @@ function updateCodeStats() {
 }
 
 /**
+ * Applies editor preferences to the controls, CodeMirror, and textarea fallback.
+ * A CodeMirror compartment changes wrapping without rebuilding the editor or losing selection.
+ * @param {boolean} reconfigure Whether an existing CodeMirror instance should receive a new wrapping extension.
+ */
+function applyEditorPreferences(reconfigure = true) {
+  // A CSS custom property updates CodeMirror and the fallback editor together.
+  els.editorShell?.style.setProperty("--editor-font-size", `${state.editorPreferences.fontSize}px`);
+  // The button's label gives sighted users immediate confirmation of the active state.
+  if (els.editorWrapButton) {
+    els.editorWrapButton.textContent = state.editorPreferences.wrap ? "Wrap on" : "Wrap off";
+    els.editorWrapButton.setAttribute("aria-pressed", String(state.editorPreferences.wrap));
+    els.editorWrapButton.title = state.editorPreferences.wrap
+      ? "Turn editor text wrapping off"
+      : "Turn editor text wrapping on";
+  }
+  // Synchronizing the select also handles preferences restored before event binding.
+  if (els.editorFontSizeSelect) {
+    els.editorFontSizeSelect.value = String(state.editorPreferences.fontSize);
+  }
+  // The native textarea uses its wrap attribute plus white-space rules to match CodeMirror.
+  if (state.fallbackEditor) {
+    state.fallbackEditor.wrap = state.editorPreferences.wrap ? "soft" : "off";
+    state.fallbackEditor.classList.toggle("wrap-disabled", !state.editorPreferences.wrap);
+  }
+  // Reconfigure only after CodeMirror has supplied both the compartment and extension.
+  if (reconfigure && state.editorView && state.editorConfiguration) {
+    const wrappingExtension = state.editorPreferences.wrap
+      ? state.editorConfiguration.lineWrapping
+      : [];
+    state.editorView.dispatch({
+      effects: state.editorConfiguration.wrapCompartment.reconfigure(wrappingExtension),
+    });
+  }
+  // Font metrics affect line widths and gutter geometry, so ask CodeMirror to
+  // measure again after the CSS variable changes instead of waiting for resize.
+  state.editorView?.requestMeasure();
+}
+
+/**
+ * Flips editor wrapping, saves the choice, and updates the mounted editor in place.
+ */
+function toggleEditorWrapping() {
+  state.editorPreferences.wrap = !state.editorPreferences.wrap;
+  saveEditorPreferences();
+  applyEditorPreferences();
+}
+
+/**
+ * Validates and applies a font size selected from the editor toolbar.
+ * @param {string|number} requestedSize Candidate pixel size from the native select.
+ */
+function changeEditorFontSize(requestedSize) {
+  // Reusing the same allow-list as loading protects calls made outside the select element.
+  const allowedFontSizes = [12, 14, 16, 18, 20, 22];
+  const fontSize = Number(requestedSize);
+  if (!allowedFontSizes.includes(fontSize)) return;
+  state.editorPreferences.fontSize = fontSize;
+  saveEditorPreferences();
+  // Font size is CSS-driven, but the shared application function also keeps controls synchronized.
+  applyEditorPreferences(false);
+}
+
+/**
  * Loads CodeMirror from the CDN and mounts the Python editor.
  * If any module fails to load, the catch branch creates a fully usable textarea so a network problem never blocks the core experience.
  * @returns {Promise<void>} Resolves after either editor implementation is ready.
@@ -273,7 +390,7 @@ async function initializeEditor() {
       { syntaxHighlighting },
       { classHighlighter },
       { Decoration },
-      { StateEffect, StateField },
+      { Compartment, StateEffect, StateField },
     ] = await Promise.all([
       // The dependency query pins shared language and tag modules. Highlight
       // tags rely on object identity, so all packages must receive one copy.
@@ -301,6 +418,10 @@ async function initializeEditor() {
     });
     // Rendering code stores the constructors without coupling the rest of the app to imports.
     state.heatmap = { Decoration, setHeatmapEffect };
+    // A compartment makes line wrapping replaceable after the editor is mounted.
+    const wrapCompartment = new Compartment();
+    // Store the imported extension so ordinary preference handlers stay library-agnostic.
+    state.editorConfiguration = { wrapCompartment, lineWrapping: EditorView.lineWrapping };
 
     state.editorView = new EditorView({
       doc: state.code,
@@ -311,7 +432,8 @@ async function initializeEditor() {
         syntaxHighlighting(classHighlighter),
         // The heatmap field paints executed, repeated, and currently selected lines.
         heatmapField,
-        EditorView.lineWrapping,
+        // Start with the restored wrapping choice without creating a second editor instance.
+        wrapCompartment.of(state.editorPreferences.wrap ? EditorView.lineWrapping : []),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             state.code = update.state.doc.toString();
@@ -340,8 +462,12 @@ async function initializeEditor() {
     });
     els.editor.replaceChildren(textarea);
     state.fallbackEditor = textarea;
+    // Apply wrapping to the newly mounted fallback before it becomes interactive.
+    applyEditorPreferences(false);
     showToast("The enhanced editor could not load. The basic editor is ready instead.");
   }
+  // Synchronize CSS sizing and toolbar state after either editor implementation mounts.
+  applyEditorPreferences(false);
   updateCodeStats();
 }
 
@@ -1860,6 +1986,9 @@ function openExamples() {
  */
 function bindEvents() {
   els.themeButton?.addEventListener("click", toggleTheme);
+  // Editor display controls update presentation without altering or retracing source code.
+  els.editorWrapButton?.addEventListener("click", toggleEditorWrapping);
+  els.editorFontSizeSelect?.addEventListener("change", (event) => changeEditorFontSize(event.target.value));
   els.heroExampleButton?.addEventListener("click", openExamples);
   els.backButton?.addEventListener("click", (event) => {
     event.preventDefault();
