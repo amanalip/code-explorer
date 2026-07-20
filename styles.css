@@ -293,6 +293,14 @@ select:focus-visible {
   min-width: 96px;
 }
 
+/* Sizes the GitHub vector mark consistently while allowing the parent control to provide its color. */
+.github-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
 /* Defines hover feedback for `.icon-button:hover`, using color and visual emphasis, boundaries and focus treatment, motion and interaction feedback to confirm that the element is interactive. */
 .icon-button:hover {
   border-color: var(--line-bright);
@@ -459,11 +467,11 @@ main {
   background: rgba(255, 107, 122, 0.08);
 }
 
-/* Styles `.feature-chips`. This component rule controls layout, sizing and spacing for the matching interface element. */
+/* Wraps topic chips into balanced rows, using a tighter horizontal gap and a roomier vertical gap for clear scanning. */
 .feature-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 9px;
+  gap: 9px 6px;
   margin-top: 38px;
 }
 
