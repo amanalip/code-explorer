@@ -292,6 +292,25 @@ main {
   margin: 0 auto;
 }
 
+/* Gives both pages one quiet ownership footer aligned with the shared content width. */
+.site-footer {
+  display: flex;
+  width: min(1440px, calc(100% - 48px));
+  min-height: 64px;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid var(--line);
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* Uses the interface's monospace voice for a compact, clearly secondary copyright line. */
+.site-footer small {
+  font: 600 0.64rem/1.5 var(--mono);
+  letter-spacing: 0.08em;
+}
+
 /* Styles `.welcome-screen`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .welcome-screen {
   display: grid;
@@ -3237,7 +3256,8 @@ main {
 @media (max-width: 680px) {
   /* Styles `.site-header, main`. This component rule controls sizing and spacing for the matching interface element. */
   .site-header,
-  main {
+  main,
+  .site-footer {
     width: min(100% - 28px, 1440px);
   }
 
