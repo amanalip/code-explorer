@@ -47,8 +47,8 @@ import traceback
 
 # This virtual filename distinguishes learner frames from Pyodide and harness frames.
 USER_FILE = "<code-explorer>"
-# This cap prevents a long or infinite loop from filling browser memory with snapshots.
-MAX_STEPS = 600
+# This cap supports larger programs while still preventing runaway browser memory use.
+MAX_STEPS = 3000
 # Nested containers deeper than this limit are represented by a concise preview.
 MAX_DEPTH = 4
 # Large containers include only this many children while retaining their true length.
@@ -274,7 +274,10 @@ def run_trace(source):
         """Append one fully detached snapshot of the current user-code state."""
         # The hard event limit stops runaway programs before browser memory is exhausted.
         if len(steps) >= MAX_STEPS:
-            raise RuntimeError(f"Trace stopped after {MAX_STEPS} steps. The program may contain a long or infinite loop.")
+            raise RuntimeError(
+                f"Trace limit reached: Code Explorer recorded the maximum of {MAX_STEPS:,} steps. "
+                "Shorten the program or reduce the number of loop iterations."
+            )
         # Defensive bounds checking ignores trace metadata that cannot map to the source.
         if not line_number or line_number < 1 or line_number > len(source_lines):
             return

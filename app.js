@@ -29,6 +29,12 @@ print("Total:", total)`;
 const SOURCE_STORAGE_KEY = "code-explorer-source";
 
 /**
+ * Maximum wall-clock time allowed for one Python execution in the worker.
+ * Thirty seconds supports larger learning programs without leaving runaway code active indefinitely.
+ */
+const EXECUTION_TIMEOUT_MS = 30_000;
+
+/**
  * Reads the last saved program while safely handling browsers that block storage.
  * The bundled starter remains the fallback for first visits and restricted environments.
  * @returns {string} Saved Python source or the default learning example.
@@ -455,8 +461,8 @@ async function runCode() {
     await ensureWorker();
     state.worker.postMessage({ type: "run", runId: state.runId, source });
     state.runTimeout = window.setTimeout(() => {
-      stopExecution("The program ran for too long and was stopped. It may contain an infinite loop.");
-    }, 8000);
+      stopExecution("Execution time limit reached: the program was stopped after 30 seconds. Check for an infinite loop or reduce the amount of work.");
+    }, EXECUTION_TIMEOUT_MS);
   } catch (error) {
     finishRunning();
     showError(`Python could not start. ${error.message}`);
