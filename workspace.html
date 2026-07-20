@@ -100,13 +100,22 @@
             </div>
           </section>
 
-          <!-- This panel switches between narrative execution and loop-focused learning. -->
+          <!-- This panel switches among complementary beginner-focused execution views. -->
           <section class="panel story-panel">
             <!-- Accessible tabs select a view without navigating away from the workspace. -->
             <div class="panel-header tabs-header">
               <div class="panel-tabs" role="tablist" aria-label="Visualization mode">
                 <button class="panel-tab active" id="storyTab" role="tab" aria-selected="true" type="button">
-                  Execution Story
+                  Story
+                </button>
+                <button class="panel-tab" id="variablesTab" role="tab" aria-selected="false" type="button">
+                  Variables
+                </button>
+                <button class="panel-tab" id="referencesTab" role="tab" aria-selected="false" type="button">
+                  References
+                </button>
+                <button class="panel-tab" id="flowTab" role="tab" aria-selected="false" type="button">
+                  Flow
                 </button>
                 <button class="panel-tab" id="loopTab" role="tab" aria-selected="false" type="button">
                   Loop Lab <span class="tab-badge" id="loopBadge">0</span>
@@ -130,6 +139,12 @@
                 <div class="executed-code"><code id="executedCode"></code></div>
                 <p class="explanation" id="explanation"></p>
 
+                <!-- This card isolates only the console text added by the current step. -->
+                <div class="step-output hidden" id="stepOutputSection">
+                  <div class="section-label">OUTPUT FROM THIS STEP</div>
+                  <pre id="stepOutput"></pre>
+                </div>
+
                 <!-- A diff between adjacent snapshots explains what this step changed. -->
                 <div class="change-section">
                   <div class="section-label">WHAT CHANGED</div>
@@ -147,6 +162,55 @@
                   <div class="section-label">CALL STACK</div>
                   <div class="call-stack" id="callStack"></div>
                 </div>
+              </div>
+            </div>
+
+            <!-- The variable view exposes scope, nested contents, and value history. -->
+            <div class="variables-view hidden" id="variablesView" role="tabpanel">
+              <!-- This placeholder is replaced after a trace supplies visible variables. -->
+              <div class="empty-state" id="emptyVariables">
+                <div class="empty-glyph" aria-hidden="true">x</div>
+                <h2>No variables yet</h2>
+                <p>Run a program, then select any variable to inspect its value and history.</p>
+              </div>
+              <!-- JavaScript builds scope groups and a detailed inspector inside this region. -->
+              <div class="variables-content hidden" id="variablesContent">
+                <div class="scope-browser" id="scopeBrowser"></div>
+                <div class="variable-inspector" id="variableInspector"></div>
+              </div>
+            </div>
+
+            <!-- The reference view teaches names, scopes, objects, and shared references. -->
+            <div class="references-view hidden" id="referencesView" role="tabpanel">
+              <div class="empty-state" id="emptyReferences">
+                <div class="empty-glyph" aria-hidden="true">-&gt;</div>
+                <h2>No references yet</h2>
+                <p>Run a program to map variable names to the Python objects they reference.</p>
+              </div>
+              <!-- Cytoscape mounts its interactive canvas into this dedicated container. -->
+              <div class="graph-content hidden" id="referencesContent">
+                <div class="graph-toolbar">
+                  <span>Names reference objects. This is a conceptual map, not a RAM address view.</span>
+                  <button id="fitReferencesButton" type="button">Fit</button>
+                </div>
+                <div class="graph-canvas" id="referencesGraph" aria-label="Python reference map"></div>
+              </div>
+            </div>
+
+            <!-- The flow view summarizes the path the completed execution actually followed. -->
+            <div class="flow-view hidden" id="flowView" role="tabpanel">
+              <div class="empty-state" id="emptyFlow">
+                <div class="empty-glyph loop-glyph" aria-hidden="true">#</div>
+                <h2>No executed path yet</h2>
+                <p>Run a program to turn its observed line transitions into a flow map.</p>
+              </div>
+              <!-- The graph uses observed transitions, making every displayed edge truthful. -->
+              <div class="graph-content hidden" id="flowContent">
+                <div class="graph-toolbar">
+                  <span>Actual executed path. Edge labels show how often a transition occurred.</span>
+                  <button id="fitFlowButton" type="button">Fit</button>
+                </div>
+                <div class="graph-canvas" id="flowGraph" aria-label="Executed Python flow map"></div>
               </div>
             </div>
 
@@ -228,6 +292,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260720-2"></script>
+    <script type="module" src="app.js?v=20260720-6"></script>
   </body>
 </html>

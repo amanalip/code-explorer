@@ -144,9 +144,13 @@ const els = Object.fromEntries(
   [
     "runtimeStatus", "runtimeLabel", "themeButton", "themeIcon", "welcomeScreen", "workspace",
     "heroExampleButton", "backButton", "examplesButton", "runButton", "stopButton",
-    "editor", "editorShell", "codeStats", "storyTab", "loopTab", "loopBadge", "storyView", "loopView",
+    "editor", "editorShell", "codeStats", "storyTab", "variablesTab", "referencesTab", "flowTab",
+    "loopTab", "loopBadge", "storyView", "variablesView", "referencesView", "flowView", "loopView",
     "emptyStory", "traceContent", "traceKicker", "executedCode", "explanation", "changeList",
-    "variablesGrid", "callStackSection", "callStack", "emptyLoop", "loopContent", "loopType",
+    "stepOutputSection", "stepOutput", "variablesGrid", "callStackSection", "callStack",
+    "emptyVariables", "variablesContent", "scopeBrowser", "variableInspector", "emptyReferences",
+    "referencesContent", "referencesGraph", "fitReferencesButton", "emptyFlow", "flowContent",
+    "flowGraph", "fitFlowButton", "emptyLoop", "loopContent", "loopType",
     "iterationCount", "loopSource", "loopMeter", "iterationList", "stepCount", "previousButton",
     "playButton", "nextButton", "restartButton", "stepSlider", "progressPercent", "speedSelect",
     "consoleOutput", "clearOutputButton", "examplesDialog", "closeExamplesButton", "exampleGrid", "toast",
@@ -183,6 +187,8 @@ const state = {
   trace: [],
   // Stores static metadata for each for or while loop found in the source AST.
   loops: [],
+  // Stores if-branch boundaries used to explain observed true and false paths.
+  conditions: [],
   // Retains the most recent syntax or runtime error for final-step rendering.
   error: null,
   // Identifies the trace snapshot currently displayed to the learner.
@@ -193,6 +199,16 @@ const state = {
   playTimer: null,
   // Records which explanatory tab is visible without changing trace state.
   activePanel: "story",
+  // Remembers the variable selected in the detailed inspector across trace steps.
+  selectedVariable: null,
+  // Holds the lazily loaded Cytoscape constructor used by both graph views.
+  graphLibrary: null,
+  // Reuses one graph instance for the active reference map instead of leaking canvases.
+  referencesGraph: null,
+  // Reuses one graph instance for the observed execution-flow visualization.
+  flowGraph: null,
+  // Stores the CodeMirror effect and field helpers used to paint executed lines.
+  heatmap: null,
   // Holds the dismissal timer for the temporary toast notification.
   toastTimer: null,
 };
@@ -226,6 +242,9 @@ function applyTheme(theme) {
  */
 function toggleTheme() {
   applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+  // Rebuilding only the visible graph refreshes its palette without doing hidden work.
+  if (state.activePanel === "references") renderReferenceMap();
+  if (state.activePanel === "flow") renderFlowMap();
 }
 
 /**
@@ -253,14 +272,35 @@ async function initializeEditor() {
       { python },
       { syntaxHighlighting },
       { classHighlighter },
+      { Decoration },
+      { StateEffect, StateField },
     ] = await Promise.all([
       // The dependency query pins shared language and tag modules. Highlight
       // tags rely on object identity, so all packages must receive one copy.
-      import("https://esm.sh/codemirror@6.0.2?deps=@codemirror/language@6.11.3,@lezer/highlight@1.2.1"),
-      import("https://esm.sh/@codemirror/lang-python@6.2.1?deps=@codemirror/language@6.11.3,@lezer/highlight@1.2.1"),
-      import("https://esm.sh/@codemirror/language@6.11.3?deps=@lezer/highlight@1.2.1"),
-      import("https://esm.sh/@lezer/highlight@1.2.1"),
+      import("https://esm.sh/codemirror@6.0.2?deps=@codemirror/state@6.7.1,@codemirror/view@6.43.6,@codemirror/language@6.12.4,@lezer/highlight@1.2.3"),
+      import("https://esm.sh/@codemirror/lang-python@6.2.1?deps=@codemirror/state@6.7.1,@codemirror/view@6.43.6,@codemirror/language@6.12.4,@lezer/highlight@1.2.3"),
+      import("https://esm.sh/@codemirror/language@6.12.4?deps=@codemirror/state@6.7.1,@codemirror/view@6.43.6,@lezer/highlight@1.2.3"),
+      import("https://esm.sh/@lezer/highlight@1.2.3"),
+      import("https://esm.sh/@codemirror/view@6.43.6?deps=@codemirror/state@6.7.1"),
+      import("https://esm.sh/@codemirror/state@6.7.1"),
     ]);
+
+    // This state effect replaces all execution-line decorations in one transaction.
+    const setHeatmapEffect = StateEffect.define();
+    // The field retains decorations while ordinary editor transactions map their positions.
+    const heatmapField = StateField.define({
+      create: () => Decoration.none,
+      update: (decorations, transaction) => {
+        let next = decorations.map(transaction.changes);
+        transaction.effects.forEach((effect) => {
+          if (effect.is(setHeatmapEffect)) next = effect.value;
+        });
+        return next;
+      },
+      provide: (field) => EditorView.decorations.from(field),
+    });
+    // Rendering code stores the constructors without coupling the rest of the app to imports.
+    state.heatmap = { Decoration, setHeatmapEffect };
 
     state.editorView = new EditorView({
       doc: state.code,
@@ -269,6 +309,8 @@ async function initializeEditor() {
         python(),
         // classHighlighter adds stable tok-* classes that our theme-aware CSS controls.
         syntaxHighlighting(classHighlighter),
+        // The heatmap field paints executed, repeated, and currently selected lines.
+        heatmapField,
         EditorView.lineWrapping,
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
@@ -281,7 +323,10 @@ async function initializeEditor() {
       ],
       parent: els.editor,
     });
+    renderEditorHeatmap();
   } catch (error) {
+    // Preserve the underlying module or extension error for contributors debugging CDN changes.
+    console.error("Code Explorer enhanced editor initialization failed.", error);
     const textarea = document.createElement("textarea");
     textarea.className = "fallback-editor";
     textarea.value = state.code;
@@ -344,6 +389,34 @@ function focusLine(lineNumber) {
     selection: { anchor: line.from },
     scrollIntoView: true,
   });
+}
+
+/**
+ * Paints executed source lines with intensity based on visit count and marks the active line.
+ * Decorations are derived from the complete trace, so loops become visible without changing editor text.
+ */
+function renderEditorHeatmap() {
+  if (!state.editorView || !state.heatmap) return;
+  const counts = new Map();
+  state.trace.forEach((step) => counts.set(step.line, (counts.get(step.line) || 0) + 1));
+  const maximum = Math.max(1, ...counts.values());
+  const currentLine = state.trace[state.currentStep]?.line;
+  const ranges = [];
+  counts.forEach((count, lineNumber) => {
+    if (lineNumber < 1 || lineNumber > state.editorView.state.doc.lines) return;
+    const line = state.editorView.state.doc.line(lineNumber);
+    const intensity = Math.max(1, Math.min(3, Math.ceil((count / maximum) * 3)));
+    const activeClass = lineNumber === currentLine ? " cm-trace-current" : "";
+    ranges.push(state.heatmap.Decoration.line({
+      attributes: {
+        class: `cm-trace-line cm-trace-intensity-${intensity}${activeClass}`,
+        title: `Executed ${count} time${count === 1 ? "" : "s"}`,
+      },
+    }).range(line.from));
+  });
+  ranges.sort((first, second) => first.from - second.from);
+  const decorationSet = state.heatmap.Decoration.set(ranges, true);
+  state.editorView.dispatch({ effects: state.heatmap.setHeatmapEffect.of(decorationSet) });
 }
 
 /**
@@ -503,8 +576,10 @@ function stopExecution(reason = "Execution stopped.") {
 function loadResult(result) {
   state.trace = result.steps || [];
   state.loops = result.loops || [];
+  state.conditions = result.conditions || [];
   state.error = result.error || null;
   state.currentStep = 0;
+  state.selectedVariable = null;
   els.loopBadge.textContent = String(state.loops.length);
 
   if (!state.trace.length) {
@@ -543,8 +618,20 @@ function clearTrace() {
   pausePlayback();
   state.trace = [];
   state.loops = [];
+  state.conditions = [];
   state.error = null;
   state.currentStep = 0;
+  state.selectedVariable = null;
+  state.referencesGraph?.destroy();
+  state.referencesGraph = null;
+  state.flowGraph?.destroy();
+  state.flowGraph = null;
+  els.emptyVariables.classList.remove("hidden");
+  els.variablesContent.classList.add("hidden");
+  els.emptyReferences.classList.remove("hidden");
+  els.referencesContent.classList.add("hidden");
+  els.emptyFlow.classList.remove("hidden");
+  els.flowContent.classList.add("hidden");
   els.emptyStory.classList.remove("hidden");
   els.traceContent.classList.add("hidden");
   els.emptyLoop.classList.remove("hidden");
@@ -552,6 +639,7 @@ function clearTrace() {
   els.loopBadge.textContent = "0";
   els.stepCount.textContent = "STEP 00 / 00";
   setConsole("// Output will appear here", "muted");
+  renderEditorHeatmap();
   clearPlaybackControls();
 }
 
@@ -654,6 +742,26 @@ function isLoopExitStep(step) {
 }
 
 /**
+ * Infers the observed Boolean outcome of an if or while condition from its next executed line.
+ * The result describes only the path that actually ran and never predicts an unexecuted branch.
+ * @param {object} step Active trace snapshot.
+ * @returns {boolean|null} True, false, or null when the outcome cannot be determined safely.
+ */
+function conditionOutcome(step) {
+  const condition = state.conditions.find((item) => item.line === step.line);
+  if (condition) {
+    if (step.nextLine === condition.bodyLine) return true;
+    if (step.nextLine === condition.elseLine || step.nextLine > condition.endLine) return false;
+  }
+  const loop = state.loops.find((item) => item.type === "while" && item.line === step.line);
+  if (loop) {
+    if (step.nextLine === loop.bodyLine) return true;
+    if (isLoopExitStep(step)) return false;
+  }
+  return null;
+}
+
+/**
  * Classifies a source line into a short beginner-friendly category.
  * The category is displayed beside the line number and is based on trace events plus deliberately small syntax patterns.
  * @param {string} source Source text for the executed line.
@@ -664,7 +772,7 @@ function isLoopExitStep(step) {
 function statementKind(source, event, step) {
   const line = source.trim();
   if (event === "exception") return "ERROR";
-  if (event === "return" || /^return\b/.test(line)) return "RETURN";
+  if (/^return\b/.test(line)) return "RETURN";
   if (step && isLoopExitStep(step)) return "LOOP COMPLETE";
   if (/^for\b/.test(line)) return "FOR LOOP";
   if (/^while\b/.test(line)) return "WHILE LOOP";
@@ -674,6 +782,7 @@ function statementKind(source, event, step) {
   if (/^print\s*\(/.test(line)) return "OUTPUT";
   if (/^[A-Za-z_]\w*\s*(\+=|-=|\*=|\/=|\/\/=|%=)/.test(line)) return "UPDATE";
   if (/^[A-Za-z_]\w*\s*=/.test(line)) return "ASSIGNMENT";
+  if (event === "return") return "FUNCTION COMPLETE";
   return "STATEMENT";
 }
 
@@ -717,10 +826,18 @@ function explainStep(step, changes) {
   }
   if (/^while\s+(.+):$/.test(line)) {
     const condition = line.match(/^while\s+(.+):$/)?.[1];
+    const outcome = conditionOutcome(step);
+    if (outcome !== null) {
+      return `Python checked ${condition}. The result was ${outcome ? "True, so the loop continued" : "False, so the loop ended"}.`;
+    }
     return `Python checked whether ${condition} is true before continuing the loop.`;
   }
   if (/^(if|elif)\s+(.+):$/.test(line)) {
     const condition = line.match(/^(?:if|elif)\s+(.+):$/)?.[1];
+    const outcome = conditionOutcome(step);
+    if (outcome !== null) {
+      return `Python checked ${condition}. The result was ${outcome ? "True, so Python entered this branch" : "False, so Python skipped this branch"}.`;
+    }
     return `Python checked the condition ${condition} and chose which path to follow.`;
   }
   if (/^else\s*:/.test(line)) return "Python entered the alternative path because the earlier condition was false.";
@@ -768,7 +885,13 @@ function renderStep() {
   renderChanges(changes);
   renderVariables(variablesForStep(step));
   renderCallStack(step.frames || []);
+  renderStepOutput(index);
+  renderVariableExplorer();
   renderLoopLab(index);
+  renderEditorHeatmap();
+  updateFlowSelection();
+  if (state.activePanel === "references") renderReferenceMap();
+  if (state.activePanel === "flow" && !state.flowGraph) renderFlowMap();
   focusLine(step.line);
 
   if (step.output) {
@@ -824,8 +947,10 @@ function renderVariables(variables) {
   }
   els.variablesGrid.replaceChildren(
     ...entries.map(([name, value]) => {
-      const card = document.createElement("div");
+      const card = document.createElement("button");
+      card.type = "button";
       card.className = "variable-card";
+      card.setAttribute("aria-label", `Inspect ${name}`);
       const nameNode = document.createElement("span");
       nameNode.className = "variable-name";
       nameNode.textContent = name;
@@ -837,9 +962,269 @@ function renderVariables(variables) {
       typeNode.className = "variable-type";
       typeNode.textContent = value.type;
       card.append(nameNode, valueNode, typeNode);
+      card.addEventListener("click", () => {
+        state.selectedVariable = name;
+        switchPanel("variables");
+      });
       return card;
     }),
   );
+}
+
+/**
+ * Returns visible names separated into the global scope and the active local frame.
+ * A local name hides an equal global name in normal Python lookup, but both remain available for teaching.
+ * @param {object} step Trace snapshot whose scopes should be inspected.
+ * @returns {{globals: Record<string, object>, locals: Record<string, object>, localName: string}}
+ */
+function scopesForStep(step) {
+  const visible = (mapping = {}) => Object.fromEntries(
+    Object.entries(mapping).filter(([, value]) => !["function", "module", "type"].includes(value?.type)),
+  );
+  const activeFrame = step.frames?.at(-1);
+  return {
+    globals: visible(step.globals),
+    locals: activeFrame?.name === "<module>" ? {} : visible(activeFrame?.locals),
+    localName: activeFrame?.name && activeFrame.name !== "<module>" ? `${activeFrame.name}()` : "local scope",
+  };
+}
+
+/**
+ * Collects the meaningful lifetime events for one visible variable.
+ * Only creation and value changes become rows, which keeps a 3,000-step trace readable.
+ * @param {string} name Variable name to follow through the complete trace.
+ * @returns {Array<{index: number, value: object, kind: string}>} Ordered variable events.
+ */
+function variableHistory(name) {
+  const history = [];
+  let previous;
+  let present = false;
+  state.trace.forEach((step, index) => {
+    const values = variablesForStep(step);
+    const current = values[name];
+    if (!current) {
+      if (present) history.push({ index, value: previous, kind: "left scope" });
+      present = false;
+      previous = undefined;
+      return;
+    }
+    if (!present) {
+      history.push({ index, value: current, kind: "created" });
+    } else if (valueSignature(previous) !== valueSignature(current)) {
+      const sameObject = previous?.objectId && previous.objectId === current.objectId;
+      history.push({ index, value: current, kind: sameObject ? "mutated" : "changed" });
+    }
+    present = true;
+    previous = current;
+  });
+  return history;
+}
+
+/**
+ * Builds an expandable, safe DOM representation for a serialized Python value.
+ * Lists use numeric indexes, dictionaries preserve key labels, and recursion stops at the worker's finite snapshot boundary.
+ * @param {object} value Serialized Python value.
+ * @param {string} label Human-readable index, key, or field label.
+ * @returns {HTMLElement} One tree row or expandable branch.
+ */
+function createValueTree(value, label = "value") {
+  const hasItems = Array.isArray(value?.items) && value.items.length > 0;
+  const hasEntries = Array.isArray(value?.entries) && value.entries.length > 0;
+  if (!hasItems && !hasEntries) {
+    const leaf = document.createElement("div");
+    leaf.className = "value-tree-leaf";
+    const name = document.createElement("span");
+    name.textContent = label;
+    const display = document.createElement("code");
+    display.textContent = value?.display ?? "unknown";
+    const type = document.createElement("small");
+    type.textContent = value?.type ?? "unknown";
+    leaf.append(name, display, type);
+    return leaf;
+  }
+
+  const branch = document.createElement("details");
+  branch.className = "value-tree-branch";
+  branch.open = true;
+  const summary = document.createElement("summary");
+  const summaryName = document.createElement("span");
+  summaryName.textContent = label;
+  const summaryValue = document.createElement("code");
+  summaryValue.textContent = `${value.type}(${value.length ?? 0})`;
+  summary.append(summaryName, summaryValue);
+  branch.append(summary);
+
+  const children = document.createElement("div");
+  children.className = "value-tree-children";
+  if (hasItems) {
+    value.items.forEach((item, index) => children.append(createValueTree(item, `[${index}]`)));
+  }
+  if (hasEntries) {
+    value.entries.forEach((entry) => children.append(
+      createValueTree(entry.value, `[${entry.key?.display ?? "?"}]`),
+    ));
+  }
+  if ((value.length ?? 0) > (value.items?.length ?? value.entries?.length ?? 0)) {
+    const omitted = document.createElement("div");
+    omitted.className = "value-tree-omitted";
+    omitted.textContent = `${value.length - (value.items?.length ?? value.entries?.length ?? 0)} more item(s) omitted`;
+    children.append(omitted);
+  }
+  branch.append(children);
+  return branch;
+}
+
+/**
+ * Renders the current global and local scope buttons used to choose a variable.
+ * @param {{globals: Record<string, object>, locals: Record<string, object>, localName: string}} scopes Current scope data.
+ */
+function renderScopeBrowser(scopes) {
+  els.scopeBrowser.replaceChildren();
+  const groups = [
+    ["GLOBAL SCOPE", scopes.globals],
+    [scopes.localName.toUpperCase(), scopes.locals],
+  ];
+  groups.forEach(([title, variables]) => {
+    const entries = Object.entries(variables);
+    if (!entries.length) return;
+    const section = document.createElement("section");
+    section.className = "scope-group";
+    const heading = document.createElement("h3");
+    heading.textContent = title;
+    section.append(heading);
+    entries.forEach(([name, value]) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `scope-variable ${state.selectedVariable === name ? "active" : ""}`;
+      const nameNode = document.createElement("strong");
+      nameNode.textContent = name;
+      const valueNode = document.createElement("code");
+      valueNode.textContent = value.display;
+      const typeNode = document.createElement("small");
+      typeNode.textContent = value.type;
+      button.append(nameNode, valueNode, typeNode);
+      button.addEventListener("click", () => {
+        state.selectedVariable = name;
+        renderVariableExplorer();
+      });
+      section.append(button);
+    });
+    els.scopeBrowser.append(section);
+  });
+}
+
+/**
+ * Renders metadata, nested contents, aliases, and change history for the selected variable.
+ * The view is derived entirely from detached trace snapshots, so inspection never mutates learner code.
+ */
+function renderVariableExplorer() {
+  if (!state.trace.length) {
+    els.emptyVariables.classList.remove("hidden");
+    els.variablesContent.classList.add("hidden");
+    return;
+  }
+  const step = state.trace[state.currentStep];
+  const variables = variablesForStep(step);
+  const names = Object.keys(variables);
+  if (!names.length) {
+    els.emptyVariables.classList.remove("hidden");
+    els.variablesContent.classList.add("hidden");
+    return;
+  }
+  if (!state.selectedVariable || !variables[state.selectedVariable]) {
+    state.selectedVariable = changesAt(state.currentStep).find((change) => variables[change.name])?.name || names[0];
+  }
+
+  els.emptyVariables.classList.add("hidden");
+  els.variablesContent.classList.remove("hidden");
+  const scopes = scopesForStep(step);
+  renderScopeBrowser(scopes);
+
+  const name = state.selectedVariable;
+  const value = variables[name];
+  const history = variableHistory(name);
+  const visibleHistory = history.filter((entry) => entry.index <= state.currentStep);
+  const created = history[0];
+  const lastChanged = visibleHistory.at(-1);
+  const scope = Object.hasOwn(scopes.locals, name) ? scopes.localName : "global";
+  const mutable = ["list", "dict", "set"].includes(value.type);
+  const aliases = Object.entries(variables)
+    .filter(([otherName, otherValue]) => otherName !== name && value.objectId && otherValue.objectId === value.objectId)
+    .map(([otherName]) => otherName);
+
+  els.variableInspector.replaceChildren();
+  const heading = document.createElement("div");
+  heading.className = "inspector-heading";
+  const title = document.createElement("div");
+  const kicker = document.createElement("span");
+  kicker.textContent = scope.toUpperCase();
+  const nameNode = document.createElement("h3");
+  nameNode.textContent = name;
+  title.append(kicker, nameNode);
+  const typeBadge = document.createElement("span");
+  typeBadge.className = "inspector-type";
+  typeBadge.textContent = value.type;
+  heading.append(title, typeBadge);
+
+  const metadata = document.createElement("div");
+  metadata.className = "inspector-metadata";
+  const facts = [
+    ["Current value", value.display],
+    ["Created", created ? `step ${created.index + 1}` : "unknown"],
+    ["Last change", lastChanged ? `step ${lastChanged.index + 1}` : "not changed"],
+    ["Behavior", mutable ? "mutable object" : "immutable value"],
+  ];
+  if (Number.isFinite(value.length)) facts.splice(1, 0, ["Length", String(value.length)]);
+  if (aliases.length) facts.push(["Shared with", aliases.join(", ")]);
+  facts.forEach(([label, factValue]) => {
+    const fact = document.createElement("div");
+    const factLabel = document.createElement("span");
+    factLabel.textContent = label;
+    const factText = document.createElement("code");
+    factText.textContent = factValue;
+    fact.append(factLabel, factText);
+    metadata.append(fact);
+  });
+
+  const contentsLabel = document.createElement("div");
+  contentsLabel.className = "section-label";
+  contentsLabel.textContent = "CONTENTS";
+  const tree = createValueTree(value, name);
+
+  const historyLabel = document.createElement("div");
+  historyLabel.className = "section-label inspector-history-label";
+  historyLabel.textContent = "VALUE HISTORY";
+  const historyTable = document.createElement("div");
+  historyTable.className = "variable-history";
+  history.slice(0, 200).forEach((entry) => {
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = `history-row ${entry.index === state.currentStep ? "active" : ""}`;
+    const stepNode = document.createElement("span");
+    stepNode.textContent = `Step ${entry.index + 1}`;
+    const eventNode = document.createElement("span");
+    eventNode.textContent = entry.kind;
+    const historyValue = document.createElement("code");
+    historyValue.textContent = entry.value?.display ?? "out of scope";
+    row.append(stepNode, eventNode, historyValue);
+    row.addEventListener("click", () => goToStep(entry.index));
+    historyTable.append(row);
+  });
+
+  els.variableInspector.append(heading, metadata, contentsLabel, tree, historyLabel, historyTable);
+}
+
+/**
+ * Shows only the console text appended by the active execution step.
+ * Cumulative output remains in the main console, while this smaller card explains causality.
+ * @param {number} index Active zero-based trace index.
+ */
+function renderStepOutput(index) {
+  const current = state.trace[index]?.output || "";
+  const previous = index > 0 ? state.trace[index - 1]?.output || "" : "";
+  const delta = current.startsWith(previous) ? current.slice(previous.length) : current;
+  els.stepOutputSection.classList.toggle("hidden", !delta);
+  els.stepOutput.textContent = delta.trimEnd();
 }
 
 /**
@@ -858,9 +1243,38 @@ function renderCallStack(frames) {
       const item = document.createElement("div");
       item.className = `stack-frame ${index === frames.length - 1 ? "active" : ""}`;
       const name = frame.name === "<module>" ? "global frame" : `${frame.name}()`;
-      item.innerHTML = `<span></span><span></span>`;
-      item.children[0].textContent = name;
-      item.children[1].textContent = `${Object.keys(frame.locals || {}).length} local${Object.keys(frame.locals || {}).length === 1 ? "" : "s"}`;
+      const header = document.createElement("div");
+      header.className = "stack-frame-header";
+      const nameNode = document.createElement("strong");
+      nameNode.textContent = name;
+      const countNode = document.createElement("span");
+      const localCount = Object.keys(frame.locals || {}).length;
+      countNode.textContent = `${localCount} local${localCount === 1 ? "" : "s"}`;
+      header.append(nameNode, countNode);
+
+      const locals = document.createElement("div");
+      locals.className = "stack-frame-locals";
+      const visibleLocals = Object.entries(frame.locals || {})
+        .filter(([, value]) => !["function", "module", "type"].includes(value?.type))
+        .slice(0, 6);
+      if (!visibleLocals.length) {
+        const empty = document.createElement("span");
+        empty.className = "stack-local-empty";
+        empty.textContent = "No visible locals";
+        locals.append(empty);
+      } else {
+        visibleLocals.forEach(([localName, value]) => {
+          const row = document.createElement("div");
+          row.className = "stack-local-row";
+          const label = document.createElement("span");
+          label.textContent = localName;
+          const localValue = document.createElement("code");
+          localValue.textContent = value.display;
+          row.append(label, localValue);
+          locals.append(row);
+        });
+      }
+      item.append(header, locals);
       return item;
     }),
   );
@@ -1011,19 +1425,230 @@ function restartTrace() {
 }
 
 /**
- * Switches the explanatory panel between Execution Story and Loop Lab.
- * ARIA selection values and hidden classes are updated together for visual and assistive-technology consistency.
- * @param {"story"|"loop"} panel Panel that should become visible.
+ * Loads Cytoscape only when a learner opens a graph view.
+ * Deferring this dependency keeps the landing page and ordinary story playback lightweight.
+ * @returns {Promise<Function|null>} Cytoscape constructor or null when the CDN is unavailable.
+ */
+async function loadGraphLibrary() {
+  if (state.graphLibrary) return state.graphLibrary;
+  try {
+    const module = await import("https://esm.sh/cytoscape@3.31.0");
+    state.graphLibrary = module.default;
+    return state.graphLibrary;
+  } catch (error) {
+    console.warn("Code Explorer could not load its graph renderer.", error);
+    showToast("The graph renderer could not load. Story and variable views remain available.", true);
+    return null;
+  }
+}
+
+/**
+ * Reads the active theme tokens so Cytoscape matches the hand-authored interface.
+ * @returns {Record<string, string>} Named colors consumed by graph style declarations.
+ */
+function graphPalette() {
+  const style = getComputedStyle(document.documentElement);
+  const token = (name) => style.getPropertyValue(name).trim();
+  return {
+    text: token("--text"),
+    soft: token("--text-soft"),
+    dim: token("--text-dim"),
+    panel: token("--bg-raised"),
+    line: token("--line-bright"),
+    mint: token("--mint"),
+    purple: token("--purple"),
+    cyan: token("--cyan"),
+  };
+}
+
+/**
+ * Converts the active snapshot into scope, variable, object, and reference graph elements.
+ * Complex object ids merge aliases into one object node, while primitives receive clear value nodes.
+ * @param {object} step Active trace snapshot.
+ * @returns {Array<object>} Cytoscape-compatible node and edge definitions.
+ */
+function referenceElements(step) {
+  const elements = [];
+  const nodeIds = new Set();
+  const edgeIds = new Set();
+  const changedNames = new Set(changesAt(state.currentStep).map((change) => change.name));
+  const addNode = (id, label, kind, extra = {}) => {
+    if (nodeIds.has(id)) return;
+    nodeIds.add(id);
+    elements.push({ data: { id, label, kind, ...extra }, classes: extra.changed ? "changed" : "" });
+  };
+  const addEdge = (id, source, target, label = "") => {
+    if (edgeIds.has(id)) return;
+    edgeIds.add(id);
+    elements.push({ data: { id, source, target, label } });
+  };
+
+  const addValue = (value, ownerId, label, path, depth = 0) => {
+    const objectId = value?.objectId ? `object-${value.objectId}` : `value-${path}`;
+    const summary = value?.objectId
+      ? `${value.type}\n${value.display}`
+      : `${value?.type ?? "value"}\n${value?.display ?? "unknown"}`;
+    addNode(objectId, summary, value?.objectId ? "object" : "value", { changed: changedNames.has(label) });
+    addEdge(`ref-${ownerId}-${objectId}-${path}`, ownerId, objectId, label);
+    if (depth >= 2 || !value) return;
+    (value.items || []).slice(0, 12).forEach((item, index) => {
+      const childLabel = `[${index}]`;
+      addValue(item, objectId, childLabel, `${path}-item-${index}`, depth + 1);
+    });
+    (value.entries || []).slice(0, 12).forEach((entry, index) => {
+      const childLabel = `[${entry.key?.display ?? index}]`;
+      addValue(entry.value, objectId, childLabel, `${path}-entry-${index}`, depth + 1);
+    });
+  };
+
+  const scopes = scopesForStep(step);
+  const scopeGroups = [
+    ["scope-global", "GLOBAL SCOPE", scopes.globals],
+    ["scope-local", scopes.localName.toUpperCase(), scopes.locals],
+  ];
+  scopeGroups.forEach(([scopeId, scopeLabel, variables]) => {
+    if (!Object.keys(variables).length) return;
+    addNode(scopeId, scopeLabel, "scope");
+    Object.entries(variables).slice(0, 30).forEach(([name, value]) => {
+      const variableId = `${scopeId}-name-${name}`;
+      addNode(variableId, name, "name", { changed: changedNames.has(name) });
+      addEdge(`owns-${scopeId}-${name}`, scopeId, variableId);
+      addValue(value, variableId, "references", `${scopeId}-${name}`);
+    });
+  });
+  return elements.slice(0, 180);
+}
+
+/**
+ * Renders the active snapshot as a conceptual Python reference map.
+ * The canvas is rebuilt per selected step because object contents and active scopes can change.
+ * @returns {Promise<void>} Resolves after the optional graph dependency is ready.
+ */
+async function renderReferenceMap() {
+  if (!state.trace.length || !els.referencesGraph) {
+    els.emptyReferences?.classList.remove("hidden");
+    els.referencesContent?.classList.add("hidden");
+    return;
+  }
+  const cytoscape = await loadGraphLibrary();
+  if (!cytoscape || state.activePanel !== "references") return;
+  els.emptyReferences.classList.add("hidden");
+  els.referencesContent.classList.remove("hidden");
+  state.referencesGraph?.destroy();
+  const colors = graphPalette();
+  state.referencesGraph = cytoscape({
+    container: els.referencesGraph,
+    elements: referenceElements(state.trace[state.currentStep]),
+    layout: { name: "breadthfirst", directed: true, padding: 28, spacingFactor: 1.25 },
+    style: [
+      { selector: "node", style: { "background-color": colors.panel, "border-color": colors.line, "border-width": 1, color: colors.text, label: "data(label)", "font-family": "monospace", "font-size": 10, "text-wrap": "wrap", "text-max-width": 115, "text-valign": "center", "text-halign": "center", width: 105, height: 48 } },
+      { selector: 'node[kind = "scope"]', style: { "background-color": colors.purple, color: colors.panel, shape: "round-rectangle", width: 118, height: 34, "font-weight": 700 } },
+      { selector: 'node[kind = "name"]', style: { "border-color": colors.cyan, color: colors.cyan, shape: "round-rectangle", width: 88, height: 34 } },
+      { selector: 'node[kind = "object"]', style: { "border-color": colors.mint, shape: "round-rectangle" } },
+      { selector: "node.changed", style: { "border-color": colors.mint, "border-width": 3, "background-color": colors.panel } },
+      { selector: "edge", style: { width: 1.4, "line-color": colors.line, "target-arrow-color": colors.mint, "target-arrow-shape": "triangle", "curve-style": "bezier", label: "data(label)", color: colors.dim, "font-size": 8, "text-background-color": colors.panel, "text-background-opacity": 0.9, "text-background-padding": 2 } },
+    ],
+  });
+}
+
+/**
+ * Builds a compact graph of source lines and transitions observed in the completed trace.
+ * Repeated transitions become one edge with a count, making loops visible without inventing untaken paths.
+ * @returns {Array<object>} Cytoscape-compatible flow elements.
+ */
+function flowElements() {
+  const nodes = new Map();
+  const edges = new Map();
+  state.trace.forEach((step, index) => {
+    const id = `line-${step.line}`;
+    const existing = nodes.get(id) || { line: step.line, source: step.source.trim(), visits: 0 };
+    existing.visits += 1;
+    nodes.set(id, existing);
+    if (index === 0) return;
+    const previous = state.trace[index - 1];
+    const edgeId = `transition-${previous.line}-${step.line}`;
+    const edge = edges.get(edgeId) || { source: `line-${previous.line}`, target: id, count: 0 };
+    edge.count += 1;
+    edges.set(edgeId, edge);
+  });
+  return [
+    ...[...nodes.entries()].map(([id, node]) => ({
+      data: { id, label: `${node.line}: ${node.source}\n${node.visits} visit${node.visits === 1 ? "" : "s"}`, line: node.line },
+    })),
+    ...[...edges.entries()].map(([id, edge]) => ({
+      data: { id, source: edge.source, target: edge.target, label: edge.count > 1 ? `${edge.count}x` : "" },
+      classes: edge.source === edge.target || Number(edge.target.slice(5)) <= Number(edge.source.slice(5)) ? "loop-edge" : "",
+    })),
+  ];
+}
+
+/**
+ * Renders the observed execution path and connects node clicks back to trace playback.
+ * @returns {Promise<void>} Resolves after Cytoscape and the flow graph are ready.
+ */
+async function renderFlowMap() {
+  if (!state.trace.length || !els.flowGraph) {
+    els.emptyFlow?.classList.remove("hidden");
+    els.flowContent?.classList.add("hidden");
+    return;
+  }
+  const cytoscape = await loadGraphLibrary();
+  if (!cytoscape || state.activePanel !== "flow") return;
+  els.emptyFlow.classList.add("hidden");
+  els.flowContent.classList.remove("hidden");
+  state.flowGraph?.destroy();
+  const colors = graphPalette();
+  state.flowGraph = cytoscape({
+    container: els.flowGraph,
+    elements: flowElements(),
+    layout: { name: "breadthfirst", directed: true, padding: 30, spacingFactor: 1.35 },
+    style: [
+      { selector: "node", style: { "background-color": colors.panel, "border-color": colors.line, "border-width": 1, color: colors.text, label: "data(label)", shape: "round-rectangle", width: 150, height: 52, "font-family": "monospace", "font-size": 9, "text-wrap": "wrap", "text-max-width": 135, "text-valign": "center", "text-halign": "center" } },
+      { selector: "node.current", style: { "background-color": colors.mint, "border-color": colors.mint, color: colors.panel, "border-width": 3 } },
+      { selector: "edge", style: { width: 1.5, "line-color": colors.line, "target-arrow-color": colors.mint, "target-arrow-shape": "triangle", "curve-style": "bezier", label: "data(label)", color: colors.purple, "font-size": 9 } },
+      { selector: "edge.loop-edge", style: { "line-color": colors.purple, "target-arrow-color": colors.purple, "line-style": "dashed" } },
+    ],
+  });
+  state.flowGraph.on("tap", "node", (event) => {
+    const line = Number(event.target.data("line"));
+    const stepIndex = state.trace.findIndex((step) => step.line === line);
+    if (stepIndex >= 0) goToStep(stepIndex);
+  });
+  updateFlowSelection();
+}
+
+/**
+ * Moves the flow graph's active styling without recalculating its layout.
+ */
+function updateFlowSelection() {
+  if (!state.flowGraph || !state.trace.length) return;
+  state.flowGraph.nodes().removeClass("current");
+  state.flowGraph.getElementById(`line-${state.trace[state.currentStep].line}`).addClass("current");
+}
+
+/**
+ * Switches among Story, Variables, References, Flow, and Loop Lab views.
+ * ARIA selection and hidden states are updated from one mapping to prevent tab inconsistencies.
+ * @param {"story"|"variables"|"references"|"flow"|"loop"} panel Panel that should become visible.
  */
 function switchPanel(panel) {
   state.activePanel = panel;
-  const storyActive = panel === "story";
-  els.storyTab.classList.toggle("active", storyActive);
-  els.loopTab.classList.toggle("active", !storyActive);
-  els.storyTab.setAttribute("aria-selected", String(storyActive));
-  els.loopTab.setAttribute("aria-selected", String(!storyActive));
-  els.storyView.classList.toggle("hidden", !storyActive);
-  els.loopView.classList.toggle("hidden", storyActive);
+  const views = [
+    ["story", els.storyTab, els.storyView],
+    ["variables", els.variablesTab, els.variablesView],
+    ["references", els.referencesTab, els.referencesView],
+    ["flow", els.flowTab, els.flowView],
+    ["loop", els.loopTab, els.loopView],
+  ];
+  views.forEach(([name, tab, view]) => {
+    const active = panel === name;
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-selected", String(active));
+    view.classList.toggle("hidden", !active);
+  });
+  if (panel === "variables") renderVariableExplorer();
+  if (panel === "references") renderReferenceMap();
+  if (panel === "flow") renderFlowMap();
 }
 
 /**
@@ -1151,7 +1776,12 @@ function bindEvents() {
   els.runButton?.addEventListener("click", runCode);
   els.stopButton?.addEventListener("click", () => stopExecution("Execution stopped by you."));
   els.storyTab?.addEventListener("click", () => switchPanel("story"));
+  els.variablesTab?.addEventListener("click", () => switchPanel("variables"));
+  els.referencesTab?.addEventListener("click", () => switchPanel("references"));
+  els.flowTab?.addEventListener("click", () => switchPanel("flow"));
   els.loopTab?.addEventListener("click", () => switchPanel("loop"));
+  els.fitReferencesButton?.addEventListener("click", () => state.referencesGraph?.fit(undefined, 28));
+  els.fitFlowButton?.addEventListener("click", () => state.flowGraph?.fit(undefined, 28));
   els.previousButton?.addEventListener("click", previousStep);
   els.nextButton?.addEventListener("click", nextStep);
   els.playButton?.addEventListener("click", togglePlayback);

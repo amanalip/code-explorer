@@ -214,6 +214,7 @@ def _loop_metadata(tree, source_lines):
             loops.append({
                 "line": node.lineno,
                 "endLine": getattr(node, "end_lineno", node.lineno),
+                "bodyLine": node.body[0].lineno if node.body else node.lineno,
                 "type": "for",
                 "target": target,
                 "source": source_lines[node.lineno - 1].strip(),
@@ -224,6 +225,7 @@ def _loop_metadata(tree, source_lines):
             loops.append({
                 "line": node.lineno,
                 "endLine": getattr(node, "end_lineno", node.lineno),
+                "bodyLine": node.body[0].lineno if node.body else node.lineno,
                 "type": "while",
                 "condition": condition,
                 "source": source_lines[node.lineno - 1].strip(),
@@ -231,6 +233,26 @@ def _loop_metadata(tree, source_lines):
     # Source order creates predictable selection when several loops are present.
     loops.sort(key=lambda item: item["line"])
     return loops
+
+# Extract condition branches so explanations can state which route was observed.
+def _condition_metadata(tree, source_lines):
+    """Return line boundaries for every if statement in the learner source."""
+    # Each entry identifies the condition, its true branch, and its optional alternative.
+    conditions = []
+    # ast.walk includes nested and elif conditions, which Python represents as nested If nodes.
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.If):
+            continue
+        conditions.append({
+            "line": node.lineno,
+            "endLine": getattr(node, "end_lineno", node.lineno),
+            "bodyLine": node.body[0].lineno if node.body else None,
+            "elseLine": node.orelse[0].lineno if node.orelse else None,
+            "source": source_lines[node.lineno - 1].strip(),
+        })
+    # Source order lets JavaScript find a condition deterministically by its line.
+    conditions.sort(key=lambda item: item["line"])
+    return conditions
 
 # Coordinate parsing, tracing, output capture, execution, and final serialization.
 def run_trace(source):
@@ -257,6 +279,7 @@ def run_trace(source):
     try:
         tree = ast.parse(source, filename=USER_FILE)
         loops = _loop_metadata(tree, source_lines)
+        conditions = _condition_metadata(tree, source_lines)
         compiled = compile(tree, USER_FILE, "exec")
     # SyntaxError occurs before any frame exists, so it returns a result with no steps.
     except SyntaxError as error:
@@ -267,7 +290,7 @@ def run_trace(source):
             "offset": error.offset or 0,
             "source": error.text.strip() if error.text else "",
         }
-        return {"steps": [], "loops": [], "output": "", "error": syntax_error}
+        return {"steps": [], "loops": [], "conditions": [], "output": "", "error": syntax_error}
 
     # This nested helper freezes the current interpreter state into one timeline item.
     def capture(frame, line_number, event, detail=None, next_line=None):
@@ -375,6 +398,7 @@ def run_trace(source):
     return {
         "steps": steps,
         "loops": loops,
+        "conditions": conditions,
         "output": stdout.getvalue(),
         "error": runtime_error,
     }

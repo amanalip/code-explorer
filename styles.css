@@ -904,12 +904,21 @@ main {
 .panel-tabs {
   align-self: stretch;
   display: flex;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+/* Hides the compact tab row scrollbar while preserving horizontal keyboard and touch scrolling. */
+.panel-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 /* Styles `.panel-tab`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .panel-tab {
   position: relative;
-  padding: 0 12px;
+  flex: 0 0 auto;
+  padding: 0 9px;
   border: 0;
   color: var(--text-dim);
   background: none;
@@ -952,8 +961,11 @@ main {
   font-size: 0.58rem;
 }
 
-/* Styles `.story-view, .loop-view`. This component rule controls sizing and spacing, overflow behavior for the matching interface element. */
+/* Gives every educational view the same stable scrolling region inside the right panel. */
 .story-view,
+.variables-view,
+.references-view,
+.flow-view,
 .loop-view {
   height: 573px;
   overflow: auto;
@@ -989,8 +1001,8 @@ main {
   background: var(--mint-soft);
 }
 
-/* Styles `.empty-state h3`. This component rule controls sizing and spacing, typography for the matching interface element. */
-.empty-state h3 {
+/* Styles the semantic level-two headings used by every empty educational view. */
+.empty-state h2 {
   margin: 0 0 8px;
   font-size: 1.15rem;
 }
@@ -1040,6 +1052,23 @@ main {
   color: var(--text-soft);
   font-size: 1rem;
   line-height: 1.65;
+}
+
+/* Separates console text produced by only the current step from cumulative output below. */
+.step-output {
+  margin: -8px 0 28px;
+}
+
+/* Presents one step's output as a compact terminal fragment. */
+.step-output pre {
+  overflow-x: auto;
+  margin: 0;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--mint);
+  background: var(--panel-solid);
+  font: 500 0.72rem/1.5 var(--mono);
 }
 
 /* Styles `.section-label`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
@@ -1135,8 +1164,18 @@ main {
 /* Styles `.variable-card`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .variable-card {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  width: 100%;
   min-height: 48px;
   padding: 8px 11px;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Confirms that a compact variable card opens the deeper inspector. */
+.variable-card:hover {
+  border-color: var(--cyan);
+  background: var(--panel-soft);
 }
 
 /* Styles `.variable-name`. This component rule controls color and visual emphasis, typography, overflow behavior for the matching interface element. */
@@ -1172,17 +1211,16 @@ main {
 
 /* Styles `.stack-frame`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .stack-frame {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 38px;
-  padding: 0 12px;
+  display: grid;
+  gap: 8px;
+  min-height: 48px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   border-left: 2px solid var(--purple);
   border-radius: 6px;
   color: var(--text-soft);
   background: var(--purple-soft);
-  font: 500 0.68rem/1 var(--mono);
+  font: 500 0.68rem/1.35 var(--mono);
 }
 
 /* Defines the state-specific appearance of `.stack-frame.active`. The declarations control color and visual emphasis, boundaries and focus treatment when that state class is present. */
@@ -1191,9 +1229,354 @@ main {
   color: var(--text);
 }
 
-/* Styles `.stack-frame span:last-child`. This component rule controls color and visual emphasis, typography for the matching interface element. */
-.stack-frame span:last-child {
+/* Aligns the function name and local-variable count in each expanded frame. */
+.stack-frame-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Keeps the frame count visually secondary to the function name. */
+.stack-frame-header span {
   color: var(--text-dim);
+}
+
+/* Stacks the visible local variables below their function-frame heading. */
+.stack-frame-locals {
+  display: grid;
+  gap: 4px;
+}
+
+/* Pairs each local name with its safely shortened value. */
+.stack-local-row {
+  display: grid;
+  grid-template-columns: minmax(80px, 0.8fr) minmax(0, 1.2fr);
+  gap: 8px;
+  color: var(--text-dim);
+}
+
+/* Highlights local values while preventing long representations from widening the panel. */
+.stack-local-row code {
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Explains an empty function frame without leaving a visually blank card. */
+.stack-local-empty {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* Variable explorer */
+/* Splits variable selection and deep inspection into two independently scrolling columns. */
+.variables-content {
+  display: grid;
+  grid-template-columns: minmax(145px, 0.38fr) minmax(0, 1fr);
+  height: 100%;
+}
+
+/* Holds scope groups and variable selection controls. */
+.scope-browser {
+  overflow: auto;
+  padding: 14px 10px;
+  border-right: 1px solid var(--line);
+  background: var(--bg-raised);
+}
+
+/* Separates global and function-local names in the selector. */
+.scope-group + .scope-group {
+  margin-top: 20px;
+}
+
+/* Labels the source scope for the variables that follow. */
+.scope-group h3 {
+  margin: 0 7px 8px;
+  color: var(--text-dim);
+  font: 600 0.56rem/1 var(--mono);
+  letter-spacing: 0.09em;
+}
+
+/* Presents one variable as a compact, keyboard-accessible inspector selector. */
+.scope-variable {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3px 7px;
+  width: 100%;
+  margin-bottom: 5px;
+  padding: 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Marks the variable currently expanded in the inspector. */
+.scope-variable.active,
+.scope-variable:hover {
+  border-color: var(--mint);
+  background: var(--mint-soft);
+}
+
+/* Keeps selected variable names and values on one compact row. */
+.scope-variable strong,
+.scope-variable code {
+  overflow: hidden;
+  font: 600 0.65rem/1.2 var(--mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Uses color to distinguish the Python name from its current representation. */
+.scope-variable strong {
+  color: var(--cyan);
+}
+
+/* Right-aligns values so similarly sized representations scan as a column. */
+.scope-variable code {
+  color: var(--text);
+  text-align: right;
+}
+
+/* Places the Python type beneath the selected variable row. */
+.scope-variable small {
+  grid-column: 1 / -1;
+  color: var(--text-dim);
+  font: 500 0.55rem/1 var(--mono);
+  text-align: right;
+}
+
+/* Provides the scrollable detail surface for the selected variable. */
+.variable-inspector {
+  overflow: auto;
+  padding: 20px;
+}
+
+/* Aligns the selected name with its Python type badge. */
+.inspector-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+/* Uses the scope as a small orientation label above the variable name. */
+.inspector-heading span:first-child {
+  color: var(--mint);
+  font: 600 0.56rem/1 var(--mono);
+  letter-spacing: 0.09em;
+}
+
+/* Makes the selected Python name the inspector's visual anchor. */
+.inspector-heading h3 {
+  margin: 6px 0 0;
+  color: var(--text);
+  font-size: 1.35rem;
+}
+
+/* Displays the Python type as a compact purple badge. */
+.inspector-type {
+  padding: 6px 8px;
+  border-radius: 999px;
+  color: var(--purple) !important;
+  background: var(--purple-soft);
+}
+
+/* Arranges value, lifetime, and mutability facts into responsive cards. */
+.inspector-metadata {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+/* Styles one variable fact without visually competing with nested contents. */
+.inspector-metadata > div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg-raised);
+}
+
+/* Keeps fact labels quiet and values readable. */
+.inspector-metadata span {
+  color: var(--text-dim);
+  font: 500 0.55rem/1 var(--mono);
+}
+
+/* Prevents long values and alias lists from breaking the two-column fact grid. */
+.inspector-metadata code {
+  overflow: hidden;
+  color: var(--text);
+  font: 500 0.67rem/1.3 var(--mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Renders primitive values as index or key, value, and Python type. */
+.value-tree-leaf {
+  display: grid;
+  grid-template-columns: minmax(70px, 0.7fr) minmax(0, 1.3fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 34px;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--line);
+  font: 500 0.64rem/1.3 var(--mono);
+}
+
+/* Colors tree labels, representations, and types according to their teaching role. */
+.value-tree-leaf > span { color: var(--cyan); }
+.value-tree-leaf code { overflow: hidden; color: var(--text); text-overflow: ellipsis; white-space: nowrap; }
+.value-tree-leaf small { color: var(--text-dim); }
+
+/* Frames expandable Python containers without introducing another heavy panel. */
+.value-tree-branch {
+  margin-bottom: 5px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg-raised);
+}
+
+/* Makes container summaries clickable and consistent with the mono data language. */
+.value-tree-branch summary {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px;
+  color: var(--cyan);
+  font: 600 0.65rem/1.3 var(--mono);
+  cursor: pointer;
+}
+
+/* Shows the compact type and length summary on the opposite side of its label. */
+.value-tree-branch summary code {
+  color: var(--text-soft);
+}
+
+/* Indents nested children to communicate containment. */
+.value-tree-children {
+  padding: 0 8px 8px 14px;
+}
+
+/* Reports serializer truncation honestly when a large container exceeds preview limits. */
+.value-tree-omitted {
+  padding: 8px;
+  color: var(--text-dim);
+  font: 500 0.58rem/1.3 var(--mono);
+}
+
+/* Creates breathing room between nested contents and the history list. */
+.inspector-history-label {
+  margin-top: 24px;
+}
+
+/* Holds change-only history rows in execution order. */
+.variable-history {
+  display: grid;
+  gap: 5px;
+}
+
+/* Makes each history event a button that can jump playback to its source step. */
+.history-row {
+  display: grid;
+  grid-template-columns: 62px 64px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-height: 36px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text-soft);
+  background: var(--bg-raised);
+  font: 500 0.6rem/1.25 var(--mono);
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Connects the active history event to the playback position. */
+.history-row.active,
+.history-row:hover {
+  border-color: var(--mint);
+  background: var(--mint-soft);
+}
+
+/* Keeps the potentially long historical value safely inside its row. */
+.history-row code {
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Graph views */
+/* Gives the graph toolbar and canvas the full height of their parent tab panel. */
+.graph-content {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+}
+
+/* Explains graph semantics and keeps a small viewport-reset control nearby. */
+.graph-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-dim);
+  background: var(--bg-raised);
+  font: 500 0.56rem/1.35 var(--mono);
+}
+
+/* Styles the graph Fit action as a quiet utility rather than a primary command. */
+.graph-toolbar button {
+  padding: 6px 9px;
+  border: 1px solid var(--line-bright);
+  border-radius: 5px;
+  color: var(--text);
+  background: var(--panel-solid);
+  font: 600 0.58rem/1 var(--mono);
+  cursor: pointer;
+}
+
+/* Reserves a stable drawing surface for Cytoscape in either graph mode. */
+.graph-canvas {
+  min-width: 0;
+  min-height: 0;
+  background:
+    radial-gradient(circle at center, var(--mint-soft), transparent 55%),
+    var(--panel-solid);
+}
+
+/* Code execution heatmap */
+/* Gives every executed source line a low-intensity mint wash. */
+.cm-editor .cm-trace-line {
+  background: color-mix(in srgb, var(--mint) 5%, transparent);
+}
+
+/* Increases the wash for lines executed more frequently, usually loop bodies. */
+.cm-editor .cm-trace-intensity-2 {
+  background: color-mix(in srgb, var(--mint) 10%, transparent);
+}
+
+/* Marks the hottest lines without overwhelming syntax colors. */
+.cm-editor .cm-trace-intensity-3 {
+  background: color-mix(in srgb, var(--mint) 16%, transparent);
+}
+
+/* Uses a brighter edge and wash for the trace step currently being explained. */
+.cm-editor .cm-trace-current {
+  background: color-mix(in srgb, var(--purple) 16%, transparent);
+  box-shadow: inset 3px 0 0 var(--purple);
 }
 
 /* Loop lab */
@@ -1640,8 +2023,11 @@ main {
     height: 470px;
   }
 
-  /* Styles `.story-view, .loop-view`. This component rule controls sizing and spacing for the matching interface element. */
+  /* Keeps every right-panel view aligned after the workspace becomes a single column. */
   .story-view,
+  .variables-view,
+  .references-view,
+  .flow-view,
   .loop-view {
     height: 513px;
   }
@@ -1756,6 +2142,28 @@ main {
   /* Styles `.variables-grid`. This component rule controls layout for the matching interface element. */
   .variables-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Stacks variable selection above inspection when two columns would become cramped. */
+  .variables-content {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(110px, 0.35fr) minmax(0, 1fr);
+  }
+
+  /* Converts the desktop divider into a horizontal boundary on small screens. */
+  .scope-browser {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Keeps metadata readable when the inspector has narrow horizontal space. */
+  .inspector-metadata {
+    grid-template-columns: 1fr;
+  }
+
+  /* Allows the graph explanation to wrap above its Fit control. */
+  .graph-toolbar {
+    align-items: flex-start;
   }
 
   /* Styles `.change-item`. This component rule controls layout, sizing and spacing for the matching interface element. */
