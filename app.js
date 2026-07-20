@@ -23,6 +23,39 @@ for number in range(1, 4):
 print("Total:", total)`;
 
 /**
+ * The browser-storage key used for the learner's latest Python source.
+ * A project-specific prefix prevents collisions with unrelated pages on the same origin.
+ */
+const SOURCE_STORAGE_KEY = "code-explorer-source";
+
+/**
+ * Reads the last saved program while safely handling browsers that block storage.
+ * The bundled starter remains the fallback for first visits and restricted environments.
+ * @returns {string} Saved Python source or the default learning example.
+ */
+function loadSavedCode() {
+  try {
+    return localStorage.getItem(SOURCE_STORAGE_KEY) ?? DEFAULT_CODE;
+  } catch (error) {
+    console.warn("Code Explorer could not read saved source.", error);
+    return DEFAULT_CODE;
+  }
+}
+
+/**
+ * Saves the current program after every edit so a page reload cannot erase it.
+ * Storage failures are non-fatal because the editor must remain usable in privacy modes.
+ * @param {string} code Complete Python source currently owned by the editor.
+ */
+function saveCode(code) {
+  try {
+    localStorage.setItem(SOURCE_STORAGE_KEY, code);
+  } catch (error) {
+    console.warn("Code Explorer could not save the current source.", error);
+  }
+}
+
+/**
  * Curated programs displayed by the Examples dialog.
  *
  * Each object contains presentation metadata plus the exact Python source to
@@ -125,8 +158,8 @@ const state = {
   editorView: null,
   // Holds the native textarea used when CodeMirror cannot be downloaded.
   fallbackEditor: null,
-  // Mirrors the current editor source before either editor implementation exists.
-  code: DEFAULT_CODE,
+  // Restores saved source before either editor implementation is mounted.
+  code: loadSavedCode(),
   // References the Web Worker that owns Pyodide and runs untrusted learner code.
   worker: null,
   // Resolves only after Pyodide reports that the Python runtime is usable.
@@ -177,8 +210,8 @@ function preferredTheme() {
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   localStorage.setItem("code-explorer-theme", theme);
-  els.themeIcon.textContent = theme === "dark" ? "☀" : "☾";
-  els.themeButton.setAttribute("aria-label", `Switch to ${theme === "dark" ? "light" : "dark"} mode`);
+  if (els.themeIcon) els.themeIcon.textContent = theme === "dark" ? "☀" : "☾";
+  els.themeButton?.setAttribute("aria-label", `Switch to ${theme === "dark" ? "light" : "dark"} mode`);
 }
 
 /**
@@ -194,6 +227,7 @@ function toggleTheme() {
  * The function reads through getCode so it works for both CodeMirror and the native textarea fallback.
  */
 function updateCodeStats() {
+  if (!els.codeStats) return;
   const code = getCode();
   const lines = code ? code.split("\n").length : 0;
   els.codeStats.textContent = `${lines} line${lines === 1 ? "" : "s"} · ${code.length} chars`;
@@ -206,9 +240,20 @@ function updateCodeStats() {
  */
 async function initializeEditor() {
   try {
-    const [{ basicSetup, EditorView }, { python }] = await Promise.all([
-      import("https://esm.sh/codemirror@6.0.2"),
-      import("https://esm.sh/@codemirror/lang-python@6.2.1"),
+    // CodeMirror is modular, so the editor, Python grammar, highlighting bridge,
+    // and stable token-class mapping are downloaded together before mounting.
+    const [
+      { basicSetup, EditorView },
+      { python },
+      { syntaxHighlighting },
+      { classHighlighter },
+    ] = await Promise.all([
+      // The dependency query pins shared language and tag modules. Highlight
+      // tags rely on object identity, so all packages must receive one copy.
+      import("https://esm.sh/codemirror@6.0.2?deps=@codemirror/language@6.11.3,@lezer/highlight@1.2.1"),
+      import("https://esm.sh/@codemirror/lang-python@6.2.1?deps=@codemirror/language@6.11.3,@lezer/highlight@1.2.1"),
+      import("https://esm.sh/@codemirror/language@6.11.3?deps=@lezer/highlight@1.2.1"),
+      import("https://esm.sh/@lezer/highlight@1.2.1"),
     ]);
 
     state.editorView = new EditorView({
@@ -216,10 +261,13 @@ async function initializeEditor() {
       extensions: [
         basicSetup,
         python(),
+        // classHighlighter adds stable tok-* classes that our theme-aware CSS controls.
+        syntaxHighlighting(classHighlighter),
         EditorView.lineWrapping,
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             state.code = update.state.doc.toString();
+            saveCode(state.code);
             updateCodeStats();
             if (state.trace.length) clearTrace();
           }
@@ -235,6 +283,7 @@ async function initializeEditor() {
     textarea.setAttribute("aria-label", "Python code editor");
     textarea.addEventListener("input", () => {
       state.code = textarea.value;
+      saveCode(state.code);
       updateCodeStats();
       if (state.trace.length) clearTrace();
     });
@@ -263,6 +312,7 @@ function getCode() {
  */
 function setCode(code) {
   state.code = code;
+  saveCode(code);
   if (state.editorView) {
     state.editorView.dispatch({
       changes: { from: 0, to: state.editorView.state.doc.length, insert: code },
@@ -272,7 +322,7 @@ function setCode(code) {
     state.fallbackEditor.value = code;
   }
   updateCodeStats();
-  clearTrace();
+  if (els.workspace) clearTrace();
 }
 
 /**
@@ -291,26 +341,20 @@ function focusLine(lineNumber) {
 }
 
 /**
- * Transitions from the welcome screen into the execution workspace.
- * It also starts loading Pyodide and asks CodeMirror to measure itself after becoming visible.
+ * Navigates from the landing page to the dedicated execution workspace document.
+ * A normal page URL makes the workspace bookmarkable and keeps it active after reloads.
  */
 function showWorkspace() {
-  els.welcomeScreen.classList.add("hidden");
-  els.workspace.classList.remove("hidden");
-  window.scrollTo({ top: 0, behavior: "smooth" });
-  ensureWorker();
-  window.setTimeout(() => state.editorView?.requestMeasure(), 50);
+  window.location.assign("workspace.html");
 }
 
 /**
- * Returns to the welcome screen without discarding the learner's source.
- * Automatic playback is paused first so hidden UI does not continue changing in the background.
+ * Returns to the dedicated landing page without discarding saved source.
+ * Automatic playback is paused before navigation so no timer survives the transition.
  */
 function showWelcome() {
   pausePlayback();
-  els.workspace.classList.add("hidden");
-  els.welcomeScreen.classList.remove("hidden");
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.location.assign("index.html");
 }
 
 /**
@@ -320,6 +364,7 @@ function showWelcome() {
  * @param {string} label Human-readable runtime status.
  */
 function setRuntimeStatus(status, label) {
+  if (!els.runtimeStatus || !els.runtimeLabel) return;
   els.runtimeStatus.className = `runtime-status ${status}`;
   els.runtimeLabel.textContent = label;
 }
@@ -1046,7 +1091,7 @@ function showToast(message, isError = false) {
 
 /**
  * Creates example cards from the shared EXAMPLES data.
- * Each card loads source, closes the dialog, reveals the workspace, and confirms the action without duplicating HTML.
+ * Each card saves source, closes the dialog, and either updates the open workspace or navigates there.
  * Text nodes use textContent so example metadata remains safe by default.
  */
 function renderExamples() {
@@ -1065,8 +1110,11 @@ function renderExamples() {
       button.addEventListener("click", () => {
         setCode(example.code);
         els.examplesDialog.close();
-        showWorkspace();
-        showToast(`${example.title} loaded. Press Run trace when you are ready.`);
+        if (els.workspace) {
+          showToast(`${example.title} loaded. Press Run trace when you are ready.`);
+        } else {
+          showWorkspace();
+        }
       });
       return button;
     }),
@@ -1085,40 +1133,43 @@ function openExamples() {
  * The handlers cover navigation, dialogs, execution, playback, tabs, output, speed changes, and the Ctrl or Command plus Enter shortcut.
  */
 function bindEvents() {
-  els.themeButton.addEventListener("click", toggleTheme);
-  els.startButton.addEventListener("click", showWorkspace);
-  els.heroExampleButton.addEventListener("click", openExamples);
-  els.backButton.addEventListener("click", showWelcome);
-  els.examplesButton.addEventListener("click", openExamples);
-  els.closeExamplesButton.addEventListener("click", () => els.examplesDialog.close());
-  els.examplesDialog.addEventListener("click", (event) => {
+  els.themeButton?.addEventListener("click", toggleTheme);
+  els.startButton?.addEventListener("click", showWorkspace);
+  els.heroExampleButton?.addEventListener("click", openExamples);
+  els.backButton?.addEventListener("click", (event) => {
+    event.preventDefault();
+    showWelcome();
+  });
+  els.examplesButton?.addEventListener("click", openExamples);
+  els.closeExamplesButton?.addEventListener("click", () => els.examplesDialog.close());
+  els.examplesDialog?.addEventListener("click", (event) => {
     if (event.target === els.examplesDialog) els.examplesDialog.close();
   });
-  els.runButton.addEventListener("click", runCode);
-  els.stopButton.addEventListener("click", () => stopExecution("Execution stopped by you."));
-  els.storyTab.addEventListener("click", () => switchPanel("story"));
-  els.loopTab.addEventListener("click", () => switchPanel("loop"));
-  els.previousButton.addEventListener("click", previousStep);
-  els.nextButton.addEventListener("click", nextStep);
-  els.playButton.addEventListener("click", togglePlayback);
-  els.restartButton.addEventListener("click", restartTrace);
-  els.stepSlider.addEventListener("input", (event) => goToStep(event.target.value));
-  els.speedSelect.addEventListener("change", () => {
+  els.runButton?.addEventListener("click", runCode);
+  els.stopButton?.addEventListener("click", () => stopExecution("Execution stopped by you."));
+  els.storyTab?.addEventListener("click", () => switchPanel("story"));
+  els.loopTab?.addEventListener("click", () => switchPanel("loop"));
+  els.previousButton?.addEventListener("click", previousStep);
+  els.nextButton?.addEventListener("click", nextStep);
+  els.playButton?.addEventListener("click", togglePlayback);
+  els.restartButton?.addEventListener("click", restartTrace);
+  els.stepSlider?.addEventListener("input", (event) => goToStep(event.target.value));
+  els.speedSelect?.addEventListener("change", () => {
     if (state.playing) scheduleNextStep();
   });
-  els.clearOutputButton.addEventListener("click", () => setConsole("// Output cleared", "muted"));
+  els.clearOutputButton?.addEventListener("click", () => setConsole("// Output cleared", "muted"));
   window.addEventListener("keydown", (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
       event.preventDefault();
-      if (!els.workspace.classList.contains("hidden") && !state.running) runCode();
+      if (els.workspace && !state.running) runCode();
     }
   });
 }
 
 /**
  * Performs the one-time application startup sequence.
- * Theme and static event wiring happen immediately, then the asynchronous editor loader completes the workspace.
- * @returns {Promise<void>} Resolves when startup has selected an editor implementation.
+ * Theme and shared event wiring happen on both pages, while editor and Python startup run only on the workspace page.
+ * @returns {Promise<void>} Resolves after any page-specific startup work finishes.
  */
 async function initialize() {
   // Apply colors before async work so the page does not flash the wrong theme.
@@ -1126,8 +1177,13 @@ async function initialize() {
   // Render data-driven cards and connect controls while the editor modules download.
   renderExamples();
   bindEvents();
-  // Awaiting initialization guarantees either CodeMirror or its fallback is mounted.
-  await initializeEditor();
+  // The landing page has no editor, so expensive workspace dependencies stay unloaded there.
+  if (els.editor) {
+    // Begin downloading Python while CodeMirror initializes to reduce perceived waiting time.
+    ensureWorker();
+    // Awaiting initialization guarantees either CodeMirror or its fallback is mounted.
+    await initializeEditor();
+  }
 }
 
 // Start the application after the module script is parsed at the end of document body.

@@ -1,0 +1,233 @@
+<!doctype html>
+<!--
+  The execution workspace has its own document so learners can bookmark it,
+  reload it, and return to their saved source without revisiting the landing page.
+-->
+<html lang="en">
+  <head>
+    <!-- UTF-8 safely supports the interface's arrows, symbols, and status glyphs. -->
+    <meta charset="UTF-8" />
+    <!-- The viewport declaration makes the responsive layout match the device width. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- This description identifies the page for search results and shared links. -->
+    <meta
+      name="description"
+      content="Edit and visualize beginner Python programs one execution step at a time."
+    />
+    <!-- This tells native browser controls that the page supports both color themes. -->
+    <meta name="color-scheme" content="dark light" />
+    <!-- The page-specific title distinguishes the workspace in tabs and bookmarks. -->
+    <title>Execution Workspace | Code Explorer</title>
+    <!-- The shared terminal mark identifies the project in the browser tab. -->
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <!-- These early connections reduce the wait for the editor and Python runtime. -->
+    <link rel="preconnect" href="https://esm.sh" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <!-- Both pages share one stylesheet so their visual language stays consistent. -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- This decorative background is ignored by assistive technology. -->
+    <div class="ambient-grid" aria-hidden="true"></div>
+
+    <!-- The shared header keeps identity, runtime status, theme, and repository access visible. -->
+    <header class="site-header">
+      <!-- The brand provides a standard link back to the landing page. -->
+      <a class="brand" href="index.html" aria-label="Code Explorer home">
+        <span class="brand-mark" aria-hidden="true">&gt;_</span>
+        <span>CODE EXPLORER</span>
+      </a>
+      <!-- JavaScript updates the runtime status and selected theme in this group. -->
+      <div class="header-actions">
+        <!-- Text accompanies the status dot so color is never the only signal. -->
+        <span class="runtime-status" id="runtimeStatus">
+          <span class="status-dot"></span>
+          <span id="runtimeLabel">Runtime offline</span>
+        </span>
+        <!-- The visible glyph is decorative, while the accessible label names the action. -->
+        <button class="icon-button" id="themeButton" type="button" aria-label="Switch color theme">
+          <span id="themeIcon" aria-hidden="true">◐</span>
+        </button>
+        <!-- Contributors can open the public source repository in a separate tab. -->
+        <a class="icon-button" href="https://github.com/amanalip/code-explorer" target="_blank" rel="noreferrer" aria-label="Open Code Explorer on GitHub">
+          GH
+        </a>
+      </div>
+    </header>
+
+    <!-- The main region contains the complete editor and visualization workspace. -->
+    <main>
+      <!-- This screen is visible immediately because it is now a dedicated page. -->
+      <section class="workspace" id="workspace" aria-label="Python visualizer workspace">
+        <!-- This heading supplies navigation plus the three top-level workspace actions. -->
+        <div class="workspace-heading">
+          <div>
+            <!-- A real link preserves expected browser behavior and works without JavaScript. -->
+            <a class="back-button" id="backButton" href="index.html">← Home</a>
+            <h1>Execution workspace</h1>
+          </div>
+          <!-- Run and Stop are swapped by JavaScript while Python is executing. -->
+          <div class="workspace-actions">
+            <button class="text-button" id="examplesButton" type="button">Examples</button>
+            <button class="primary-button compact" id="runButton" type="button">
+              <span class="button-ready">Run trace</span>
+              <span class="button-loading hidden">Tracing...</span>
+            </button>
+            <button class="danger-button hidden" id="stopButton" type="button">Stop</button>
+          </div>
+        </div>
+
+        <!-- CSS Grid arranges the editor, story, controls, and console responsively. -->
+        <div class="workspace-grid">
+          <!-- The editor panel contains CodeMirror or the native textarea fallback. -->
+          <section class="panel editor-panel">
+            <!-- A numbered panel header makes the interface resemble an instrument console. -->
+            <div class="panel-header">
+              <div>
+                <span class="panel-index">01</span>
+                <span class="panel-title">PYTHON SOURCE</span>
+              </div>
+              <span class="file-label">main.py</span>
+            </div>
+            <!-- CodeMirror mounts itself into this empty element after its modules load. -->
+            <div class="editor-shell" id="editorShell">
+              <div id="editor" aria-label="Python code editor"></div>
+            </div>
+            <!-- Live source statistics confirm the program size and selected language. -->
+            <div class="editor-footer">
+              <span id="codeStats">0 lines</span>
+              <span>Python 3</span>
+            </div>
+          </section>
+
+          <!-- This panel switches between narrative execution and loop-focused learning. -->
+          <section class="panel story-panel">
+            <!-- Accessible tabs select a view without navigating away from the workspace. -->
+            <div class="panel-header tabs-header">
+              <div class="panel-tabs" role="tablist" aria-label="Visualization mode">
+                <button class="panel-tab active" id="storyTab" role="tab" aria-selected="true" type="button">
+                  Execution Story
+                </button>
+                <button class="panel-tab" id="loopTab" role="tab" aria-selected="false" type="button">
+                  Loop Lab <span class="tab-badge" id="loopBadge">0</span>
+                </button>
+              </div>
+              <span class="step-count" id="stepCount">STEP 00 / 00</span>
+            </div>
+
+            <!-- The execution story explains the currently selected trace snapshot. -->
+            <div class="story-view" id="storyView" role="tabpanel">
+              <!-- This placeholder remains visible until a successful trace is available. -->
+              <div class="empty-state" id="emptyStory">
+                <div class="empty-glyph" aria-hidden="true">{ }</div>
+                <h2>Ready for a trace</h2>
+                <p>Run the program to turn each executed line into a visual story.</p>
+              </div>
+
+              <!-- JavaScript fills these regions from the active Python trace step. -->
+              <div class="trace-content hidden" id="traceContent">
+                <div class="trace-kicker" id="traceKicker">LINE 01 // ASSIGNMENT</div>
+                <div class="executed-code"><code id="executedCode"></code></div>
+                <p class="explanation" id="explanation"></p>
+
+                <!-- A diff between adjacent snapshots explains what this step changed. -->
+                <div class="change-section">
+                  <div class="section-label">WHAT CHANGED</div>
+                  <div class="change-list" id="changeList"></div>
+                </div>
+
+                <!-- Current local and global names are rendered as compact variable cards. -->
+                <div class="variables-section">
+                  <div class="section-label">VARIABLES IN SCOPE</div>
+                  <div class="variables-grid" id="variablesGrid"></div>
+                </div>
+
+                <!-- Nested function frames appear here when calls enter user code. -->
+                <div class="call-stack-section" id="callStackSection">
+                  <div class="section-label">CALL STACK</div>
+                  <div class="call-stack" id="callStack"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Loop Lab presents the same trace through an iteration-focused lens. -->
+            <div class="loop-view hidden" id="loopView" role="tabpanel">
+              <!-- This placeholder explains why no iteration data is currently shown. -->
+              <div class="empty-state" id="emptyLoop">
+                <div class="empty-glyph loop-glyph" aria-hidden="true">↻</div>
+                <h2>No loop detected yet</h2>
+                <p>Run code containing a simple <code>for</code> or <code>while</code> loop.</p>
+              </div>
+              <!-- The populated view summarizes the loop and every observed iteration. -->
+              <div class="loop-content hidden" id="loopContent">
+                <div class="loop-summary">
+                  <span class="loop-type" id="loopType">FOR LOOP</span>
+                  <span class="iteration-count" id="iterationCount">ITERATION 01</span>
+                </div>
+                <code class="loop-source" id="loopSource"></code>
+                <div class="loop-meter"><span id="loopMeter"></span></div>
+                <div class="section-label">ITERATION HISTORY</div>
+                <div class="iteration-list" id="iterationList"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Playback controls navigate recorded snapshots without rerunning Python. -->
+          <section class="panel controls-panel">
+            <!-- These buttons provide discrete and automatic trace navigation. -->
+            <div class="playback-controls">
+              <button class="control-button" id="previousButton" type="button" disabled aria-label="Previous step">←</button>
+              <button class="play-button" id="playButton" type="button" disabled aria-label="Play trace">▶</button>
+              <button class="control-button" id="nextButton" type="button" disabled aria-label="Next step">→</button>
+              <button class="control-button restart-button" id="restartButton" type="button" disabled aria-label="Restart trace">↺</button>
+            </div>
+            <!-- The range input supports direct movement through longer traces. -->
+            <div class="progress-area">
+              <input id="stepSlider" type="range" min="0" max="0" value="0" disabled aria-label="Execution step" />
+              <div class="progress-labels"><span>START</span><span id="progressPercent">0%</span><span>END</span></div>
+            </div>
+            <!-- Playback speed changes only the interface timer, never Python execution. -->
+            <label class="speed-control">
+              SPEED
+              <select id="speedSelect">
+                <option value="1200">0.5x</option>
+                <option value="750" selected>1x</option>
+                <option value="400">2x</option>
+              </select>
+            </label>
+          </section>
+
+          <!-- Console output stays synchronized with the selected execution snapshot. -->
+          <section class="panel output-panel">
+            <div class="panel-header">
+              <div>
+                <span class="panel-index">02</span>
+                <span class="panel-title">CONSOLE OUTPUT</span>
+              </div>
+              <button class="clear-output" id="clearOutputButton" type="button">Clear</button>
+            </div>
+            <pre class="console" id="consoleOutput"><span class="console-muted">// Output will appear here</span></pre>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <!-- The native dialog contains data-driven starter programs created by app.js. -->
+    <dialog class="examples-dialog" id="examplesDialog">
+      <div class="dialog-header">
+        <div>
+          <span class="eyebrow"><span></span> Starter programs</span>
+          <h2>Pick a concept</h2>
+        </div>
+        <button class="dialog-close" id="closeExamplesButton" type="button" aria-label="Close examples">×</button>
+      </div>
+      <div class="example-grid" id="exampleGrid"></div>
+    </dialog>
+
+    <!-- This polite live region announces completion and errors without stealing focus. -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <!-- The shared module detects this page and initializes workspace-only features. -->
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

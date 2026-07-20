@@ -35,8 +35,8 @@
       control, and a path to the source repository on every application screen.
     -->
     <header class="site-header">
-      <!-- Clicking the brand returns to the document root without a page reload. -->
-      <a class="brand" href="#" aria-label="Code Explorer home">
+      <!-- The brand is a normal page link, so it also works before JavaScript loads. -->
+      <a class="brand" href="index.html" aria-label="Code Explorer home">
         <span class="brand-mark" aria-hidden="true">&gt;_</span>
         <span>CODE EXPLORER</span>
       </a>
@@ -58,7 +58,7 @@
       </div>
     </header>
 
-    <!-- The main element contains the two application screens switched by app.js. -->
+    <!-- The main element contains the landing page's introductory content. -->
     <main>
       <!--
         The welcome screen explains the learning promise before exposing the
@@ -131,161 +131,6 @@
         </div>
       </section>
 
-      <!--
-        The workspace starts hidden. app.js reveals it when the learner begins
-        and keeps all editing, tracing, playback, and output tools on one screen.
-      -->
-      <section class="workspace hidden" id="workspace" aria-label="Python visualizer workspace">
-        <!-- This heading supplies navigation plus the three top-level workspace actions. -->
-        <div class="workspace-heading">
-          <div>
-            <button class="back-button" id="backButton" type="button">← Home</button>
-            <h2>Execution workspace</h2>
-          </div>
-          <!-- Run and Stop are swapped by JavaScript while Python is executing. -->
-          <div class="workspace-actions">
-            <button class="text-button" id="examplesButton" type="button">Examples</button>
-            <button class="primary-button compact" id="runButton" type="button">
-              <span class="button-ready">Run trace</span>
-              <span class="button-loading hidden">Tracing...</span>
-            </button>
-            <button class="danger-button hidden" id="stopButton" type="button">Stop</button>
-          </div>
-        </div>
-
-        <!-- CSS Grid arranges the editor, story, controls, and console responsively. -->
-        <div class="workspace-grid">
-          <!-- The editor panel contains CodeMirror or the textarea fallback. -->
-          <section class="panel editor-panel">
-            <!-- A numbered panel header helps the interface feel like an instrument console. -->
-            <div class="panel-header">
-              <div>
-                <span class="panel-index">01</span>
-                <span class="panel-title">PYTHON SOURCE</span>
-              </div>
-              <span class="file-label">main.py</span>
-            </div>
-            <!-- CodeMirror mounts itself into the empty editor element at runtime. -->
-            <div class="editor-shell" id="editorShell">
-              <div id="editor" aria-label="Python code editor"></div>
-            </div>
-            <!-- Live source statistics confirm the current program size and language. -->
-            <div class="editor-footer">
-              <span id="codeStats">0 lines</span>
-              <span>Python 3</span>
-            </div>
-          </section>
-
-          <!-- This panel switches between narrative execution and loop-specific learning. -->
-          <section class="panel story-panel">
-            <!-- Accessible tabs select one of two views without leaving the page. -->
-            <div class="panel-header tabs-header">
-              <div class="panel-tabs" role="tablist" aria-label="Visualization mode">
-                <button class="panel-tab active" id="storyTab" role="tab" aria-selected="true" type="button">
-                  Execution Story
-                </button>
-                <button class="panel-tab" id="loopTab" role="tab" aria-selected="false" type="button">
-                  Loop Lab <span class="tab-badge" id="loopBadge">0</span>
-                </button>
-              </div>
-              <span class="step-count" id="stepCount">STEP 00 / 00</span>
-            </div>
-
-            <!-- The execution story explains the currently selected trace snapshot. -->
-            <div class="story-view" id="storyView" role="tabpanel">
-              <!-- This placeholder is visible until a successful trace is available. -->
-              <div class="empty-state" id="emptyStory">
-                <div class="empty-glyph" aria-hidden="true">{ }</div>
-                <h3>Ready for a trace</h3>
-                <p>Run the program to turn each executed line into a visual story.</p>
-              </div>
-
-              <!-- JavaScript fills these regions from the active Python trace step. -->
-              <div class="trace-content hidden" id="traceContent">
-                <div class="trace-kicker" id="traceKicker">LINE 01 // ASSIGNMENT</div>
-                <div class="executed-code"><code id="executedCode"></code></div>
-                <p class="explanation" id="explanation"></p>
-
-                <!-- A diff between adjacent snapshots explains what this step changed. -->
-                <div class="change-section">
-                  <div class="section-label">WHAT CHANGED</div>
-                  <div class="change-list" id="changeList"></div>
-                </div>
-
-                <!-- Current locals and globals are rendered as compact variable cards. -->
-                <div class="variables-section">
-                  <div class="section-label">VARIABLES IN SCOPE</div>
-                  <div class="variables-grid" id="variablesGrid"></div>
-                </div>
-
-                <!-- Nested function frames appear here when calls enter user code. -->
-                <div class="call-stack-section" id="callStackSection">
-                  <div class="section-label">CALL STACK</div>
-                  <div class="call-stack" id="callStack"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Loop Lab presents the same trace through an iteration-focused lens. -->
-            <div class="loop-view hidden" id="loopView" role="tabpanel">
-              <!-- This placeholder explains why no iteration data is currently shown. -->
-              <div class="empty-state" id="emptyLoop">
-                <div class="empty-glyph loop-glyph" aria-hidden="true">↻</div>
-                <h3>No loop detected yet</h3>
-                <p>Run code containing a simple <code>for</code> or <code>while</code> loop.</p>
-              </div>
-              <!-- The populated view summarizes the loop and every observed iteration. -->
-              <div class="loop-content hidden" id="loopContent">
-                <div class="loop-summary">
-                  <span class="loop-type" id="loopType">FOR LOOP</span>
-                  <span class="iteration-count" id="iterationCount">ITERATION 01</span>
-                </div>
-                <code class="loop-source" id="loopSource"></code>
-                <div class="loop-meter"><span id="loopMeter"></span></div>
-                <div class="section-label">ITERATION HISTORY</div>
-                <div class="iteration-list" id="iterationList"></div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Playback controls navigate the recorded snapshots without rerunning Python. -->
-          <section class="panel controls-panel">
-            <!-- These buttons provide discrete and automatic trace navigation. -->
-            <div class="playback-controls">
-              <button class="control-button" id="previousButton" type="button" disabled aria-label="Previous step">←</button>
-              <button class="play-button" id="playButton" type="button" disabled aria-label="Play trace">▶</button>
-              <button class="control-button" id="nextButton" type="button" disabled aria-label="Next step">→</button>
-              <button class="control-button restart-button" id="restartButton" type="button" disabled aria-label="Restart trace">↺</button>
-            </div>
-            <!-- The range input supports direct movement through long traces. -->
-            <div class="progress-area">
-              <input id="stepSlider" type="range" min="0" max="0" value="0" disabled aria-label="Execution step" />
-              <div class="progress-labels"><span>START</span><span id="progressPercent">0%</span><span>END</span></div>
-            </div>
-            <!-- Playback speed affects only the UI timer, never Python execution speed. -->
-            <label class="speed-control">
-              SPEED
-              <select id="speedSelect">
-                <option value="1200">0.5x</option>
-                <option value="750" selected>1x</option>
-                <option value="400">2x</option>
-              </select>
-            </label>
-          </section>
-
-          <!-- Console output is recorded per snapshot so it stays synchronized with playback. -->
-          <section class="panel output-panel">
-            <div class="panel-header">
-              <div>
-                <span class="panel-index">02</span>
-                <span class="panel-title">CONSOLE OUTPUT</span>
-              </div>
-              <button class="clear-output" id="clearOutputButton" type="button">Clear</button>
-            </div>
-            <pre class="console" id="consoleOutput"><span class="console-muted">// Output will appear here</span></pre>
-          </section>
-        </div>
-      </section>
     </main>
 
     <!--

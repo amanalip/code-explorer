@@ -29,6 +29,27 @@
   --amber: #ffc76a;
   --red: #ff6b7a;
   --cyan: #63d7ff;
+  /* These preview tokens let the decorative terminal follow the selected site theme. */
+  --terminal-bg: #0b0f15;
+  --terminal-panel: #10151c;
+  --terminal-line: #303a45;
+  --terminal-text: #e7efec;
+  --terminal-soft: #b7c3be;
+  --terminal-dim: #7f8b96;
+  --terminal-accent: #63f3c0;
+  --terminal-keyword: #b69cff;
+  --terminal-name: #72ddff;
+  --terminal-sheen: rgba(255, 255, 255, 0.025);
+  /* Code tokens use a high-contrast palette designed for long reading sessions. */
+  --code-plain: #edf4f1;
+  --code-keyword: #c4a7ff;
+  --code-name: #edf4f1;
+  --code-property: #79dcff;
+  --code-string: #ffd58a;
+  --code-number: #70e6b1;
+  --code-operator: #c9d3cf;
+  --code-comment: #89968f;
+  --code-invalid: #ff8290;
   --shadow: 0 22px 70px rgba(0, 0, 0, 0.32);
   --mono: "IBM Plex Mono", "Liberation Mono", monospace;
   --sans: "DM Sans", system-ui, sans-serif;
@@ -54,6 +75,27 @@
   --amber: #a96600;
   --red: #d33c52;
   --cyan: #05749a;
+  /* Light preview values replace every dark terminal surface and text color together. */
+  --terminal-bg: #fbfdfb;
+  --terminal-panel: #f4f8f4;
+  --terminal-line: #cad5cc;
+  --terminal-text: #1d2925;
+  --terminal-soft: #53625c;
+  --terminal-dim: #74827c;
+  --terminal-accent: #087f5b;
+  --terminal-keyword: #6d4bd3;
+  --terminal-name: #05749a;
+  --terminal-sheen: rgba(8, 127, 91, 0.045);
+  /* Light editor tokens preserve category differences without sacrificing contrast. */
+  --code-plain: #17211e;
+  --code-keyword: #6741c7;
+  --code-name: #17211e;
+  --code-property: #006f91;
+  --code-string: #8c5200;
+  --code-number: #087f5b;
+  --code-operator: #46534e;
+  --code-comment: #66756e;
+  --code-invalid: #be2942;
   --shadow: 0 22px 70px rgba(40, 54, 47, 0.13);
 }
 
@@ -409,15 +451,10 @@ main {
   overflow: hidden;
   border: 1px solid var(--line-bright);
   border-radius: 14px;
-  background: rgba(8, 11, 16, 0.94);
+  color: var(--terminal-text);
+  background: var(--terminal-bg);
   box-shadow: var(--shadow), 0 0 80px rgba(99, 243, 192, 0.04);
   transform: perspective(1100px) rotateY(-2deg) rotateX(1deg);
-}
-
-/* Styles `:root[data-theme="light"] .hero-terminal`. This component rule controls color and visual emphasis for the matching interface element. */
-:root[data-theme="light"] .hero-terminal {
-  background: #151a20;
-  color: #ecf4f1;
 }
 
 /* Creates or styles the generated visual part `.hero-terminal::before`. It contributes sizing and spacing, color and visual emphasis, motion and interaction feedback without adding extra HTML. */
@@ -426,7 +463,7 @@ main {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.025) 50%, transparent 65%);
+  background: linear-gradient(110deg, transparent 35%, var(--terminal-sheen) 50%, transparent 65%);
   transform: translateX(-100%);
   animation: scan 8s ease-in-out infinite;
 }
@@ -439,8 +476,8 @@ main {
   align-items: center;
   min-height: 45px;
   padding: 0 18px;
-  border-bottom: 1px solid #252c36;
-  color: #7e8994;
+  border-bottom: 1px solid var(--terminal-line);
+  color: var(--terminal-dim);
   font: 500 0.62rem/1 var(--mono);
   letter-spacing: 0.08em;
 }
@@ -448,7 +485,7 @@ main {
 /* Styles `.terminal-topbar > :last-child`. This component rule controls layout, color and visual emphasis for the matching interface element. */
 .terminal-topbar > :last-child {
   justify-self: end;
-  color: #63f3c0;
+  color: var(--terminal-accent);
 }
 
 /* Styles `.terminal-dots`. This component rule controls layout, sizing and spacing for the matching interface element. */
@@ -462,7 +499,7 @@ main {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #363f4b;
+  background: var(--terminal-line);
 }
 
 /* Styles `.terminal-dots span:first-child`. This component rule controls color and visual emphasis for the matching interface element. */
@@ -496,39 +533,39 @@ main {
 
 /* Styles `.terminal-code .line-number`. This component rule controls color and visual emphasis for the matching interface element. */
 .terminal-code .line-number {
-  color: #505b66;
+  color: var(--terminal-dim);
 }
 
 /* Defines the state-specific appearance of `.terminal-code .line-number.active`. The declarations control color and visual emphasis when that state class is present. */
 .terminal-code .line-number.active {
-  color: #63f3c0;
+  color: var(--terminal-accent);
 }
 
 /* Styles `.terminal-code code`. This component rule controls layout, sizing and spacing, color and visual emphasis, boundaries and focus treatment for the matching interface element. */
 .terminal-code code {
   display: block;
   padding-left: 11px;
-  color: #dce5e1;
+  color: var(--terminal-text);
   border-left: 1px solid transparent;
 }
 
 /* Defines the state-specific appearance of `.terminal-code code.active`. The declarations control color and visual emphasis, boundaries and focus treatment when that state class is present. */
 .terminal-code code.active {
-  border-left-color: #63f3c0;
-  color: white;
-  background: linear-gradient(90deg, rgba(99, 243, 192, 0.1), transparent 70%);
-  box-shadow: -10px 0 30px rgba(99, 243, 192, 0.05);
+  border-left-color: var(--terminal-accent);
+  color: var(--terminal-text);
+  background: linear-gradient(90deg, var(--mint-soft), transparent 70%);
+  box-shadow: -10px 0 30px var(--mint-soft);
 }
 
 /* Styles `.terminal-code i`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .terminal-code i {
-  color: #a98bff;
+  color: var(--terminal-keyword);
   font-style: normal;
 }
 
 /* Styles `.terminal-code b`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .terminal-code b {
-  color: #63d7ff;
+  color: var(--terminal-name);
   font-weight: 500;
 }
 
@@ -536,15 +573,15 @@ main {
 .trace-card-preview {
   margin-left: 45px;
   padding: 20px;
-  border: 1px solid #303a45;
+  border: 1px solid var(--terminal-line);
   border-radius: 8px;
-  background: #10151c;
+  background: var(--terminal-panel);
 }
 
 /* Styles `.trace-card-label`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .trace-card-label {
   margin-bottom: 14px;
-  color: #a98bff;
+  color: var(--terminal-keyword);
   font: 600 0.62rem/1 var(--mono);
   letter-spacing: 0.11em;
 }
@@ -552,13 +589,13 @@ main {
 /* Styles `.trace-card-preview p`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .trace-card-preview p {
   margin: 0 0 20px;
-  color: #c0cac6;
+  color: var(--terminal-soft);
   line-height: 1.55;
 }
 
 /* Styles `.trace-card-preview p code`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .trace-card-preview p code {
-  color: #63f3c0;
+  color: var(--terminal-accent);
   font-family: var(--mono);
 }
 
@@ -568,27 +605,27 @@ main {
   grid-template-columns: 1fr 50px 30px 50px;
   align-items: center;
   padding: 10px 0;
-  border-top: 1px solid #242d36;
-  color: #8d98a2;
+  border-top: 1px solid var(--terminal-line);
+  color: var(--terminal-dim);
   font: 500 0.72rem/1 var(--mono);
 }
 
 /* Styles `.preview-change strong`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .preview-change strong {
-  color: #63f3c0;
+  color: var(--terminal-accent);
   font-weight: 500;
 }
 
 /* Styles `.terminal-footer`. This component rule controls layout, boundaries and focus treatment for the matching interface element. */
 .terminal-footer {
   grid-template-columns: 1fr 1fr;
-  border-top: 1px solid #252c36;
+  border-top: 1px solid var(--terminal-line);
   border-bottom: 0;
 }
 
 /* Styles `.terminal-footer span:first-child`. This component rule controls color and visual emphasis for the matching interface element. */
 .terminal-footer span:first-child {
-  color: #63f3c0;
+  color: var(--terminal-accent);
 }
 
 /* Styles `.terminal-footer span:last-child`. This component rule controls layout for the matching interface element. */
@@ -610,8 +647,8 @@ main {
   margin-bottom: 22px;
 }
 
-/* Styles `.workspace-heading h2`. This component rule controls sizing and spacing, typography for the matching interface element. */
-.workspace-heading h2 {
+/* Styles the workspace page heading at the correct document-outline level. */
+.workspace-heading h1 {
   margin: 7px 0 0;
   font-size: clamp(1.6rem, 3vw, 2.4rem);
   letter-spacing: -0.04em;
@@ -619,6 +656,7 @@ main {
 
 /* Styles `.back-button`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
 .back-button {
+  display: inline-block;
   padding: 0;
   border: 0;
   color: var(--text-dim);
@@ -744,7 +782,7 @@ main {
 /* Styles `.cm-editor`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .cm-editor {
   height: 100%;
-  color: var(--text);
+  color: var(--code-plain);
   background: var(--panel-solid);
   font: 500 0.86rem/1.75 var(--mono);
 }
@@ -762,6 +800,7 @@ main {
 
 /* Styles `.cm-editor .cm-content`. This component rule controls color and visual emphasis for the matching interface element. */
 .cm-editor .cm-content {
+  color: var(--code-plain);
   caret-color: var(--mint);
 }
 
@@ -793,30 +832,53 @@ main {
 /* Styles `.cm-editor .tok-keyword, .cm-editor .tok-bool, .cm-editor .tok-null`. This component rule controls color and visual emphasis for the matching interface element. */
 .cm-editor .tok-keyword,
 .cm-editor .tok-bool,
-.cm-editor .tok-null {
-  color: var(--purple);
+.cm-editor .tok-null,
+.cm-editor .tok-atom {
+  color: var(--code-keyword) !important;
+  font-weight: 600;
 }
 
-/* Styles `.cm-editor .tok-variableName, .cm-editor .tok-propertyName`. This component rule controls color and visual emphasis for the matching interface element. */
-.cm-editor .tok-variableName,
-.cm-editor .tok-propertyName {
-  color: var(--cyan);
+/* Variable names remain close to the main text color so ordinary code stays calm and readable. */
+.cm-editor .tok-variableName {
+  color: var(--code-name) !important;
+}
+
+/* Properties, function names, types, and classes receive cyan emphasis as named program structures. */
+.cm-editor .tok-propertyName,
+.cm-editor .tok-function,
+.cm-editor .tok-typeName,
+.cm-editor .tok-className,
+.cm-editor .tok-definition {
+  color: var(--code-property) !important;
 }
 
 /* Styles `.cm-editor .tok-string`. This component rule controls color and visual emphasis for the matching interface element. */
-.cm-editor .tok-string {
-  color: var(--mint);
+.cm-editor .tok-string,
+.cm-editor .tok-literal {
+  color: var(--code-string) !important;
 }
 
 /* Styles `.cm-editor .tok-number`. This component rule controls color and visual emphasis for the matching interface element. */
 .cm-editor .tok-number {
-  color: var(--amber);
+  color: var(--code-number) !important;
+}
+
+/* Operators and punctuation stay visible without competing with names and values. */
+.cm-editor .tok-operator,
+.cm-editor .tok-punctuation {
+  color: var(--code-operator) !important;
 }
 
 /* Styles `.cm-editor .tok-comment`. This component rule controls color and visual emphasis, typography for the matching interface element. */
 .cm-editor .tok-comment {
-  color: var(--text-dim);
+  color: var(--code-comment) !important;
   font-style: italic;
+}
+
+/* Invalid tokens use the error color so malformed text is obvious in either theme. */
+.cm-editor .tok-invalid {
+  color: var(--code-invalid) !important;
+  text-decoration: underline wavy currentColor;
 }
 
 /* Styles `.editor-footer`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
