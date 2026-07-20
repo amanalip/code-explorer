@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260720-13" />
+    <link rel="stylesheet" href="styles.css?v=20260720-15" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -48,10 +48,20 @@
           <span class="status-dot"></span>
           <span id="runtimeLabel">Runtime offline</span>
         </span>
-        <!-- The visible glyph is decorative, while the accessible label names the action. -->
-        <button class="icon-button" id="themeButton" type="button" aria-label="Switch color theme">
-          <span id="themeIcon" aria-hidden="true">◐</span>
+        <!-- The named theme action remains understandable without requiring familiarity with an icon. -->
+        <button class="icon-button theme-button" id="themeButton" type="button" aria-label="Switch to dark mode">
+          <span id="themeLabel">Dark mode</span>
         </button>
+        <!-- The guide remains one click away while a beginner explores the feature-rich workspace. -->
+        <a
+          class="icon-button guide-button"
+          href="https://github.com/amanalip/code-explorer/blob/main/README.md"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Open the Code Explorer tool guide in a new tab"
+        >
+          Tool Guide
+        </a>
         <!-- Contributors can open the public source repository in a separate tab. -->
         <a class="icon-button" href="https://github.com/amanalip/code-explorer" target="_blank" rel="noreferrer" aria-label="Open Code Explorer on GitHub">
           GH
@@ -563,6 +573,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260720-23"></script>
+    <script type="module" src="app.js?v=20260720-24"></script>
   </body>
 </html>

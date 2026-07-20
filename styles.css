@@ -279,6 +279,20 @@ select:focus-visible {
   transition: 160ms ease;
 }
 
+/* Expands named header controls without changing their shared height or interaction style. */
+.guide-button,
+.theme-button {
+  width: auto;
+  min-width: 92px;
+  padding: 0 13px;
+  white-space: nowrap;
+}
+
+/* The theme wording is slightly wider than the guide wording in the selected monospace typeface. */
+.theme-button {
+  min-width: 96px;
+}
+
 /* Defines hover feedback for `.icon-button:hover`, using color and visual emphasis, boundaries and focus treatment, motion and interaction feedback to confirm that the element is interactive. */
 .icon-button:hover {
   border-color: var(--line-bright);
@@ -3552,6 +3566,14 @@ main {
   /* Styles `.dialog-header`. This component rule controls sizing and spacing for the matching interface element. */
   .dialog-header {
     padding: 22px 18px 18px;
+  }
+}
+
+/* Adapts only the shared header when all named actions cannot fit beside the full brand on a narrow phone. */
+@media (max-width: 470px) {
+  /* Keeps the recognizable terminal mark while yielding space to explicit navigation labels. */
+  .brand > span:last-child {
+    display: none;
   }
 }
 

@@ -28,7 +28,7 @@
       The version query keeps the landing page synchronized with workspace
       styling when a browser or GitHub Pages has cached an earlier release.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260720-13" />
+    <link rel="stylesheet" href="styles.css?v=20260720-15" />
   </head>
   <body>
     <!-- This decorative grid sits behind the application and is hidden from screen readers. -->
@@ -51,10 +51,20 @@
           <span class="status-dot"></span>
           <span id="runtimeLabel">Runtime offline</span>
         </span>
-        <!-- The theme button uses an aria-label because its visible icon is decorative. -->
-        <button class="icon-button" id="themeButton" type="button" aria-label="Switch color theme">
-          <span id="themeIcon" aria-hidden="true">◐</span>
+        <!-- The visible action text removes any guesswork about what the theme control will do. -->
+        <button class="icon-button theme-button" id="themeButton" type="button" aria-label="Switch to dark mode">
+          <span id="themeLabel">Dark mode</span>
         </button>
+        <!-- This named link gives first-time learners a direct path to the complete feature guide. -->
+        <a
+          class="icon-button guide-button"
+          href="https://github.com/amanalip/code-explorer/blob/main/README.md"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Open the Code Explorer tool guide in a new tab"
+        >
+          Tool Guide
+        </a>
         <!-- This external link lets contributors reach the open-source repository. -->
         <a class="icon-button" href="https://github.com/amanalip/code-explorer" target="_blank" rel="noreferrer" aria-label="Open Code Explorer on GitHub">
           GH
@@ -171,6 +181,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query prevents browsers from reusing navigation code cached before the page split. -->
-    <script type="module" src="app.js?v=20260720-23"></script>
+    <script type="module" src="app.js?v=20260720-24"></script>
   </body>
 </html>

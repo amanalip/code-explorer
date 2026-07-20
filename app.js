@@ -506,7 +506,7 @@ const EXAMPLE_CATEGORIES = Object.freeze([
  */
 const els = Object.fromEntries(
   [
-    "runtimeStatus", "runtimeLabel", "themeButton", "themeIcon", "welcomeScreen", "workspace",
+    "runtimeStatus", "runtimeLabel", "themeButton", "themeLabel", "welcomeScreen", "workspace",
     "heroExampleButton", "backButton", "examplesButton", "runButton", "stopButton",
     "editor", "editorShell", "editorWrapButton", "editorFontSizeSelect", "editorCopyButton", "editorPasteButton",
     "codeStats", "storyTab", "beforeAfterTab", "conditionsTab", "functionsTab", "errorTab",
@@ -623,14 +623,18 @@ function preferredTheme() {
 
 /**
  * Applies and persists one of the two supported color themes.
- * The data attribute lets CSS variables swap the whole palette, while the button label and glyph are updated for accessibility.
+ * The data attribute lets CSS variables swap the whole palette, while the visible button text names the available action.
  * @param {"light"|"dark"} theme The theme that should become active.
  */
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   localStorage.setItem("code-explorer-theme", theme);
-  if (els.themeIcon) els.themeIcon.textContent = theme === "dark" ? "☀" : "☾";
-  els.themeButton?.setAttribute("aria-label", `Switch to ${theme === "dark" ? "light" : "dark"} mode`);
+  // The control describes the theme the user can switch to, rather than merely reporting the active theme.
+  const nextThemeLabel = theme === "dark" ? "Light mode" : "Dark mode";
+  // Visible text helps every user understand the control, including people unfamiliar with theme glyphs.
+  if (els.themeLabel) els.themeLabel.textContent = nextThemeLabel;
+  // The accessible name adds the action verb while matching the same destination theme.
+  els.themeButton?.setAttribute("aria-label", `Switch to ${nextThemeLabel.toLowerCase()}`);
 }
 
 /**
