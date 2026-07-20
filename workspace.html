@@ -24,7 +24,11 @@
     <link rel="preconnect" href="https://esm.sh" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <!-- Both pages share one stylesheet so their visual language stays consistent. -->
-    <link rel="stylesheet" href="styles.css" />
+    <!--
+      The version query forces browsers and GitHub Pages caches to fetch the
+      stylesheet that matches this document instead of reusing an older layout.
+    -->
+    <link rel="stylesheet" href="styles.css?v=20260720-2" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -190,7 +194,11 @@
               <!-- Cytoscape mounts its interactive canvas into this dedicated container. -->
               <div class="graph-content hidden" id="referencesContent">
                 <div class="graph-toolbar">
-                  <span>Names reference objects. This is a conceptual map, not a RAM address view.</span>
+                  <!-- The compact label and explanation establish the map's teaching purpose. -->
+                  <span class="graph-toolbar-copy">
+                    <span class="graph-toolbar-label">REFERENCE MAP</span>
+                    <span>Names reference objects. This is a conceptual map, not a RAM address view.</span>
+                  </span>
                   <button id="fitReferencesButton" type="button">Fit</button>
                 </div>
                 <div class="graph-canvas" id="referencesGraph" aria-label="Python reference map"></div>
@@ -207,7 +215,11 @@
               <!-- The graph uses observed transitions, making every displayed edge truthful. -->
               <div class="graph-content hidden" id="flowContent">
                 <div class="graph-toolbar">
-                  <span>Actual executed path. Edge labels show how often a transition occurred.</span>
+                  <!-- The compact label distinguishes observed flow from static source analysis. -->
+                  <span class="graph-toolbar-copy">
+                    <span class="graph-toolbar-label">EXECUTED PATH</span>
+                    <span>Edge labels show how often a transition occurred.</span>
+                  </span>
                   <button id="fitFlowButton" type="button">Fit</button>
                 </div>
                 <div class="graph-canvas" id="flowGraph" aria-label="Executed Python flow map"></div>
@@ -292,6 +304,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260720-6"></script>
+    <script type="module" src="app.js?v=20260720-7"></script>
   </body>
 </html>

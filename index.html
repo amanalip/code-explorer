@@ -24,7 +24,11 @@
     <link rel="preconnect" href="https://esm.sh" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <!-- All application styling lives in one readable stylesheet. -->
-    <link rel="stylesheet" href="styles.css" />
+    <!--
+      The version query keeps the landing page synchronized with workspace
+      styling when a browser or GitHub Pages has cached an earlier release.
+    -->
+    <link rel="stylesheet" href="styles.css?v=20260720-2" />
   </head>
   <body>
     <!-- This decorative grid sits behind the application and is hidden from screen readers. -->
@@ -153,6 +157,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query prevents browsers from reusing navigation code cached before the page split. -->
-    <script type="module" src="app.js?v=20260720-6"></script>
+    <script type="module" src="app.js?v=20260720-7"></script>
   </body>
 </html>

@@ -1275,14 +1275,15 @@ main {
 .variables-content {
   display: grid;
   grid-template-columns: minmax(145px, 0.38fr) minmax(0, 1fr);
+  gap: 1px;
   height: 100%;
+  background: var(--line);
 }
 
 /* Holds scope groups and variable selection controls. */
 .scope-browser {
   overflow: auto;
-  padding: 14px 10px;
-  border-right: 1px solid var(--line);
+  padding: 18px 12px;
   background: var(--bg-raised);
 }
 
@@ -1293,7 +1294,7 @@ main {
 
 /* Labels the source scope for the variables that follow. */
 .scope-group h3 {
-  margin: 0 7px 8px;
+  margin: 0 7px 11px;
   color: var(--text-dim);
   font: 600 0.56rem/1 var(--mono);
   letter-spacing: 0.09em;
@@ -1305,10 +1306,10 @@ main {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 3px 7px;
   width: 100%;
-  margin-bottom: 5px;
-  padding: 9px;
+  margin-bottom: 7px;
+  padding: 11px;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: 9px;
   color: var(--text);
   background: transparent;
   text-align: left;
@@ -1320,6 +1321,13 @@ main {
 .scope-variable:hover {
   border-color: var(--mint);
   background: var(--mint-soft);
+  box-shadow: inset 3px 0 0 var(--mint);
+  transform: translateX(2px);
+}
+
+/* Makes pointer movement feel intentional without delaying keyboard interaction. */
+.scope-variable {
+  transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease, transform 140ms ease;
 }
 
 /* Keeps selected variable names and values on one compact row. */
@@ -1353,7 +1361,10 @@ main {
 /* Provides the scrollable detail surface for the selected variable. */
 .variable-inspector {
   overflow: auto;
-  padding: 20px;
+  padding: 24px;
+  background:
+    linear-gradient(135deg, var(--mint-soft), transparent 12rem),
+    var(--panel-solid);
 }
 
 /* Aligns the selected name with its Python type badge. */
@@ -1361,7 +1372,9 @@ main {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
+  padding-bottom: 17px;
+  border-bottom: 1px solid var(--line);
 }
 
 /* Uses the scope as a small orientation label above the variable name. */
@@ -1390,8 +1403,8 @@ main {
 .inspector-metadata {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-  margin-bottom: 24px;
+  gap: 8px;
+  margin-bottom: 28px;
 }
 
 /* Styles one variable fact without visually competing with nested contents. */
@@ -1399,10 +1412,11 @@ main {
   display: grid;
   gap: 5px;
   min-width: 0;
-  padding: 9px;
+  padding: 11px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 9px;
   background: var(--bg-raised);
+  box-shadow: 0 8px 24px rgba(20, 35, 29, 0.04);
 }
 
 /* Keeps fact labels quiet and values readable. */
@@ -1480,7 +1494,9 @@ main {
 /* Holds change-only history rows in execution order. */
 .variable-history {
   display: grid;
-  gap: 5px;
+  gap: 7px;
+  padding-left: 13px;
+  border-left: 1px solid var(--line-bright);
 }
 
 /* Makes each history event a button that can jump playback to its source step. */
@@ -1489,10 +1505,11 @@ main {
   grid-template-columns: 62px 64px minmax(0, 1fr);
   gap: 8px;
   align-items: center;
-  min-height: 36px;
-  padding: 7px 9px;
+  position: relative;
+  min-height: 40px;
+  padding: 9px 11px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 8px;
   color: var(--text-soft);
   background: var(--bg-raised);
   font: 500 0.6rem/1.25 var(--mono);
@@ -1500,11 +1517,37 @@ main {
   cursor: pointer;
 }
 
+/* Adds a small timeline marker without introducing decorative clutter. */
+.history-row::before {
+  position: absolute;
+  top: 50%;
+  left: -18px;
+  width: 7px;
+  height: 7px;
+  border: 2px solid var(--panel-solid);
+  border-radius: 50%;
+  background: var(--text-dim);
+  content: "";
+  transform: translateY(-50%);
+}
+
 /* Connects the active history event to the playback position. */
 .history-row.active,
 .history-row:hover {
   border-color: var(--mint);
   background: var(--mint-soft);
+  transform: translateX(2px);
+}
+
+/* Connects the highlighted history row to the mint trace-playback accent. */
+.history-row.active::before,
+.history-row:hover::before {
+  background: var(--mint);
+}
+
+/* Keeps the small history movement smooth and restrained. */
+.history-row {
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
 }
 
 /* Keeps the potentially long historical value safely inside its row. */
@@ -1530,31 +1573,105 @@ main {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 12px;
+  min-height: 50px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--line);
   color: var(--text-dim);
-  background: var(--bg-raised);
-  font: 500 0.56rem/1.35 var(--mono);
+  background:
+    linear-gradient(90deg, var(--mint-soft), transparent 45%),
+    var(--bg-raised);
+  font: 500 0.6rem/1.45 var(--mono);
+}
+
+/* Keeps the compact map label and explanation aligned as one readable unit. */
+.graph-toolbar-copy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Introduces the graph explanation as guidance rather than loose body text. */
+.graph-toolbar-label {
+  flex: 0 0 auto;
+  padding: 4px 6px;
+  border: 1px solid color-mix(in srgb, var(--mint) 32%, var(--line));
+  border-radius: 999px;
+  color: var(--mint);
+  background: var(--panel-solid);
+  font: 700 0.48rem/1 var(--mono);
+  letter-spacing: 0.08em;
 }
 
 /* Styles the graph Fit action as a quiet utility rather than a primary command. */
 .graph-toolbar button {
-  padding: 6px 9px;
+  min-width: 58px;
+  padding: 8px 11px;
   border: 1px solid var(--line-bright);
-  border-radius: 5px;
+  border-radius: 7px;
   color: var(--text);
   background: var(--panel-solid);
   font: 600 0.58rem/1 var(--mono);
   cursor: pointer;
 }
 
+/* Gives the utility action the same crisp hover language as workspace controls. */
+.graph-toolbar button:hover {
+  border-color: var(--mint);
+  color: var(--mint);
+  background: var(--mint-soft);
+}
+
 /* Reserves a stable drawing surface for Cytoscape in either graph mode. */
 .graph-canvas {
+  position: relative;
   min-width: 0;
   min-height: 0;
   background:
-    radial-gradient(circle at center, var(--mint-soft), transparent 55%),
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px),
+    radial-gradient(circle at center, var(--mint-soft), transparent 58%),
     var(--panel-solid);
+  background-size: 28px 28px, 28px 28px, auto, auto;
+  box-shadow: inset 0 1px 0 var(--line);
+}
+
+/* Shows progress and errors directly inside the drawing surface. */
+.graph-canvas.loading::before,
+.graph-canvas.failed::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: min(320px, calc(100% - 48px));
+  padding: 18px 20px;
+  border: 1px solid var(--line-bright);
+  border-radius: 10px;
+  color: var(--text-soft);
+  background: color-mix(in srgb, var(--panel-solid) 92%, transparent);
+  box-shadow: var(--shadow);
+  content: attr(data-message);
+  font: 600 0.68rem/1.5 var(--mono);
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+/* Adds restrained motion only while the optional graph package is loading. */
+.graph-canvas.loading::before {
+  border-color: color-mix(in srgb, var(--mint) 45%, var(--line));
+  color: var(--mint);
+  animation: graph-status-pulse 1.2s ease-in-out infinite alternate;
+}
+
+/* Uses the error color for the visible fallback without hiding other views. */
+.graph-canvas.failed::before {
+  border-color: color-mix(in srgb, var(--red) 45%, var(--line));
+  color: var(--red);
+}
+
+/* Keeps graph loading feedback calm enough for a learning workspace. */
+@keyframes graph-status-pulse {
+  from { opacity: 0.62; }
+  to { opacity: 1; }
 }
 
 /* Code execution heatmap */

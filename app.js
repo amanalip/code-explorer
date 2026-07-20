@@ -1530,10 +1530,23 @@ async function renderReferenceMap() {
     els.referencesContent?.classList.add("hidden");
     return;
   }
-  const cytoscape = await loadGraphLibrary();
-  if (!cytoscape || state.activePanel !== "references") return;
+  // Reveal a deliberate loading state immediately so a network delay never
+  // looks like a broken or mysteriously empty panel.
   els.emptyReferences.classList.add("hidden");
   els.referencesContent.classList.remove("hidden");
+  els.referencesGraph.classList.remove("failed");
+  els.referencesGraph.classList.add("loading");
+  els.referencesGraph.dataset.message = "Building the reference map...";
+  const cytoscape = await loadGraphLibrary();
+  if (!cytoscape) {
+    // An inline failure state keeps the explanation visible and gives learners
+    // a useful next action instead of leaving behind an empty canvas.
+    els.referencesGraph.classList.remove("loading");
+    els.referencesGraph.classList.add("failed");
+    els.referencesGraph.dataset.message = "Graph renderer unavailable. Check the connection and reopen this tab.";
+    return;
+  }
+  if (state.activePanel !== "references") return;
   state.referencesGraph?.destroy();
   const colors = graphPalette();
   state.referencesGraph = cytoscape({
@@ -1549,6 +1562,9 @@ async function renderReferenceMap() {
       { selector: "edge", style: { width: 1.4, "line-color": colors.line, "target-arrow-color": colors.mint, "target-arrow-shape": "triangle", "curve-style": "bezier", label: "data(label)", color: colors.dim, "font-size": 8, "text-background-color": colors.panel, "text-background-opacity": 0.9, "text-background-padding": 2 } },
     ],
   });
+  // Remove the temporary overlay only after Cytoscape owns the canvas.
+  els.referencesGraph.classList.remove("loading", "failed");
+  delete els.referencesGraph.dataset.message;
 }
 
 /**
@@ -1592,10 +1608,21 @@ async function renderFlowMap() {
     els.flowContent?.classList.add("hidden");
     return;
   }
-  const cytoscape = await loadGraphLibrary();
-  if (!cytoscape || state.activePanel !== "flow") return;
+  // Match the reference view with an immediate, informative loading surface.
   els.emptyFlow.classList.add("hidden");
   els.flowContent.classList.remove("hidden");
+  els.flowGraph.classList.remove("failed");
+  els.flowGraph.classList.add("loading");
+  els.flowGraph.dataset.message = "Building the executed path...";
+  const cytoscape = await loadGraphLibrary();
+  if (!cytoscape) {
+    // Keep a visible explanation in place if the optional renderer cannot load.
+    els.flowGraph.classList.remove("loading");
+    els.flowGraph.classList.add("failed");
+    els.flowGraph.dataset.message = "Graph renderer unavailable. Check the connection and reopen this tab.";
+    return;
+  }
+  if (state.activePanel !== "flow") return;
   state.flowGraph?.destroy();
   const colors = graphPalette();
   state.flowGraph = cytoscape({
@@ -1614,6 +1641,9 @@ async function renderFlowMap() {
     const stepIndex = state.trace.findIndex((step) => step.line === line);
     if (stepIndex >= 0) goToStep(stepIndex);
   });
+  // Reveal the completed canvas after listeners and styles have been attached.
+  els.flowGraph.classList.remove("loading", "failed");
+  delete els.flowGraph.dataset.message;
   updateFlowSelection();
 }
 
