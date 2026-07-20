@@ -1,0 +1,75 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "Code Explorer home" [ref=e3] [cursor=pointer]:
+      - /url: "#"
+      - generic [ref=e4]: ">_"
+      - generic [ref=e5]: CODE EXPLORER
+    - generic [ref=e6]:
+      - generic [ref=e7]: Python ready
+      - button "Switch to dark mode" [ref=e10] [cursor=pointer]:
+        - generic [ref=e11]: ☾
+      - link "Open Code Explorer on GitHub" [ref=e12] [cursor=pointer]:
+        - /url: https://github.com/amanalip/code-explorer
+        - text: GH
+  - main [ref=e13]:
+    - text: "# # # #"
+    - region "Python visualizer workspace" [ref=e66]:
+      - generic [ref=e67]:
+        - generic [ref=e68]:
+          - button "← Home" [ref=e69] [cursor=pointer]
+          - heading "Execution workspace" [level=2] [ref=e70]
+        - generic [ref=e71]:
+          - button "Examples" [ref=e72] [cursor=pointer]
+          - button "Run trace" [ref=e73] [cursor=pointer]
+      - generic [ref=e75]:
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - generic [ref=e78]: 01 PYTHON SOURCE
+            - generic [ref=e79]: main.py
+          - generic "Python code editor" [ref=e81]:
+            - textbox [ref=e84]:
+              - generic [ref=e85]: total = 0
+              - generic [ref=e87]: "for number in range(1, 4):"
+              - generic [ref=e88]: total += number
+              - generic [ref=e89]: print("Added", number)
+              - generic [ref=e91]: print("Total:", total)
+          - generic [ref=e92]:
+            - generic [ref=e93]: 7 lines · 108 chars
+            - generic [ref=e94]: Python 3
+        - generic [ref=e95]:
+          - generic [ref=e96]:
+            - tablist "Visualization mode" [ref=e97]:
+              - tab "Execution Story" [selected] [ref=e98] [cursor=pointer]
+              - tab "Loop Lab 0" [ref=e99] [cursor=pointer]:
+                - text: Loop Lab
+                - generic [ref=e100]: "0"
+            - generic [ref=e101]: STEP 00 / 00
+          - tabpanel [ref=e102]:
+            - generic [ref=e103]:
+              - generic [ref=e104]: "{ }"
+              - heading "Ready for a trace" [level=3] [ref=e105]
+              - paragraph [ref=e106]: Run the program to turn each executed line into a visual story.
+        - generic [ref=e107]:
+          - generic [ref=e108]:
+            - button "Previous step" [disabled] [ref=e109]: ←
+            - button "Play trace" [disabled] [ref=e110]: ▶
+            - button "Next step" [disabled] [ref=e111]: →
+            - button "Restart trace" [disabled] [ref=e112]: ↺
+          - generic [ref=e113]:
+            - slider "Execution step" [disabled] [ref=e114] [cursor=pointer]: "0"
+            - generic [ref=e115]:
+              - generic [ref=e116]: START
+              - generic [ref=e117]: 0%
+              - generic [ref=e118]: END
+          - generic [ref=e119]:
+            - text: SPEED
+            - combobox "SPEED" [ref=e120]:
+              - option "0.5x"
+              - option "1x" [selected]
+              - option "2x"
+        - generic [ref=e121]:
+          - generic [ref=e122]:
+            - generic [ref=e123]: 02 CONSOLE OUTPUT
+            - button "Clear" [ref=e124] [cursor=pointer]
+          - generic [ref=e125]: // Output will appear here
+  - status

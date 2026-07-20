@@ -1,0 +1,67 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "Code Explorer home" [ref=e3] [cursor=pointer]:
+      - /url: "#"
+      - generic [ref=e4]: ">_"
+      - generic [ref=e5]: CODE EXPLORER
+    - generic [ref=e6]:
+      - generic [ref=e7]: Runtime offline
+      - button "Switch to dark mode" [ref=e10] [cursor=pointer]:
+        - generic [ref=e11]: ☾
+      - link "Open Code Explorer on GitHub" [ref=e12] [cursor=pointer]:
+        - /url: https://github.com/amanalip/code-explorer
+        - text: GH
+  - main [ref=e13]:
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]: Python, unpacked
+        - heading [level=1] [ref=e18]:
+          - text: Do not just run code.
+          - emphasis [ref=e19]: Watch it think.
+        - paragraph [ref=e20]: Paste a beginner Python program and follow every variable, loop, and output as it happens. Everything runs privately inside your browser.
+        - generic [ref=e21]:
+          - button "Start exploring" [ref=e22] [cursor=pointer]:
+            - text: Start exploring
+            - generic [ref=e23]: →
+          - button "Load an example" [ref=e24] [cursor=pointer]
+        - generic "Supported topics" [ref=e25]:
+          - generic [ref=e26]: "# variables"
+          - generic [ref=e27]: "# conditions"
+          - generic [ref=e28]: "# loops"
+          - generic [ref=e29]: "# functions"
+      - generic "Example execution preview" [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e36]: trace_preview.py
+          - generic [ref=e37]: LIVE
+        - generic [ref=e38]:
+          - generic [ref=e39]:
+            - generic [ref=e40]: "01"
+            - code [ref=e41]: total = 0
+            - generic [ref=e42]: "02"
+            - code [ref=e43]: "for number in range(3):"
+            - generic [ref=e44]: "03"
+            - code [ref=e45]: total += number
+            - generic [ref=e46]: "04"
+            - code [ref=e47]: print(total)
+          - generic [ref=e48]:
+            - generic [ref=e49]: TRACE // STEP 03
+            - paragraph [ref=e50]:
+              - text: Python added
+              - code [ref=e51]: number
+              - text: to
+              - code [ref=e52]: total
+              - text: .
+            - generic [ref=e53]:
+              - generic [ref=e54]: total
+              - generic [ref=e55]: "0"
+              - generic [ref=e56]: →
+              - strong [ref=e57]: "1"
+            - generic [ref=e58]:
+              - generic [ref=e59]: number
+              - generic [ref=e60]: "0"
+              - generic [ref=e61]: →
+              - strong [ref=e62]: "1"
+        - generic [ref=e63]:
+          - generic [ref=e64]: ● ITERATION 02 / 03
+          - generic [ref=e65]: 100% CLIENT SIDE
+  - status
