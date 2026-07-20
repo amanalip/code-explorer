@@ -385,10 +385,18 @@ function focusLine(lineNumber) {
   if (!state.editorView || !lineNumber) return;
   const safeLine = Math.max(1, Math.min(lineNumber, state.editorView.state.doc.lines));
   const line = state.editorView.state.doc.line(safeLine);
+  // Updating the selection without CodeMirror's scrollIntoView flag prevents
+  // the editor from scrolling the surrounding browser page. This is essential
+  // when a learner is watching a graph positioned below the editor.
   state.editorView.dispatch({
     selection: { anchor: line.from },
-    scrollIntoView: true,
   });
+  // Scroll only CodeMirror's dedicated viewport, using an immediate movement
+  // so the code follows execution without animating the rest of the workspace.
+  const lineBlock = state.editorView.lineBlockAt(line.from);
+  const editorScroller = state.editorView.scrollDOM;
+  const centeredTop = Math.max(0, lineBlock.top - ((editorScroller.clientHeight - lineBlock.height) / 2));
+  editorScroller.scrollTo({ top: centeredTop, behavior: "auto" });
 }
 
 /**
@@ -890,7 +898,9 @@ function renderStep() {
   renderLoopLab(index);
   renderEditorHeatmap();
   updateFlowSelection();
-  if (state.activePanel === "references") renderReferenceMap();
+  // Manual stepping should update the reference map immediately. Automatic
+  // playback defers that work until pausePlayback so the canvas remains still.
+  if (state.activePanel === "references" && !state.playing) renderReferenceMap();
   if (state.activePanel === "flow" && !state.flowGraph) renderFlowMap();
   focusLine(step.line);
 
@@ -1380,6 +1390,9 @@ function nextStep() {
 function togglePlayback() {
   if (state.playing) {
     pausePlayback();
+    // A learner-requested pause is the right moment to synchronize a reference
+    // map that intentionally remained still during automatic playback.
+    if (state.activePanel === "references") renderReferenceMap();
     return;
   }
   if (!state.trace.length) return;
@@ -1399,6 +1412,9 @@ function scheduleNextStep() {
     if (!state.playing) return;
     if (state.currentStep >= state.trace.length - 1) {
       pausePlayback();
+      // Refresh once at natural completion so the final reference state is
+      // accurate without any intermediate canvas rebuilding.
+      if (state.activePanel === "references") renderReferenceMap();
       return;
     }
     state.currentStep += 1;
@@ -1530,13 +1546,16 @@ async function renderReferenceMap() {
     els.referencesContent?.classList.add("hidden");
     return;
   }
-  // Reveal a deliberate loading state immediately so a network delay never
-  // looks like a broken or mysteriously empty panel.
+  // Reveal the content area immediately so its dimensions remain stable.
   els.emptyReferences.classList.add("hidden");
   els.referencesContent.classList.remove("hidden");
   els.referencesGraph.classList.remove("failed");
-  els.referencesGraph.classList.add("loading");
-  els.referencesGraph.dataset.message = "Building the reference map...";
+  // The loading overlay is needed only for the first network import. Showing
+  // it during ordinary step changes would produce an unnecessary flash.
+  if (!state.graphLibrary) {
+    els.referencesGraph.classList.add("loading");
+    els.referencesGraph.dataset.message = "Building the reference map...";
+  }
   const cytoscape = await loadGraphLibrary();
   if (!cytoscape) {
     // An inline failure state keeps the explanation visible and gives learners
@@ -1608,12 +1627,16 @@ async function renderFlowMap() {
     els.flowContent?.classList.add("hidden");
     return;
   }
-  // Match the reference view with an immediate, informative loading surface.
+  // Match the reference view with stable dimensions during initial loading.
   els.emptyFlow.classList.add("hidden");
   els.flowContent.classList.remove("hidden");
   els.flowGraph.classList.remove("failed");
-  els.flowGraph.classList.add("loading");
-  els.flowGraph.dataset.message = "Building the executed path...";
+  // Avoid replaying the loading overlay when the already-loaded renderer is
+  // merely rebuilding colors after a deliberate theme change.
+  if (!state.graphLibrary) {
+    els.flowGraph.classList.add("loading");
+    els.flowGraph.dataset.message = "Building the executed path...";
+  }
   const cytoscape = await loadGraphLibrary();
   if (!cytoscape) {
     // Keep a visible explanation in place if the optional renderer cannot load.

@@ -971,6 +971,16 @@ main {
   overflow: auto;
 }
 
+/*
+ * Graph canvases manage their own pan and zoom interactions. Preventing their
+ * parent views from scrolling stops canvas measurements from creating and
+ * removing browser scrollbars, which previously made the panel appear to shake.
+ */
+.references-view,
+.flow-view {
+  overflow: hidden;
+}
+
 /* Styles `.empty-state`. This component rule controls layout, sizing and spacing, typography for the matching interface element. */
 .empty-state {
   display: grid;
@@ -1564,7 +1574,10 @@ main {
 .graph-content {
   display: grid;
   grid-template-rows: auto 1fr;
+  min-width: 0;
+  min-height: 0;
   height: 100%;
+  overflow: hidden;
 }
 
 /* Explains graph semantics and keeps a small viewport-reset control nearby. */
@@ -1588,6 +1601,13 @@ main {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+}
+
+/* Lets the graph explanation wrap instead of widening the entire panel. */
+.graph-toolbar-copy > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 /* Introduces the graph explanation as guidance rather than loose body text. */
@@ -1624,8 +1644,12 @@ main {
 /* Reserves a stable drawing surface for Cytoscape in either graph mode. */
 .graph-canvas {
   position: relative;
+  width: 100%;
+  height: 100%;
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
+  contain: layout paint;
   background:
     linear-gradient(var(--line) 1px, transparent 1px),
     linear-gradient(90deg, var(--line) 1px, transparent 1px),
@@ -1655,11 +1679,10 @@ main {
   transform: translate(-50%, -50%);
 }
 
-/* Adds restrained motion only while the optional graph package is loading. */
+/* Uses a static accent while loading so the graph surface never pulses. */
 .graph-canvas.loading::before {
   border-color: color-mix(in srgb, var(--mint) 45%, var(--line));
   color: var(--mint);
-  animation: graph-status-pulse 1.2s ease-in-out infinite alternate;
 }
 
 /* Uses the error color for the visible fallback without hiding other views. */
@@ -1668,10 +1691,19 @@ main {
   color: var(--red);
 }
 
-/* Keeps graph loading feedback calm enough for a learning workspace. */
-@keyframes graph-status-pulse {
-  from { opacity: 0.62; }
-  to { opacity: 1; }
+/*
+ * Honors operating-system motion preferences across loading feedback, hover
+ * movement, and decorative effects for learners sensitive to animation.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Code execution heatmap */
