@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260720-6" />
+    <link rel="stylesheet" href="styles.css?v=20260720-7" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -109,6 +109,14 @@
                     <option value="22">22 px</option>
                   </select>
                 </label>
+                <!-- Copy exports the entire Python document regardless of the current selection. -->
+                <button class="editor-tool-button editor-clipboard-button" id="editorCopyButton" type="button">
+                  Copy
+                </button>
+                <!-- Paste replaces the entire document through the same safe editor update path as examples. -->
+                <button class="editor-tool-button editor-clipboard-button" id="editorPasteButton" type="button">
+                  Paste
+                </button>
                 <!-- The filename remains visible as orientation for the single-file MVP. -->
                 <span class="file-label">main.py</span>
               </div>
@@ -348,6 +356,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260720-13"></script>
+    <script type="module" src="app.js?v=20260720-14"></script>
   </body>
 </html>

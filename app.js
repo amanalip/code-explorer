@@ -237,7 +237,8 @@ const els = Object.fromEntries(
   [
     "runtimeStatus", "runtimeLabel", "themeButton", "themeIcon", "welcomeScreen", "workspace",
     "heroExampleButton", "backButton", "examplesButton", "runButton", "stopButton",
-    "editor", "editorShell", "editorWrapButton", "editorFontSizeSelect", "codeStats", "storyTab", "variablesTab", "referencesTab", "flowTab",
+    "editor", "editorShell", "editorWrapButton", "editorFontSizeSelect", "editorCopyButton", "editorPasteButton",
+    "codeStats", "storyTab", "variablesTab", "referencesTab", "flowTab",
     "loopTab", "loopBadge", "storyView", "variablesView", "referencesView", "flowView", "loopView",
     "emptyStory", "traceContent", "traceKicker", "executedCode", "explanation", "changeList",
     "stepOutputSection", "stepOutput", "variablesGrid", "callStackSection", "callStack",
@@ -547,6 +548,109 @@ function setCode(code) {
   }
   updateCodeStats();
   if (els.workspace) clearTrace();
+}
+
+/**
+ * Copies text through a temporary native textarea when the modern Clipboard API is unavailable.
+ * This legacy path mainly supports local file previews and older browser configurations.
+ * @param {string} text Complete Python source that should reach the system clipboard.
+ * @returns {boolean} Whether the browser reported a successful copy operation.
+ */
+function copyTextWithNativeFallback(text) {
+  // Preserve the control that held focus before creating the hidden copy surface.
+  const previouslyFocused = document.activeElement;
+  // The temporary control must be part of the document for selection-based copy to work.
+  const textarea = document.createElement("textarea");
+  // Assigning through value preserves source whitespace without interpreting markup.
+  textarea.value = text;
+  // Remove the control from visual layout and accessibility navigation while it exists.
+  textarea.setAttribute("aria-hidden", "true");
+  textarea.tabIndex = -1;
+  // Fixed positioning prevents the browser from scrolling to the temporary selection.
+  textarea.style.position = "fixed";
+  textarea.style.inset = "0 auto auto 0";
+  textarea.style.width = "1px";
+  textarea.style.height = "1px";
+  textarea.style.opacity = "0";
+  document.body.append(textarea);
+  // Selection occurs synchronously inside the original button activation.
+  textarea.focus();
+  textarea.select();
+  let copied = false;
+  try {
+    // execCommand is retained only as a compatibility fallback for clipboard writing.
+    copied = document.execCommand("copy");
+  } catch (error) {
+    console.warn("Code Explorer native copy fallback failed.", error);
+  }
+  // Removing the temporary element returns focus handling to the visible interface.
+  textarea.remove();
+  // Restore focus without scrolling so fallback copying feels identical to modern copying.
+  previouslyFocused?.focus?.({ preventScroll: true });
+  return copied;
+}
+
+/**
+ * Copies the complete editor document rather than only the current selection.
+ * A native fallback keeps Copy useful in some local or older browser contexts.
+ * @returns {Promise<void>} Resolves after success or a visible failure message.
+ */
+async function copyCompleteEditor() {
+  const code = getCode();
+  // Avoid silently clearing an existing clipboard when the editor has no content.
+  if (!code) {
+    showToast("The editor is empty. There is nothing to copy.");
+    return;
+  }
+  try {
+    if (navigator.clipboard?.writeText) {
+      // Modern clipboard writing is asynchronous and requires a trusted button action.
+      await navigator.clipboard.writeText(code);
+    } else if (!copyTextWithNativeFallback(code)) {
+      // A false result indicates that neither available copy mechanism succeeded.
+      throw new Error("No clipboard writing method is available.");
+    }
+    const lineCount = code.split("\n").length;
+    showToast(`Copied the complete program (${lineCount} line${lineCount === 1 ? "" : "s"}).`);
+  } catch (error) {
+    // Some browsers reject the modern API but still permit selection-based copying.
+    if (copyTextWithNativeFallback(code)) {
+      showToast("Copied the complete program.");
+      return;
+    }
+    console.warn("Code Explorer could not copy editor source.", error);
+    showToast("Copy was blocked. Select the editor and use Ctrl+C instead.", true);
+  }
+}
+
+/**
+ * Reads plain text from the system clipboard and replaces the complete editor document.
+ * setCode preserves autosave, source statistics, undo history, and stale-trace cleanup.
+ * @returns {Promise<void>} Resolves after paste or a visible permission message.
+ */
+async function pasteCompleteEditor() {
+  try {
+    // Reading is intentionally called directly from the button event for transient activation.
+    if (!navigator.clipboard?.readText) {
+      throw new Error("Clipboard reading is unavailable in this browser context.");
+    }
+    const clipboardText = await navigator.clipboard.readText();
+    // An empty clipboard should not unexpectedly erase a learner's current program.
+    if (!clipboardText) {
+      showToast("The clipboard contains no text to paste.");
+      return;
+    }
+    // The shared replacement path works for CodeMirror and its native fallback editor.
+    setCode(clipboardText);
+    const lineCount = clipboardText.split("\n").length;
+    showToast(`Pasted a complete program (${lineCount} line${lineCount === 1 ? "" : "s"}).`);
+    // Returning focus lets the learner continue typing or immediately undo the paste.
+    state.editorView?.focus();
+    state.fallbackEditor?.focus();
+  } catch (error) {
+    console.warn("Code Explorer could not read clipboard text.", error);
+    showToast("Paste permission was blocked. Focus the editor and use Ctrl+V instead.", true);
+  }
 }
 
 /**
@@ -2148,6 +2252,9 @@ function bindEvents() {
   // Editor display controls update presentation without altering or retracing source code.
   els.editorWrapButton?.addEventListener("click", toggleEditorWrapping);
   els.editorFontSizeSelect?.addEventListener("change", (event) => changeEditorFontSize(event.target.value));
+  // Clipboard buttons operate on the complete document for fast program transfer.
+  els.editorCopyButton?.addEventListener("click", copyCompleteEditor);
+  els.editorPasteButton?.addEventListener("click", pasteCompleteEditor);
   els.heroExampleButton?.addEventListener("click", openExamples);
   els.backButton?.addEventListener("click", (event) => {
     event.preventDefault();

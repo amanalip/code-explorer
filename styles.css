@@ -788,6 +788,11 @@ main {
   color: var(--mint);
 }
 
+/* Separates source-transfer actions slightly from display-only editor settings. */
+.editor-font-control + .editor-clipboard-button {
+  margin-left: 2px;
+}
+
 /* Groups the visible Font label and native size selector as one accessible control. */
 .editor-font-control {
   display: flex;
@@ -2370,7 +2375,16 @@ main {
 
   /* Preserves room for the useful editor controls on narrow phone headers. */
   .editor-panel .panel-header {
-    padding: 0 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: auto;
+    padding: 8px 10px;
+  }
+
+  /* Places all editor actions on a dedicated row below the panel title on phones. */
+  .editor-header-tools {
+    width: 100%;
+    justify-content: flex-end;
   }
 
   /* The panel title already identifies the editor, so the filename can yield space on phones. */
