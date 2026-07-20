@@ -453,6 +453,8 @@ function statementKind(source, event, step) {
 
 function explainStep(step, changes) {
   const line = step.source.trim();
+  const previousStep = state.currentStep > 0 ? state.trace[state.currentStep - 1] : null;
+  const enteredFrame = previousStep && (step.frames?.length || 0) > (previousStep.frames?.length || 0);
   if (step.event === "exception") {
     return `Python stopped here because ${step.detail?.type || "an error"} occurred: ${step.detail?.message || "unknown error"}.`;
   }
@@ -462,6 +464,20 @@ function explainStep(step, changes) {
     if (step.frames?.length > 1) return `Python finished this function step and prepared to return ${value ?? "its result"}.`;
   }
   if (isLoopExitStep(step)) return "The loop has no more iterations, so Python continued with the code below it.";
+  if (enteredFrame) {
+    const frame = step.frames.at(-1);
+    const assignedName = line.match(/^([A-Za-z_]\w*)\s*=/)?.[1];
+    const argumentsList = changes
+      .filter((change) => change.kind === "created" && change.name !== assignedName)
+      .map((change) => `${change.name} set to ${change.newValue}`)
+      .join(", ");
+    const assignment = changes.find((change) => change.name === assignedName);
+    const enteredText = argumentsList ? ` with ${argumentsList}` : "";
+    const assignmentText = assignment
+      ? `, then created ${assignment.name} with the value ${assignment.newValue}`
+      : "";
+    return `Python entered ${frame.name}()${enteredText}${assignmentText}.`;
+  }
   if (/^for\s+(.+?)\s+in\s+(.+):$/.test(line)) {
     const match = line.match(/^for\s+(.+?)\s+in\s+(.+):$/);
     return `Python took the next value from ${match[2]} and stored it in ${match[1]}.`;
