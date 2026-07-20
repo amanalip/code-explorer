@@ -649,6 +649,13 @@ async function pasteCompleteEditor() {
     state.fallbackEditor?.focus();
   } catch (error) {
     console.warn("Code Explorer could not read clipboard text.", error);
+    // A modal alert guarantees that a blocked clipboard permission cannot be
+    // missed while the learner is concentrating on the editor or another panel.
+    window.alert(
+      "Clipboard permission is blocked.\n\nAllow clipboard access for this site and try Paste again. You can also focus the editor and press Ctrl+V.",
+    );
+    // Keep the non-modal toast after dismissal so the recovery instruction
+    // remains visible while the learner changes browser permissions or pastes manually.
     showToast("Paste permission was blocked. Focus the editor and use Ctrl+V instead.", true);
   }
 }
