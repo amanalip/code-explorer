@@ -20,8 +20,10 @@
   --line: #242b37;
   --line-bright: #384355;
   --text: #ecf4f1;
-  --text-soft: #a1adb8;
-  --text-dim: #66717c;
+  /* Secondary copy stays visibly distinct without becoming faint on dark panels. */
+  --text-soft: #b4c0ca;
+  /* Tiny technical labels need stronger contrast than decorative background details. */
+  --text-dim: #87939e;
   --mint: #63f3c0;
   --mint-soft: rgba(99, 243, 192, 0.12);
   --purple: #a98bff;
@@ -66,8 +68,10 @@
   --line: #d6ddd6;
   --line-bright: #bbc7bd;
   --text: #17211e;
-  --text-soft: #52605b;
-  --text-dim: #7b8882;
+  /* Secondary copy uses a darker value so normal-weight text remains easy to scan. */
+  --text-soft: #46544f;
+  /* Small labels pass a stronger contrast threshold against the light surfaces. */
+  --text-dim: #5f6c67;
   --mint: #087f5b;
   --mint-soft: rgba(8, 127, 91, 0.1);
   --purple: #6d4bd3;
@@ -1593,7 +1597,8 @@ main {
   background:
     linear-gradient(90deg, var(--mint-soft), transparent 45%),
     var(--bg-raised);
-  font: 500 0.6rem/1.45 var(--mono);
+  /* Eleven-and-a-half pixel copy is the minimum comfortable size for this compact toolbar. */
+  font: 500 0.72rem/1.5 var(--mono);
 }
 
 /* Keeps the compact map label and explanation aligned as one readable unit. */
@@ -1618,7 +1623,8 @@ main {
   border-radius: 999px;
   color: var(--mint);
   background: var(--panel-solid);
-  font: 700 0.48rem/1 var(--mono);
+  /* The pill remains compact while avoiding the blurred look of sub-nine-pixel text. */
+  font: 700 0.6rem/1 var(--mono);
   letter-spacing: 0.08em;
 }
 
@@ -1630,7 +1636,8 @@ main {
   border-radius: 7px;
   color: var(--text);
   background: var(--panel-solid);
-  font: 600 0.58rem/1 var(--mono);
+  /* Utility actions use a full readable size because they are interactive text. */
+  font: 600 0.7rem/1 var(--mono);
   cursor: pointer;
 }
 

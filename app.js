@@ -1474,7 +1474,21 @@ function graphPalette() {
     mint: token("--mint"),
     purple: token("--purple"),
     cyan: token("--cyan"),
+    // Cytoscape draws text onto canvas, so it needs the resolved project font
+    // instead of inheriting the surrounding HTML element's font declaration.
+    mono: token("--mono"),
   };
+}
+
+/**
+ * Chooses a crisp but memory-conscious backing resolution for graph canvases.
+ * Cytoscape normally follows the browser device ratio, which is often 1 on
+ * desktop Linux. A minimum ratio of 2 gives small canvas labels enough pixels
+ * to render cleanly, while the upper cap prevents excessive GPU memory usage.
+ * @returns {number} Canvas pixels to render for each CSS pixel.
+ */
+function graphPixelRatio() {
+  return Math.min(3, Math.max(2, window.devicePixelRatio || 1));
 }
 
 /**
@@ -1571,14 +1585,30 @@ async function renderReferenceMap() {
   state.referencesGraph = cytoscape({
     container: els.referencesGraph,
     elements: referenceElements(state.trace[state.currentStep]),
+    // A denser backing canvas removes the fuzzy edges seen on standard-density
+    // Linux displays without changing the graph's physical dimensions.
+    pixelRatio: graphPixelRatio(),
+    // Stop very large maps from shrinking labels below a usable reading size.
+    // Learners can pan the canvas when a program contains many objects.
+    minZoom: 0.7,
+    // A moderate upper limit prevents accidental extreme zooming on trackpads.
+    maxZoom: 2.5,
     layout: { name: "breadthfirst", directed: true, padding: 28, spacingFactor: 1.25 },
     style: [
-      { selector: "node", style: { "background-color": colors.panel, "border-color": colors.line, "border-width": 1, color: colors.text, label: "data(label)", "font-family": "monospace", "font-size": 10, "text-wrap": "wrap", "text-max-width": 115, "text-valign": "center", "text-halign": "center", width: 105, height: 48 } },
-      { selector: 'node[kind = "scope"]', style: { "background-color": colors.purple, color: colors.panel, shape: "round-rectangle", width: 118, height: 34, "font-weight": 700 } },
-      { selector: 'node[kind = "name"]', style: { "border-color": colors.cyan, color: colors.cyan, shape: "round-rectangle", width: 88, height: 34 } },
+      // Graph text is deliberately larger than decorative UI text because
+      // learners must be able to read values without zooming the whole page.
+      { selector: "node", style: { "background-color": colors.panel, "border-color": colors.line, "border-width": 1.5, color: colors.text, label: "data(label)", "font-family": colors.mono, "font-size": 12, "font-weight": 500, "line-height": 1.25, "text-wrap": "wrap", "text-max-width": 132, "text-valign": "center", "text-halign": "center", width: 124, height: 58 } },
+      // Scope headings receive extra weight and room so uppercase letters do
+      // not crowd together on the colored background.
+      { selector: 'node[kind = "scope"]', style: { "background-color": colors.purple, color: colors.panel, shape: "round-rectangle", width: 142, height: 44, "font-size": 13, "font-weight": 700 } },
+      // Variable names are slightly wider than before, preventing common
+      // beginner-friendly identifiers from wrapping unnecessarily.
+      { selector: 'node[kind = "name"]', style: { "border-color": colors.cyan, "border-width": 2, color: colors.cyan, shape: "round-rectangle", width: 108, height: 42, "font-weight": 600 } },
       { selector: 'node[kind = "object"]', style: { "border-color": colors.mint, shape: "round-rectangle" } },
       { selector: "node.changed", style: { "border-color": colors.mint, "border-width": 3, "background-color": colors.panel } },
-      { selector: "edge", style: { width: 1.4, "line-color": colors.line, "target-arrow-color": colors.mint, "target-arrow-shape": "triangle", "curve-style": "bezier", label: "data(label)", color: colors.dim, "font-size": 8, "text-background-color": colors.panel, "text-background-opacity": 0.9, "text-background-padding": 2 } },
+      // Edge captions now use a readable ten-pixel minimum, a solid label
+      // backing, and the same project font as their connected nodes.
+      { selector: "edge", style: { width: 1.6, "line-color": colors.line, "target-arrow-color": colors.mint, "target-arrow-shape": "triangle", "curve-style": "bezier", label: "data(label)", color: colors.dim, "font-family": colors.mono, "font-size": 10, "font-weight": 600, "text-background-color": colors.panel, "text-background-opacity": 1, "text-background-padding": 3 } },
     ],
   });
   // Remove the temporary overlay only after Cytoscape owns the canvas.
@@ -1651,11 +1681,25 @@ async function renderFlowMap() {
   state.flowGraph = cytoscape({
     container: els.flowGraph,
     elements: flowElements(),
-    layout: { name: "breadthfirst", directed: true, padding: 30, spacingFactor: 1.35 },
+    // Match the reference map's high-resolution canvas so both graph modes
+    // have equally crisp labels in light and dark themes.
+    pixelRatio: graphPixelRatio(),
+    // Preserve a readable floor for larger traces. Overflow remains pannable
+    // inside the canvas instead of compressing every label into tiny pixels.
+    minZoom: 0.7,
+    // Keep trackpad and mouse-wheel zooming within a predictable teaching view.
+    maxZoom: 2.5,
+    // A compact spacing factor lets typical beginner programs fit near their
+    // natural label size instead of being reduced to roughly half scale.
+    layout: { name: "breadthfirst", directed: true, padding: 24, spacingFactor: 0.78 },
     style: [
-      { selector: "node", style: { "background-color": colors.panel, "border-color": colors.line, "border-width": 1, color: colors.text, label: "data(label)", shape: "round-rectangle", width: 150, height: 52, "font-family": "monospace", "font-size": 9, "text-wrap": "wrap", "text-max-width": 135, "text-valign": "center", "text-halign": "center" } },
+      // Flow nodes contain source plus visit counts, so they need more width,
+      // height, and line spacing than a single compact interface label.
+      { selector: "node", style: { "background-color": colors.panel, "border-color": colors.line, "border-width": 1.5, color: colors.text, label: "data(label)", shape: "round-rectangle", width: 176, height: 66, "font-family": colors.mono, "font-size": 11.5, "font-weight": 500, "line-height": 1.25, "text-wrap": "wrap", "text-max-width": 158, "text-valign": "center", "text-halign": "center" } },
       { selector: "node.current", style: { "background-color": colors.mint, "border-color": colors.mint, color: colors.panel, "border-width": 3 } },
-      { selector: "edge", style: { width: 1.5, "line-color": colors.line, "target-arrow-color": colors.mint, "target-arrow-shape": "triangle", "curve-style": "bezier", label: "data(label)", color: colors.purple, "font-size": 9 } },
+      // Loop counts are meaningful data rather than decoration, so their
+      // labels use stronger weight, contrast, and an opaque background.
+      { selector: "edge", style: { width: 1.6, "line-color": colors.line, "target-arrow-color": colors.mint, "target-arrow-shape": "triangle", "curve-style": "bezier", label: "data(label)", color: colors.purple, "font-family": colors.mono, "font-size": 10.5, "font-weight": 700, "text-background-color": colors.panel, "text-background-opacity": 1, "text-background-padding": 3 } },
       { selector: "edge.loop-edge", style: { "line-color": colors.purple, "target-arrow-color": colors.purple, "line-style": "dashed" } },
     ],
   });
