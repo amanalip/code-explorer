@@ -45,6 +45,10 @@ The tool records a bounded execution first and then replays it. Playback breakpo
 - Execution-line focus and heatmap decorations.
 - Clickable replay breakpoints in the line-number gutter.
 - Source line and character statistics.
+- Automatic Learning Comments generated from parsed syntax and the completed trace.
+- Essential, Guided, and Detailed comment levels in a separate preview.
+- Complete commented-document copy and confirmation-gated editor replacement.
+- Generated-line deduplication through the `# Code Explorer:` prefix while learner comments remain intact.
 
 ### Trace area
 
@@ -85,13 +89,15 @@ The tool records a bounded execution first and then replays it. Playback breakpo
 
 ### Examples and guidance
 
-- 18 curated examples grouped by concept and difficulty.
+- 54 curated examples grouped into seven concept categories and three difficulty levels.
 - Category-filterable starter-program library.
+- Sticky filters, accurate source-line counts, and prepared input for input-driven examples.
+- Twelve 15 to 20 line Guided Challenge programs that combine earlier concepts.
 - Extensive README walkthroughs, question maps, workflows, expected behavior, troubleshooting, and glossary.
 
-## Approved next capability
+### Automatic Learning Comments
 
-Automatic Learning Comments has been approved but is not implemented yet.
+Automatic Learning Comments is implemented. It creates a study copy after a trace instead of silently rewriting learner source.
 
 The safe intended behavior is:
 
@@ -110,7 +116,7 @@ Separate commented preview
           +-- Replace editor only after confirmation
 ```
 
-Required guarantees:
+Implemented guarantees:
 
 - The original source remains unchanged by default.
 - Existing comments, indentation, and blank lines are preserved.
@@ -118,7 +124,7 @@ Required guarantees:
 - Repeated loop values are described carefully and are not presented as one universal value.
 - Unsupported or ambiguous constructs receive no invented explanation.
 - Comment-generation failure cannot break tracing, playback, or source editing.
-- The feature is tested against every included example plus error and unsupported cases.
+- The feature is validated against all 54 included examples plus syntax-error, runtime-error, repeated-line, and unsupported cases.
 - `README.md`, this file, and relevant source comments are updated in the same change.
 - `lessons_learned.md` records what the feature teaches the project during implementation and testing.
 
@@ -181,10 +187,12 @@ runCode()
 py-worker.js run_trace()
    |
    +-- parse AST metadata
+   +-- create conservative statement explanations
    +-- execute with sys.settrace
    +-- stop at 3,000 steps
    +-- serialize visible scopes safely
    +-- capture stdout and exceptions
+   +-- combine structure with observed values, counts, and outcomes
    |
    v
 loadResult()
@@ -193,6 +201,7 @@ loadResult()
    +-- loops and conditions
    +-- console output
    +-- error information
+   +-- learningComments metadata
    |
    v
 renderStep()
@@ -205,15 +214,20 @@ renderStep()
    +-- console at selected time
 ```
 
+The `learningComments` result contains JSON-compatible records with `line`, `level`, `kind`, and `text`. `line` connects a note to one source line. `level` ranges from 1 through 3 for Essential, Guided, and Detailed filtering. `kind` supports future presentation decisions. `text` contains conservative learner-facing prose.
+
 ## Important state relationships
 
 - `state.trace` is the recorded playback timeline.
+- `state.learningComments` contains comment metadata for the current source and current run only.
 - `state.currentStep` selects the snapshot used by most views.
 - Changing editor source invalidates the recorded trace.
 - Worker results are separated into `state.trace`, `state.loops`, `state.conditions`, `state.error`, and `state.inputLog`. Console output is retained inside each trace snapshot so moving backward reconstructs the output visible at that moment.
 - Watches, bookmarks, comparisons, breakpoints, graph instances, editor preferences, and learning preferences have different lifetimes. Check their initialization and clearing behavior before reusing them.
 - CodeMirror and the textarea fallback must both use `getCode()` and `setCode()` so features do not depend on one editor implementation.
 - A view renderer must handle the empty state, a normal selected step, missing metadata, and an error result.
+- Editing or replacing source clears `state.learningComments` because runtime facts from the old source are stale.
+- `buildLearningCommentedSource()` removes only older lines beginning with the exact generated prefix, preserves learner comments, and inserts current notes above their related source lines.
 
 ## Persistence inventory
 
@@ -230,6 +244,8 @@ renderStep()
 | Trace bookmarks | Current trace only |
 | Replay breakpoint markers | Current page session, retained across reruns but not reloads |
 | Run comparisons | Current page session only |
+| Learning-comment metadata and preview | Current trace only |
+| Commented source after confirmed replacement | Becomes ordinary locally saved editor source |
 
 When adding persistence, validate parsed values and merge them with safe defaults. A malformed stored value must not prevent application initialization.
 
@@ -244,6 +260,10 @@ When adding persistence, validate parsed values and merge them with safe default
 - Only frames belonging to the learner's virtual file enter the educational call stack.
 - Graphs are conceptual views and must not claim to show physical RAM addresses.
 - Learner strings rendered as markup must be escaped.
+- Generated comments must never claim an unobserved value or path.
+- Exception events must suppress ambiguous completion, loop, and condition counts for the failing line. Python frame unwinding can otherwise make one failure resemble repeated completion.
+- Comment preview, copying, and closing must leave the editor unchanged.
+- Complete-document replacement must remain behind an explicit confirmation.
 
 ## Recurring implementation recipes
 
@@ -284,6 +304,28 @@ When adding persistence, validate parsed values and merge them with safe default
 4. Inspect its Story, Variables, relevant specialist view, and final output.
 5. Update the README catalog and suggested learning route.
 6. Update the exact example count in this file and any learner-facing interface comment that states it.
+
+Current library invariants:
+
+| Dimension | Required value |
+| --- | --- |
+| Total | 54 |
+| Categories | Foundations 8, Decisions 7, Loops 11, Functions and Scope 8, Collections 10, References and Mutation 4, Input and Debugging 6 |
+| Levels | Beginner 19, Developing 22, Guided Challenge 13 |
+| Extended programs | 12 programs from 15 through 20 source lines |
+| Intentional failures | `IndexError`, `ValueError`, and `KeyError` in three named debugging examples |
+
+### Change Automatic Learning Comments
+
+1. Keep structural explanations in the worker's Python AST pass and observed facts in the trace-derived evidence pass.
+2. Return finite plain metadata. Do not return a prewritten replacement document from the worker.
+3. Keep level numbers stable: 1 Essential, 2 Guided, 3 Detailed.
+4. Use observed facts only when the selected source line and trace support them.
+5. Prefer no comment over a clever but uncertain explanation.
+6. Preserve the exact `# Code Explorer:` prefix unless migration behavior is designed and documented.
+7. Test original-source preservation, all detail levels, copy, cancel, confirmed replacement, rerun deduplication, existing learner comments, blank lines, and indentation.
+8. Run the full 54-example corpus because it covers loops, nested conditions, functions, recursion, collections, aliases, shallow copies, input, and intentional errors.
+9. Inspect representative prose manually. Schema validation can catch missing fields, but it cannot catch awkward language or misleading numeric formatting.
 
 ### Add or change a graph
 
@@ -375,6 +417,27 @@ print(numbers[5])
 if True
     print("missing colon")
 ```
+
+### Learning-comment preservation
+
+```python
+# This learner comment must remain.
+total = 0
+for number in range(1, 4):
+    total += number
+print(total)
+```
+
+Verify all three detail levels, copy, cancel, replacement, and a second generation without duplicate `# Code Explorer:` lines.
+
+## Current validation evidence
+
+- All 54 starter sources parse as valid Python.
+- All 54 were executed with their prepared inputs. Only the three intentionally failing debugging programs raised their documented errors.
+- The complete corpus produced 421 learning-comment records during automated validation, with valid line numbers, levels, kinds, and nonempty text.
+- Manual prose review caught and corrected awkward `elif` wording and overly noisy floating-point values. This is a permanent reason to combine automated schema checks with human reading.
+- Browser testing of an intentional `IndexError` caught and corrected a false repeated-completion count caused by exception and frame-exit events sharing one line.
+- A browser run using Pyodide confirmed the default repeated loop produced a 12-step trace, enabled Learning comments, and reported three loop-body entries.
 
 ## Documentation completion test
 

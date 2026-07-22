@@ -39,6 +39,7 @@ Never claim that Code Explorer supports behavior that has not been implemented a
 - `README.md`: public beginner guide for using Code Explorer and understanding its features.
 - `SKILLS.md`: internal project knowledge, capability ledger, recurring implementation recipes, and verification guidance.
 - `lessons_learned.md`: living post-mortem containing reusable product and engineering lessons from the user and Codex perspectives.
+- `changelog.md`: dated learner-visible release history, verification notes, compatibility boundaries, and upgrade guidance.
 - `LICENSE`: GPL license text. Do not modify it while adding explanatory material.
 
 ## Required workflow for every change
@@ -51,8 +52,9 @@ Never claim that Code Explorer supports behavior that has not been implemented a
 6. Update `README.md` whenever the learner-visible interface, behavior, examples, limits, privacy, persistence, workflow, or expected result changes.
 7. Update `SKILLS.md` whenever a capability, dependency, data contract, recurring implementation pattern, project boundary, risk, or validation requirement changes.
 8. Update `lessons_learned.md` whenever the work produces a reusable discovery, mistake, correction, successful pattern, deferred decision, or new contributor rule.
-9. Run proportional syntax, static, and browser checks.
-10. Inspect the final diff for unrelated edits, stale comments, and forbidden dash characters.
+9. Update `changelog.md` when a versioned learner-visible feature, example-library expansion, limit, compatibility boundary, or material correction ships.
+10. Run proportional syntax, static, content, and browser checks.
+11. Inspect the final diff for unrelated edits, stale comments, inconsistent counts, and forbidden dash characters.
 
 A purely internal refactor does not need artificial material added to the public guide. It still requires an explicit README review, and `SKILLS.md` must be updated if the internal working knowledge changed.
 
@@ -137,18 +139,40 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Run syntax-error and runtime-error cases.
 - Confirm the 3,000-step limit and 30-second timeout still produce clear messages when execution work changes.
 
+### Automatic Learning Comments checks
+
+- Confirm the button is disabled before a useful trace and enabled after a supported completed run.
+- Confirm Essential, Guided, and Detailed produce progressively richer previews without changing the source.
+- Confirm learner-written comments, blank lines, and indentation remain intact.
+- Confirm **Copy commented code** copies the complete generated document.
+- Confirm **Replace editor** requires confirmation, clears the stale trace, and saves the new source only after confirmation.
+- Rerun commented source and confirm older `# Code Explorer:` lines are replaced rather than duplicated.
+- Confirm repeated loop lines describe counts or changing behavior without claiming one universal value.
+- Confirm runtime-error traces explain only available evidence and syntax errors leave the feature disabled.
+- Confirm an unsupported statement receives no invented explanation.
+
+### Starter library checks
+
+- Confirm the library contains exactly 54 examples across the documented seven categories.
+- Confirm category counts are 8 Foundations, 7 Decisions, 11 Loops, 8 Functions and Scope, 10 Collections, 4 References and Mutation, and 6 Input and Debugging.
+- Confirm difficulty counts are 19 Beginner, 22 Developing, and 13 Guided Challenge.
+- Parse every example as Python before shipping.
+- Execute every example with its prepared input and confirm only the three intentional debugging programs stop with their documented exceptions.
+- Confirm cards display accurate line counts and filters report accurate visible and total counts.
+- Inspect Story, the primary specialist views, output, and generated learning comments across representative short and 15 to 20 line examples.
+
 ## Documentation synchronization
 
 Use this mapping during every change:
 
-| Change | README.md | SKILLS.md | lessons_learned.md |
-| --- | --- | --- | --- |
-| New learner feature | Explain purpose, controls, workflow, examples, and expected behavior | Record components, state, data, risks, and tests | Record reusable product or implementation insight |
-| Changed interface text or navigation | Update names, maps, and walkthroughs | Update selectors or event-flow knowledge if affected | Record the reason when it teaches a broader lesson |
-| New example | Update catalog and suggested learning route | Record example schema or coverage changes | Record curriculum insight when relevant |
-| Changed limit or supported behavior | Update limits and troubleshooting | Update safety boundaries and tests | Record the evidence and tradeoff behind the decision |
-| New saved preference | Update persistence and privacy guidance | Record key, default, validation, and reset behavior | Record a lesson when persistence behavior was surprising |
-| Internal refactor only | Review for accuracy, edit only if learner behavior changed | Update file ownership or implementation recipe if changed | Update only when a reusable pattern or correction emerged |
-| Bug fix | Correct any affected expected behavior or troubleshooting text | Record a reusable regression check | Preserve the cause, correction, and prevention lesson |
+| Change | README.md | SKILLS.md | lessons_learned.md | changelog.md |
+| --- | --- | --- | --- | --- |
+| New learner feature | Explain purpose, controls, workflow, examples, and expected behavior | Record components, state, data, risks, and tests | Record reusable product or implementation insight | Add it to the current dated version |
+| Changed interface text or navigation | Update names, maps, and walkthroughs | Update selectors or event-flow knowledge if affected | Record the reason when it teaches a broader lesson | Record it when the change is release-relevant |
+| New example | Update catalog and suggested learning route | Record schema, counts, and coverage changes | Record curriculum insight when relevant | Record the new total and curriculum purpose |
+| Changed limit or supported behavior | Update limits and troubleshooting | Update safety boundaries and tests | Record evidence and tradeoff | State old and new behavior clearly |
+| New saved preference | Update persistence and privacy guidance | Record key, default, validation, and reset behavior | Record a lesson when persistence behavior was surprising | State persistence behavior when learner-visible |
+| Internal refactor only | Review for accuracy, edit only if learner behavior changed | Update file ownership or implementation recipe if changed | Update only when a reusable pattern or correction emerged | Usually no entry |
+| Bug fix | Correct affected expected behavior or troubleshooting text | Record a reusable regression check | Preserve cause, correction, and prevention | Record material learner-visible corrections |
 
 Documentation work is part of feature completion, not a later cleanup task.

@@ -1,0 +1,212 @@
+# Code Explorer changelog
+
+This changelog records learner-visible releases of Code Explorer. It explains what changed, why it matters to a beginner, what was verified, and which boundaries still apply.
+
+```text
+VERSION ENTRY
+|
++-- Date
++-- Learner-visible additions
++-- Changed behavior
++-- Documentation and accessibility
++-- Verification evidence
++-- Known boundaries
+```
+
+Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
+
+## v2, 2026-07-21
+
+### Automatic Learning Comments
+
+Code Explorer can now generate a separate commented study copy after a trace completes.
+
+```text
+Python source
+      +
+Parsed statement structure
+      +
+Observed trace evidence
+      |
+      v
+Learning-comment metadata
+      |
+      v
+Separate preview
+      |
+      +-- Copy complete commented source
+      +-- Replace editor after confirmation
+```
+
+Added behavior:
+
+- **Learning comments** becomes available only after the current source produces useful trace evidence.
+- Essential, Guided, and Detailed levels let a learner control explanation density.
+- Notes cover supported assignments, conditions, loops, function behavior, input, output, returns, mutations, and error-related statements.
+- Runtime evidence can add observed assignment values, execution counts, loop body counts, and condition outcomes.
+- Repeated values are described as repeated behavior rather than one universal value.
+- The preview preserves the original source by default.
+- **Copy commented code** copies the complete generated document.
+- **Replace editor** requires explicit confirmation and clears the old trace after replacement.
+- Learner-written comments, indentation, and blank lines are preserved.
+- Generated notes use the prefix `# Code Explorer:`. Older lines with that exact prefix are removed before a new generation so repeated use does not stack duplicate generated comments.
+- Unsupported or ambiguous statements receive no invented explanation.
+- Syntax errors leave the feature disabled because no valid parsed program or runtime trace exists.
+- Runtime errors may still produce notes for statements supported by evidence recorded before the failure.
+- A failing line names its observed exception and does not use frame-unwinding events as a false completion count.
+
+### Expanded 54-program curriculum
+
+The starter library grew from 18 to 54 programs. The aim is repeated practice with varied structure, not a long list of nearly identical snippets.
+
+| Category | Programs |
+| --- | ---: |
+| Foundations | 8 |
+| Decisions | 7 |
+| Loops | 11 |
+| Functions and Scope | 8 |
+| Collections | 10 |
+| References and Mutation | 4 |
+| Input and Debugging | 6 |
+| Total | 54 |
+
+Difficulty distribution:
+
+| Level | Programs | Purpose |
+| --- | ---: | --- |
+| Beginner | 19 | Isolate one primary idea |
+| Developing | 22 | Combine two or more familiar ideas |
+| Guided Challenge | 13 | Read and experiment with complete small programs |
+
+Curriculum improvements:
+
+- Important ideas have multiple examples with different variable structures and complexity.
+- Eleven loop examples cover accumulators, counters, running maximums, `for`, several `while` patterns, `break`, `continue`, filtering, nested loops, mutation, and summary reports.
+- Function examples progress from one call to defaults, local and global scope, multiple returns, nested calls, recursion, and a multi-function pipeline.
+- Collection examples cover lists, tuples, sets, dictionaries, matrices, nested records, gradebooks, and inventory data.
+- Reference examples contrast aliases, reassignment, mutation, shallow outer copies, and shared nested objects.
+- Input and debugging examples cover prepared responses, validation, conversion, and intentional `IndexError`, `ValueError`, and `KeyError` investigations.
+- Twelve programs contain 15 to 20 source lines so beginners can practice reading complete small programs.
+- Cards display exact source-line counts.
+- The filter toolbar remains visible while scrolling the larger dialog.
+- Category labels were revised to describe the curriculum more accurately.
+
+### Documentation and project learning
+
+- README.md now documents Automatic Learning Comments with workflows, safety rules, examples, persistence behavior, and troubleshooting.
+- README.md now contains the complete 54-program catalog, learning ladders, and clearer routes through the expanded library.
+- The Python concepts glossary now connects definitions to examples, common misunderstandings, and the most useful Code Explorer views.
+- AGENTS.md now requires comment-feature checks, exact starter-library invariants, changelog synchronization, and content audits.
+- SKILLS.md now records the learning-comment data contract, state lifetime, transformation rules, example counts, validation evidence, and recurring test recipes.
+- lessons_learned.md now records the user and Codex lessons from revisiting example scale, using generated comments conservatively, and testing prose as well as schemas.
+
+### v2 verification evidence
+
+- Exactly 54 examples were found in the application data.
+- Every example parsed as valid Python.
+- Every example was executed with its prepared inputs.
+- Only the three intentionally failing debugging examples raised their expected exception types.
+- All category and difficulty totals matched their documented counts.
+- Exactly 12 examples contained 15 to 20 source lines.
+- The full example corpus generated 421 valid learning-comment records during automated validation.
+- Representative generated prose was reviewed manually. Awkward `elif` wording and noisy floating-point representations were found and corrected.
+- An intentional `IndexError` browser run exposed a false repeated-completion count from exception propagation. The release logic now suppresses ambiguous counts and reports the exception instead.
+- A real browser Pyodide run confirmed repeated-loop evidence and Learning comments availability.
+- Light theme, dark theme, desktop, mobile, copy, replacement confirmation, rerun deduplication, and error states are part of the release browser checklist.
+
+### v2 boundaries
+
+- Generated comments explain the completed run, not every possible future input.
+- Learning comments are not artificial-intelligence guesses and do not attempt to infer the learner's intention.
+- Code Explorer still targets small educational programs within the 3,000-step and 30-second limits.
+- The three intentionally failing starter programs are lessons for Error Coach, not regressions.
+- A missing generated note is safer than an uncertain explanation.
+
+## v1, 2026-07-20
+
+v1 established Code Explorer as a static, client-side Python execution visualizer for beginners.
+
+### Website and workspace foundation
+
+- Dedicated landing page and dedicated reloadable execution workspace.
+- GitHub Pages compatible static hosting with no application server.
+- Shared navigation, Tool Guide link, GitHub icon, explicit Dark mode and Light mode control, and copyright attribution for Aman Ali Pogaku.
+- Geek-inspired visual identity with responsive light and dark themes.
+- Persistent editor source so reloading the workspace restores the current program.
+
+### Source editor
+
+- CodeMirror Python editing with a native textarea fallback.
+- Syntax highlighting, line numbers, complete-document Copy and Paste, clipboard permission feedback, wrap control, and font sizes from 12 px through 22 px.
+- Source line and character totals.
+- Executed-line heatmap and current-line emphasis.
+- Clickable replay breakpoints in the line-number gutter.
+
+### Safe browser execution
+
+- Pyodide runs Python entirely in the browser.
+- A Web Worker separates Python execution from the main interface.
+- The trace records at most 3,000 steps.
+- The outer execution timeout is 30 seconds.
+- Clear messages explain trace-limit, timeout, stop, syntax-error, runtime-error, and missing-input states.
+- Safe bounded serialization handles common values, nested containers, shared references, cycles, shortened representations, and omitted-item messages.
+- Input Playground provides deterministic responses to `input()` calls.
+
+### Trace, Data, Flow, and Labs
+
+```text
+TRACE
++-- Story
++-- Before and After
++-- Conditions
++-- Function Journey
++-- Error Coach
+
+DATA
++-- Variables
++-- Watches
++-- Structures
++-- References
++-- Mutation Explorer
+
+FLOW
++-- Execution Path
++-- Coverage
++-- Loop Table
++-- Loop Lab
+
+LABS
++-- Input Playground
++-- Compare Runs
++-- Trace Bookmarks
+```
+
+These views share one selected trace step so source, values, console output, and diagrams remain synchronized.
+
+### Playback and visualization
+
+- Previous, play or pause, next, restart, timeline slider, bookmarks, and playback-speed controls.
+- Console output reconstruction for the selected point in time.
+- Cytoscape reference and execution-path graphs.
+- Fit controls and granular persistent zoom from 40 percent through 200 percent.
+- Stabilized graph layouts to prevent repeated shaking during step changes or tab switches.
+- Improved graph typography and contrast in light and dark themes.
+
+### Initial learning library and guide
+
+- Eighteen initial examples covered foundations, decisions, loops, functions, collections, input, and errors.
+- The public README introduced question maps, workspace maps, fourteen guided walkthroughs, expected behavior, limits, privacy, troubleshooting, a glossary, and a final beginner workflow.
+- Interface empty states explain which action or trace data a view needs.
+- Responsive layouts support desktop and mobile use, while the fuller workspace remains best suited to a laptop or desktop screen.
+
+### v1 boundaries
+
+- Code Explorer does not claim to display physical RAM addresses.
+- Playback breakpoints pause the recorded timeline, not the live Python interpreter.
+- Coverage and execution graphs describe one observed run.
+- The tool is not a production debugger, full IDE, package sandbox, or universal LeetCode runner.
+- Large, intensive, graphical, operating-system-dependent, or package-heavy programs may not fit the browser runtime and visual trace model.
+
+## How to read future entries
+
+When a later release changes a documented count, label, limit, or behavior, its entry should state both the new behavior and the learner impact. Historical entries remain accurate descriptions of the version in which they shipped. They should not be silently rewritten to make an earlier version appear to contain later features.

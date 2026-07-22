@@ -459,6 +459,20 @@ main {
   padding: 0 15px;
 }
 
+/* Makes unavailable secondary actions visibly inactive without suggesting that the page is loading. */
+.text-button:disabled,
+.secondary-button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+/* Prevents disabled learning actions from receiving the ordinary mint hover treatment. */
+.text-button:disabled:hover,
+.secondary-button:disabled:hover {
+  border-color: var(--line-bright);
+  color: var(--text);
+}
+
 /* Styles `.danger-button`. This component rule controls sizing and spacing, color and visual emphasis, boundaries and focus treatment for the matching interface element. */
 .danger-button {
   min-height: 38px;
@@ -3029,6 +3043,9 @@ main {
 
 /* Places category filters and the result count between the dialog title and program cards. */
 .example-browser-toolbar {
+  position: sticky;
+  z-index: 2;
+  top: 0;
   display: flex;
   gap: 16px;
   align-items: center;
@@ -3155,6 +3172,12 @@ main {
   color: var(--purple);
 }
 
+/* Guided Challenge cards use amber to signal a larger program without implying an error. */
+.example-level.guided.challenge {
+  border-color: color-mix(in srgb, var(--amber) 48%, var(--line));
+  color: var(--amber);
+}
+
 /* Styles `.example-card h3`. This component rule controls sizing and spacing, typography for the matching interface element. */
 .example-card h3 {
   margin: 10px 0 7px;
@@ -3187,6 +3210,118 @@ main {
 .example-views strong {
   color: var(--mint);
   font: 600 0.62rem/1.45 var(--mono);
+}
+
+/* Automatic Learning Comments uses its own wide dialog so generated source remains easy to compare and copy. */
+.learning-comments-dialog {
+  width: min(1080px, calc(100% - 32px));
+  max-height: min(860px, calc(100vh - 40px));
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--line-bright);
+  border-radius: 14px;
+  color: var(--text);
+  background: var(--panel-solid);
+  box-shadow: var(--shadow);
+}
+
+/* The preview backdrop matches the examples browser so modal behavior feels consistent. */
+.learning-comments-dialog::backdrop {
+  background: rgba(3, 5, 8, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+/* Keeps explanation-density controls visible while a long commented program is reviewed. */
+.learning-comments-toolbar {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 22px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-solid);
+}
+
+/* Presents the label and native select as one compact, keyboard-friendly control. */
+.learning-comments-toolbar label {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 9px;
+  align-items: center;
+  color: var(--text-dim);
+  font: 600 0.62rem/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Uses existing panel tokens so the detail selector remains readable in both themes. */
+.learning-comments-toolbar select {
+  min-height: 34px;
+  padding: 0 28px 0 10px;
+  border: 1px solid var(--line-bright);
+  border-radius: 7px;
+  color: var(--text);
+  background: var(--bg-raised);
+}
+
+/* The summary explains the evidence and exact number of generated notes. */
+.learning-comments-toolbar p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  text-align: right;
+}
+
+/* A scrollable monospace surface preserves Python whitespace without becoming an editable second editor. */
+.learning-comments-preview {
+  min-height: 420px;
+  max-height: min(58vh, 620px);
+  margin: 0;
+  padding: 24px 26px;
+  overflow: auto;
+  color: var(--code-plain);
+  background: var(--bg-raised);
+  font: 500 0.86rem/1.65 var(--mono);
+  tab-size: 4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Gives keyboard users a clear focus boundary when selecting or manually copying preview text. */
+.learning-comments-preview:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: -4px;
+}
+
+/* Separates the safety explanation from the two deliberate export actions. */
+.learning-comments-actions {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-top: 1px solid var(--line);
+  background: var(--panel-solid);
+}
+
+/* Keeps the source-protection promise visible without competing with action labels. */
+.learning-comments-actions p {
+  max-width: 560px;
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+/* Groups Copy and Replace while keeping their different visual priorities. */
+.learning-comments-actions > div {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 9px;
 }
 
 /* Styles `.toast`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment, motion and interaction feedback for the matching interface element. */
@@ -3348,6 +3483,11 @@ main {
   .workspace-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
+  }
+
+  /* The third workspace action spans both columns so its longer label remains readable. */
+  .workspace-actions .learning-comments-button {
+    grid-column: 1 / -1;
   }
 
   /* Styles `.workspace-actions .primary-button, .workspace-actions .danger-button`. This component rule controls sizing and spacing for the matching interface element. */
@@ -3569,6 +3709,31 @@ main {
   /* Removes desktop row-height matching when every program occupies its own row. */
   .example-card {
     min-height: 0;
+  }
+
+  /* Comment controls stack above the preview on phones while retaining native keyboard behavior. */
+  .learning-comments-toolbar,
+  .learning-comments-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  /* The evidence summary reads naturally from the left in the stacked layout. */
+  .learning-comments-toolbar p {
+    text-align: left;
+  }
+
+  /* Copy and Replace receive equal room and remain large enough for touch input. */
+  .learning-comments-actions > div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Smaller padding preserves more horizontal room for indented Python source. */
+  .learning-comments-preview {
+    min-height: 360px;
+    padding: 18px 16px;
+    font-size: 0.76rem;
   }
 
   /* Styles `.dialog-header`. This component rule controls sizing and spacing for the matching interface element. */

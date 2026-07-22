@@ -254,6 +254,247 @@ def _condition_metadata(tree, source_lines):
     conditions.sort(key=lambda item: item["line"])
     return conditions
 
+# Convert one syntax node back into compact Python text for beginner explanations.
+def _node_text(node, fallback="the expression"):
+    """Return a bounded source-like label for an AST node.
+
+    Args:
+        node: Python AST node whose meaning should appear in a generated note.
+        fallback: Safe wording used when unparsing is unavailable or fails.
+
+    Returns:
+        A single-line string short enough to keep generated comments readable.
+    """
+    # ast.unparse is available in the Pyodide Python version, but the guarded
+    # call keeps comment generation optional if a future syntax node rejects it.
+    try:
+        text = ast.unparse(node).replace("\n", " ").strip()
+    except Exception:
+        return fallback
+    # Long expressions remain visible in the original source, so the note uses
+    # a concise label instead of duplicating a complete statement.
+    return text if len(text) <= 72 else text[:69] + "..."
+
+# Extract the readable name of a call such as print(), values.append(), or input().
+def _call_name(call):
+    """Return a dotted callable name without evaluating the call expression."""
+    # A plain name covers builtins and learner-defined functions.
+    if isinstance(call.func, ast.Name):
+        return call.func.id
+    # An attribute call preserves the receiver expression for mutation notes.
+    if isinstance(call.func, ast.Attribute):
+        receiver = _node_text(call.func.value, "the object")
+        return f"{receiver}.{call.func.attr}"
+    # Unusual dynamic call targets receive neutral wording rather than a guess.
+    return "the callable"
+
+# Describe one statement using only syntax facts that are safe before execution.
+def _learning_description(node, source_lines):
+    """Build one conservative beginner note for a supported Python statement.
+
+    Args:
+        node: AST statement being described.
+        source_lines: Original source lines used to recognize elif spelling.
+
+    Returns:
+        A tuple of explanation text, detail level, and statement kind, or None
+        when the construct cannot be explained reliably.
+    """
+    # Definitions and control flow are essential because they shape the whole run.
+    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        parameters = ", ".join(argument.arg for argument in node.args.args) or "no parameters"
+        return (f"Defines {node.name} with {parameters}. Its body runs only when the function is called.", 1, "function")
+    if isinstance(node, ast.For):
+        target = _node_text(node.target, "the loop variable")
+        iterable = _node_text(node.iter, "the iterable")
+        return (f"Repeats the indented block for each value from {iterable}, storing the current value in {target}.", 1, "for")
+    if isinstance(node, ast.While):
+        condition = _node_text(node.test, "the condition")
+        return (f"Repeats the indented block while {condition} remains true.", 1, "while")
+    if isinstance(node, ast.If):
+        condition = _node_text(node.test, "the condition")
+        source = source_lines[node.lineno - 1].lstrip() if node.lineno <= len(source_lines) else ""
+        if source.startswith("elif "):
+            return (f"Checks the next condition, {condition}, and chooses whether that indented path can run.", 1, "condition")
+        return (f"Checks whether {condition} and chooses which indented path can run.", 1, "condition")
+    if isinstance(node, ast.Return):
+        value = _node_text(node.value, "a value") if node.value is not None else "control without a value"
+        return (f"Returns {value} to the code that called this function.", 1, "return")
+    if isinstance(node, ast.Break):
+        return ("Ends the nearest loop immediately and continues after that loop.", 1, "break")
+    if isinstance(node, ast.Continue):
+        return ("Skips the rest of the current iteration and starts the next loop check.", 1, "continue")
+    if isinstance(node, ast.Try):
+        return ("Runs this protected block so a matching except block can explain or handle an error.", 1, "try")
+    if isinstance(node, ast.Raise):
+        return ("Raises an exception deliberately, so ordinary execution stops unless a matching handler catches it.", 1, "raise")
+
+    # Assignments are guided details because they explain how program state grows.
+    if isinstance(node, (ast.Assign, ast.AnnAssign, ast.NamedExpr)):
+        raw_targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+        target_text = ", ".join(_node_text(target, "a target") for target in raw_targets)
+        value = getattr(node, "value", None)
+        # input() nested inside a conversion remains an input operation even when
+        # the outer call is int(), float(), or another learner-selected function.
+        input_call = next((part for part in ast.walk(value) if isinstance(part, ast.Call)
+                           and isinstance(part.func, ast.Name) and part.func.id == "input"), None) if value else None
+        if input_call is not None:
+            return (f"Requests the next prepared input value and stores the resulting value in {target_text}.", 1, "input")
+        # Subscript and attribute targets change part of an existing object.
+        if any(isinstance(target, (ast.Subscript, ast.Attribute)) for target in raw_targets):
+            return (f"Updates {target_text} inside an existing object.", 2, "mutation")
+        return (f"Evaluates the right side and stores the result in {target_text}.", 2, "assignment")
+    if isinstance(node, ast.AugAssign):
+        target = _node_text(node.target, "the target")
+        operator = {
+            ast.Add: "+=", ast.Sub: "-=", ast.Mult: "*=", ast.Div: "/=",
+            ast.FloorDiv: "//=", ast.Mod: "%=", ast.Pow: "**=",
+        }.get(type(node.op), "an update operator")
+        return (f"Updates {target} with {operator} using the value on the right.", 2, "update")
+
+    # Expression statements are described only for recognizable calls.
+    if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
+        call = node.value
+        call_name = _call_name(call)
+        if call_name == "print":
+            return ("Attempts to evaluate the supplied values and send them to Console Output with print.", 1, "output")
+        mutation_methods = {"append", "extend", "insert", "remove", "pop", "clear", "sort", "reverse", "add", "discard", "update", "setdefault"}
+        method = call.func.attr if isinstance(call.func, ast.Attribute) else None
+        if method in mutation_methods:
+            receiver = _node_text(call.func.value, "the object")
+            return (f"Calls {method} on {receiver}, which can mutate that existing object.", 2, "mutation")
+        return (f"Calls {call_name} for its behavior or side effect.", 3, "call")
+
+    # Imports and context managers can be explained from syntax without claiming
+    # anything about an external package's runtime behavior.
+    if isinstance(node, (ast.Import, ast.ImportFrom)):
+        return (f"Imports {_node_text(node, 'a module')} so its names can be used later.", 3, "import")
+    if isinstance(node, (ast.With, ast.AsyncWith)):
+        return ("Enters a managed context and guarantees that its cleanup behavior runs afterward.", 3, "with")
+    if isinstance(node, ast.Assert):
+        return (f"Checks that {_node_text(node.test, 'the assertion')} is true and raises AssertionError otherwise.", 2, "assert")
+    if isinstance(node, ast.Pass):
+        return ("Keeps this block syntactically valid without performing an action.", 3, "pass")
+    # Class definitions and other advanced statements are omitted instead of
+    # receiving an explanation that could hide important Python semantics.
+    return None
+
+# Build detached comment metadata after execution so syntax and runtime evidence can be combined.
+def _learning_comment_metadata(tree, source_lines, steps):
+    """Return sorted, bounded learning notes for statements in the source.
+
+    Each note contains a source line, detail level, statement kind, and text. A
+    runtime suffix is added only when the trace supplies direct evidence, such
+    as a statement visit count, selected condition path, or assigned value.
+    """
+    # Group snapshots by completed source line for bounded evidence lookups.
+    steps_by_line = {}
+    for step in steps:
+        steps_by_line.setdefault(step.get("line"), []).append(step)
+
+    # One note per source line prevents dense one-line Python from producing a
+    # confusing stack of comments that cannot map clearly to separate statements.
+    notes_by_line = {}
+    statement_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.stmt)]
+    statement_nodes.sort(key=lambda node: (getattr(node, "lineno", 0), getattr(node, "col_offset", 0)))
+    for node in statement_nodes:
+        description = _learning_description(node, source_lines)
+        if description is None:
+            continue
+        text, level, kind = description
+        # Decorated definitions receive their note before the first decorator so
+        # copied code preserves Python's decorator-to-definition relationship.
+        decorators = getattr(node, "decorator_list", [])
+        line = min([node.lineno] + [decorator.lineno for decorator in decorators])
+        if line in notes_by_line:
+            continue
+        visits = steps_by_line.get(node.lineno, [])
+        # Exception snapshots prove that the statement failed, but Python can
+        # also emit a frame-exit event for the same failing line. Completion,
+        # loop, and outcome counts are therefore withheld for any line that
+        # raised instead of accidentally counting exception propagation as work.
+        exception_visits = [visit for visit in visits if visit.get("event") == "exception"]
+
+        # A single simple-name assignment can safely report its observed value.
+        assignment_target = None
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+            assignment_target = node.targets[0].id
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            assignment_target = node.target.id
+        if assignment_target and len(visits) == 1 and not exception_visits:
+            snapshot = visits[-1]
+            visible = dict(snapshot.get("globals", {}))
+            visible.update(snapshot.get("locals", {}))
+            value = visible.get(assignment_target)
+            if value and value.get("display") is not None:
+                display = value["display"]
+                # Binary floating-point can expose a long representation such as
+                # 5.550000000000001. A bounded significant-digit display teaches
+                # the observed magnitude without presenting machine noise as intent.
+                if value.get("type") == "float" and len(display) > 12 and isinstance(value.get("value"), (int, float)):
+                    display = format(value["value"], ".10g")
+                    text += f" In this run, {assignment_target} became approximately {display}."
+                else:
+                    text += f" In this run, {assignment_target} became {display}."
+        # Repeated execution is reported as a count without pretending that one
+        # observed value represents every loop iteration or function call.
+        elif len(visits) > 1 and not exception_visits and not isinstance(node, (ast.For, ast.While, ast.If)):
+            text += f" This line completed {len(visits)} times during the recorded run."
+
+        # The first exception snapshot contains the original Python type and
+        # message. Reporting it is more useful and more accurate than inferring
+        # that the statement completed from later frame-unwinding events.
+        if exception_visits:
+            detail = exception_visits[0].get("detail") or {}
+            error_type = detail.get("type", "an exception")
+            text += f" This run raised {error_type} on this line before it completed."
+
+        # Loop evidence counts entry into the first body statement, which maps
+        # directly to completed iterations for the supported ordinary loops.
+        if isinstance(node, (ast.For, ast.While)) and node.body:
+            body_steps = steps_by_line.get(node.body[0].lineno, [])
+            body_failed = any(visit.get("event") == "exception" for visit in body_steps)
+            if not body_failed:
+                body_visits = len(body_steps)
+                text += f" The loop body was entered {body_visits} time{'s' if body_visits != 1 else ''} in this run."
+
+        # Condition evidence uses the next executed line recorded when the
+        # condition completed. Mixed outcomes are possible inside repeated loops.
+        if isinstance(node, ast.If) and not exception_visits:
+            body_line = node.body[0].lineno if node.body else None
+            outcomes = set()
+            for visit in visits:
+                outcomes.add("true" if visit.get("nextLine") == body_line else "false")
+            if outcomes == {"true"}:
+                text += " This run followed the true path."
+            elif outcomes == {"false"}:
+                text += " This run followed the false path."
+            elif outcomes == {"true", "false"}:
+                text += " Repeated checks followed both the true and false paths."
+
+        notes_by_line[line] = {
+            "line": line,
+            "level": level,
+            "kind": kind,
+            "text": text,
+        }
+
+    # else, except, and finally headers do not have independent ast.stmt nodes,
+    # so conservative header notes are derived from exact stripped source text.
+    for line_number, source_line in enumerate(source_lines, start=1):
+        stripped = source_line.strip()
+        if line_number in notes_by_line:
+            continue
+        if stripped == "else:":
+            notes_by_line[line_number] = {"line": line_number, "level": 1, "kind": "else", "text": "Runs this path when the related earlier condition was false."}
+        elif stripped.startswith("except") and stripped.endswith(":"):
+            notes_by_line[line_number] = {"line": line_number, "level": 1, "kind": "except", "text": "Handles a matching error raised inside the protected try block."}
+        elif stripped == "finally:":
+            notes_by_line[line_number] = {"line": line_number, "level": 2, "kind": "finally", "text": "Runs this cleanup block whether or not an error occurred."}
+
+    # Source order keeps insertion deterministic and makes the result easy to inspect.
+    return [notes_by_line[line] for line in sorted(notes_by_line)]
+
 # Coordinate parsing, tracing, output capture, execution, and final serialization.
 def run_trace(source, prepared_inputs=None):
     """Compile and execute learner source while recording educational snapshots.
@@ -295,7 +536,7 @@ def run_trace(source, prepared_inputs=None):
             "offset": error.offset or 0,
             "source": error.text.strip() if error.text else "",
         }
-        return {"steps": [], "loops": [], "conditions": [], "output": "", "error": syntax_error, "inputLog": []}
+        return {"steps": [], "loops": [], "conditions": [], "output": "", "error": syntax_error, "inputLog": [], "learningComments": []}
 
     # This replacement follows Python's input contract while consuming only learner-prepared values.
     def teaching_input(prompt=""):
@@ -426,6 +667,7 @@ def run_trace(source, prepared_inputs=None):
         "output": stdout.getvalue(),
         "error": runtime_error,
         "inputLog": input_log,
+        "learningComments": _learning_comment_metadata(tree, source_lines, steps),
     }
 
 # USER_SOURCE is injected by JavaScript immediately before this harness runs.

@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260720-17" />
+    <link rel="stylesheet" href="styles.css?v=20260721-1" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -87,6 +87,10 @@
           <!-- Run and Stop are swapped by JavaScript while Python is executing. -->
           <div class="workspace-actions">
             <button class="text-button" id="examplesButton" type="button">Examples</button>
+            <!-- The generated-comment preview becomes available only after a trace supplies trustworthy runtime evidence. -->
+            <button class="text-button learning-comments-button" id="learningCommentsButton" type="button" disabled>
+              Learning comments
+            </button>
             <button class="primary-button compact" id="runButton" type="button">
               <span class="button-ready">Run trace</span>
               <span class="button-loading hidden">Tracing...</span>
@@ -562,7 +566,7 @@
         </div>
         <button class="dialog-close" id="closeExamplesButton" type="button" aria-label="Close examples">×</button>
       </div>
-      <!-- Category filters keep eighteen programs scannable without hiding the complete library. -->
+      <!-- Category filters keep fifty-four programs scannable without hiding the complete library. -->
       <div class="example-browser-toolbar">
         <!-- The generated filter buttons expose their current state through aria-pressed. -->
         <div class="example-filters" id="exampleFilters" role="group" aria-label="Filter starter programs"></div>
@@ -573,10 +577,48 @@
       <div class="example-grid" id="exampleGrid"></div>
     </dialog>
 
+    <!--
+      Automatic Learning Comments always open in a separate preview. The dialog
+      keeps generated text reversible and prevents a trace explanation from
+      silently replacing the learner's original Python source.
+    -->
+    <dialog class="learning-comments-dialog" id="learningCommentsDialog">
+      <!-- The header identifies generated content and provides a conventional close action. -->
+      <div class="dialog-header learning-comments-header">
+        <div>
+          <span class="eyebrow"><span></span> Trace-powered study copy</span>
+          <h2>Automatic Learning Comments</h2>
+        </div>
+        <button class="dialog-close" id="closeLearningCommentsButton" type="button" aria-label="Close learning comments">×</button>
+      </div>
+      <!-- Controls adjust explanation density without rerunning or editing Python. -->
+      <div class="learning-comments-toolbar">
+        <label for="learningCommentDetail">
+          <span>Comment detail</span>
+          <select id="learningCommentDetail">
+            <option value="essential">Essential</option>
+            <option value="guided" selected>Guided</option>
+            <option value="detailed">Detailed</option>
+          </select>
+        </label>
+        <p id="learningCommentsSummary">Run a trace to generate conservative comments from syntax and observed behavior.</p>
+      </div>
+      <!-- The preview is plain text, so learner source is never interpreted as HTML. -->
+      <pre class="learning-comments-preview" id="learningCommentsPreview" tabindex="0" aria-label="Commented Python preview"></pre>
+      <!-- Actions keep the original safe by default and clearly separate copying from replacement. -->
+      <div class="learning-comments-actions">
+        <p><strong>Your original stays unchanged.</strong> Replacing the editor requires one additional confirmation.</p>
+        <div>
+          <button class="secondary-button" id="copyLearningCommentsButton" type="button">Copy commented code</button>
+          <button class="primary-button compact" id="replaceWithLearningCommentsButton" type="button">Replace editor</button>
+        </div>
+      </div>
+    </dialog>
+
     <!-- This polite live region announces completion and errors without stealing focus. -->
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260720-24"></script>
+    <script type="module" src="app.js?v=20260721-1"></script>
   </body>
 </html>

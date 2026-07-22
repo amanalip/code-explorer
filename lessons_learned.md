@@ -65,7 +65,7 @@ Expanded Trace, Data, Flow, and Labs views
 UI stability, themes, fonts, graphs, and editor tools
           |
           v
-18 guided examples and a detailed beginner README
+18 guided examples and a detailed beginner README in v1
           |
           v
 Repository governance through AGENTS.md and SKILLS.md
@@ -74,7 +74,7 @@ Repository governance through AGENTS.md and SKILLS.md
 Living post-mortems through lessons_learned.md
           |
           v
-Approved next: Automatic Learning Comments
+Automatic Learning Comments and 54 examples in v2
 ```
 
 # Lessons learned by the user
@@ -470,9 +470,9 @@ The lesson is to avoid two tabs that present the same data with different titles
 
 ## 25. Example quantity should follow feature coverage
 
-The project began with fewer examples, then questioned whether eight were enough. The final library contains 18 curated programs.
+The project began with fewer examples, then questioned whether eight were enough. v1 contained 18 curated programs. v2 deliberately expanded the library to 54 after the filters, card metadata, and desktop-oriented learning workspace made the larger curriculum navigable.
 
-The useful lesson is not that 18 is a magical number. The correct number is the smallest collection that demonstrates the important feature combinations without overwhelming a beginner.
+The useful lesson is not that 18 or 54 is a magical number. The correct number depends on feature coverage, meaningful variation, navigation quality, and the intended learning depth. A larger library is justified when examples are categorized, varied, and connected to clear learning routes rather than added only to increase a count.
 
 The expanded examples now cover:
 
@@ -623,7 +623,7 @@ The accepted safety rules are:
 - Let comment-generation failure remain isolated from tracing.
 - Test every included example and additional edge cases.
 
-Automatic Learning Comments is approved next, not currently implemented.
+Automatic Learning Comments is implemented in v2 with a separate preview, three detail levels, complete-document copy, confirmation-gated replacement, trace-backed evidence, and generated-line deduplication.
 
 ## 36. It is acceptable to defer a good idea
 
@@ -739,6 +739,92 @@ Imaginary coffee breaks, a real coffee break, and the decision to stop for sleep
 When the interface causes a headache, the correct response is not to keep staring at it. Stop, remove the motion problem, test calmly, and return with fresh attention.
 
 Good collaboration leaves room to think between feature groups. A pause can prevent rushed requirements and unnecessary rework.
+
+## 43. A larger example library can be the right choice when navigation is already strong
+
+The initial concern about expanding from 18 to 54 examples was that a beginner might feel overwhelmed. Aman pointed out that concept filters already reduce the visible choices and that a serious user will normally study this feature-rich workspace on a laptop or desktop.
+
+That changed the decision. Quantity and overload are not the same thing.
+
+```text
+54 unorganized snippets
+        -> overwhelming
+
+54 categorized programs
+        + filters
+        + difficulty levels
+        + line counts
+        + learning ladders
+        + best-view suggestions
+        -> navigable curriculum
+```
+
+The user was correct to connect the acceptable library size to the interface already built around it. Product decisions should consider the complete experience rather than one number in isolation.
+
+Status: Implemented in v2.
+
+## 44. Repetition teaches when the structure and context vary
+
+The request was not simply for 36 more examples. It asked for several versions of important concepts, including `while` loops with different variable structures and complexity.
+
+Educational repetition should vary the mental task:
+
+- Countdown teaches a decreasing counter.
+- Save until the goal teaches a growing total and target condition.
+- Validate a positive number teaches repeated input and acceptance state.
+- Process a task queue teaches mutation until a collection becomes empty.
+
+All four use `while`, but they build different mental models. Repetition becomes useful when each example exposes another reason for using the construct.
+
+Status: Implemented in v2.
+
+## 45. Longer examples create a bridge from isolated syntax to real reading
+
+Very short examples are excellent for first contact, but they do not fully teach a beginner how several familiar ideas cooperate in one program. Aman explicitly requested 15 to 20 line examples so learners could practice handling more complete source.
+
+The resulting curriculum includes twelve programs in that range. They remain bounded enough for step-by-step tracing while combining calculation, conditions, loops, functions, collections, input, and reporting.
+
+```text
+one idea
+   -> two combined ideas
+   -> complete small program
+   -> one learner-made variation
+```
+
+Status: Implemented in v2.
+
+## 46. Generated comments are valuable because they can become a portable study artifact
+
+Automatic Learning Comments began as a question about adding comments to pasted or newly written code. The important product decision was to generate a separate study copy only after a trace, then let the learner copy it or confirm a replacement.
+
+This gives the feature several learning roles:
+
+- A plain-language review beside source.
+- A portable copy for personal notes.
+- A bridge between visual evidence and ordinary Python comments.
+- A way to compare concise and detailed explanations.
+
+The original program remains protected by default, and generated notes describe observed behavior rather than pretending to know every future execution.
+
+Status: Implemented in v2.
+
+## 47. Beginner documentation needs misunderstandings and routes, not only definitions
+
+The Python glossary originally defined a small set of terms in one or two sentences. Aman correctly identified that shallow documentation would not help a first-time learner enough.
+
+A useful beginner reference needs four parts:
+
+```text
+TERM
++-- plain definition
++-- small code example
++-- common misunderstanding
++-- best place to observe it in the tool
+```
+
+The same principle applies beyond the glossary. A list of 54 example names is less useful than categories, learning ladders, expected behavior, and guidance about intentional failures.
+
+Status: Implemented in the v2 documentation.
 
 # Lessons learned by Codex
 
@@ -985,7 +1071,7 @@ When adding a feature, the example library should be used to identify:
 - Runtime errors
 - Syntax errors
 
-Automatic Learning Comments should be tested against all 18 examples because each exercises a different explanation pattern.
+Automatic Learning Comments should be tested against all 54 examples because the full curriculum exercises different explanation patterns, repeated lines, nested decisions, calls, collections, aliases, inputs, and intentional runtime errors.
 
 ## 20. Do not describe implementation as complete until browser behavior is verified
 
@@ -1117,7 +1203,7 @@ The project learned from broken navigation, weak theme contrast, graph shaking, 
 - Building a dedicated workspace
 - Grouping views by learner question
 - Using a worker for safe execution
-- Providing 18 focused examples
+- Providing 54 focused examples with filters and learning ladders
 - Creating extensive guided documentation
 - Adding persistent contributor knowledge
 - Performing code-to-document sanity checks
@@ -1166,6 +1252,102 @@ The correct response to trust is:
 - Avoid describing approved future work as implemented.
 
 Trust is a reason for stronger evidence, not a substitute for evidence.
+
+## 34. Initial scope advice should be revisited when product context changes
+
+Codex initially treated 54 examples mainly as a possible discoverability risk. That concern was reasonable but incomplete. It underweighted the filter interface, desktop-first use, and Aman's goal of creating a comprehensive learning tool.
+
+The correction was to evaluate the whole system and convert the larger count into explicit curriculum structure. Future estimates should ask:
+
+- Is navigation already capable of narrowing the set?
+- Does repetition add another learning pattern?
+- Can the examples double as integration tests?
+- Does the intended device provide enough room to browse them?
+- Can documentation give learners a recommended path?
+
+This is not about one person being wrong. It is an example of a product decision becoming better after another constraint and another ambition were made explicit.
+
+## 35. Automated schema checks cannot judge teaching prose
+
+The automated comment audit checked all 54 examples and produced 421 valid note records. It confirmed line numbers, detail levels, fields, and nonempty text. Manual reading still found two quality issues:
+
+- `elif` wording joined text awkwardly.
+- Floating-point evidence exposed distracting binary precision.
+
+Both were corrected. The honest lesson is that a structurally valid explanation can still be unpleasant or confusing to read.
+
+Browser review then found a deeper trace-semantics issue. A failing `print(colors[index])` line produced an exception event and a frame-exit event on the same source line. A simple count incorrectly described that as two completions. The correction suppresses ambiguous completion, loop, and condition counts on a failing line and explicitly names the observed exception instead.
+
+```text
+AUTOMATED CHECKS                 HUMAN READING
++-- valid line                    +-- natural wording
++-- valid level                   +-- useful emphasis
++-- nonempty text                 +-- beginner clarity
++-- all examples covered          +-- sensible number formatting
+             |                               |
+             +---------------+---------------+
+                             v
+                    reliable teaching note
+```
+
+## 36. A full example corpus is a regression suite, not only content
+
+The 54 programs collectively exercise more behavior than a small hand-written test list:
+
+- Assignments and conversions
+- Boolean logic and nested branches
+- Multiple loop shapes and repeated lines
+- Calls, returns, scope, nested calls, and recursion
+- Lists, tuples, sets, dictionaries, and nested structures
+- Aliases, mutation, reassignment, and shallow copies
+- Prepared input and three intentional error types
+
+Running the entire corpus found integration problems that isolated unit examples could miss. Future trace metadata or explanation changes should keep this corpus executable as a standard regression step.
+
+## 37. Generated transformations need ownership markers
+
+The exact prefix `# Code Explorer:` gives the application a safe, narrow way to recognize its own generated lines. It should not attempt to identify generated text using vague wording or remove arbitrary learner comments.
+
+This establishes a reusable rule:
+
+```text
+Tool-generated content
+      |
+      +-- has an exact ownership marker
+      +-- can be regenerated without duplication
+      +-- does not claim ownership of learner content
+      +-- remains preview-first and reversible
+```
+
+## 38. Runtime evidence should enrich syntax, not replace it
+
+The AST knows that a line is a `for` statement, assignment, return, or mutation call. The trace knows how often a line ran and which values or outcomes were observed. Neither source is sufficient alone.
+
+The implemented design combines them conservatively:
+
+- Syntax supplies the structural explanation.
+- Trace data adds observed values and counts.
+- Missing evidence removes a claim instead of encouraging a guess.
+- A syntax error produces no runtime-backed comment set.
+
+This boundary should remain stable when more explanation patterns are added.
+
+## 39. Documentation audits need cross-file invariants
+
+Updating five documents independently creates a real risk of inconsistent counts, statuses, labels, dates, and limits. A final audit must search for stale facts and compare each document with executable source.
+
+For this release, the important cross-file invariants are:
+
+- 54 total examples
+- Seven exact category counts
+- Three exact difficulty counts
+- Twelve 15 to 20 line programs
+- Three intentional error examples
+- Automatic Learning Comments marked implemented, not approved next
+- 3,000 trace steps and 30 seconds
+- v1 dated 2026-07-20 and v2 dated 2026-07-21
+
+Documentation is not complete merely because every requested file changed. The files must agree with each other and with the interface.
 
 # Shared lessons for future work
 
@@ -1238,7 +1420,7 @@ Reusable discovery, mistake, decision, or success occurred?
 
 | Topic | Current decision |
 | --- | --- |
-| Automatic Learning Comments | Approved next, not implemented |
+| Automatic Learning Comments | Implemented in v2 |
 | Hover variable inspector | Explored for later |
 | Inline diagnostics | Explored for later |
 | Inline variable values | Explored for later |

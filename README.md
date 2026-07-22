@@ -26,6 +26,7 @@ This README is the living beginner guide for Code Explorer. It is reviewed whene
 - [What happens when you run a trace](#what-happens-when-you-run-a-trace)
 - [Workspace map](#workspace-map)
 - [The editor](#the-editor)
+- [Automatic Learning Comments](#automatic-learning-comments)
 - [Trace controls](#trace-controls)
 - [Trace views](#trace-views)
 - [Data views](#data-views)
@@ -130,6 +131,7 @@ CODE EXPLORER WORKSPACE
 |   +-- Copy complete program
 |   +-- Paste complete program
 |   +-- Line numbers and replay breakpoints
+|   +-- Automatic Learning Comments after a trace
 |
 +-- TRACE: What is Python doing now?
 |   +-- Story
@@ -224,7 +226,10 @@ What are you wondering?
 |       -> Labs > Compare Runs
 |
 +-- "How do I save important trace moments?"
-        -> Labs > Trace Bookmarks
+|       -> Labs > Trace Bookmarks
+|
++-- "Can Code Explorer add teaching comments to my program?"
+        -> Run a trace, then select Learning comments
 ```
 
 ## The editor
@@ -306,6 +311,137 @@ After a trace is ready, editor lines communicate execution activity:
 - Lines that did not run remain unhighlighted.
 
 Use **Flow > Coverage** when you want a numbered summary instead of editor highlighting.
+
+## Automatic Learning Comments
+
+**Best for:** turning a completed trace into a commented study copy of the exact program you ran.
+
+Automatic Learning Comments combines two kinds of evidence. Python's parsed syntax explains the role of a statement, while the completed trace supplies facts that were actually observed during this run.
+
+```text
+CURRENT PYTHON SOURCE                 COMPLETED TRACE
+structure of each statement          values and execution counts
+          |                                      |
+          +------------------+-------------------+
+                             |
+                             v
+                  CONSERVATIVE LEARNING NOTES
+                             |
+                 +-----------+-----------+
+                 |                       |
+                 v                       v
+          Separate preview        Original source stays
+          with # comments          unchanged by default
+                 |
+          +------+------+
+          |             |
+          v             v
+     Copy the copy   Replace editor only
+                    after confirmation
+```
+
+### How to create a commented study copy
+
+1. Write or load a Python program.
+2. Select **Run trace** and wait for the run to finish.
+3. Select **Learning comments** in the editor toolbar.
+4. Choose the amount of detail.
+5. Read the preview before copying or replacing anything.
+6. Select **Copy commented code** to keep the editor untouched, or select **Replace editor** and confirm the replacement.
+
+The button is disabled before a useful trace exists. This prevents Code Explorer from presenting source-only guesses as observed runtime explanations.
+
+### Detail levels
+
+| Level | What it includes | When to use it |
+| --- | --- | --- |
+| Essential | The most important structure and state-changing statements | First reading, classroom projection, or a short revision sheet |
+| Guided | Essential notes plus common calls, loop bodies, conditions, and useful observed facts | Recommended for most beginners |
+| Detailed | Every supported explanation that Code Explorer can justify | Careful self-study or reviewing a longer example |
+
+Changing the detail level changes only the preview. It does not rerun Python and does not edit the original program.
+
+### Example
+
+Original program:
+
+```python
+total = 0
+for number in range(1, 4):
+    total += number
+print(total)
+```
+
+A generated preview can look like this:
+
+```python
+# Code Explorer: Creates or updates total. This run stored 0.
+total = 0
+# Code Explorer: Repeats the indented block for values from range(1, 4). The body started 3 times in this run.
+for number in range(1, 4):
+    # Code Explorer: Updates total using its previous value and number. This line executed 3 times.
+    total += number
+# Code Explorer: Attempts to evaluate the supplied values and send them to Console Output with print.
+print(total)
+```
+
+The exact wording depends on the source and recorded evidence. A value that changes several times is described as repeated behavior instead of being presented as one permanent value.
+
+### What the generator can explain reliably
+
+- Assignments and augmented assignments such as `total += number`
+- `if`, `elif`, and `else` branches
+- `for` and `while` loops
+- Function definitions, calls, and returns
+- `break` and `continue`
+- `try`, `except`, `finally`, and `raise`
+- `input()` and `print()` calls
+- Common list, dictionary, and set mutations
+- Imports, context managers, assertions, and simple expression calls
+- Observed values, line execution counts, loop body counts, and condition outcomes when trace evidence is available
+- An observed exception on a failing statement without claiming that the statement completed
+
+### Accuracy boundaries
+
+Automatic comments are learning aids, not a proof of every behavior the program could have.
+
+- A comment describes the run that just happened. Another input may choose another branch or produce another value.
+- Code Explorer does not invent a note for an unsupported or ambiguous construct.
+- Long or complex values may be shortened for readability.
+- Floating-point values may be labelled as approximate.
+- A missed branch is not described as impossible. It only was not observed in this run.
+- Syntax errors cannot produce runtime-backed comments because Python never began executing the program.
+
+### Source protection and repeated use
+
+Generated lines begin with `# Code Explorer:`. This recognizable prefix lets the tool remove its own older generated lines before producing another study copy, which prevents duplicate comment layers after a rerun. Comments written by the learner are preserved.
+
+```text
+Select Learning comments
+          |
+          v
+Preview opens, source unchanged
+          |
+    +-----+-----+
+    |           |
+    v           v
+  Close        Copy
+    |           |
+    v           v
+No change   Clipboard receives
+            commented copy
+
+Replace editor
+      |
+      v
+Confirmation required
+      |
+      +-- Cancel  -> source unchanged
+      +-- Confirm -> commented source becomes editor source
+                         and the old trace is cleared
+```
+
+After replacement, the commented source is saved like any other editor change. Run a new trace if you want the comments to reflect the new document. The separate preview itself is not stored after the trace is cleared or the page is reloaded.
 
 ## Trace controls
 
@@ -1197,52 +1333,168 @@ Bookmarks belong to the current execution. Running a new trace clears them becau
 
 ## Starter programs
 
-Select **Examples** to open a curated library of 18 programs. Every card includes a concept, difficulty level, short purpose, and the views that reveal its most useful behavior.
+Select **Examples** to open a curated library of 54 programs. The library is a small curriculum, not a random code collection. It begins with single ideas, repeats important concepts in different situations, and ends with 15 to 20 line programs that combine several skills.
+
+Every example card shows:
+
+- The primary topic
+- A difficulty level
+- The exact number of source lines
+- A short learning purpose
+- The views that reveal its most useful behavior
 
 ### Filtering the library
 
 ```text
-ALL
+ALL 54 PROGRAMS
 |
-+-- Basics
-+-- Decisions
-+-- Loops
-+-- Functions
-+-- Collections
-+-- Input and Errors
++-- Foundations ................. 8
++-- Decisions ................... 7
++-- Loops ...................... 11
++-- Functions and Scope ......... 8
++-- Collections ................ 10
++-- References and Mutation ..... 4
++-- Input and Debugging .......... 6
 ```
 
-The active filter shows how many programs are visible out of the complete set of 18. On a narrow screen, scroll the filter row horizontally to reach every category.
-
-### Complete example catalog
-
-| Category | Level | Example | Main learning goal | Best views |
-| --- | --- | --- | --- | --- |
-| Basics | Beginner | A tiny calculation | Follow values through multiplication | Story, Before and After, Variables |
-| Basics | Beginner | Building a message | Combine strings into a new value | Story, Before and After, Structures |
-| Decisions | Beginner | Pass or try again | Observe a true branch | Conditions, Coverage, Story |
-| Decisions | Intermediate | Checking multiple conditions | Understand `and` and two Boolean facts | Conditions, Before and After, Coverage |
-| Decisions | Beginner | Different inputs, different paths | Compare branch choices caused by input | Input Playground, Compare Runs, Conditions |
-| Loops | Beginner | Running total | Follow an accumulator through a `for` loop | Loop Table, Loop Lab, Coverage |
-| Loops | Beginner | Countdown | Follow a `while` condition until it becomes false | Conditions, Execution Path, Loop Lab |
-| Loops | Intermediate | Find the first match | See how `break` ends a search | Execution Path, Coverage, Loop Table |
-| Loops | Intermediate | Skip unwanted values | See how `continue` skips part of an iteration | Execution Path, Coverage, Loop Table |
-| Functions | Beginner | A function call | Follow a parameter, local result, and return value | Function Journey, Story, Variables |
-| Functions | Intermediate | One function calling another | Follow nested calls and local frames | Function Journey, Story, Variables |
-| Collections | Beginner | Growing a list | Observe repeated list mutation | Structures, Mutation Explorer, Loop Table |
-| Collections | Intermediate | Two names sharing one list | Understand aliases and shared mutation | References, Mutation Explorer, Variables |
-| Collections | Intermediate | Mutate or replace a list | Compare in-place mutation with reassignment | Mutation Explorer, References, Before and After |
-| Collections | Intermediate | Nested student data | Inspect a dictionary containing a list | Variables, Structures, References |
-| Collections | Intermediate | Counting words | Build and update dictionary entries in a loop | Structures, Mutation Explorer, Loop Table |
-| Input and Errors | Beginner | A personalized greeting | Consume two inputs and choose a branch | Input Playground, Conditions, Compare Runs |
-| Input and Errors | Beginner | An index to investigate | Connect an `IndexError` to list state | Error Coach, Variables, Structures |
+The active filter reports both the visible count and the complete count. The filter bar stays available while you scroll the dialog. On a narrow screen, scroll the filter row horizontally to reach every category.
 
 ### Difficulty labels
 
-- **Beginner** programs isolate one primary concept and use short, direct source code.
-- **Intermediate** programs combine concepts such as loops with conditions, nested calls, aliases, or object identity.
+- **Beginner** examples isolate one main idea and use direct names and control flow.
+- **Developing** examples combine two or more familiar ideas, such as a loop with a condition or a function with a collection.
+- **Guided Challenge** examples are longer, often 15 to 20 lines, and invite you to coordinate several ideas while the visual views remain available as guidance.
 
-Intermediate does not mean that the example is unsafe or excessively large. It means you may benefit from studying its Beginner prerequisite first.
+A Guided Challenge is not a test you must pass before using it. Load it, run it, and study one view at a time. Moving back to a shorter example is normal learning, not failure.
+
+### Complete 54-program catalog
+
+#### Foundations, 8 programs
+
+| Level | Example | Main learning goal | Best views |
+| --- | --- | --- | --- |
+| Beginner | A tiny calculation | Follow names and values through multiplication | Story, Before and After, Variables |
+| Beginner | Building a message | Combine strings into a new value | Story, Before and After, Structures |
+| Beginner | Celsius to Fahrenheit | Follow arithmetic and a rounded result | Story, Before and After, Variables |
+| Developing | Division and remainders | Compare `/`, `//`, and `%` | Variables, Before and After, Story |
+| Developing | Cleaning a username | Observe a chain of string transformations | Before and After, Variables, Story |
+| Beginner | Building status flags | Combine Boolean facts into one result | Variables, Before and After, Conditions |
+| Guided Challenge | Cafe receipt calculator | Coordinate quantities, subtotal, tax, tip, and total | Before and After, Variables, Story |
+| Guided Challenge | Personal profile summary | Combine text, numbers, conversion, and Boolean state | Variables, Story, Before and After |
+
+#### Decisions, 7 programs
+
+| Level | Example | Main learning goal | Best views |
+| --- | --- | --- | --- |
+| Beginner | Pass or try again | Observe one true or false branch | Conditions, Coverage, Story |
+| Developing | Checking multiple conditions | Understand `and` and its two facts | Conditions, Before and After, Coverage |
+| Beginner | Different inputs, different paths | Compare branches produced by input | Input Playground, Compare Runs, Conditions |
+| Developing | Grade bands | See Python stop at the first matching `elif` branch | Conditions, Coverage, Execution Path |
+| Guided Challenge | Account access check | Follow nested identity and permission decisions | Conditions, Coverage, Execution Path |
+| Beginner | Allowed color check | Test membership with `in` | Conditions, Structures, Coverage |
+| Guided Challenge | Shipping quote | Combine membership, totals, distance, and pricing rules | Conditions, Coverage, Before and After |
+
+#### Loops, 11 programs
+
+| Level | Example | Main learning goal | Best views |
+| --- | --- | --- | --- |
+| Beginner | Running total | Follow an accumulator through a `for` loop | Loop Table, Loop Lab, Coverage |
+| Beginner | Countdown | Watch a `while` condition become false | Conditions, Execution Path, Loop Lab |
+| Developing | Find the first match | See `break` end a search | Execution Path, Coverage, Loop Table |
+| Developing | Skip unwanted values | See `continue` skip part of an iteration | Execution Path, Coverage, Loop Table |
+| Beginner | Even number squares | Combine filtering with list building | Loop Table, Mutation Explorer, Conditions |
+| Developing | Count passing scores | Change a counter only when a rule matches | Loop Table, Conditions, Watches |
+| Developing | Find the highest temperature | Maintain a running maximum | Loop Table, Before and After, Conditions |
+| Beginner | Save until the goal | Repeat deposits until a target is reached | Loop Lab, Loop Table, Watches |
+| Guided Challenge | Process a task queue | Mutate pending and completed lists in a `while` loop | Loop Lab, Mutation Explorer, Structures |
+| Guided Challenge | Build a session schedule | Coordinate nested outer and inner loops | Execution Path, Loop Table, Coverage |
+| Guided Challenge | Weekly temperature report | Produce total, average, maximum, and count in one pass | Loop Table, Watches, Conditions |
+
+#### Functions and Scope, 8 programs
+
+| Level | Example | Main learning goal | Best views |
+| --- | --- | --- | --- |
+| Beginner | A function call | Follow a parameter, local value, and return | Function Journey, Story, Variables |
+| Developing | One function calling another | Follow nested frames and returned values | Function Journey, Story, Variables |
+| Beginner | Calculate a rectangle | Move two arguments into one calculation | Function Journey, Variables, Story |
+| Developing | Greeting with a default | Compare omitted and supplied default arguments | Function Journey, Compare Runs, Variables |
+| Developing | Same name, different scope | Distinguish a local name from a global name | Function Journey, Variables, Watches |
+| Developing | Return minimum and maximum | Return a tuple and unpack it at the caller | Function Journey, Structures, Variables |
+| Guided Challenge | Recursive factorial | Watch recursive frames grow and return | Function Journey, Story, Variables |
+| Guided Challenge | Invoice calculation pipeline | Pass values through several focused functions | Function Journey, Before and After, Variables |
+
+#### Collections, 10 programs
+
+| Level | Example | Main learning goal | Best views |
+| --- | --- | --- | --- |
+| Beginner | Growing a list | Observe repeated list mutation | Structures, Mutation Explorer, Loop Table |
+| Developing | Nested student data | Inspect a dictionary containing a list | Variables, Structures, References |
+| Developing | Counting words | Create and update dictionary entries | Structures, Mutation Explorer, Loop Table |
+| Beginner | First, middle, and last | Compare positive and negative list indexes | Structures, Variables, Story |
+| Beginner | Unpack a coordinate | Split a tuple into named values | Structures, Variables, Before and After |
+| Developing | Unique visitors | Remove duplicates with a set | Structures, Variables, Before and After |
+| Developing | Update a product record | Add and replace dictionary values | Structures, Mutation Explorer, References |
+| Developing | Read a small matrix | Navigate nested row and column indexes | Structures, Variables, References |
+| Guided Challenge | Student gradebook report | Traverse nested data and build a summary | Structures, Loop Table, Mutation Explorer |
+| Guided Challenge | Inventory restock report | Inspect records, collect names, and total value | Structures, Loop Table, Watches |
+
+#### References and Mutation, 4 programs
+
+| Level | Example | Main learning goal | Best views |
+| --- | --- | --- | --- |
+| Developing | Two names sharing one list | Observe shared mutation through aliases | References, Mutation Explorer, Variables |
+| Developing | Mutate or replace a list | Contrast changing an object with rebinding a name | Mutation Explorer, References, Before and After |
+| Developing | Copy an outer list | See a new outer list share nested objects | References, Mutation Explorer, Structures |
+| Guided Challenge | Shared settings experiment | Compare an alias, shallow copy, and nested mutation | References, Mutation Explorer, Before and After |
+
+#### Input and Debugging, 6 programs
+
+| Level | Example | Main learning goal | Best views |
+| --- | --- | --- | --- |
+| Beginner | A personalized greeting | Consume two inputs and choose a branch | Input Playground, Conditions, Compare Runs |
+| Beginner | An index to investigate | Connect `IndexError` to list state | Error Coach, Variables, Structures |
+| Beginner | A number to investigate | Connect `ValueError` to failed integer conversion | Error Coach, Input Playground, Variables |
+| Developing | A key to investigate | Connect `KeyError` to available dictionary keys | Error Coach, Structures, Variables |
+| Developing | Validate a positive number | Repeat prepared input until a value is accepted | Input Playground, Loop Lab, Conditions |
+| Guided Challenge | Prepared order processor | Combine input, conversion, decisions, calculation, and output | Input Playground, Compare Runs, Conditions |
+
+Three debugging examples intentionally stop with `IndexError`, `ValueError`, or `KeyError`. Their failure is the lesson, not a broken example. Error Coach, Variables, and Structures let you inspect the evidence immediately before the failure.
+
+### Learning ladders
+
+Use a ladder when 54 choices feel like too many. Each row is a suggested order, not a requirement.
+
+| Goal | Start | Continue | Finish |
+| --- | --- | --- | --- |
+| Understand values | A tiny calculation | Division and remainders | Cafe receipt calculator |
+| Understand decisions | Pass or try again | Grade bands | Shipping quote |
+| Understand `for` loops | Running total | Count passing scores | Weekly temperature report |
+| Understand `while` loops | Countdown | Save until the goal | Process a task queue |
+| Understand functions | A function call | Same name, different scope | Invoice calculation pipeline |
+| Understand collections | Growing a list | Update a product record | Inventory restock report |
+| Understand references | Two names sharing one list | Copy an outer list | Shared settings experiment |
+| Learn from errors | An index to investigate | A key to investigate | Fix each example and rerun it |
+
+```text
+ONE CONCEPT
+Beginner example
+      |
+      v
+COMBINE TWO IDEAS
+Developing example
+      |
+      v
+READ A COMPLETE SMALL PROGRAM
+Guided Challenge
+      |
+      v
+CHANGE ONE INPUT OR VALUE
+Compare Runs
+      |
+      v
+EXPLAIN IT IN YOUR OWN WORDS
+Learning comments and bookmarks
+```
 
 ### What selecting an example does
 
@@ -1258,21 +1510,19 @@ Select an example card
 
 If you want to keep your current program, use **Copy** before choosing another example.
 
-The two input examples prepare safe sample responses automatically:
+Examples that call `input()` prepare safe sample responses automatically. Selecting one replaces the Input Playground text with the values required by that example.
 
 ```text
-Different inputs, different paths
-Prepared input: 72
-
-A personalized greeting
-Prepared inputs:
-Aman
-25
+Different inputs, different paths: 72
+A personalized greeting: Aman, then 25
+A number to investigate: twelve
+Validate a positive number: -3, then 7
+Prepared order processor: Notebook, 3, then yes
 ```
 
 You can replace these values in Input Playground before running.
 
-### Suggested example order
+### A broad first-time route
 
 ```text
 A tiny calculation
@@ -1295,10 +1545,17 @@ Growing a list      Find and skip loop examples
         +--------+--------+
                  |
                  v
-       References and nested data
+ Two names sharing one list
+       and nested data
                  |
                  v
         Input comparison and errors
+                 |
+                 v
+       One Guided Challenge
+                 |
+                 v
+       Generate learning comments
 ```
 
 ## Guided beginner walkthroughs
@@ -1309,7 +1566,7 @@ The walkthroughs below are lessons, not merely demonstrations. For each one, pre
 
 **Learning objective:** understand the relationship between source lines, trace steps, variable state, and console output.
 
-Load **Basics > A tiny calculation**:
+Load **Foundations > A tiny calculation**:
 
 ```python
 price = 8
@@ -1414,7 +1671,7 @@ Check your answer: the final result remains `30`, and Story should still explain
 
 **Learning objective:** see that strings are values with indexed contents and that concatenation creates a new string.
 
-Load **Basics > Building a message**:
+Load **Foundations > Building a message**:
 
 ```python
 language = "Python"
@@ -1748,7 +2005,7 @@ Check your answer: every iteration should run and `found_at` should remain `-1`.
 
 **Learning objective:** observe a function frame, parameter binding, local calculation, and returned result.
 
-Load **Functions > A function call**:
+Load **Functions and Scope > A function call**:
 
 ```python
 def double(number):
@@ -1807,7 +2064,7 @@ Check your answer: the local `result`, returned value, global `answer`, and outp
 
 **Learning objective:** understand nested function frames and values moving through multiple calls.
 
-Load **Functions > One function calling another**:
+Load **Functions and Scope > One function calling another**:
 
 ```python
 def add_tax(price):
@@ -2069,7 +2326,7 @@ Run A with 72: Pass
 Run B with 40: Try again
 ```
 
-Part B uses **Input and Errors > An index to investigate**:
+Part B uses **Input and Debugging > An index to investigate**:
 
 ```python
 colors = ["mint", "purple"]
@@ -2164,6 +2421,7 @@ RUNNING
 
 - Empty views explain what data they need.
 - Playback controls remain disabled.
+- **Learning comments** remains disabled because no runtime evidence exists yet.
 - The console says output will appear there.
 - The header may report that Python is loading.
 
@@ -2182,12 +2440,14 @@ RUNNING
 - Story, Data, Flow, and Lab views receive data from the same timeline.
 - Console output follows the selected step.
 - Selecting another step updates every view consistently.
+- **Learning comments** becomes available and opens a separate preview of the current source with trace-backed teaching notes.
 
 ### After editing source
 
 - The source is saved automatically.
 - The previous trace is cleared.
 - Old coverage, path, loop, variable, and bookmark results disappear.
+- Old generated learning-note metadata disappears and **Learning comments** becomes disabled.
 - A new **Run trace** is required.
 
 ### After a runtime error
@@ -2196,12 +2456,14 @@ RUNNING
 - The failing line and original Python message are shown.
 - Error Coach provides beginner guidance.
 - Console output produced before the error remains available.
+- Learning comments may still be available for statements that Python parsed and for trace evidence recorded before the failure.
 
 ### After a syntax error
 
 - Python does not produce an execution timeline because the program could not start.
 - Code Explorer points to the syntax line when available.
 - Error Coach opens with a grammar-focused suggestion.
+- Learning comments remain disabled because there is no valid parsed program or runtime trace to support them.
 
 ## Errors and helpful messages
 
@@ -2219,6 +2481,9 @@ RUNNING
 | No loop detected yet | No supported loop was found or reached | Run a program containing `for` or `while` |
 | No references yet | No completed trace is available | Run the program first |
 | Name is not in scope | The watched name does not exist at this step | Move to a later step or inspect another scope |
+| Learning comments is disabled | No supported completed trace exists for the current source | Run the current program, or correct a syntax error and run again |
+| A source line has no generated note | The construct is unsupported, ambiguous, or not useful at the chosen detail level | Choose Detailed, or study that line with Story and Before and After |
+| Replace editor asks for confirmation | The action will replace the complete editor document | Review the preview, then confirm or cancel |
 
 ## Limits
 
@@ -2311,12 +2576,15 @@ CURRENT EXECUTION ONLY
 +-- Loop results
 +-- Trace bookmarks
 +-- Playback state
++-- Automatic Learning Comments preview and metadata
 
 New run or changed source
         |
         v
 Execution-only state is cleared, then rebuilt by the next run
 ```
+
+If you confirm **Replace editor**, the commented document becomes ordinary editor source and is saved locally like any source edit. Merely opening or copying the generated preview does not save the preview.
 
 The following are saved locally when browser storage is available:
 
@@ -2473,116 +2741,618 @@ Editing automatically clears stale results. Run a new trace for the current sour
 
 This is expected. Console output is synchronized with the selected point in time. Move forward again to see output produced by later steps.
 
+### Learning comments is disabled
+
+1. Confirm that the visible source has been run since its last edit.
+2. Correct any syntax error and run again.
+3. Wait for the completed trace before selecting the button.
+4. If a runtime error occurred, check whether any source statements executed before the failure.
+
+### A generated note is missing
+
+Open the detail selector and choose **Detailed**. If the line still has no note, Code Explorer did not have enough reliable evidence to explain it. This is intentional. Use Story, Before and After, Function Journey, or the relevant specialist view instead of treating the missing note as an error.
+
+### Generated comments appear in the editor
+
+This happens only after **Replace editor** was confirmed. Lines beginning with `# Code Explorer:` are generated notes. You can remove them manually, undo the replacement while the editor history remains available, or rerun the commented program and generate a fresh copy. A fresh generation removes older lines with that exact prefix before adding the current notes, so it does not stack duplicate generated layers.
+
 ## Python concepts glossary
 
-### Assignment
+This glossary is designed to be used beside a trace. Each entry explains the idea, shows a small example, warns about a common misunderstanding, and points to the Code Explorer views that make the idea visible.
 
-Assignment connects a name to a value or object.
+### A concept-finding map
+
+```text
+What kind of concept is confusing?
+|
++-- Names and values
+|   +-- name, value, type, expression, assignment, reassignment
+|
++-- Choosing and repeating
+|   +-- Boolean, condition, branch, for, while, iteration
+|   +-- accumulator, counter, break, continue
+|
++-- Functions
+|   +-- definition, call, parameter, argument, return
+|   +-- scope, frame, call stack, recursion
+|
++-- Collections
+|   +-- list, tuple, dictionary, set, index, key
+|   +-- nested structure, mutable object, immutable value
+|
++-- Object relationships
+|   +-- reference, identity, alias, mutation, shallow copy
+|
++-- Program communication and failure
+|   +-- input, output, syntax error, runtime error, exception
+|
++-- Code Explorer evidence
+    +-- trace step, coverage, execution path, reference map
+```
+
+### Name, value, and type
+
+A **name** is the word used to refer to data. A **value** is the data itself. A **type** describes the kind of value and the operations Python supports for it.
 
 ```python
 score = 10
+message = "Ready"
 ```
+
+Here, `score` is a name referring to the integer value `10`. `message` refers to a string value.
+
+Common misunderstanding: a variable is not a labelled physical box shown by Code Explorer. Python names refer to values or objects. Open **Data > References** when the relationship between a name and an object matters.
+
+Best views: **Variables**, **References**, **Story**.
+
+### Expression
+
+An expression is code that Python evaluates to produce a value.
+
+```python
+subtotal = price * quantity
+```
+
+`price * quantity` is the expression. Assignment then connects `subtotal` to its result.
+
+Common misunderstanding: not every source line is one expression. A line can contain a statement, an expression inside that statement, and a function call inside the expression.
+
+Best views: **Story**, **Before and After**, **Variables**.
+
+### Assignment
+
+Assignment evaluates the expression on the right, then connects the name on the left to the resulting value or object.
+
+```python
+price = 8
+total = price * 3
+```
+
+Common misunderstanding: `=` does not mean mathematical equality in an assignment. It performs an action. Use `==` when asking whether two values are equal.
+
+Best views: **Before and After**, **Variables**, **Story**.
+
+### Reassignment
+
+Reassignment makes an existing name refer to a different value or object.
+
+```python
+status = "waiting"
+status = "ready"
+```
+
+The second line does not edit the string `"waiting"`. It connects `status` to another string.
+
+Common misunderstanding: reassignment and mutation can produce similar printed results but different reference relationships.
+
+Best views: **Before and After**, **Mutation Explorer**, **References**.
+
+### Boolean value
+
+A Boolean value is either `True` or `False`. Comparisons and logical operators often produce Booleans.
+
+```python
+old_enough = age >= 18
+can_enter = old_enough and has_ticket
+```
+
+Common misunderstanding: the strings `"True"` and `"False"` are text, not Boolean values.
+
+Best views: **Variables**, **Conditions**, **Before and After**.
+
+### Condition and branch
+
+A **condition** is an expression Python treats as true or false. A **branch** is the path selected because of that result.
+
+```python
+if score >= 50:
+    result = "Pass"
+else:
+    result = "Try again"
+```
+
+Only one assignment runs in this example. Another input can select the other branch.
+
+Common misunderstanding: an `else` block does not have its own separate test. It runs when the earlier connected conditions did not select a branch.
+
+Best views: **Conditions**, **Coverage**, **Execution Path**.
+
+### `elif`
+
+`elif` means "otherwise, check this next condition." Python checks the ladder from top to bottom and stops at the first matching branch.
+
+```python
+if score >= 90:
+    grade = "A"
+elif score >= 80:
+    grade = "B"
+else:
+    grade = "C or below"
+```
+
+Common misunderstanding: every `elif` is not checked after a previous branch succeeds.
+
+Best views: **Conditions**, **Coverage**, **Execution Path**.
+
+### `for` loop and iterable
+
+A `for` loop takes values from an **iterable**, one at a time, and runs its body for each value.
+
+```python
+for color in ["mint", "purple"]:
+    print(color)
+```
+
+The list is iterable. `color` receives a different element during each iteration.
+
+Common misunderstanding: the loop variable does not contain the whole collection at once.
+
+Best views: **Loop Table**, **Loop Lab**, **Variables**.
+
+### `while` loop
+
+A `while` loop repeats while its condition is true.
+
+```python
+count = 3
+while count > 0:
+    count -= 1
+```
+
+Something in the loop normally needs to move the condition toward false.
+
+Common misunderstanding: a `while` loop does not automatically update its condition variables. Forgetting the update can create an infinite loop.
+
+Best views: **Loop Lab**, **Conditions**, **Execution Path**.
+
+### Iteration
+
+An iteration is one pass through a loop body.
+
+```python
+for number in range(3):
+    print(number)
+```
+
+The body has three iterations with `number` equal to `0`, `1`, and `2`.
+
+Common misunderstanding: a trace step and an iteration are not the same unit. One iteration can execute several source lines and therefore create several trace steps.
+
+Best views: **Loop Table**, **Loop Lab**, **Story**.
+
+### Accumulator and counter
+
+An **accumulator** combines values over time. A **counter** records how many times something happened.
+
+```python
+total = 0
+passing_count = 0
+for score in scores:
+    total += score
+    if score >= 50:
+        passing_count += 1
+```
+
+Common misunderstanding: both often start at zero, but they answer different questions. `total` answers "how much?" while `passing_count` answers "how many?"
+
+Best views: **Loop Table**, **Watches**, **Before and After**.
+
+### `break` and `continue`
+
+`break` ends the nearest loop. `continue` skips the rest of the current iteration and begins the next one.
+
+```python
+for number in numbers:
+    if number < 0:
+        continue
+    if number == target:
+        break
+```
+
+Common misunderstanding: `continue` does not end the whole loop, and `break` does not end the entire program.
+
+Best views: **Execution Path**, **Coverage**, **Loop Table**.
+
+### Function definition and function call
+
+A function definition creates reusable behavior. A function call runs that behavior.
+
+```python
+def double(number):
+    return number * 2
+
+answer = double(4)
+```
+
+The `def` statement defines `double`. `double(4)` calls it.
+
+Common misunderstanding: defining a function does not run its body immediately.
+
+Best views: **Function Journey**, **Story**, **Coverage**.
+
+### Parameter and argument
+
+A **parameter** is a name in a function definition. An **argument** is a value supplied by a particular call.
+
+```python
+def greet(name):       # name is a parameter
+    return "Hi " + name
+
+message = greet("Ava") # "Ava" is an argument
+```
+
+Common misunderstanding: the parameter belongs to the function's local scope. The argument expression is evaluated by the caller.
+
+Best views: **Function Journey**, **Variables**, **Before and After**.
+
+### Return value
+
+`return` ends the current function call and sends a value back to its caller.
+
+```python
+def square(number):
+    return number * number
+
+result = square(5)
+```
+
+Common misunderstanding: `print()` displays a value, while `return` gives a value to the calling code. Printing is not a substitute for returning.
+
+Best views: **Function Journey**, **Story**, **Variables**.
 
 ### Scope
 
-Scope describes where a name is available. Code Explorer distinguishes the global scope from active function-local scopes.
+Scope describes where a name can be used. Code Explorer distinguishes global scope from active function-local scopes.
+
+```python
+message = "global"
+
+def show():
+    message = "local"
+    print(message)
+```
+
+The two `message` names belong to different scopes.
+
+Common misunderstanding: a local name with the same spelling does not automatically replace the global name.
+
+Best views: **Variables**, **Function Journey**, **Watches**.
 
 ### Frame
 
-A frame is a function's active working context. It contains the function's current local variables and execution position.
+A frame is one active function call's working context. It includes the current execution position and that call's local variables.
+
+Calling the same function twice creates two separate frames over time. Recursive calls can create several active frames for the same function at once.
+
+Common misunderstanding: a function definition is not a frame. A frame exists while a particular call is active.
+
+Best views: **Function Journey**, **Variables**, **Story**.
 
 ### Call stack
 
-The call stack is the ordered set of active frames. If `outer()` calls `inner()`, both functions can appear on the stack until `inner()` returns.
+The call stack is the ordered collection of active frames. If `outer()` calls `inner()`, `outer` waits below `inner` until `inner` returns.
+
+```text
+top:    inner frame       currently running
+        outer frame       waiting for inner
+bottom: global frame      started the call chain
+```
+
+Common misunderstanding: the call stack is not a history of every completed call. Function Journey can also summarize completed events, while the active stack describes what is active at one moment.
+
+Best views: **Function Journey**, **Story**, **Variables**.
+
+### Recursion
+
+Recursion occurs when a function calls itself, directly or through other functions.
+
+```python
+def countdown(number):
+    if number <= 0:
+        return
+    countdown(number - 1)
+```
+
+The condition is a base case that stops new calls.
+
+Common misunderstanding: recursion is not automatically infinite. It becomes unsafe when calls do not move toward a reachable base case.
+
+Best views: **Function Journey**, **Variables**, **Execution Path**.
+
+### List
+
+A list is an ordered, mutable collection. Positions use zero-based indexes.
+
+```python
+colors = ["red", "green", "blue"]
+first = colors[0]
+colors.append("purple")
+```
+
+Common misunderstanding: the first index is `0`, and the final positive index is one less than the list length.
+
+Best views: **Structures**, **Mutation Explorer**, **Variables**.
+
+### Tuple
+
+A tuple is an ordered, immutable collection. It is useful for fixed groups of values and multiple return values.
+
+```python
+point = (12, 7)
+x, y = point
+```
+
+Common misunderstanding: parentheses do not make every expression a tuple. A comma creates the tuple structure.
+
+Best views: **Structures**, **Variables**, **Before and After**.
+
+### Dictionary, key, and value
+
+A dictionary maps unique keys to values.
+
+```python
+product = {"name": "Notebook", "stock": 4}
+product["stock"] = 7
+```
+
+`"stock"` is a key and `7` is its current value.
+
+Common misunderstanding: dictionary access uses a key, not a numeric position unless numbers were deliberately used as keys. Requesting a missing key raises `KeyError`.
+
+Best views: **Structures**, **Mutation Explorer**, **Variables**.
+
+### Set
+
+A set is a mutable collection of unique values. Sets are useful for membership tests and removing duplicates.
+
+```python
+visits = ["Ava", "Noah", "Ava"]
+people = set(visits)
+```
+
+Common misunderstanding: a set is not designed around stable positional indexes. Do not expect `people[0]` to work.
+
+Best views: **Structures**, **Variables**, **Before and After**.
+
+### Index
+
+An index identifies a position in an ordered collection such as a list, tuple, or string.
+
+```python
+word = "Python"
+first = word[0]
+last = word[-1]
+```
+
+Common misunderstanding: a six-character sequence has positive indexes `0` through `5`, not `1` through `6`.
+
+Best views: **Structures**, **Variables**, **Error Coach**.
+
+### Nested structure
+
+A nested structure contains another collection as a value or element.
+
+```python
+student = {"name": "Ava", "scores": [82, 91]}
+first_score = student["scores"][0]
+```
+
+Read access from left to right: find the dictionary value at `"scores"`, then find list element `0` inside that value.
+
+Common misunderstanding: one pair of brackets handles one level of access.
+
+Best views: **Structures**, **References**, **Variables**.
 
 ### Mutable object
 
-A mutable object can change its contents while remaining the same object. Lists, dictionaries, and sets are common examples.
+A mutable object can change its contents while remaining the same object. Lists, dictionaries, and sets are common mutable objects.
 
 ```python
 items = []
 items.append(1)
 ```
 
+Common misunderstanding: mutation does not require assigning the collection back to the same name.
+
+Best views: **Mutation Explorer**, **References**, **Structures**.
+
 ### Immutable value
 
-An immutable value cannot be changed in place. Assigning a new integer, string, or tuple value connects the name to another value.
+An immutable value cannot be changed in place. Integers, floats, Booleans, strings, and tuples are common immutable values.
 
 ```python
 count = 1
 count = count + 1
 ```
 
+The second line produces another integer value and reassigns `count`.
+
+Common misunderstanding: `count += 1` looks like mutation, but an integer is immutable. The name receives another integer value.
+
+Best views: **Before and After**, **Variables**, **Mutation Explorer**.
+
 ### Mutation
 
 Mutation changes the contents of an existing mutable object.
 
 ```python
+numbers = [1, 2]
 numbers.append(3)
 ```
 
-### Reassignment
+Common misunderstanding: a new visual snapshot does not necessarily mean a new Python object was created. Mutation Explorer distinguishes content change from reassignment.
 
-Reassignment makes a name reference a different value or object.
+Best views: **Mutation Explorer**, **References**, **Before and After**.
 
-```python
-numbers = [3]
-```
+### Reference, identity, and alias
 
-### Alias
-
-Two names are aliases when they reference the same object.
+A **reference** connects a name or container position to an object. **Identity** answers whether two references lead to the same object. Two names are **aliases** when they reference the same object.
 
 ```python
 first = []
 second = first
+same_object = first is second
 ```
 
-### Iteration
+Mutating `second` is visible through `first` because both names reach the same list.
 
-An iteration is one pass through a loop body.
+Common misunderstanding: equality with `==` compares values, while identity with `is` asks whether references reach the same object.
+
+Best views: **References**, **Mutation Explorer**, **Variables**.
+
+### Shallow copy
+
+A shallow copy creates a new outer container but keeps references to the same nested objects.
+
+```python
+original = [[1, 2]]
+copied = original.copy()
+copied[0].append(3)
+```
+
+The outer lists are different objects, but their first elements refer to the same inner list.
+
+Common misunderstanding: shallow copying does not recursively duplicate every nested object.
+
+Best views: **References**, **Mutation Explorer**, **Structures**.
+
+### Input and output
+
+`input()` reads text supplied by the learner. `print()` sends text representations to console output.
+
+```python
+raw_age = input("Age: ")
+age = int(raw_age)
+print("Next age:", age + 1)
+```
+
+Common misunderstanding: `input()` always returns a string. Numeric-looking text must be converted before numeric arithmetic.
+
+Best views: **Input Playground**, **Story**, **Console Output**.
+
+### Syntax error
+
+A syntax error means Python could not parse the program's grammar.
+
+```python
+if ready
+    print("Go")
+```
+
+The missing colon prevents execution from starting, so no runtime timeline exists.
+
+Common misunderstanding: a syntax error is not a false condition or a runtime branch. Python cannot begin the program.
+
+Best views: **Error Coach**, editor line highlight.
+
+### Runtime error and exception
+
+A runtime error happens after valid code begins executing. Python represents the problem with an exception such as `IndexError`, `KeyError`, or `ValueError`.
+
+```python
+numbers = [4, 8]
+print(numbers[3])
+```
+
+The earlier assignment can still appear in a partial trace before the `IndexError`.
+
+Common misunderstanding: an exception message is evidence, not a judgement about the learner. Read the type, failing line, and current values together.
+
+Best views: **Error Coach**, **Variables**, **Structures**.
 
 ### Trace step
 
-A trace step is one recorded execution snapshot containing a source line, visible variables, active frames, and output at that moment.
+A trace step is one recorded execution snapshot. It includes a source line, visible variables, active frames, and output observed at that moment.
+
+Common misunderstanding: one source line can produce several trace steps when a loop or function reaches it repeatedly.
+
+Best views: **Story**, **Before and After**, timeline controls.
 
 ### Coverage
 
-Coverage describes which source lines were observed during one run. It does not prove that every possible input or branch has been tested.
+Coverage reports which executable source lines were reached, repeated, or missed during one run.
+
+Common misunderstanding: 100 percent coverage for one input does not prove that the program is correct or that every possible value was tested.
+
+Best views: **Coverage**, **Execution Path**, **Compare Runs**.
+
+### Execution path
+
+The execution path is the observed order of reached source lines. Edge counts show repeated transitions.
+
+Common misunderstanding: the graph shows the path for this run, not every theoretical route through the program.
+
+Best views: **Execution Path**, **Coverage**, **Conditions**.
 
 ### Reference map
 
-A reference map is a conceptual diagram connecting scopes, names, and captured objects. It is not a physical memory-address display.
+A reference map is a conceptual diagram connecting scopes, names, and captured objects.
+
+Common misunderstanding: the displayed object nodes are not physical RAM addresses and should not be used to estimate memory consumption.
+
+Best views: **References**, **Mutation Explorer**, **Variables**.
 
 ### How the glossary concepts connect
 
 ```text
-PROGRAM EXECUTION
+PYTHON PROGRAM
 |
-+-- Trace step
-|   +-- source line
-|   +-- output so far
-|   +-- active call stack
-|       +-- frame
-|           +-- scope
-|               +-- assignment creates or changes names
++-- statements contain expressions
+|       |
+|       +-- expressions produce values with types
+|       +-- assignment connects names to values or objects
 |
-+-- Values and objects
-|   +-- immutable value
-|   |   +-- reassignment connects a name to another value
-|   |
-|   +-- mutable object
-|       +-- mutation changes existing contents
-|       +-- alias gives the same object another name
++-- control flow
+|       +-- conditions select branches
+|       +-- for loops consume iterables
+|       +-- while loops repeat while a condition is true
+|       +-- each pass is an iteration
 |
-+-- Repeated control flow
-|   +-- iteration
-|   +-- loop path
++-- function calls
+|       +-- arguments enter parameters
+|       +-- each call creates a frame and local scope
+|       +-- active frames form the call stack
+|       +-- return sends a value to the caller
 |
-+-- Whole-run evidence
-    +-- coverage
-    +-- reference map
-    +-- execution path
++-- collections and objects
+|       +-- list, tuple, dictionary, set
+|       +-- indexes and keys locate contents
+|       +-- mutable objects can change contents
+|       +-- aliases can share one object
+|       +-- shallow copies share nested objects
+|
++-- communication and failure
+|       +-- input supplies strings
+|       +-- output displays values
+|       +-- syntax errors prevent execution
+|       +-- runtime exceptions stop an active path
+|
++-- CODE EXPLORER EVIDENCE
+        +-- trace steps show moments
+        +-- coverage shows reached lines
+        +-- execution path shows observed order
+        +-- reference map shows conceptual relationships
+        +-- learning comments combine syntax with trace facts
 ```
 
 ## A final beginner workflow

@@ -217,7 +217,7 @@ function prepareExampleInputs(inputs) {
  */
 const EXAMPLES = [
   {
-    category: "Basics",
+    category: "Foundations",
     topic: "Variables",
     level: "Beginner",
     title: "A tiny calculation",
@@ -229,7 +229,7 @@ total = price * quantity
 print("Total:", total)`,
   },
   {
-    category: "Basics",
+    category: "Foundations",
     topic: "Strings",
     level: "Beginner",
     title: "Building a message",
@@ -259,7 +259,7 @@ print(result)`,
   {
     category: "Decisions",
     topic: "Boolean logic",
-    level: "Intermediate",
+    level: "Developing",
     title: "Checking multiple conditions",
     description: "Break an and expression into the two facts Python checks.",
     views: ["Conditions", "Before and After", "Coverage"],
@@ -317,7 +317,7 @@ print("Lift off!")`,
   {
     category: "Loops",
     topic: "Break",
-    level: "Intermediate",
+    level: "Developing",
     title: "Find the first match",
     description: "Watch break end a search as soon as the target is found.",
     views: ["Execution Path", "Coverage", "Loop Table"],
@@ -335,7 +335,7 @@ print("Found at:", found_at)`,
   {
     category: "Loops",
     topic: "Continue",
-    level: "Intermediate",
+    level: "Developing",
     title: "Skip unwanted values",
     description: "See continue skip even values while the loop keeps moving.",
     views: ["Execution Path", "Coverage", "Loop Table"],
@@ -349,7 +349,7 @@ for number in range(1, 7):
 print(kept)`,
   },
   {
-    category: "Functions",
+    category: "Functions and Scope",
     topic: "Functions",
     level: "Beginner",
     title: "A function call",
@@ -363,9 +363,9 @@ answer = double(4)
 print(answer)`,
   },
   {
-    category: "Functions",
+    category: "Functions and Scope",
     topic: "Nested calls",
-    level: "Intermediate",
+    level: "Developing",
     title: "One function calling another",
     description: "Follow two function frames as a value moves down and back up.",
     views: ["Function Journey", "Story", "Variables"],
@@ -394,9 +394,9 @@ for number in range(1, 4):
 print(squares)`,
   },
   {
-    category: "Collections",
+    category: "References and Mutation",
     topic: "Aliases",
-    level: "Intermediate",
+    level: "Developing",
     title: "Two names sharing one list",
     description: "See how mutation through one name appears through the other.",
     views: ["References", "Mutation Explorer", "Variables"],
@@ -408,9 +408,9 @@ print("first:", first)
 print("second:", second)`,
   },
   {
-    category: "Collections",
+    category: "References and Mutation",
     topic: "Object identity",
-    level: "Intermediate",
+    level: "Developing",
     title: "Mutate or replace a list",
     description: "Compare changing Object A with assigning a new Object B.",
     views: ["Mutation Explorer", "References", "Before and After"],
@@ -426,7 +426,7 @@ print("items:", items)`,
   {
     category: "Collections",
     topic: "Nested data",
-    level: "Intermediate",
+    level: "Developing",
     title: "Nested student data",
     description: "Open a dictionary containing a list and follow a nested update.",
     views: ["Variables", "Structures", "References"],
@@ -443,7 +443,7 @@ print(student["name"], round(average, 1))`,
   {
     category: "Collections",
     topic: "Dictionaries",
-    level: "Intermediate",
+    level: "Developing",
     title: "Counting words",
     description: "Watch dictionary keys appear and counts change inside a loop.",
     views: ["Structures", "Mutation Explorer", "Loop Table"],
@@ -456,7 +456,7 @@ for word in words:
 print(counts)`,
   },
   {
-    category: "Input and Errors",
+    category: "Input and Debugging",
     topic: "Input",
     level: "Beginner",
     title: "A personalized greeting",
@@ -474,7 +474,7 @@ else:
 print(message)`,
   },
   {
-    category: "Input and Errors",
+    category: "Input and Debugging",
     topic: "Errors",
     level: "Beginner",
     title: "An index to investigate",
@@ -484,17 +484,739 @@ print(message)`,
 requested_index = 2
 print(colors[requested_index])`,
   },
+
+  // Foundations add several value types and two complete small programs so
+  // learners can progress beyond the original arithmetic and string examples.
+  {
+    category: "Foundations",
+    topic: "Numeric conversion",
+    level: "Beginner",
+    title: "Celsius to Fahrenheit",
+    description: "Follow arithmetic, a converted value, and a formatted result.",
+    views: ["Story", "Before and After", "Variables"],
+    code: `celsius = 24
+factor = 9 / 5
+fahrenheit = celsius * factor + 32
+rounded = round(fahrenheit, 1)
+
+print("Fahrenheit:", rounded)`,
+  },
+  {
+    category: "Foundations",
+    topic: "Number types",
+    level: "Developing",
+    title: "Division and remainders",
+    description: "Compare ordinary division, floor division, and modulo results.",
+    views: ["Variables", "Before and After", "Story"],
+    code: `minutes = 137
+hours = minutes // 60
+remaining_minutes = minutes % 60
+decimal_hours = minutes / 60
+
+print(hours, remaining_minutes, round(decimal_hours, 2))`,
+  },
+  {
+    category: "Foundations",
+    topic: "String methods",
+    level: "Developing",
+    title: "Cleaning a username",
+    description: "Transform text step by step with strip, lower, and replace.",
+    views: ["Before and After", "Variables", "Story"],
+    code: `raw_name = "  Ada Lovelace  "
+trimmed = raw_name.strip()
+lowercase = trimmed.lower()
+username = lowercase.replace(" ", "_")
+length = len(username)
+
+print(username)
+print("Characters:", length)`,
+  },
+  {
+    category: "Foundations",
+    topic: "Boolean values",
+    level: "Beginner",
+    title: "Building status flags",
+    description: "Create Boolean facts and combine them into one readiness value.",
+    views: ["Variables", "Before and After", "Conditions"],
+    code: `has_name = True
+has_email = True
+accepted_rules = False
+profile_ready = has_name and has_email and accepted_rules
+
+print("Ready:", profile_ready)`,
+  },
+  {
+    category: "Foundations",
+    topic: "Complete calculation",
+    level: "Guided Challenge",
+    title: "Cafe receipt calculator",
+    description: "Read a longer calculation that produces subtotal, tax, tip, and total.",
+    views: ["Before and After", "Variables", "Story"],
+    code: `coffee_price = 4.50
+sandwich_price = 8.25
+coffee_quantity = 2
+sandwich_quantity = 1
+
+coffee_cost = coffee_price * coffee_quantity
+sandwich_cost = sandwich_price * sandwich_quantity
+subtotal = coffee_cost + sandwich_cost
+tax_rate = 0.13
+tax = subtotal * tax_rate
+tip = 3.00
+total = subtotal + tax + tip
+
+print("Subtotal:", round(subtotal, 2))
+print("Tax:", round(tax, 2))
+print("Total:", round(total, 2))`,
+  },
+  {
+    category: "Foundations",
+    topic: "Mixed values",
+    level: "Guided Challenge",
+    title: "Personal profile summary",
+    description: "Combine text, numbers, conversion, and Boolean state in one report.",
+    views: ["Variables", "Story", "Before and After"],
+    code: `first_name = "Maya"
+last_name = "Chen"
+birth_year = 2002
+current_year = 2026
+favorite_language = "Python"
+
+full_name = first_name + " " + last_name
+age = current_year - birth_year
+is_adult = age >= 18
+headline = full_name + " learns " + favorite_language
+
+print(headline)
+print("Age:", age)
+print("Adult:", is_adult)
+print("Name length:", len(full_name))`,
+  },
+
+  // Decision examples cover elif, nesting, membership, and a complete quote so
+  // Conditions and Coverage can show more than one simple two-way branch.
+  {
+    category: "Decisions",
+    topic: "Elif ladder",
+    level: "Developing",
+    title: "Grade bands",
+    description: "See Python stop at the first matching branch in an elif ladder.",
+    views: ["Conditions", "Coverage", "Execution Path"],
+    code: `score = 84
+
+if score >= 90:
+    grade = "A"
+elif score >= 80:
+    grade = "B"
+elif score >= 70:
+    grade = "C"
+else:
+    grade = "Keep practicing"
+
+print(grade)`,
+  },
+  {
+    category: "Decisions",
+    topic: "Nested conditions",
+    level: "Guided Challenge",
+    title: "Account access check",
+    description: "Follow an outer identity check and an inner permission decision.",
+    views: ["Conditions", "Coverage", "Execution Path"],
+    code: `username = "aman"
+entered_password = "python123"
+saved_password = "python123"
+is_admin = False
+account_active = True
+
+if username and entered_password == saved_password:
+    if account_active:
+        if is_admin:
+            message = "Administrator access"
+        else:
+            message = "Standard access"
+    else:
+        message = "Account inactive"
+else:
+    message = "Login failed"
+
+print(message)`,
+  },
+  {
+    category: "Decisions",
+    topic: "Membership",
+    level: "Beginner",
+    title: "Allowed color check",
+    description: "Use in to test whether one value belongs to a collection.",
+    views: ["Conditions", "Structures", "Coverage"],
+    code: `allowed_colors = ["mint", "purple", "amber"]
+selected_color = "purple"
+
+if selected_color in allowed_colors:
+    message = "Color accepted"
+else:
+    message = "Choose another color"
+
+print(message)`,
+  },
+  {
+    category: "Decisions",
+    topic: "Business rules",
+    level: "Guided Challenge",
+    title: "Shipping quote",
+    description: "Combine membership, order value, distance, and several price paths.",
+    views: ["Conditions", "Coverage", "Before and After"],
+    code: `order_total = 72.50
+distance_km = 18
+is_member = True
+remote_area = False
+
+if order_total >= 100:
+    shipping = 0
+elif is_member and order_total >= 50:
+    shipping = 4
+else:
+    shipping = 8
+
+if distance_km > 25:
+    shipping += 5
+
+if remote_area:
+    shipping += 7
+grand_total = order_total + shipping
+print("Shipping:", shipping)
+print("Grand total:", grand_total)`,
+  },
+
+  // Loop additions deliberately vary for, while, break, collections, nesting,
+  // and report-style programs so repeated execution becomes a full curriculum.
+  {
+    category: "Loops",
+    topic: "List building",
+    level: "Beginner",
+    title: "Even number squares",
+    description: "Build a new list from values that pass a condition inside a loop.",
+    views: ["Loop Table", "Mutation Explorer", "Conditions"],
+    code: `squares = []
+
+for number in range(1, 7):
+    if number % 2 == 0:
+        squares.append(number * number)
+
+print(squares)`,
+  },
+  {
+    category: "Loops",
+    topic: "Counting matches",
+    level: "Developing",
+    title: "Count passing scores",
+    description: "Watch a counter change only when an item meets the rule.",
+    views: ["Loop Table", "Conditions", "Watches"],
+    code: `scores = [42, 75, 88, 51, 39]
+passing_count = 0
+
+for score in scores:
+    if score >= 50:
+        passing_count += 1
+
+print("Passing:", passing_count)`,
+  },
+  {
+    category: "Loops",
+    topic: "Running maximum",
+    level: "Developing",
+    title: "Find the highest temperature",
+    description: "Follow a candidate maximum as the loop inspects each value.",
+    views: ["Loop Table", "Before and After", "Conditions"],
+    code: `temperatures = [18, 23, 21, 27, 24]
+highest = temperatures[0]
+
+for temperature in temperatures:
+    if temperature > highest:
+        highest = temperature
+
+print("Highest:", highest)`,
+  },
+  {
+    category: "Loops",
+    topic: "While target",
+    level: "Beginner",
+    title: "Save until the goal",
+    description: "Use while to repeat deposits until a changing total reaches its target.",
+    views: ["Loop Lab", "Loop Table", "Watches"],
+    code: `savings = 20
+goal = 80
+weekly_deposit = 15
+
+while savings < goal:
+    savings += weekly_deposit
+    print("Saved:", savings)
+
+print("Goal reached")`,
+  },
+  {
+    category: "Loops",
+    topic: "While mutation",
+    level: "Guided Challenge",
+    title: "Process a task queue",
+    description: "Remove tasks until a list is empty while recording completed work.",
+    views: ["Loop Lab", "Mutation Explorer", "Structures"],
+    code: `pending = ["email", "review", "deploy", "report"]
+completed = []
+step = 1
+
+while pending:
+    current = pending.pop(0)
+    completed.append(current)
+    print("Step", step, current)
+    step += 1
+
+remaining = len(pending)
+finished = len(completed)
+
+print("Remaining:", remaining)
+print("Finished:", finished)
+print("Completed tasks:", completed)`,
+  },
+  {
+    category: "Loops",
+    topic: "Nested loops",
+    level: "Guided Challenge",
+    title: "Build a session schedule",
+    description: "Follow an outer day loop and an inner session loop.",
+    views: ["Execution Path", "Loop Table", "Coverage"],
+    code: `days = ["Monday", "Tuesday"]
+topics = ["Variables", "Loops", "Functions"]
+schedule = []
+session_number = 1
+
+for day in days:
+    for topic in topics:
+        label = day + ": " + topic
+        schedule.append(label)
+        print(session_number, label)
+        session_number += 1
+
+total_days = len(days)
+total_sessions = len(schedule)
+
+print("Days:", total_days)
+print("Sessions:", total_sessions)`,
+  },
+  {
+    category: "Loops",
+    topic: "Loop report",
+    level: "Guided Challenge",
+    title: "Weekly temperature report",
+    description: "Calculate a total, average, maximum, and warm-day count in one pass.",
+    views: ["Loop Table", "Watches", "Conditions"],
+    code: `temperatures = [19, 23, 17, 26, 25, 21, 28]
+total = 0
+highest = temperatures[0]
+warm_days = 0
+
+for temperature in temperatures:
+    total += temperature
+    if temperature > highest:
+        highest = temperature
+    if temperature >= 25:
+        warm_days += 1
+
+day_count = len(temperatures)
+average = total / day_count
+
+print("Days:", day_count)
+print("Average:", round(average, 1))
+print("Highest:", highest)
+print("Warm days:", warm_days)`,
+  },
+
+  // Function additions move from simple arguments to scope, multiple returns,
+  // recursion, and a small pipeline that makes Function Journey especially useful.
+  {
+    category: "Functions and Scope",
+    topic: "Two parameters",
+    level: "Beginner",
+    title: "Calculate a rectangle",
+    description: "Follow two arguments into a function and one area value back out.",
+    views: ["Function Journey", "Variables", "Story"],
+    code: `def rectangle_area(width, height):
+    area = width * height
+    return area
+
+result = rectangle_area(6, 4)
+print("Area:", result)`,
+  },
+  {
+    category: "Functions and Scope",
+    topic: "Default parameter",
+    level: "Developing",
+    title: "Greeting with a default",
+    description: "Compare calls that use and replace a function's default argument.",
+    views: ["Function Journey", "Compare Runs", "Variables"],
+    code: `def greet(name, greeting="Hello"):
+    message = greeting + ", " + name
+    return message
+
+first = greet("Sam")
+second = greet("Mina", "Welcome")
+
+print(first)
+print(second)`,
+  },
+  {
+    category: "Functions and Scope",
+    topic: "Local and global scope",
+    level: "Developing",
+    title: "Same name, different scope",
+    description: "See a local variable temporarily hide a global name.",
+    views: ["Function Journey", "Variables", "Watches"],
+    code: `message = "Global message"
+
+def create_message():
+    message = "Local message"
+    print("Inside:", message)
+    return message
+
+returned = create_message()
+print("Outside:", message)
+print("Returned:", returned)`,
+  },
+  {
+    category: "Functions and Scope",
+    topic: "Multiple returns",
+    level: "Developing",
+    title: "Return minimum and maximum",
+    description: "Return two related values as a tuple and unpack them at the caller.",
+    views: ["Function Journey", "Structures", "Variables"],
+    code: `def find_limits(values):
+    smallest = min(values)
+    largest = max(values)
+    return smallest, largest
+
+numbers = [8, 3, 12, 5]
+low, high = find_limits(numbers)
+
+print("Low:", low)
+print("High:", high)`,
+  },
+  {
+    category: "Functions and Scope",
+    topic: "Recursion",
+    level: "Guided Challenge",
+    title: "Recursive factorial",
+    description: "Watch function frames grow and return through a small recursive calculation.",
+    views: ["Function Journey", "Story", "Variables"],
+    code: `def factorial(number):
+    if number <= 1:
+        return 1
+    smaller = factorial(number - 1)
+    return number * smaller
+
+answer = factorial(4)
+print("Factorial:", answer)`,
+  },
+  {
+    category: "Functions and Scope",
+    topic: "Function pipeline",
+    level: "Guided Challenge",
+    title: "Invoice calculation pipeline",
+    description: "Pass a value through subtotal, discount, tax, and formatting functions.",
+    views: ["Function Journey", "Before and After", "Variables"],
+    code: `def calculate_subtotal(price, quantity):
+    return price * quantity
+
+def apply_discount(amount, rate):
+    discount = amount * rate
+    return amount - discount
+
+def add_tax(amount, rate):
+    tax = amount * rate
+    return amount + tax
+
+unit_price = 18.50
+quantity = 3
+subtotal = calculate_subtotal(unit_price, quantity)
+discounted = apply_discount(subtotal, 0.10)
+final_total = add_tax(discounted, 0.13)
+
+print("Subtotal:", round(subtotal, 2))
+print("Final:", round(final_total, 2))`,
+  },
+
+  // Collection additions give every major built-in container several concrete
+  // operations and include longer nested-data reports for Structures and Watches.
+  {
+    category: "Collections",
+    topic: "List indexes",
+    level: "Beginner",
+    title: "First, middle, and last",
+    description: "Read several list positions and compare positive and negative indexes.",
+    views: ["Structures", "Variables", "Story"],
+    code: `colors = ["red", "green", "blue", "purple"]
+first = colors[0]
+middle = colors[2]
+last = colors[-1]
+
+print(first, middle, last)`,
+  },
+  {
+    category: "Collections",
+    topic: "Tuple unpacking",
+    level: "Beginner",
+    title: "Unpack a coordinate",
+    description: "Split one fixed tuple into two named values.",
+    views: ["Structures", "Variables", "Before and After"],
+    code: `coordinate = (12, 7)
+x, y = coordinate
+distance_hint = x + y
+
+print("X:", x)
+print("Y:", y)
+print("Combined:", distance_hint)`,
+  },
+  {
+    category: "Collections",
+    topic: "Sets",
+    level: "Developing",
+    title: "Unique visitors",
+    description: "Remove duplicate values with a set and compare collection lengths.",
+    views: ["Structures", "Variables", "Before and After"],
+    code: `visits = ["Ava", "Noah", "Ava", "Mia", "Noah"]
+unique_visitors = set(visits)
+total_visits = len(visits)
+visitor_count = len(unique_visitors)
+
+print("Visits:", total_visits)
+print("People:", visitor_count)`,
+  },
+  {
+    category: "Collections",
+    topic: "Dictionary updates",
+    level: "Developing",
+    title: "Update a product record",
+    description: "Add and replace dictionary values while its identity remains stable.",
+    views: ["Structures", "Mutation Explorer", "References"],
+    code: `product = {"name": "Notebook", "stock": 4}
+original = product
+
+product["stock"] = 7
+product["price"] = 5.50
+product["category"] = "Stationery"
+
+print(product)
+print("Same object:", product is original)`,
+  },
+  {
+    category: "Collections",
+    topic: "Nested lists",
+    level: "Developing",
+    title: "Read a small matrix",
+    description: "Navigate rows and columns inside a list of lists.",
+    views: ["Structures", "Variables", "References"],
+    code: `matrix = [
+    [2, 4, 6],
+    [1, 3, 5],
+    [7, 8, 9],
+]
+
+top_right = matrix[0][2]
+center = matrix[1][1]
+bottom_left = matrix[2][0]
+
+print(top_right, center, bottom_left)`,
+  },
+  {
+    category: "Collections",
+    topic: "Nested gradebook",
+    level: "Guided Challenge",
+    title: "Student gradebook report",
+    description: "Traverse a dictionary of lists and build a summary dictionary.",
+    views: ["Structures", "Loop Table", "Mutation Explorer"],
+    code: `gradebook = {
+    "Ava": [82, 91, 88],
+    "Noah": [75, 79, 84],
+    "Mia": [95, 93, 97],
+}
+averages = {}
+class_total = 0
+
+for name, scores in gradebook.items():
+    average = sum(scores) / len(scores)
+    averages[name] = round(average, 1)
+    class_total += average
+
+student_count = len(gradebook)
+class_average = class_total / student_count
+
+print("Student averages:", averages)
+print("Class average:", round(class_average, 1))`,
+  },
+  {
+    category: "Collections",
+    topic: "Inventory data",
+    level: "Guided Challenge",
+    title: "Inventory restock report",
+    description: "Inspect nested records, collect low-stock names, and total inventory value.",
+    views: ["Structures", "Loop Table", "Watches"],
+    code: `inventory = [
+    {"name": "Notebook", "stock": 3, "price": 5.0},
+    {"name": "Pen", "stock": 12, "price": 1.5},
+    {"name": "Marker", "stock": 2, "price": 2.5},
+]
+low_stock = []
+inventory_value = 0
+
+for item in inventory:
+    item_value = item["stock"] * item["price"]
+    inventory_value += item_value
+    if item["stock"] < 5:
+        low_stock.append(item["name"])
+
+product_count = len(inventory)
+
+print("Products:", product_count)
+print("Restock:", low_stock)
+print("Value:", round(inventory_value, 2))`,
+  },
+
+  // Reference additions contrast shallow copying with direct aliasing so the
+  // conceptual graph never has to pretend that object identity is physical RAM.
+  {
+    category: "References and Mutation",
+    topic: "Shallow copy",
+    level: "Developing",
+    title: "Copy an outer list",
+    description: "See a new outer list still share the same nested list object.",
+    views: ["References", "Mutation Explorer", "Structures"],
+    code: `original = [[1, 2], [3, 4]]
+copied = original.copy()
+
+copied.append([5, 6])
+copied[0].append(99)
+
+print("Original:", original)
+print("Copied:", copied)`,
+  },
+  {
+    category: "References and Mutation",
+    topic: "Alias and copy",
+    level: "Guided Challenge",
+    title: "Shared settings experiment",
+    description: "Compare a direct alias, a shallow dictionary copy, and nested mutation.",
+    views: ["References", "Mutation Explorer", "Before and After"],
+    code: `settings = {
+    "theme": "dark",
+    "shortcuts": ["run", "next"],
+}
+alias = settings
+copied = settings.copy()
+
+alias["theme"] = "light"
+copied["theme"] = "contrast"
+copied["shortcuts"].append("bookmark")
+
+same_alias = alias is settings
+same_copy = copied is settings
+
+print("Settings:", settings)
+print("Alias shares object:", same_alias)
+print("Copy shares object:", same_copy)
+print("Copied:", copied)`,
+  },
+
+  // Input and debugging additions exercise deterministic input, conversion,
+  // missing keys, validation loops, and a complete order-processing scenario.
+  {
+    category: "Input and Debugging",
+    topic: "Conversion error",
+    level: "Beginner",
+    title: "A number to investigate",
+    description: "Trigger ValueError when prepared text cannot become an integer.",
+    views: ["Error Coach", "Input Playground", "Variables"],
+    inputs: "twelve",
+    code: `raw_age = input("Age: ")
+age = int(raw_age)
+next_age = age + 1
+
+print("Next age:", next_age)`,
+  },
+  {
+    category: "Input and Debugging",
+    topic: "Missing dictionary key",
+    level: "Developing",
+    title: "A key to investigate",
+    description: "Connect a KeyError to the keys that actually exist in a dictionary.",
+    views: ["Error Coach", "Structures", "Variables"],
+    code: `prices = {"pen": 2, "book": 8}
+requested_item = "marker"
+available_items = list(prices.keys())
+
+print("Available:", available_items)
+price = prices[requested_item]
+print("Price:", price)`,
+  },
+  {
+    category: "Input and Debugging",
+    topic: "Validation loop",
+    level: "Developing",
+    title: "Validate a positive number",
+    description: "Consume prepared inputs until a positive integer is accepted.",
+    views: ["Input Playground", "Loop Lab", "Conditions"],
+    inputs: "-3\n7",
+    code: `accepted = False
+attempts = 0
+
+while not accepted and attempts < 2:
+    raw_value = input("Positive number: ")
+    number = int(raw_value)
+    attempts += 1
+    if number > 0:
+        accepted = True
+
+print("Accepted:", accepted)
+print("Number:", number)`,
+  },
+  {
+    category: "Input and Debugging",
+    topic: "Input scenario",
+    level: "Guided Challenge",
+    title: "Prepared order processor",
+    description: "Combine three inputs, conversion, conditions, calculations, and output.",
+    views: ["Input Playground", "Compare Runs", "Conditions"],
+    inputs: "Notebook\n3\nyes",
+    code: `item_name = input("Item: ")
+quantity_text = input("Quantity: ")
+member_text = input("Member yes or no: ")
+quantity = int(quantity_text)
+unit_price = 5.00
+subtotal = unit_price * quantity
+is_member = member_text.lower() == "yes"
+if is_member:
+    discount = subtotal * 0.10
+else:
+    discount = 0
+
+discounted = subtotal - discount
+tax = discounted * 0.13
+total = discounted + tax
+
+print("Item:", item_name)
+print("Quantity:", quantity)
+print("Discount:", round(discount, 2))
+print("Total:", round(total, 2))`,
+  },
 ];
 
 /** Ordered filters keep the larger example library easy to scan without hiding its complete size. */
 const EXAMPLE_CATEGORIES = Object.freeze([
   "All",
-  "Basics",
+  "Foundations",
   "Decisions",
   "Loops",
-  "Functions",
+  "Functions and Scope",
   "Collections",
-  "Input and Errors",
+  "References and Mutation",
+  "Input and Debugging",
 ]);
 
 /**
@@ -507,7 +1229,7 @@ const EXAMPLE_CATEGORIES = Object.freeze([
 const els = Object.fromEntries(
   [
     "runtimeStatus", "runtimeLabel", "themeButton", "themeLabel", "welcomeScreen", "workspace",
-    "heroExampleButton", "backButton", "examplesButton", "runButton", "stopButton",
+    "heroExampleButton", "backButton", "examplesButton", "learningCommentsButton", "runButton", "stopButton",
     "editor", "editorShell", "editorWrapButton", "editorFontSizeSelect", "editorCopyButton", "editorPasteButton",
     "codeStats", "storyTab", "beforeAfterTab", "conditionsTab", "functionsTab", "errorTab",
     "variablesTab", "watchesTab", "structuresTab", "referencesTab", "mutationTab", "flowTab",
@@ -530,7 +1252,9 @@ const els = Object.fromEntries(
     "programInputs", "inputStatus", "captureRunAButton", "captureRunBButton", "clearComparisonsButton", "comparisonResult",
     "emptyBookmarks", "bookmarksContent", "stepCount", "previousButton",
     "playButton", "nextButton", "restartButton", "bookmarkButton", "stepSlider", "progressPercent", "speedSelect",
-    "consoleOutput", "clearOutputButton", "examplesDialog", "closeExamplesButton", "exampleFilters", "exampleCount", "exampleGrid", "toast",
+    "consoleOutput", "clearOutputButton", "examplesDialog", "closeExamplesButton", "exampleFilters", "exampleCount", "exampleGrid",
+    "learningCommentsDialog", "closeLearningCommentsButton", "learningCommentDetail", "learningCommentsSummary",
+    "learningCommentsPreview", "copyLearningCommentsButton", "replaceWithLearningCommentsButton", "toast",
   ].map((id) => [id, document.getElementById(id)]),
 );
 
@@ -594,6 +1318,8 @@ const state = {
   comparisonRuns: { a: null, b: null },
   // The worker reports every controlled input exchange so the Scenario Lab can confirm consumption.
   inputLog: [],
+  // Conservative statement notes returned by the worker power a separate commented-source preview.
+  learningComments: [],
   // Holds the lazily loaded Cytoscape constructor used by both graph views.
   graphLibrary: null,
   // Reuses one graph instance for the active reference map instead of leaking canvases.
@@ -959,6 +1685,118 @@ async function pasteCompleteEditor() {
   }
 }
 
+/** Reserved prefix distinguishes generated notes from comments written by the learner. */
+const LEARNING_COMMENT_PREFIX = "# Code Explorer:";
+
+/** Maps visible detail choices to the highest worker note level included in the preview. */
+const LEARNING_COMMENT_LEVELS = Object.freeze({ essential: 1, guided: 2, detailed: 3 });
+
+/**
+ * Builds a complete commented study copy without mutating the editor document.
+ * Existing Code Explorer notes are removed before current notes are inserted, so
+ * replacing and rerunning cannot accumulate duplicate generated explanations.
+ * Comments written by the learner are preserved exactly.
+ *
+ * @param {"essential"|"guided"|"detailed"} detail Requested explanation density.
+ * @returns {{source: string, noteCount: number}} Detached preview and inserted-note count.
+ */
+function buildLearningCommentedSource(detail = "guided") {
+  // An unknown value falls back to Guided rather than exposing every optional note.
+  const maximumLevel = LEARNING_COMMENT_LEVELS[detail] || LEARNING_COMMENT_LEVELS.guided;
+  // One note per source line is guaranteed by the worker, while the map keeps insertion linear.
+  const notesByLine = new Map(
+    state.learningComments
+      .filter((note) => Number(note.level) <= maximumLevel)
+      .map((note) => [Number(note.line), note]),
+  );
+  const output = [];
+  let noteCount = 0;
+  getCode().split("\n").forEach((line, index) => {
+    // The prefix is owned by this feature. Removing an older generated line lets
+    // the latest trace replace it with current evidence at the corresponding statement.
+    if (line.trimStart().startsWith(LEARNING_COMMENT_PREFIX)) return;
+    const note = notesByLine.get(index + 1);
+    if (note?.text) {
+      // Matching the statement indentation preserves Python block structure when copied.
+      const indentation = line.match(/^\s*/)?.[0] || "";
+      output.push(`${indentation}${LEARNING_COMMENT_PREFIX} ${note.text}`);
+      noteCount += 1;
+    }
+    // Original source is appended byte-for-byte, including user comments and blank lines.
+    output.push(line);
+  });
+  return { source: output.join("\n"), noteCount };
+}
+
+/**
+ * Refreshes the preview and summary after opening the dialog or changing detail.
+ * @returns {string} Current generated source, also placed in the visible preview.
+ */
+function renderLearningCommentsPreview() {
+  const detail = els.learningCommentDetail?.value || "guided";
+  const generated = buildLearningCommentedSource(detail);
+  if (els.learningCommentsPreview) els.learningCommentsPreview.textContent = generated.source;
+  if (els.learningCommentsSummary) {
+    els.learningCommentsSummary.textContent = `${generated.noteCount} ${detail} learning note${generated.noteCount === 1 ? "" : "s"} generated from Python syntax and the latest recorded run.`;
+  }
+  return generated.source;
+}
+
+/** Opens the reversible commented-code preview when a completed trace supplied notes. */
+function openLearningComments() {
+  if (!state.learningComments.length) {
+    showToast("Run a trace before opening Learning comments.", true);
+    return;
+  }
+  renderLearningCommentsPreview();
+  if (!els.learningCommentsDialog.open) els.learningCommentsDialog.showModal();
+}
+
+/**
+ * Copies the current commented preview through the same permission-aware paths as editor Copy.
+ * @returns {Promise<void>} Resolves after a success or visible failure message.
+ */
+async function copyLearningComments() {
+  const source = renderLearningCommentsPreview();
+  if (!source) {
+    showToast("There is no commented code to copy.", true);
+    return;
+  }
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(source);
+    } else if (!copyTextWithNativeFallback(source)) {
+      throw new Error("No clipboard writing method is available.");
+    }
+    showToast(`Copied the commented study version (${source.split("\n").length} lines).`);
+  } catch (error) {
+    // A synchronous selection fallback can still succeed after the modern API is rejected.
+    if (copyTextWithNativeFallback(source)) {
+      showToast("Copied the commented study version.");
+      return;
+    }
+    console.warn("Code Explorer could not copy generated learning comments.", error);
+    showToast("Commented-code copy was blocked. Select the preview and copy it manually.", true);
+  }
+}
+
+/**
+ * Replaces learner source only after an explicit confirmation of the generated transformation.
+ * setCode handles local saving, source statistics, editor compatibility, and stale-trace cleanup.
+ */
+function replaceWithLearningComments() {
+  const source = renderLearningCommentsPreview();
+  const confirmed = window.confirm(
+    "Replace the complete editor program with this commented study version?\n\nYour current trace will be cleared. You can still use Undo in the editor afterward.",
+  );
+  if (!confirmed) return;
+  els.learningCommentsDialog.close();
+  setCode(source);
+  state.editorView?.focus();
+  state.fallbackEditor?.focus();
+  showToast("The editor now contains the commented study version. Run trace again when ready.");
+}
+
 /**
  * Moves the CodeMirror cursor to the line represented by the active trace step.
  * The requested number is clamped to the document so malformed error metadata cannot create an invalid selection.
@@ -1096,6 +1934,8 @@ function handleWorkerMessage(event) {
   } else if (message.type === "run-error") {
     window.clearTimeout(state.runTimeout);
     finishRunning();
+    state.learningComments = [];
+    if (els.learningCommentsButton) els.learningCommentsButton.disabled = true;
     showError(message.error);
   }
 }
@@ -1113,6 +1953,9 @@ async function runCode() {
   }
 
   pausePlayback();
+  // A new run must provide fresh evidence before an old commented preview can reopen.
+  state.learningComments = [];
+  if (els.learningCommentsButton) els.learningCommentsButton.disabled = true;
   state.running = true;
   state.runId += 1;
   els.runButton.disabled = true;
@@ -1157,6 +2000,8 @@ function stopExecution(reason = "Execution stopped.") {
   state.runId += 1;
   destroyWorker();
   finishRunning();
+  state.learningComments = [];
+  if (els.learningCommentsButton) els.learningCommentsButton.disabled = true;
   setRuntimeStatus("", "Runtime offline");
   showError(reason);
   showToast(reason, true);
@@ -1173,12 +2018,14 @@ function loadResult(result) {
   state.conditions = result.conditions || [];
   state.error = result.error || null;
   state.inputLog = result.inputLog || [];
+  state.learningComments = result.learningComments || [];
   state.currentStep = 0;
   state.selectedVariable = null;
   state.bookmarks.clear();
   updateBookmarkControls();
   renderInputStatus();
   els.loopBadge.textContent = String(state.loops.length);
+  if (els.learningCommentsButton) els.learningCommentsButton.disabled = state.learningComments.length === 0;
 
   if (!state.trace.length) {
     clearPlaybackControls();
@@ -1220,9 +2067,12 @@ function clearTrace() {
   state.conditions = [];
   state.error = null;
   state.inputLog = [];
+  state.learningComments = [];
   state.currentStep = 0;
   state.selectedVariable = null;
   state.bookmarks.clear();
+  if (els.learningCommentsButton) els.learningCommentsButton.disabled = true;
+  if (els.learningCommentsDialog?.open) els.learningCommentsDialog.close();
   state.referencesGraph?.destroy();
   state.referencesGraph = null;
   state.flowGraph?.destroy();
@@ -3439,8 +4289,10 @@ function renderExamples() {
         </span>`;
       card.querySelector(".example-topic").textContent = example.topic;
       const level = card.querySelector(".example-level");
-      level.textContent = example.level;
-      level.classList.add(example.level.toLowerCase());
+      const sourceLineCount = example.code.split("\n").length;
+      level.textContent = `${example.level} · ${sourceLineCount} lines`;
+      // Multi-word levels become separate safe class tokens, such as guided and challenge.
+      level.classList.add(...example.level.toLowerCase().split(/\s+/));
       card.querySelector("h3").textContent = example.title;
       card.querySelector("p").textContent = example.description;
       card.querySelector(".example-views strong").textContent = example.views.join(" · ");
@@ -3484,10 +4336,19 @@ function bindEvents() {
     showWelcome();
   });
   els.examplesButton?.addEventListener("click", openExamples);
+  els.learningCommentsButton?.addEventListener("click", openLearningComments);
   els.closeExamplesButton?.addEventListener("click", () => els.examplesDialog.close());
   els.examplesDialog?.addEventListener("click", (event) => {
     if (event.target === els.examplesDialog) els.examplesDialog.close();
   });
+  // Generated comments use a separate modal so viewing or copying never edits source implicitly.
+  els.closeLearningCommentsButton?.addEventListener("click", () => els.learningCommentsDialog.close());
+  els.learningCommentsDialog?.addEventListener("click", (event) => {
+    if (event.target === els.learningCommentsDialog) els.learningCommentsDialog.close();
+  });
+  els.learningCommentDetail?.addEventListener("change", renderLearningCommentsPreview);
+  els.copyLearningCommentsButton?.addEventListener("click", copyLearningComments);
+  els.replaceWithLearningCommentsButton?.addEventListener("click", replaceWithLearningComments);
   els.runButton?.addEventListener("click", runCode);
   els.stopButton?.addEventListener("click", () => stopExecution("Execution stopped by you."));
   els.storyTab?.addEventListener("click", () => switchPanel("story"));
