@@ -38,6 +38,7 @@ This document should state clearly where an important correction, constraint, or
 The standard is:
 
 - Credit Aman when his question, observation, or correction materially improves the product decision.
+- Record user-side learning that emerges from successful decisions, implementation evidence, and seeing an idea work, even when Aman did not need to correct Codex.
 - Record Codex's mistaken assumption or incomplete reasoning directly instead of rewriting history to make it appear correct from the beginning.
 - Credit Codex when technical evidence, testing, or a safety boundary corrects an unsafe or impractical proposal.
 - Explain the evidence when either participant changes the other's mind.
@@ -1098,6 +1099,114 @@ Want guidance?                     Know the topic you need?
 ```
 
 This balances a comprehensive library with learner autonomy. The vertical navigator keeps all category subsections accessible without sideways scrolling, while the All view creates a route without pretending to personalize it.
+
+Status: Implemented in v4.
+
+## 58. Curriculum quality can be verified without reducing learning to test results
+
+Aman required that the code quality remain high because complete beginners may copy both the syntax and the habits shown by each example. That requirement produced an important user-side discovery: educational content can remain friendly and creative while also being treated as executable release material.
+
+The curriculum now has two complementary quality views:
+
+```text
+Teaching review
++-- Is the purpose clear?
++-- Does complexity increase sensibly?
++-- Is the name welcoming and specific?
++-- Does the final output feel meaningful?
+              |
+              v
+Execution review
++-- Does the source compile?
++-- Does prepared input cover input() calls?
++-- Does the program finish within its guard?
++-- Does only a declared learning error fail?
+```
+
+Neither view replaces the other. A program can execute perfectly and still be a weak lesson. A beautifully explained program can still contain an accidental error. Aman's quality request led to both reviews being required for the complete 134-program corpus.
+
+This is not a correction of a mistake. It is a successful product instinct confirmed by implementation evidence. The project owner can ask for approachable content and engineering-grade validation at the same time.
+
+Status: Implemented in v4 through the structural and Python execution validators.
+
+## 59. Object-oriented learning becomes clearer when object state is visible
+
+Adding a Classes and Objects category created a new learner question. It is not enough to see that a class definition ran or that a method was called. A beginner also needs to connect the object-oriented vocabulary to changing values inside an instance.
+
+The Object-Oriented Pet Care Tracker demonstrates the connection:
+
+```text
+Class blueprint
+      |
+      v
+Pet instance
++-- name
++-- animal
++-- meals
++-- exercised
+      |
+      v
+Method call changes an attribute
+      |
+      v
+Variables and Structures reveal the new state
+```
+
+The user-side lesson is that a concept category should use the wider strengths of the tool. Classes should not become isolated textbook examples when the workspace can reveal attributes, references, and mutation. This principle can guide future curriculum additions: connect new syntax to the visual evidence that makes it understandable.
+
+Status: Implemented in v4 with bounded object attributes and stable instance labels.
+
+## 60. Exact catalog promises should become maintenance contracts
+
+Before implementation, Aman asked to see the complete table that would appear in the Examples window. That request transformed an approximate plan into exact product commitments: 134 programs, 12 categories, 12 guided checkpoints, three levels, and three intentional errors.
+
+The important user-side lesson is that exact numbers are most useful when they become verifiable contracts rather than decorative marketing claims.
+
+```text
+Approved curriculum table
+          |
+          +-- application category order
+          +-- card and filter counts
+          +-- README catalog
+          +-- contributor checklist
+          +-- structural validator
+          +-- changelog evidence
+          |
+          v
+One count with several independent checks
+```
+
+This approach reduces accidental omissions during future expansion. If one program moves categories, every category total and the overall total must still agree. If a guided program is added, its prerequisites and checkpoint placement become part of the same contract.
+
+Aman deserves credit for asking for the table before development rather than accepting a vague promise. The insight is broader than this release: important open-source scope decisions should be written in a form that code and documentation can both verify.
+
+Status: Implemented in v4.
+
+## 61. A comprehensive tool can stay beginner-friendly through layered choice
+
+The finished curriculum confirms another product instinct that did not begin as a correction. Aman believed a larger library could remain usable because concept filters would let learners narrow it and desktop users could explore the full tool comfortably.
+
+The implementation shows that comprehensiveness and approachability are not opposites when choices are layered:
+
+```text
+First visit
++-- fixed recommended order
++-- smallest First Steps examples
+
+Focused question
++-- choose one concept category
++-- compare several variations
+
+Growing confidence
++-- open a guided checkpoint
++-- inspect several workspace views
+
+Independent learner
++-- open any program directly
++-- change it and run a new trace
+```
+
+The user-side lesson is not simply that more examples are better. More examples become useful when navigation, naming, difficulty, prerequisites, and program quality work together. The 134-program library validates that design principle while still leaving every learner free to skip, revisit, or experiment.
 
 Status: Implemented in v4.
 
