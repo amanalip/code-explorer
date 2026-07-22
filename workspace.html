@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260721-1" />
+    <link rel="stylesheet" href="styles.css?v=20260722-2" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -114,6 +114,19 @@
                 <!-- aria-pressed exposes the current wrapping state to assistive technology. -->
                 <button class="editor-tool-button" id="editorWrapButton" type="button" aria-pressed="true">
                   Wrap on
+                </button>
+                <!--
+                  This non-destructive view toggle displays trace-backed comment widgets
+                  without inserting lines into the learner's saved Python document.
+                -->
+                <button
+                  class="editor-tool-button automatic-comments-toggle"
+                  id="editorAutomaticCommentsButton"
+                  type="button"
+                  aria-pressed="false"
+                  disabled
+                >
+                  Automatic comments off
                 </button>
                 <!-- A visible label makes the numeric choices understandable without relying on context. -->
                 <label class="editor-font-control" for="editorFontSizeSelect">
@@ -566,15 +579,18 @@
         </div>
         <button class="dialog-close" id="closeExamplesButton" type="button" aria-label="Close examples">×</button>
       </div>
-      <!-- Category filters keep fifty-four programs scannable without hiding the complete library. -->
-      <div class="example-browser-toolbar">
-        <!-- The generated filter buttons expose their current state through aria-pressed. -->
-        <div class="example-filters" id="exampleFilters" role="group" aria-label="Filter starter programs"></div>
-        <!-- This live count tells learners how much of the library is currently visible. -->
-        <span class="example-count" id="exampleCount"></span>
+      <!-- The sidebar and independently scrolling card area prevent horizontal category scrolling. -->
+      <div class="example-browser-body">
+        <!-- Category navigation stays visible while learners browse a long filtered result list. -->
+        <aside class="example-browser-toolbar" aria-label="Starter program categories">
+          <!-- The generated vertical buttons expose names, counts, and their pressed state. -->
+          <div class="example-filters" id="exampleFilters" role="group" aria-label="Filter starter programs"></div>
+          <!-- This live count tells learners how much of the library is currently visible. -->
+          <span class="example-count" id="exampleCount"></span>
+        </aside>
+        <!-- JavaScript fills this independently scrolling grid with programs from the selected category. -->
+        <div class="example-grid" id="exampleGrid"></div>
       </div>
-      <!-- JavaScript fills this grid with the programs belonging to the selected category. -->
-      <div class="example-grid" id="exampleGrid"></div>
     </dialog>
 
     <!--
@@ -619,6 +635,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260721-1"></script>
+    <script type="module" src="app.js?v=20260722-2"></script>
   </body>
 </html>

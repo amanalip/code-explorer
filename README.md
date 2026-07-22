@@ -131,7 +131,8 @@ CODE EXPLORER WORKSPACE
 |   +-- Copy complete program
 |   +-- Paste complete program
 |   +-- Line numbers and replay breakpoints
-|   +-- Automatic Learning Comments after a trace
+|   +-- Automatic comments on or off inside the editor
+|   +-- Exportable Learning Comments study copy
 |
 +-- TRACE: What is Python doing now?
 |   +-- Story
@@ -228,7 +229,10 @@ What are you wondering?
 +-- "How do I save important trace moments?"
 |       -> Labs > Trace Bookmarks
 |
-+-- "Can Code Explorer add teaching comments to my program?"
++-- "Can I read teaching comments without changing my code?"
+|       -> Run a trace, then select Automatic comments
+|
++-- "Can I export a real commented copy of my program?"
         -> Run a trace, then select Learning comments
 ```
 
@@ -312,9 +316,83 @@ After a trace is ready, editor lines communicate execution activity:
 
 Use **Flow > Coverage** when you want a numbered summary instead of editor highlighting.
 
+### Automatic comments inside the editor
+
+After a useful trace completes, select **Automatic comments off** to turn the inline learning view on. Code Explorer places trace-powered notes above supported source lines. Select **Automatic comments on** to hide them again.
+
+This is a reading mode. The notes look like Python comments, but they are visual editor widgets rather than characters inserted into the document.
+
+```text
+ORIGINAL EDITOR DOCUMENT              VISUAL LEARNING LAYER
+total = 0                             # Code Explorer: total became 0.
+for number in range(1, 4):            # Code Explorer: the body ran 3 times.
+    total += number                    # Code Explorer: total was updated.
+          |                                      |
+          +------------------+-------------------+
+                             |
+                             v
+                 WHAT THE LEARNER SEES
+                 comment, then source line
+                             |
+            +----------------+----------------+
+            |                                 |
+            v                                 v
+     Copy still copies                 Trace line numbers,
+     original Python                   breakpoints, and heatmap
+                                       remain aligned
+```
+
+Why this matters:
+
+- The program's natural reading flow can be restored instantly.
+- Line numbers still refer to the real Python source.
+- Breakpoints and execution highlighting do not move to artificial comment lines.
+- **Copy** and **Paste** continue to operate on the original editor document.
+- The learner can compare the explanation with the line it describes without opening another dialog.
+
+The inline view follows the selected comment detail level from the Learning Comments dialog. Guided is the default. If Automatic comments is already on, changing Essential, Guided, or Detailed refreshes the visible notes immediately without rerunning Python.
+
+Automatic comments has a deliberate lifecycle:
+
+```text
+No current trace
+      |
+      v
+Automatic comments disabled
+      |
+      | successful or useful partial trace
+      v
+Automatic comments available, initially off
+      |
+      +-- select on  -> visual notes appear
+      +-- select off -> visual notes disappear
+      |
+      +-- edit, paste, or load another program
+      |                    |
+      |                    v
+      |           notes and stale trace are cleared
+      |
+      +-- start a new run
+                           |
+                           v
+                  old notes hide while new
+                  evidence is collected
+```
+
+If the enhanced CodeMirror editor cannot load, the fallback editor uses a separate read-only commented preview while the original textarea remains the actual source. This keeps the same source-protection promise in both editor modes.
+
 ## Automatic Learning Comments
 
-**Best for:** turning a completed trace into a commented study copy of the exact program you ran.
+**Best for:** reading explanations beside source and turning a completed trace into a portable commented study copy of the exact program you ran.
+
+Code Explorer provides two related surfaces from the same conservative note set:
+
+| Surface | Best use | Does it edit source? | What Copy does |
+| --- | --- | --- | --- |
+| **Automatic comments** editor toggle | Temporarily study explanations beside the related lines | No | The normal editor Copy action copies the original Python program |
+| **Learning comments** dialog | Preview, copy, or deliberately adopt a real commented document | No by default | **Copy commented code** copies source plus generated `# Code Explorer:` lines |
+
+Use the editor toggle when you want to preserve flow and switch explanations on and off. Use the dialog when you want a portable study artifact for notes, teaching, or later review.
 
 Automatic Learning Comments combines two kinds of evidence. Python's parsed syntax explains the role of a statement, while the completed trace supplies facts that were actually observed during this run.
 
@@ -327,24 +405,26 @@ structure of each statement          values and execution counts
                              v
                   CONSERVATIVE LEARNING NOTES
                              |
-                 +-----------+-----------+
-                 |                       |
-                 v                       v
-          Separate preview        Original source stays
-          with # comments          unchanged by default
-                 |
-          +------+------+
-          |             |
-          v             v
-     Copy the copy   Replace editor only
-                    after confirmation
+             +---------------+---------------+
+             |                               |
+             v                               v
+      Inline editor view              Separate export preview
+      source unchanged                source unchanged by default
+                                             |
+                                      +------+------+
+                                      |             |
+                                      v             v
+                                 Copy the copy   Replace editor only
+                                                 after confirmation
 ```
 
 ### How to create a commented study copy
 
 1. Write or load a Python program.
 2. Select **Run trace** and wait for the run to finish.
-3. Select **Learning comments** in the editor toolbar.
+3. Choose a study route:
+   - Select **Automatic comments off** to read notes inside the editor without changing the document.
+   - Select **Learning comments** to open the export preview.
 4. Choose the amount of detail.
 5. Read the preview before copying or replacing anything.
 6. Select **Copy commented code** to keep the editor untouched, or select **Replace editor** and confirm the replacement.
@@ -359,7 +439,7 @@ The button is disabled before a useful trace exists. This prevents Code Explorer
 | Guided | Essential notes plus common calls, loop bodies, conditions, and useful observed facts | Recommended for most beginners |
 | Detailed | Every supported explanation that Code Explorer can justify | Careful self-study or reviewing a longer example |
 
-Changing the detail level changes only the preview. It does not rerun Python and does not edit the original program.
+Changing the detail level refreshes the export preview and any visible inline notes. It does not rerun Python and does not edit the original program.
 
 ### Example
 
@@ -1357,7 +1437,36 @@ ALL 54 PROGRAMS
 +-- Input and Debugging .......... 6
 ```
 
-The active filter reports both the visible count and the complete count. The filter bar stays available while you scroll the dialog. On a narrow screen, scroll the filter row horizontally to reach every category.
+The active filter reports both the visible count and the complete count. Categories use a vertical navigation region, so a learner never has to hunt left and right for a concept.
+
+```text
+DESKTOP EXAMPLES BROWSER
++----------------------+--------------------------------------+
+| CATEGORY SIDEBAR     | PROGRAM CARDS                        |
+|                      |                                      |
+| All              54  | [A tiny calculation] [A message]    |
+| Foundations        8 | [Pass or try again]  [Logic check]   |
+| Decisions          7 | [More programs continue below]       |
+| Loops             11 |                                      |
+| Functions and Scope 8| independent vertical card scrolling  |
+| Collections       10 |                                      |
+| References...      4 |                                      |
+| Input...           6 |                                      |
+|                      |                                      |
+| Showing 54 of 54     |                                      |
++----------------------+--------------------------------------+
+
+PHONE EXAMPLES BROWSER
++----------------------------------+
+| vertical category region         |
+| All, Foundations, Decisions, ... |
++----------------------------------+
+| one-column program cards          |
+| scroll down through the results   |
++----------------------------------+
+```
+
+On a wide screen, the category sidebar and card list scroll vertically as separate regions. On a narrow screen, the category region stacks above the one-column card list and keeps vertical navigation. Selecting a category returns its result list to the first program. Category names receive enough room to wrap rather than creating horizontal navigation.
 
 ### Difficulty labels
 
@@ -2421,6 +2530,7 @@ RUNNING
 
 - Empty views explain what data they need.
 - Playback controls remain disabled.
+- **Automatic comments** remains disabled because there are no trace-backed notes to show.
 - **Learning comments** remains disabled because no runtime evidence exists yet.
 - The console says output will appear there.
 - The header may report that Python is loading.
@@ -2429,6 +2539,7 @@ RUNNING
 
 - **Run trace** enters a loading state.
 - A **Stop** button becomes available.
+- Any inline notes from the previous trace hide immediately so they cannot be mistaken for evidence from the new run.
 - The console explains that a safe trace is being prepared.
 - The interface remains separate from the Python execution.
 
@@ -2440,6 +2551,7 @@ RUNNING
 - Story, Data, Flow, and Lab views receive data from the same timeline.
 - Console output follows the selected step.
 - Selecting another step updates every view consistently.
+- **Automatic comments** becomes available in the off state. Turning it on adds visual notes without adding source lines.
 - **Learning comments** becomes available and opens a separate preview of the current source with trace-backed teaching notes.
 
 ### After editing source
@@ -2447,7 +2559,8 @@ RUNNING
 - The source is saved automatically.
 - The previous trace is cleared.
 - Old coverage, path, loop, variable, and bookmark results disappear.
-- Old generated learning-note metadata disappears and **Learning comments** becomes disabled.
+- Visible automatic comments disappear immediately.
+- Old generated learning-note metadata disappears, and both **Automatic comments** and **Learning comments** become disabled.
 - A new **Run trace** is required.
 
 ### After a runtime error
@@ -2456,14 +2569,14 @@ RUNNING
 - The failing line and original Python message are shown.
 - Error Coach provides beginner guidance.
 - Console output produced before the error remains available.
-- Learning comments may still be available for statements that Python parsed and for trace evidence recorded before the failure.
+- Automatic comments and Learning comments may still be available for statements that Python parsed and for trace evidence recorded before the failure.
 
 ### After a syntax error
 
 - Python does not produce an execution timeline because the program could not start.
 - Code Explorer points to the syntax line when available.
 - Error Coach opens with a grammar-focused suggestion.
-- Learning comments remain disabled because there is no valid parsed program or runtime trace to support them.
+- Automatic comments and Learning comments remain disabled because there is no valid parsed program or runtime trace to support them.
 
 ## Errors and helpful messages
 
@@ -2555,6 +2668,95 @@ Code Explorer is not intended to replace a complete local Python development env
 
 Code Explorer runs the learner's program inside the browser.
 
+### No analytics and no user-data collection
+
+Code Explorer does not collect learner data for analytics, telemetry, advertising, profiling, product metrics, or behavior tracking. There is no account system, application server, analytics SDK, tracking pixel, cookie, browser fingerprint, event beacon, remote log collector, crash-report upload, or hidden form submission in the project.
+
+```text
+LEARNER SOURCE AND INPUT
+          |
+          v
+Browser page
+          |
+          v
+Local Web Worker running Pyodide
+          |
+          v
+Trace returned to the same browser page
+
+No analytics endpoint
+No Code Explorer database
+No learner profile
+No source upload
+```
+
+The audited privacy behavior is:
+
+| Data or action | Where it goes | Is it collected by Code Explorer? |
+| --- | --- | --- |
+| Python source | Local browser storage and the page's local Web Worker | No |
+| Prepared `input()` responses | Local browser storage and the local Web Worker | No |
+| Trace snapshots and console output | Memory in the current browser page | No |
+| Theme, editor, graph, watch, and input preferences | Local browser storage for this site | No |
+| Clipboard text | Read or written only after the learner selects Paste or Copy and the browser permits it | No |
+| Automatic comments and bookmarks | Current browser session, unless commented source is deliberately copied or adopted | No |
+| Analytics events | No analytics system exists | No |
+
+Local storage is persistence, not collection. The application reads those values back on the same browser origin and contains no code that uploads them.
+
+Code Explorer does make ordinary network requests to load the website and pinned browser dependencies. Current external assets include fonts from Google Fonts, editor and graph modules from `esm.sh`, and Pyodide from jsDelivr. GitHub Pages serves the deployed website. Those providers can receive normal web-request metadata such as an IP address, browser headers, and requested asset path under their own policies. Code Explorer does not attach learner source, prepared input, traces, clipboard text, local-storage values, or a learner identifier to those dependency requests.
+
+That provider-side request metadata is not returned to Code Explorer. The application and project maintainers cannot view IP addresses, browser headers, or provider request logs through the website, source repository, or a Code Explorer analytics dashboard because no such collection or dashboard exists.
+
+GitHub has a separate repository Insights feature for people with push access. According to [GitHub's repository traffic guide](https://docs.github.com/en/repositories/viewing-activity-and-data-for-your-repository/viewing-traffic-to-a-repository), it can summarize recent repository visitors, full clones, referring sites, and popular repository content. This belongs to GitHub's own platform, not to Code Explorer's application.
+
+A beginner-friendly example:
+
+```text
+WHAT A GITHUB REPOSITORY SUMMARY MAY SHOW
+
+Repository views ........ a total count
+Unique visitors ......... an aggregate count
+Full repository clones .. a total count
+Popular content ......... README.md received views
+Referring sites ......... a site sent visits to the repository
+
+WHAT CODE EXPLORER MAINTAINERS CANNOT SEE THERE
+
+The Python program you typed
+The values entered for input()
+Your trace steps or console output
+Your clipboard contents
+Your locally saved source or preferences
+Your IP address from Code Explorer dependency requests
+Your browser headers from Code Explorer dependency requests
+An individual history of which workspace buttons you selected
+```
+
+For example, a repository summary might say that a page had several views from several unique visitors. It does not give Code Explorer a copy of what those visitors typed into the tool. It does not turn a local trace into a repository statistic. It does not let the maintainer open one visitor's workspace. It is comparable to a library knowing that a book was requested several times without receiving the notes a reader wrote privately at home.
+
+The privacy boundary can be summarized as three separate layers:
+
+```text
+1. CODE EXPLORER LEARNING DATA
+   source, input, trace, output, clipboard, preferences
+   -> stays in the learner's browser
+
+2. PROVIDER-SIDE REQUEST HANDLING
+   ordinary requests for a page, font, or pinned module
+   -> handled by that provider
+   -> raw provider logs are not available to Code Explorer maintainers
+
+3. GITHUB REPOSITORY INSIGHTS
+   aggregate repository traffic supplied by GitHub
+   -> separate from the Code Explorer application
+   -> contains no learner program, input, trace, clipboard, or local-storage data
+```
+
+Selecting **Tool Guide** or the GitHub icon deliberately navigates to GitHub in a new tab. Both links use `noreferrer`, so Code Explorer does not send the current page address as a referrer through those links.
+
+This is a permanent project boundary: future contributors must not add first-party or third-party analytics, telemetry, tracking, advertising pixels, session recording, user profiling, fingerprinting, or automatic remote error reporting. A useful learning feature is not permission to monitor learners.
+
 ### What persists and what resets
 
 ```text
@@ -2576,7 +2778,8 @@ CURRENT EXECUTION ONLY
 +-- Loop results
 +-- Trace bookmarks
 +-- Playback state
-+-- Automatic Learning Comments preview and metadata
++-- Automatic Learning Comments metadata and export preview
++-- Automatic comments visible or hidden state
 
 New run or changed source
         |
@@ -2584,7 +2787,9 @@ New run or changed source
 Execution-only state is cleared, then rebuilt by the next run
 ```
 
-If you confirm **Replace editor**, the commented document becomes ordinary editor source and is saved locally like any source edit. Merely opening or copying the generated preview does not save the preview.
+If you confirm **Replace editor**, the commented document becomes ordinary editor source and is saved locally like any source edit. Merely showing automatic comments, opening the export preview, or copying the generated preview does not save a commented document.
+
+The inline visibility state intentionally resets with the trace. A reload, source edit, example change, paste, or new run requires fresh runtime evidence and returns Automatic comments to off. The chosen detail level can remain available as a learning preference, but notes are always regenerated from the current run.
 
 The following are saved locally when browser storage is available:
 
@@ -2605,6 +2810,7 @@ The following belong to the current trace and are not intended to survive a new 
 - Breakpoint pauses
 - Recorded variable snapshots
 - Coverage and path results
+- Automatic comments visibility and generated note metadata
 
 No sign-in is required. If the browser blocks local storage, the tool remains usable but may not restore saved source or preferences after reload.
 
@@ -2748,13 +2954,30 @@ This is expected. Console output is synchronized with the selected point in time
 3. Wait for the completed trace before selecting the button.
 4. If a runtime error occurred, check whether any source statements executed before the failure.
 
+The same evidence rule applies when **Automatic comments** is disabled. Both controls become available from the same current note set.
+
+### Automatic comments disappeared
+
+This is expected after editing, pasting, loading an example, or starting another run. The former notes described the former source and trace, so Code Explorer removes them instead of leaving a stale explanation beside changed code. Complete the new trace and turn Automatic comments on again.
+
+### Automatic comments changed the editor height
+
+Visual notes occupy space above their related lines while the mode is on. They do not add source lines. The footer line count, Python line numbers, heatmap, and replay breakpoints still use the original document. Turn the mode off to return to the compact source-only layout.
+
+### Copy did not include the visible automatic comments
+
+This is intentional. The editor's **Copy** action always copies the original Python document. To copy real `# Code Explorer:` lines, open **Learning comments** and select **Copy commented code**.
+
 ### A generated note is missing
 
 Open the detail selector and choose **Detailed**. If the line still has no note, Code Explorer did not have enough reliable evidence to explain it. This is intentional. Use Story, Before and After, Function Journey, or the relevant specialist view instead of treating the missing note as an error.
 
 ### Generated comments appear in the editor
 
-This happens only after **Replace editor** was confirmed. Lines beginning with `# Code Explorer:` are generated notes. You can remove them manually, undo the replacement while the editor history remains available, or rerun the commented program and generate a fresh copy. A fresh generation removes older lines with that exact prefix before adding the current notes, so it does not stack duplicate generated layers.
+First check the toolbar label:
+
+- If it says **Automatic comments on**, the notes are temporary visual widgets. Turn the control off and the original compact source view returns.
+- If Automatic comments is off and `# Code Explorer:` lines remain as editable source, **Replace editor** was previously confirmed. You can remove them manually, undo the replacement while editor history remains available, or rerun the commented program and generate a fresh copy. A fresh generation removes older lines with that exact prefix before adding current notes, so it does not stack duplicate generated layers.
 
 ## Python concepts glossary
 
@@ -3382,6 +3605,11 @@ INSPECT
   Open Variables, Structures, or References
       |
       v
+ANNOTATE
+  Turn Automatic comments on for a trace-backed reading layer
+  Turn it off when you want the compact source flow again
+      |
+      v
 COMPARE
   Try another input or source value
       |
@@ -3396,3 +3624,5 @@ REFLECT
 ```
 
 Code Explorer is most useful when you stay curious about the space between two lines of code. Write a small example, predict what Python will do, and use the trace to check your mental model.
+
+If an explanation is useful enough to keep, open Learning comments and copy the commented study document. If it is only useful for the current reading, leave the source untouched and use the Automatic comments toggle. That distinction lets the tool teach more without quietly taking ownership of the learner's program.

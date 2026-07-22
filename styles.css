@@ -856,6 +856,7 @@ main {
 
 /* Gives the wrapping toggle the same quiet utility styling as other workspace controls. */
 .editor-tool-button {
+  white-space: nowrap;
   padding: 6px 9px;
   border: 1px solid var(--line-bright);
   border-radius: 6px;
@@ -863,6 +864,17 @@ main {
   background: var(--panel-solid);
   font: 600 0.62rem/1 var(--mono);
   cursor: pointer;
+}
+
+/* Disabled editor presentation tools remain visible while explaining that trace evidence is required. */
+.editor-tool-button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+/* The longer automatic-comments label stays compact beside Wrap on laptop headers. */
+.automatic-comments-toggle {
+  font-size: 0.58rem;
 }
 
 /* Uses the mint treatment to make enabled wrapping visible without relying on wording alone. */
@@ -940,6 +952,31 @@ main {
   white-space: pre;
 }
 
+/* Hides only the fallback textarea presentation while its original value remains the source of truth. */
+.fallback-editor.automatic-comments-hidden-source {
+  display: none;
+}
+
+/* The textarea fallback displays a read-only commented study surface when widgets are unavailable. */
+.fallback-learning-comments {
+  display: none;
+  min-height: 100%;
+  margin: 0;
+  padding: 22px;
+  overflow: auto;
+  color: var(--code-plain);
+  background: var(--panel-solid);
+  font: 500 var(--editor-font-size, 14px)/1.75 var(--mono);
+  tab-size: 4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* The visible class is controlled only by the non-destructive toolbar toggle. */
+.fallback-learning-comments.visible {
+  display: block;
+}
+
 /* Styles `.cm-editor`. This component rule controls sizing and spacing, color and visual emphasis, typography for the matching interface element. */
 .cm-editor {
   height: 100%;
@@ -963,6 +1000,25 @@ main {
 .cm-editor .cm-content {
   color: var(--code-plain);
   caret-color: var(--mint);
+}
+
+/*
+ * Automatic comment widgets sit above their related source lines. They are not
+ * editor document text, so line numbers, selection, tracing, and saved source
+ * remain aligned with the learner's original Python.
+ */
+.cm-editor .cm-learning-comment {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 3px 0 2px;
+  padding: 7px 12px 7px calc(12px + var(--learning-comment-indent, 0ch));
+  border-left: 2px solid var(--purple);
+  color: var(--code-comment);
+  background: color-mix(in srgb, var(--purple-soft) 62%, transparent);
+  font: italic 500 0.88em/1.5 var(--mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  pointer-events: none;
 }
 
 /* Styles `.cm-editor .cm-gutters`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
@@ -3009,15 +3065,22 @@ main {
 /* Examples */
 /* Styles `.examples-dialog`. This component rule controls sizing and spacing, color and visual emphasis, boundaries and focus treatment, overflow behavior for the matching interface element. */
 .examples-dialog {
-  width: min(980px, calc(100% - 32px));
-  max-height: min(760px, calc(100vh - 40px));
+  width: min(1180px, calc(100% - 32px));
+  height: min(820px, calc(100vh - 40px));
+  max-height: calc(100vh - 40px);
   padding: 0;
-  overflow: auto;
+  overflow: hidden;
   border: 1px solid var(--line-bright);
   border-radius: 14px;
   color: var(--text);
   background: var(--panel-solid);
   box-shadow: var(--shadow);
+}
+
+/* The open dialog reserves a fixed header and gives all remaining height to its browser body. */
+.examples-dialog[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 /* Creates or styles the generated visual part `.examples-dialog::backdrop`. It contributes color and visual emphasis without adding extra HTML. */
@@ -3041,40 +3104,62 @@ main {
   font-size: 1.8rem;
 }
 
-/* Places category filters and the result count between the dialog title and program cards. */
-.example-browser-toolbar {
-  position: sticky;
-  z-index: 2;
-  top: 0;
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 22px;
-  border-bottom: 1px solid var(--line);
-  background: var(--panel-solid);
+/* Divides category navigation from the independently scrolling program-card region. */
+.example-browser-body {
+  display: grid;
+  min-height: 0;
+  grid-template-columns: 240px minmax(0, 1fr);
 }
 
-/* Allows the filter row to scroll inside narrow dialogs without widening the page. */
+/* Places categories in a stable vertical sidebar that never needs horizontal scrolling. */
+.example-browser-toolbar {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  overflow-y: auto;
+  border-right: 1px solid var(--line);
+  background: var(--panel-soft);
+}
+
+/* Stacks every category in the natural top-to-bottom reading direction. */
 .example-filters {
   display: flex;
   min-width: 0;
-  gap: 7px;
-  overflow-x: auto;
-  scrollbar-width: thin;
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* Gives each category a compact, keyboard-accessible segmented-control appearance. */
+/* Gives each category a full-width row with room for its complete name and count. */
 .example-filter {
-  flex: 0 0 auto;
-  padding: 8px 11px;
+  display: flex;
+  width: 100%;
+  min-height: 39px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 11px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 8px;
   color: var(--text-soft);
   background: var(--bg-raised);
-  font: 600 0.63rem/1 var(--mono);
+  font: 600 0.64rem/1.25 var(--mono);
   letter-spacing: 0.03em;
+  text-align: left;
   cursor: pointer;
+}
+
+/* Category totals make the larger curriculum easier to understand before filtering. */
+.example-filter-count {
+  display: inline-grid;
+  min-width: 25px;
+  height: 22px;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--text-dim);
+  background: var(--panel-solid);
+  font-size: 0.58rem;
 }
 
 /* Highlights the category whose program cards are currently displayed. */
@@ -3084,9 +3169,17 @@ main {
   background: var(--mint);
 }
 
+/* The active count remains legible against the mint selected-category surface. */
+.example-filter.active .example-filter-count {
+  color: var(--mint);
+  background: var(--bg);
+}
+
 /* Keeps the visible and total program counts stable beside the scrolling filters. */
 .example-count {
-  flex: 0 0 auto;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
   color: var(--text-dim);
   font: 600 0.61rem/1.2 var(--mono);
   letter-spacing: 0.05em;
@@ -3109,9 +3202,12 @@ main {
 /* Styles `.example-grid`. This component rule controls layout, sizing and spacing for the matching interface element. */
 .example-grid {
   display: grid;
+  min-height: 0;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
   gap: 10px;
   padding: 22px;
+  overflow-y: auto;
 }
 
 /* Styles `.example-card`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment, motion and interaction feedback for the matching interface element. */
@@ -3507,7 +3603,13 @@ main {
   /* Places all editor actions on a dedicated row below the panel title on phones. */
   .editor-header-tools {
     width: 100%;
+    flex-wrap: wrap;
     justify-content: flex-end;
+  }
+
+  /* The longer learning toggle receives its own row when phone width is limited. */
+  .editor-header-tools .automatic-comments-toggle {
+    flex: 1 1 100%;
   }
 
   /* The panel title already identifies the editor, so the filename can yield space on phones. */
@@ -3694,21 +3796,30 @@ main {
     padding: 14px;
   }
 
-  /* Stacks the filter count below the horizontally scrollable categories on phones. */
+  /* Stacks a bounded vertical category region above independently scrolling cards. */
+  .example-browser-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(190px, 34vh) minmax(0, 1fr);
+  }
+
+  /* The phone sidebar keeps vertical navigation and uses its own bounded scroll area. */
   .example-browser-toolbar {
-    display: grid;
-    gap: 10px;
+    gap: 12px;
     padding: 12px 14px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
   }
 
-  /* Lets the count follow the filter row naturally instead of reserving side space. */
+  /* The count follows the vertical list and remains left-aligned on narrow screens. */
   .example-count {
-    justify-self: start;
+    margin-top: 2px;
   }
 
-  /* Removes desktop row-height matching when every program occupies its own row. */
+  /* Keeps each one-column program card tall enough for its teaching summary.
+     A real minimum is important here because a constrained CSS Grid can
+     otherwise shrink button rows and let their text overlap neighboring cards. */
   .example-card {
-    min-height: 0;
+    min-height: 190px;
   }
 
   /* Comment controls stack above the preview on phones while retaining native keyboard behavior. */

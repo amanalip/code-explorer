@@ -45,6 +45,10 @@ The tool records a bounded execution first and then replays it. Playback breakpo
 - Execution-line focus and heatmap decorations.
 - Clickable replay breakpoints in the line-number gutter.
 - Source line and character statistics.
+- Non-destructive Automatic comments widgets rendered above related source lines after a trace.
+- Automatic comments on or off state with visible text, `aria-pressed`, and disabled behavior before evidence exists.
+- Original-source Copy behavior even while visual notes are shown.
+- A read-only commented fallback preview when CodeMirror is unavailable.
 - Automatic Learning Comments generated from parsed syntax and the completed trace.
 - Essential, Guided, and Detailed comment levels in a separate preview.
 - Complete commented-document copy and confirmation-gated editor replacement.
@@ -90,8 +94,9 @@ The tool records a bounded execution first and then replays it. Playback breakpo
 ### Examples and guidance
 
 - 54 curated examples grouped into seven concept categories and three difficulty levels.
-- Category-filterable starter-program library.
-- Sticky filters, accurate source-line counts, and prepared input for input-driven examples.
+- Category-filterable starter-program library with a vertical category navigator and per-category count badges.
+- Independent vertical scrolling for desktop navigation and cards, plus stacked vertical navigation above one-column cards on mobile.
+- Accurate source-line counts, program counts, filter-reset scrolling, and prepared input for input-driven examples.
 - Twelve 15 to 20 line Guided Challenge programs that combine earlier concepts.
 - Extensive README walkthroughs, question maps, workflows, expected behavior, troubleshooting, and glossary.
 
@@ -109,16 +114,25 @@ Parsed Python structure
 Recorded trace evidence
           |
           v
-Separate commented preview
+Learning-comment metadata
           |
-          +-- Copy commented code
-          +-- Hide preview
-          +-- Replace editor only after confirmation
+     +----+------------------+
+     |                       |
+     v                       v
+Visual editor widgets    Separate commented preview
+     |                       |
+     +-- Show or hide         +-- Copy commented code
+     +-- Never enter source   +-- Hide preview
+                              +-- Replace editor only after confirmation
 ```
 
 Implemented guarantees:
 
 - The original source remains unchanged by default.
+- Inline widgets are decorations attached to source line positions, not inserted document text.
+- Editor Copy, line counts, breakpoints, heatmap ranges, and trace mapping continue to use the original document.
+- The inline mode starts off for each trace and clears on editing, pasting, example selection, or a new run.
+- The selected detail level filters both the inline view and export preview.
 - Existing comments, indentation, and blank lines are preserved.
 - Comments explain purpose and observed behavior instead of repeating syntax.
 - Repeated loop values are described carefully and are not presented as one universal value.
@@ -127,6 +141,13 @@ Implemented guarantees:
 - The feature is validated against all 54 included examples plus syntax-error, runtime-error, repeated-line, and unsupported cases.
 - `README.md`, this file, and relevant source comments are updated in the same change.
 - `lessons_learned.md` records what the feature teaches the project during implementation and testing.
+
+The two surfaces intentionally answer different learner needs:
+
+| Surface | State owner | Source mutation | Primary purpose |
+| --- | --- | --- | --- |
+| Automatic comments toggle | `state.automaticCommentsVisible` and the current `learningComments` records | Never | Read explanations in context, then return to compact source flow |
+| Learning comments dialog | Current `learningComments`, selected detail, and generated preview text | Only after explicit replacement confirmation | Copy or adopt a portable commented study document |
 
 ## Runtime and dependency map
 
@@ -170,6 +191,40 @@ All remote modules are loaded at runtime. The editor keeps a native fallback, bu
 | Cytoscape | 3.31.0 | Reference and execution-path graphs |
 
 Code Explorer does not use Vue, React, a package installation step, or a bundler. Both HTML pages load the same `app.js` and `styles.css` files directly. Their matching query versions are intentional cache busters for GitHub Pages and must be changed together when either shared asset changes.
+
+### Privacy and network boundary
+
+Code Explorer has no analytics, telemetry, advertising, profiling, user-account, remote-database, session-recording, fingerprinting, or automatic crash-reporting subsystem.
+
+The current network-capable surface is deliberately small:
+
+| Host or destination | Purpose | Learner content attached by Code Explorer? |
+| --- | --- | --- |
+| GitHub Pages | Serve the static project files | No application analytics payload |
+| `esm.sh` | Load pinned CodeMirror and Cytoscape modules | No |
+| jsDelivr | Load pinned Pyodide files | No |
+| Google Fonts | Load DM Sans and IBM Plex Mono font files | No |
+| GitHub links | Open the repository or README after a deliberate learner click | No, and links use `noreferrer` |
+| Local Web Worker | Receive source and prepared input for in-browser execution | This is same-page browser messaging, not a network destination |
+| Browser local storage | Restore source and documented preferences on the same origin | This is local persistence, not remote collection |
+
+Standard asset and page requests can expose ordinary transport metadata, such as IP address, browser headers, and the requested path, to the relevant hosting provider. The application does not append source, input, trace data, clipboard text, stored preferences, analytics identifiers, or user identifiers to those requests. Provider-side request metadata is not returned to the application, and project maintainers have no Code Explorer endpoint, raw-log access, or analytics dashboard through which to view it.
+
+GitHub repository Insights is a separate platform feature. For repositories where it is available, people with push access can see aggregate recent visitors and clones, referring sites, and popular repository content. Treat those as GitHub repository statistics, not application events. They do not expose the Python entered in the workspace, prepared input, traces, console output, clipboard text, local-storage values, raw dependency-request IP addresses, or raw dependency-request browser headers. Do not write code that attempts to connect repository traffic totals to an individual learner session.
+
+The permanent implementation rule is stricter than adding a consent flow: do not add analytics at all. Reject any dependency or feature that requires learner-data collection, analytics events, telemetry, tracking pixels, behavior recording, fingerprinting, or automatic remote error uploads.
+
+Privacy audit recipe:
+
+1. Search source, markup, styles, configuration, and dependencies for analytics and telemetry products or keywords.
+2. Search for `fetch`, `XMLHttpRequest`, `WebSocket`, `EventSource`, `navigator.sendBeacon`, form actions, cookies, IndexedDB, service workers, and dynamic external URLs.
+3. Inventory every remaining external URL and state exactly why it is contacted.
+4. Trace learner source, input, output, clipboard, watch names, bookmarks, and preferences from creation to final destination.
+5. Confirm worker `postMessage` calls stay inside the browser and that no remote request consumes their payload.
+6. Confirm external links retain `noreferrer` and open only after an explicit learner action.
+7. Update README.md, AGENTS.md, SKILLS.md, and lessons_learned.md when the privacy boundary or audit knowledge changes.
+
+The 2026-07-22 audit found no `fetch()`, `XMLHttpRequest`, WebSocket, EventSource, beacon, cookie, IndexedDB, form submission, analytics SDK, telemetry SDK, remote logger, tracker, or source-upload path in application code. The only learner-content transfer is `app.js` sending source and prepared input to `py-worker.js` through local worker `postMessage()`.
 
 ## Core data flow
 
@@ -220,6 +275,9 @@ The `learningComments` result contains JSON-compatible records with `line`, `lev
 
 - `state.trace` is the recorded playback timeline.
 - `state.learningComments` contains comment metadata for the current source and current run only.
+- `state.automaticCommentsVisible` records whether the current trace's visual learning layer is shown. It is false before a trace, while a new run starts, after a source change, and after trace clearing.
+- `state.commentOverlay` stores the CodeMirror learning-comment effect and widget constructors. The field is separate from heatmap decorations so either layer can refresh without rebuilding the other.
+- `state.fallbackLearningPreview` refers to the read-only commented preview created only when the native textarea fallback is active.
 - `state.currentStep` selects the snapshot used by most views.
 - Changing editor source invalidates the recorded trace.
 - Worker results are separated into `state.trace`, `state.loops`, `state.conditions`, `state.error`, and `state.inputLog`. Console output is retained inside each trace snapshot so moving backward reconstructs the output visible at that moment.
@@ -227,6 +285,8 @@ The `learningComments` result contains JSON-compatible records with `line`, `lev
 - CodeMirror and the textarea fallback must both use `getCode()` and `setCode()` so features do not depend on one editor implementation.
 - A view renderer must handle the empty state, a normal selected step, missing metadata, and an error result.
 - Editing or replacing source clears `state.learningComments` because runtime facts from the old source are stale.
+- Editing or replacing source also hides the automatic layer before clearing its records. A visible old note must never survive beside changed source.
+- `renderAutomaticComments()` owns button text, disabled state, pressed state, CodeMirror widgets, and fallback preview cleanup. Call it after any change to visibility, evidence, editor availability, or comment detail.
 - `buildLearningCommentedSource()` removes only older lines beginning with the exact generated prefix, preserves learner comments, and inserts current notes above their related source lines.
 
 ## Persistence inventory
@@ -244,10 +304,13 @@ The `learningComments` result contains JSON-compatible records with `line`, `lev
 | Trace bookmarks | Current trace only |
 | Replay breakpoint markers | Current page session, retained across reruns but not reloads |
 | Run comparisons | Current page session only |
-| Learning-comment metadata and preview | Current trace only |
+| Learning-comment metadata and export preview | Current trace only |
+| Automatic comments visible or hidden | Current trace only, always reset when evidence becomes stale |
 | Commented source after confirmed replacement | Becomes ordinary locally saved editor source |
 
 When adding persistence, validate parsed values and merge them with safe defaults. A malformed stored value must not prevent application initialization.
+
+None of these values is an analytics event. There is no synchronization, account association, remote backup, or upload path. A future implementation must not reinterpret local persistence as permission to transmit data.
 
 ## Safety boundaries
 
@@ -260,9 +323,14 @@ When adding persistence, validate parsed values and merge them with safe default
 - Only frames belonging to the learner's virtual file enter the educational call stack.
 - Graphs are conceptual views and must not claim to show physical RAM addresses.
 - Learner strings rendered as markup must be escaped.
+- Learner source, prepared input, trace snapshots, console output, clipboard contents, watches, bookmarks, and preferences must never be transmitted to analytics, telemetry, tracking, profiling, advertising, or remote logging services.
+- Console warnings may explain local browser failures, but must not be forwarded automatically to a remote collector.
 - Generated comments must never claim an unobserved value or path.
 - Exception events must suppress ambiguous completion, loop, and condition counts for the failing line. Python frame unwinding can otherwise make one failure resemble repeated completion.
 - Comment preview, copying, and closing must leave the editor unchanged.
+- Inline learning widgets must never become part of `getCode()`, local source storage, normal editor Copy, worker input, breakpoint line numbers, or heatmap ranges.
+- Starting execution must hide old inline widgets before the worker begins so stale claims cannot remain visible during a new run.
+- The fallback learning preview must be read-only and must not replace the source value used by execution.
 - Complete-document replacement must remain behind an explicit confirmation.
 
 ## Recurring implementation recipes
@@ -295,6 +363,8 @@ When adding persistence, validate parsed values and merge them with safe default
 4. Clear stale trace state after a real source change.
 5. Avoid permanent toolbar controls when a contextual action is clearer.
 6. Verify wrap on, wrap off, all supported font sizes, and mobile overflow.
+7. If the feature is a visual annotation, implement it as a decoration or separate preview instead of changing the document unless source transformation is the explicit product goal.
+8. Verify ordinary Copy, local saving, worker execution, line statistics, trace mapping, and breakpoints against the unmodified source.
 
 ### Add a starter program
 
@@ -315,6 +385,20 @@ Current library invariants:
 | Extended programs | 12 programs from 15 through 20 source lines |
 | Intentional failures | `IndexError`, `ValueError`, and `KeyError` in three named debugging examples |
 
+The examples browser has its own layout invariants:
+
+```text
+DESKTOP
+vertical category sidebar | independently scrolling two-column cards
+
+MOBILE
+bounded vertical categories
+---------------------------
+independently scrolling one-column cards
+```
+
+Category changes must set the card region's `scrollTop` to zero. Every mobile card needs a real minimum height because a constrained grid can otherwise shrink button rows while their text continues overflowing.
+
 ### Change Automatic Learning Comments
 
 1. Keep structural explanations in the worker's Python AST pass and observed facts in the trace-derived evidence pass.
@@ -323,9 +407,13 @@ Current library invariants:
 4. Use observed facts only when the selected source line and trace support them.
 5. Prefer no comment over a clever but uncertain explanation.
 6. Preserve the exact `# Code Explorer:` prefix unless migration behavior is designed and documented.
-7. Test original-source preservation, all detail levels, copy, cancel, confirmed replacement, rerun deduplication, existing learner comments, blank lines, and indentation.
-8. Run the full 54-example corpus because it covers loops, nested conditions, functions, recursion, collections, aliases, shallow copies, input, and intentional errors.
-9. Inspect representative prose manually. Schema validation can catch missing fields, but it cannot catch awkward language or misleading numeric formatting.
+7. Keep inline display records and the export document derived from the same filtered metadata so their wording cannot drift.
+8. Render inline notes as block widgets before the related source line. Never dispatch source changes to simulate temporary comments.
+9. Test original-source preservation, inline on and off, button semantics, all detail levels, normal editor Copy, export copy, cancel, confirmed replacement, rerun deduplication, existing learner comments, blank lines, and indentation.
+10. Test invalidation through manual editing, complete-document paste, example selection, clear-trace behavior, and the start of a new run.
+11. Test CodeMirror and fallback behavior, both themes, desktop, mobile wrapping, and absence of horizontal overflow.
+12. Run the full 54-example corpus because it covers loops, nested conditions, functions, recursion, collections, aliases, shallow copies, input, and intentional errors.
+13. Inspect representative prose manually. Schema validation can catch missing fields, but it cannot catch awkward language or misleading numeric formatting.
 
 ### Add or change a graph
 
@@ -428,7 +516,7 @@ for number in range(1, 4):
 print(total)
 ```
 
-Verify all three detail levels, copy, cancel, replacement, and a second generation without duplicate `# Code Explorer:` lines.
+Verify all three detail levels, inline on and off, unchanged source statistics, normal editor Copy, export copy, cancel, replacement, and a second generation without duplicate `# Code Explorer:` lines.
 
 ## Current validation evidence
 
@@ -438,6 +526,15 @@ Verify all three detail levels, copy, cancel, replacement, and a second generati
 - Manual prose review caught and corrected awkward `elif` wording and overly noisy floating-point values. This is a permanent reason to combine automated schema checks with human reading.
 - Browser testing of an intentional `IndexError` caught and corrected a false repeated-completion count caused by exception and frame-exit events sharing one line.
 - A browser run using Pyodide confirmed the default repeated loop produced a 12-step trace, enabled Learning comments, and reported three loop-body entries.
+- Browser testing on 2026-07-22 confirmed Automatic comments produced five widgets for the seven-line default program while the footer remained `7 lines · 108 chars`.
+- Switching the detail selector while widgets were visible produced 3 Essential, 5 Guided, and 5 Detailed widgets for the default source without changing its statistics or rerunning Python.
+- With five widgets visible, the normal editor Copy path was intercepted in browser testing and returned exactly the original 108-character, seven-line program with no `# Code Explorer:` text.
+- Starting another trace while widgets were visible immediately removed the old widgets and completed with Automatic comments available but off.
+- Selecting another example while inline notes were visible removed all widgets, disabled the control, cleared stale trace data, and preserved the newly selected source.
+- The Learning Comments export dialog remained available after the inline mode was added and still showed Guided evidence plus Copy and confirmation-gated replacement actions.
+- The vertical examples browser exposed all eight filter choices, accurate counts, 54 landing-page cards, 11 Loop cards, and no horizontal filter overflow.
+- Desktop light and dark screenshots confirmed the sidebar and cards remain readable. A 390 by 844 mobile check found and corrected compressed 42-pixel card rows; the final cards retain a 190-pixel minimum, stay inside their boundaries, and create no page-level horizontal overflow.
+- Mobile inline comments in light and dark themes retained a 390-pixel page width, a 360-pixel editor width, five wrapped widgets, and the original seven-line source count.
 
 ## Documentation completion test
 

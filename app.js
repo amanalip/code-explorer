@@ -1230,7 +1230,7 @@ const els = Object.fromEntries(
   [
     "runtimeStatus", "runtimeLabel", "themeButton", "themeLabel", "welcomeScreen", "workspace",
     "heroExampleButton", "backButton", "examplesButton", "learningCommentsButton", "runButton", "stopButton",
-    "editor", "editorShell", "editorWrapButton", "editorFontSizeSelect", "editorCopyButton", "editorPasteButton",
+    "editor", "editorShell", "editorWrapButton", "editorAutomaticCommentsButton", "editorFontSizeSelect", "editorCopyButton", "editorPasteButton",
     "codeStats", "storyTab", "beforeAfterTab", "conditionsTab", "functionsTab", "errorTab",
     "variablesTab", "watchesTab", "structuresTab", "referencesTab", "mutationTab", "flowTab",
     "coverageTab", "loopTableTab", "loopTab", "inputTab", "compareTab", "bookmarksTab",
@@ -1320,6 +1320,12 @@ const state = {
   inputLog: [],
   // Conservative statement notes returned by the worker power a separate commented-source preview.
   learningComments: [],
+  // This presentation flag never changes the saved Python document or its line numbers.
+  automaticCommentsVisible: false,
+  // CodeMirror supplies these constructors after loading so comment widgets stay library-agnostic elsewhere.
+  commentOverlay: null,
+  // The native fallback uses a separate read-only preview because it cannot render CodeMirror widgets.
+  fallbackLearningPreview: null,
   // Holds the lazily loaded Cytoscape constructor used by both graph views.
   graphLibrary: null,
   // Reuses one graph instance for the active reference map instead of leaking canvases.
@@ -1462,7 +1468,7 @@ async function initializeEditor() {
       { python },
       { syntaxHighlighting },
       { classHighlighter },
-      { Decoration },
+      { Decoration, WidgetType },
       { Compartment, StateEffect, StateField },
     ] = await Promise.all([
       // The dependency query pins shared language and tag modules. Highlight
@@ -1491,6 +1497,57 @@ async function initializeEditor() {
     });
     // Rendering code stores the constructors without coupling the rest of the app to imports.
     state.heatmap = { Decoration, setHeatmapEffect };
+    // A separate effect and field own block widgets that visually annotate source
+    // without inserting characters or shifting trace-to-source line mappings.
+    const setLearningCommentsEffect = StateEffect.define();
+    const learningCommentsField = StateField.define({
+      create: () => Decoration.none,
+      update: (decorations, transaction) => {
+        let next = decorations.map(transaction.changes);
+        transaction.effects.forEach((effect) => {
+          if (effect.is(setLearningCommentsEffect)) next = effect.value;
+        });
+        return next;
+      },
+      provide: (field) => EditorView.decorations.from(field),
+    });
+    /**
+     * A block widget renders one generated note immediately above its source line.
+     * Widget text is presentation only, so copying, running, saving, line numbers,
+     * breakpoints, coverage, and undo history continue to use original Python.
+     */
+    class LearningCommentWidget extends WidgetType {
+      /**
+       * @param {string} text Trace-backed explanation supplied by the worker.
+       * @param {number} indentation Number of leading source spaces mirrored visually.
+       */
+      constructor(text, indentation) {
+        super();
+        this.text = text;
+        this.indentation = indentation;
+      }
+
+      /** @returns {boolean} Whether CodeMirror can reuse an existing widget DOM node. */
+      eq(other) {
+        return other.text === this.text && other.indentation === this.indentation;
+      }
+
+      /** @returns {HTMLElement} Read-only, theme-aware comment row shown above source. */
+      toDOM() {
+        const row = document.createElement("div");
+        row.className = "cm-learning-comment";
+        row.style.setProperty("--learning-comment-indent", `${this.indentation}ch`);
+        row.textContent = `${LEARNING_COMMENT_PREFIX} ${this.text}`;
+        row.setAttribute("aria-label", `Automatic learning comment: ${this.text}`);
+        return row;
+      }
+
+      /** @returns {boolean} Widgets do not intercept editing or pointer events. */
+      ignoreEvent() {
+        return true;
+      }
+    }
+    state.commentOverlay = { Decoration, setLearningCommentsEffect, LearningCommentWidget };
     // A compartment makes line wrapping replaceable after the editor is mounted.
     const wrapCompartment = new Compartment();
     // Store the imported extension so ordinary preference handlers stay library-agnostic.
@@ -1505,6 +1562,8 @@ async function initializeEditor() {
         syntaxHighlighting(classHighlighter),
         // The heatmap field paints executed, repeated, and currently selected lines.
         heatmapField,
+        // Generated comment widgets are independent from execution-line decorations.
+        learningCommentsField,
         // Start with the restored wrapping choice without creating a second editor instance.
         wrapCompartment.of(state.editorPreferences.wrap ? EditorView.lineWrapping : []),
         EditorView.updateListener.of((update) => {
@@ -1541,6 +1600,7 @@ async function initializeEditor() {
   }
   // Synchronize CSS sizing and toolbar state after either editor implementation mounts.
   applyEditorPreferences(false);
+  renderAutomaticComments();
   updateCodeStats();
 }
 
@@ -1690,6 +1750,88 @@ const LEARNING_COMMENT_PREFIX = "# Code Explorer:";
 
 /** Maps visible detail choices to the highest worker note level included in the preview. */
 const LEARNING_COMMENT_LEVELS = Object.freeze({ essential: 1, guided: 2, detailed: 3 });
+
+/**
+ * Synchronizes the toolbar toggle and the editor-only automatic-comment layer.
+ * CodeMirror receives block widgets at original line positions. The native
+ * fallback receives a separate read-only preview while its textarea retains the
+ * original source. Neither path changes getCode(), persistence, or trace mapping.
+ */
+function renderAutomaticComments() {
+  const canShow = state.learningComments.length > 0;
+  // Missing or stale evidence always forces the presentation back to ordinary source.
+  if (!canShow) state.automaticCommentsVisible = false;
+  const visible = canShow && state.automaticCommentsVisible;
+
+  if (els.editorAutomaticCommentsButton) {
+    els.editorAutomaticCommentsButton.disabled = !canShow;
+    els.editorAutomaticCommentsButton.textContent = `Automatic comments ${visible ? "on" : "off"}`;
+    els.editorAutomaticCommentsButton.setAttribute("aria-pressed", String(visible));
+    els.editorAutomaticCommentsButton.title = canShow
+      ? `${visible ? "Hide" : "Show"} trace-backed comments without changing the Python source`
+      : "Run a trace to create automatic comments";
+  }
+
+  // Build CodeMirror block widgets only for valid source lines and the selected detail level.
+  if (state.editorView && state.commentOverlay) {
+    const { Decoration, setLearningCommentsEffect, LearningCommentWidget } = state.commentOverlay;
+    const maximumLevel = LEARNING_COMMENT_LEVELS[els.learningCommentDetail?.value || "guided"]
+      || LEARNING_COMMENT_LEVELS.guided;
+    const ranges = visible
+      ? state.learningComments
+        .filter((note) => Number(note.level) <= maximumLevel)
+        .map((note) => {
+          const lineNumber = Number(note.line);
+          if (!Number.isInteger(lineNumber) || lineNumber < 1 || lineNumber > state.editorView.state.doc.lines) return null;
+          const line = state.editorView.state.doc.line(lineNumber);
+          const indentation = line.text.match(/^\s*/)?.[0].length || 0;
+          return Decoration.widget({
+            widget: new LearningCommentWidget(note.text, indentation),
+            block: true,
+            side: -1,
+          }).range(line.from);
+        })
+        .filter(Boolean)
+      : [];
+    state.editorView.dispatch({
+      effects: setLearningCommentsEffect.of(Decoration.set(ranges, true)),
+    });
+  }
+
+  // A textarea cannot host line widgets, so its fallback is a separate read-only
+  // commented surface. Hiding it reveals the untouched editable textarea again.
+  if (state.fallbackEditor) {
+    if (!state.fallbackLearningPreview) {
+      const preview = document.createElement("pre");
+      preview.className = "fallback-learning-comments";
+      preview.setAttribute("aria-label", "Python source with automatic learning comments");
+      preview.tabIndex = 0;
+      state.fallbackEditor.insertAdjacentElement("afterend", preview);
+      state.fallbackLearningPreview = preview;
+    }
+    state.fallbackLearningPreview.textContent = visible
+      ? buildLearningCommentedSource(els.learningCommentDetail?.value || "guided").source
+      : "";
+    state.fallbackLearningPreview.classList.toggle("visible", visible);
+    state.fallbackEditor.classList.toggle("automatic-comments-hidden-source", visible);
+  }
+
+  els.editorShell?.classList.toggle("automatic-comments-visible", visible);
+  state.editorView?.requestMeasure();
+}
+
+/** Toggles non-destructive automatic comments inside the editor presentation. */
+function toggleAutomaticComments() {
+  if (!state.learningComments.length) {
+    showToast("Run a trace before showing Automatic comments.", true);
+    return;
+  }
+  state.automaticCommentsVisible = !state.automaticCommentsVisible;
+  renderAutomaticComments();
+  showToast(state.automaticCommentsVisible
+    ? "Automatic comments are visible. Your Python source is unchanged."
+    : "Automatic comments are hidden. Your original source remains unchanged.");
+}
 
 /**
  * Builds a complete commented study copy without mutating the editor document.
@@ -1934,8 +2076,10 @@ function handleWorkerMessage(event) {
   } else if (message.type === "run-error") {
     window.clearTimeout(state.runTimeout);
     finishRunning();
+    state.automaticCommentsVisible = false;
     state.learningComments = [];
     if (els.learningCommentsButton) els.learningCommentsButton.disabled = true;
+    renderAutomaticComments();
     showError(message.error);
   }
 }
@@ -1954,8 +2098,10 @@ async function runCode() {
 
   pausePlayback();
   // A new run must provide fresh evidence before an old commented preview can reopen.
+  state.automaticCommentsVisible = false;
   state.learningComments = [];
   if (els.learningCommentsButton) els.learningCommentsButton.disabled = true;
+  renderAutomaticComments();
   state.running = true;
   state.runId += 1;
   els.runButton.disabled = true;
@@ -2000,8 +2146,10 @@ function stopExecution(reason = "Execution stopped.") {
   state.runId += 1;
   destroyWorker();
   finishRunning();
+  state.automaticCommentsVisible = false;
   state.learningComments = [];
   if (els.learningCommentsButton) els.learningCommentsButton.disabled = true;
+  renderAutomaticComments();
   setRuntimeStatus("", "Runtime offline");
   showError(reason);
   showToast(reason, true);
@@ -2026,6 +2174,9 @@ function loadResult(result) {
   renderInputStatus();
   els.loopBadge.textContent = String(state.loops.length);
   if (els.learningCommentsButton) els.learningCommentsButton.disabled = state.learningComments.length === 0;
+  // A completed trace makes the toggle available but never changes the editor view automatically.
+  state.automaticCommentsVisible = false;
+  renderAutomaticComments();
 
   if (!state.trace.length) {
     clearPlaybackControls();
@@ -2067,12 +2218,14 @@ function clearTrace() {
   state.conditions = [];
   state.error = null;
   state.inputLog = [];
+  state.automaticCommentsVisible = false;
   state.learningComments = [];
   state.currentStep = 0;
   state.selectedVariable = null;
   state.bookmarks.clear();
   if (els.learningCommentsButton) els.learningCommentsButton.disabled = true;
   if (els.learningCommentsDialog?.open) els.learningCommentsDialog.close();
+  renderAutomaticComments();
   state.referencesGraph?.destroy();
   state.referencesGraph = null;
   state.flowGraph?.destroy();
@@ -4246,17 +4399,31 @@ function renderExamples() {
   const isWorkspace = Boolean(els.workspace);
   // Reject an obsolete category value instead of rendering an unexplained empty dialog.
   if (!EXAMPLE_CATEGORIES.includes(state.activeExampleCategory)) state.activeExampleCategory = "All";
-  // Recreate the compact filter row so pressed states always match the visible cards.
+  // Recreate the vertical category navigation so pressed states and counts always
+  // match the complete library without requiring horizontal scrolling.
   els.exampleFilters.replaceChildren(
     ...EXAMPLE_CATEGORIES.map((category) => {
       const filter = document.createElement("button");
       filter.type = "button";
       filter.className = `example-filter ${category === state.activeExampleCategory ? "active" : ""}`;
-      filter.textContent = category;
+      const categoryCount = category === "All"
+        ? EXAMPLES.length
+        : EXAMPLES.filter((example) => example.category === category).length;
+      const label = document.createElement("span");
+      label.textContent = category;
+      const count = document.createElement("span");
+      count.className = "example-filter-count";
+      count.textContent = String(categoryCount);
+      filter.append(label, count);
+      filter.setAttribute("aria-label", `${category}, ${categoryCount} program${categoryCount === 1 ? "" : "s"}`);
       filter.setAttribute("aria-pressed", String(category === state.activeExampleCategory));
       filter.addEventListener("click", () => {
         state.activeExampleCategory = category;
         renderExamples();
+        // A newly selected curriculum family starts at its first program. This
+        // prevents a scroll position from a longer category from opening the
+        // next category halfway through its cards, especially after resizing.
+        els.exampleGrid.scrollTop = 0;
       });
       return filter;
     }),
@@ -4326,6 +4493,7 @@ function bindEvents() {
   els.themeButton?.addEventListener("click", toggleTheme);
   // Editor display controls update presentation without altering or retracing source code.
   els.editorWrapButton?.addEventListener("click", toggleEditorWrapping);
+  els.editorAutomaticCommentsButton?.addEventListener("click", toggleAutomaticComments);
   els.editorFontSizeSelect?.addEventListener("change", (event) => changeEditorFontSize(event.target.value));
   // Clipboard buttons operate on the complete document for fast program transfer.
   els.editorCopyButton?.addEventListener("click", copyCompleteEditor);
@@ -4346,7 +4514,11 @@ function bindEvents() {
   els.learningCommentsDialog?.addEventListener("click", (event) => {
     if (event.target === els.learningCommentsDialog) els.learningCommentsDialog.close();
   });
-  els.learningCommentDetail?.addEventListener("change", renderLearningCommentsPreview);
+  els.learningCommentDetail?.addEventListener("change", () => {
+    renderLearningCommentsPreview();
+    // The toolbar view and export preview use one detail choice so their explanations agree.
+    if (state.automaticCommentsVisible) renderAutomaticComments();
+  });
   els.copyLearningCommentsButton?.addEventListener("click", copyLearningComments);
   els.replaceWithLearningCommentsButton?.addEventListener("click", replaceWithLearningComments);
   els.runButton?.addEventListener("click", runCode);

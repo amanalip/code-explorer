@@ -75,6 +75,12 @@ Living post-mortems through lessons_learned.md
           |
           v
 Automatic Learning Comments and 54 examples in v2
+          |
+          v
+Vertical curriculum navigation and inline study comments in v3
+          |
+          v
+Explicit permanent no-analytics project rule
 ```
 
 # Lessons learned by the user
@@ -826,6 +832,97 @@ The same principle applies beyond the glossary. A list of 54 example names is le
 
 Status: Implemented in the v2 documentation.
 
+## 48. Category navigation should match how people scan a curriculum
+
+Aman noticed that the expanded concept list was technically usable but required left-to-right scrolling. For a fixed educational taxonomy, that interaction makes learners search for navigation rather than search through ideas.
+
+A vertical list communicates the whole structure more naturally:
+
+```text
+HORIZONTAL STRIP                  VERTICAL CURRICULUM
+some categories visible          All
+        |                         Foundations
+        v                         Decisions
+scroll sideways to discover      Loops
+the rest                          Functions and Scope
+                                  Collections
+                                  References and Mutation
+                                  Input and Debugging
+```
+
+The lesson is not that horizontal controls are always wrong. They are weak when labels are long, the set is known and bounded, and users need to compare all categories. The final browser uses a vertical sidebar on desktop and a bounded vertical region on mobile.
+
+Status: Implemented in v3.
+
+## 49. Learning flow can matter more than explanation density
+
+Automatic comments were useful, but permanently placing generated text into source could interrupt the learner's sense of how the original program reads. Aman separated two needs that initially looked like one feature:
+
+- Read explanations temporarily while following the program.
+- Export a real commented copy for later study.
+
+The first need benefits from an on or off reading layer. The second benefits from a preview, copy action, and explicit replacement confirmation. Treating them as separate modes preserves focus without removing either capability.
+
+Status: Implemented in v3.
+
+## 50. A visual replacement can satisfy the learning goal without replacing data
+
+The request described the editor being replaced by automatic comments while the control was on. The reliable interpretation is visual replacement, not document mutation. The learner sees explanations and source together, but the stored Python remains unchanged.
+
+This distinction protects:
+
+- Python line numbers
+- Trace-to-source mapping
+- Replay breakpoints
+- Execution heatmap ranges
+- Normal Copy behavior
+- Reloaded source
+
+The broader product lesson is to ask what experience the learner wants, then choose the safest data behavior that produces that experience.
+
+Status: Implemented in v3.
+
+## 51. More features need clearer modes, not merely more buttons
+
+The toolbar now names its state explicitly: **Automatic comments off** and **Automatic comments on**. The export action remains **Learning comments**. Each label describes a different consequence.
+
+```text
+Need a temporary reading aid?  -> Automatic comments
+Need a portable study file?    -> Learning comments
+Need original code again?      -> turn Automatic comments off
+```
+
+This continues an earlier project lesson about explicit Dark mode and Light mode labels. Discoverability improves when a control names both its purpose and current state.
+
+Status: Implemented in v3.
+
+## 52. Privacy should be an explicit invariant, not an assumption
+
+Aman asked whether the project collected any user data for analytics, while also stating the permanent requirement that it never should. The code already had no analytics, but an unwritten expectation is easier to violate accidentally when a future contributor adds a dependency, logging tool, or product metric.
+
+The user lesson is that privacy needs two kinds of clarity:
+
+```text
+CURRENT FACT
+No analytics or telemetry code exists
+        |
+        v
+PERMANENT RULE
+Future work must not introduce it
+        |
+        v
+REPEATABLE AUDIT
+Check dependencies, network APIs, storage, links, and data flow
+```
+
+It is also important to distinguish local persistence from collection. Saving source and preferences in browser local storage lets the same browser restore the workspace. Code Explorer has no application server or upload path that receives those values.
+
+Honest privacy language still acknowledges normal web infrastructure. GitHub Pages, module CDNs, and font hosting receive ordinary asset requests. Code Explorer does not attach learner source, input, traces, clipboard contents, stored preferences, or tracking identifiers to those requests. Their provider-side request records are not returned to Code Explorer, and maintainers cannot view raw IP addresses or browser headers through the project.
+
+GitHub repository Insights can separately show aggregate items such as recent repository visitor or clone totals, referring sites, and popular repository content to people with push access. This does not reveal what a learner typed or did inside Code Explorer. A count saying that a repository page received views is not a record of one learner's source, input, trace, clipboard, or saved workspace.
+
+Status: Verified and documented as a permanent project boundary on 2026-07-22.
+
 # Lessons learned by Codex
 
 ## 1. Do not confuse technical possibility with a reliable product promise
@@ -1345,9 +1442,109 @@ For this release, the important cross-file invariants are:
 - Three intentional error examples
 - Automatic Learning Comments marked implemented, not approved next
 - 3,000 trace steps and 30 seconds
-- v1 dated 2026-07-20 and v2 dated 2026-07-21
+- v1 dated 2026-07-20, v2 dated 2026-07-21, and v3 dated 2026-07-22
+- Automatic comments marked as a non-destructive v3 editor view
+- Vertical examples navigation documented without stale horizontal-scroll instructions
 
 Documentation is not complete merely because every requested file changed. The files must agree with each other and with the interface.
+
+## 40. Editor decorations preserve coordinate systems
+
+Temporary teaching notes could have been implemented by inserting comment text and later trying to reconstruct the original document. That would make several coordinate systems unstable at once.
+
+CodeMirror block widgets provide the safer model:
+
+```text
+source line position
+       |
+       +-- heatmap decoration
+       +-- current-line decoration
+       +-- automatic-comment widget
+       +-- breakpoint gutter marker
+
+document text remains one shared coordinate system
+```
+
+The implementation lesson is to use decorations for presentation and transactions for genuine source edits. This reduces restoration logic and prevents derived features from drifting to different line numbers.
+
+## 41. One evidence set can support multiple learning surfaces
+
+The worker already produced finite records containing line, level, kind, and text. Reusing those records for inline widgets and the export preview avoids two explanation engines that could disagree.
+
+The two surfaces may format the same record differently, but they must share:
+
+- Supported statement boundaries
+- Trace-backed facts
+- Detail filtering
+- Conservative omission rules
+- Source-line association
+
+The implementation should branch at presentation, not at truth generation.
+
+## 42. Constrained grid children need real size tests
+
+The first mobile CSS pass set program cards to `min-height: 0` because each card occupied one column. In a height-constrained grid, the browser compressed each button row to about 42 pixels while its 171 pixels of content overflowed into neighboring cards.
+
+This was not obvious from a desktop screenshot or a page-overflow measurement. The correction required checking element rectangles and scroll heights in a real narrow browser.
+
+Prevention rule:
+
+```text
+responsive grid changed
+       |
+       +-- inspect screenshot
+       +-- compare card height with card scrollHeight
+       +-- check page horizontal overflow
+       +-- check independent scroll containers
+```
+
+The final mobile cards retain a 190-pixel minimum.
+
+## 43. Category changes should reset result position
+
+Independent scrolling creates another state relationship. If the learner scrolls far down one long category and selects a shorter one, retaining the old card scroll position can open the new category midway through its results.
+
+Resetting only the program region to `scrollTop = 0` gives a predictable beginning without disturbing the category navigator. Small interface state like scroll position deserves the same deliberate lifecycle thinking as trace state.
+
+## 44. Documentation should record discovered failures, not only final success
+
+The mobile card compression was found during implementation and corrected before release. Recording it honestly creates a reusable regression test and explains why the minimum height exists. Removing the history would make a future contributor more likely to view the rule as arbitrary and delete it.
+
+Open-source post-mortems help most when they describe:
+
+- The intended behavior
+- What testing exposed
+- Why the failure occurred
+- The correction
+- The permanent prevention check
+
+## 45. A privacy audit must follow data, not only search for brand names
+
+Searching for known analytics products is useful but incomplete. A custom `fetch()` call, beacon, form action, WebSocket, remote logger, or dependency could transmit data without containing the word analytics.
+
+The audit therefore followed both capabilities and learner data:
+
+```text
+NETWORK CAPABILITIES                  LEARNER DATA
+external imports                     source
+fetch and XHR                        prepared input
+beacons and sockets                  trace and console
+forms and links                      clipboard text
+cookies and storage                  watches and bookmarks
+remote logging                       saved preferences
+          |                                  |
+          +----------------+-----------------+
+                           |
+                           v
+            Does any learner data reach a remote destination?
+                           |
+                           v
+                          No
+```
+
+The application code contains no fetch, XHR, socket, beacon, cookie, form submission, analytics SDK, telemetry SDK, or remote logger. Source and prepared input cross from the main page to the local Web Worker through `postMessage`, then results return to the same page.
+
+The technical lesson is also to avoid an absolute statement that the browser makes no network requests. Pinned dependencies and fonts load from external hosts, and GitHub Pages serves the site. The precise promise is that Code Explorer performs no analytics, sends no learner-authored or learner-derived content to those hosts, and receives no provider request logs that maintainers could inspect through this project. GitHub's aggregate repository traffic panel remains a separate platform summary and cannot be used to open or reconstruct a learner's workspace.
 
 # Shared lessons for future work
 
@@ -1420,7 +1617,12 @@ Reusable discovery, mistake, decision, or success occurred?
 
 | Topic | Current decision |
 | --- | --- |
-| Automatic Learning Comments | Implemented in v2 |
+| Automatic Learning Comments export preview | Implemented in v2 |
+| Automatic comments inline editor view | Implemented in v3 |
+| Examples category navigation | Vertical sidebar on desktop and stacked vertical region on mobile in v3 |
+| Analytics and telemetry | Permanently prohibited; no consent-based analytics exception |
+| Learner data uploads | Prohibited; source, input, traces, output, clipboard, watches, bookmarks, and preferences remain local |
+| External asset requests | Allowed only for documented pinned dependencies with no learner content attached |
 | Hover variable inspector | Explored for later |
 | Inline diagnostics | Explored for later |
 | Inline variable values | Explored for later |

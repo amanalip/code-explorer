@@ -15,6 +15,104 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v3, 2026-07-22
+
+v3 improves how learners read a large curriculum and how they use generated explanations without interrupting the original program flow.
+
+### Automatic comments inside the editor
+
+The trace-powered note set introduced in v2 can now be shown directly beside its related source lines.
+
+```text
+Completed trace
+      |
+      v
+Learning-comment records
+      |
+      +-- Automatic comments toggle
+      |        |
+      |        +-- on: visual widgets above source lines
+      |        +-- off: compact original source view
+      |
+      +-- Learning comments dialog
+               |
+               +-- copy commented study document
+               +-- replace editor only after confirmation
+```
+
+Added behavior:
+
+- The editor toolbar now includes **Automatic comments off** beside the Wrap control.
+- The control stays disabled until the current source produces useful trace-backed notes.
+- Selecting it changes the visible label to **Automatic comments on** and sets the matching pressed state for assistive technology.
+- Notes render as CodeMirror block widgets above supported lines. They look like Python comments but are not inserted into the editor document.
+- Selecting the control again removes the widgets and restores the compact source-only view.
+- Guided remains the default amount of explanation. Choosing Essential, Guided, or Detailed in the Learning Comments dialog also refreshes visible inline notes.
+- Normal editor **Copy** continues to copy the original program, even while comments are visible.
+- The line and character footer, gutter numbers, replay breakpoints, execution heatmap, local source storage, and worker input continue to use the original document.
+- Editing, pasting, loading another example, clearing the trace, or starting a new run hides old widgets and invalidates their evidence.
+- The textarea fallback keeps the original source as editable data and presents a separate read-only commented preview.
+- The existing Learning Comments dialog remains the deliberate export surface for copying a real commented document or confirming editor replacement.
+
+This separation provides two reliable learning modes:
+
+| Need | Control | Source result |
+| --- | --- | --- |
+| Read explanations in context and then return to normal code flow | Automatic comments | Original source always remains unchanged |
+| Save or share a portable commented study copy | Learning comments | Original remains unchanged unless replacement is explicitly confirmed |
+
+### Vertical examples browser
+
+The 54-program curriculum now uses a vertical category navigator instead of a horizontal filter strip.
+
+Desktop behavior:
+
+- A fixed-width left sidebar lists All and the seven curriculum categories.
+- Each row displays the exact number of programs in that category.
+- The selected category uses a clear filled state plus `aria-pressed`.
+- The category sidebar and program-card region scroll vertically and independently.
+- The two-column card region uses the available dialog width without requiring horizontal navigation.
+- Selecting a category returns its card list to the first program.
+
+Mobile behavior:
+
+- The vertical category region stacks above the results.
+- Program cards become a one-column list.
+- Categories and results keep separate bounded vertical scrolling.
+- Cards retain enough height for topic, difficulty, title, purpose, and recommended views.
+- The layout creates no page-level horizontal overflow at a 390-pixel viewport.
+
+The examples dialog was enlarged on desktop so longer category names and richer cards remain comfortable to scan. The same markup and behavior are shared by the landing page and workspace.
+
+### Documentation and contributor knowledge
+
+- README.md now distinguishes temporary inline explanations from exportable commented source, with workflows, state diagrams, persistence rules, expected behavior, and troubleshooting.
+- README.md now documents the vertical desktop and mobile examples layouts and removes the obsolete instruction to scroll categories horizontally.
+- AGENTS.md now requires source-preservation checks for visual editor annotations and vertical-navigation regression checks for the examples browser.
+- SKILLS.md now records the widget state, fallback behavior, editor invariants, layout invariants, and browser evidence.
+- lessons_learned.md now records the product value of protecting reading flow, separating a study view from an export artifact, and testing constrained mobile grid rows.
+
+### v3 verification evidence
+
+- The default seven-line program produced a 12-step browser trace and five visible Guided widgets.
+- Showing and hiding the widgets kept the source footer at `7 lines · 108 chars`.
+- Loading another example while comments were visible removed every widget, disabled the control, cleared the stale trace, and loaded the new source intact.
+- The original Learning Comments dialog still opened with its detail selector, evidence summary, complete preview, copy action, and confirmation-gated replacement action.
+- Desktop light and dark checks confirmed readable inline notes and examples navigation.
+- The landing examples dialog rendered exactly 54 cards and eight filter choices with no horizontal filter overflow.
+- The Loops filter reported `Showing 11 of 54 programs`.
+- A 390 by 844 mobile test confirmed a 352-pixel dialog, 190-pixel minimum card height, 390-pixel page width, and no page-level horizontal overflow.
+- Mobile inline-note testing confirmed five wrapped widgets, a 360-pixel editor width, and no horizontal editor overflow in light and dark themes.
+- Browser testing discovered that removing the mobile card minimum let CSS Grid compress rows to 42 pixels while their content overflowed. The shipped rule preserves a 190-pixel minimum and prevents that regression.
+
+### v3 boundaries
+
+- Inline comments remain explanations of the latest recorded run. They are not predictions for every possible input.
+- Automatic comments intentionally reset to off when source or evidence changes.
+- Visible widgets occupy vertical reading space while enabled, but they do not create Python source lines.
+- To export comments as real text, the learner must use the separate Learning Comments dialog.
+- Category navigation is vertical, but a small phone still needs vertical scrolling to reach all categories and programs.
+
 ## v2, 2026-07-21
 
 ### Automatic Learning Comments
