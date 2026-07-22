@@ -134,6 +134,27 @@ Default Python instance text often contains a hexadecimal process address. v4 no
 
 Automatic Learning Comments now recognize class definitions and can explain that a class creates a reusable object blueprint. Runtime details remain limited to recorded evidence.
 
+### IDE-style Learning Comments study view
+
+The Learning Comments dialog now gives generated study copies a clearer editor-like reading hierarchy in both Light mode and Dark mode.
+
+```text
+READ-ONLY STUDY VIEW
+|
++-- main.py file tab
++-- visual line-number gutter
++-- Python syntax colors
++-- purple Trace note bands
++-- Python 3 and document status
+|
++-- Copy exact commented Python
++-- Replace only after confirmation
+```
+
+The preview explicitly says **Read only**. Trace-powered notes use full-width tinted rows and visible labels, while original Python uses conservative syntax colors. The inline Automatic comments layer uses the same visible **Trace note** label instead of presenting long, faint comment text.
+
+All IDE chrome is presentation only. Visual line numbers, the file tab, legend, colors, and status strip are never included by **Copy commented code** or **Replace editor**. Learner-controlled source is rendered through text nodes, and the feature adds no dependency, network request, stored identifier, analytics, or learner-data collection.
+
 ### v4 verification evidence
 
 - The structural validator found exactly 54 reviewed base examples plus 80 additional examples, for 134 unique titles.
@@ -146,6 +167,9 @@ Automatic Learning Comments now recognize class definitions and can explain that
 - Light and dark mode checks confirmed readable categories, cards, badges, prerequisites, and intentional-error warnings.
 - The Object-Oriented Pet Care Tracker produced 33 trace steps, a class-definition learning note, stable instance labels, and expandable object attributes.
 - The intentional `IndexError` program showed its warning before selection and the expected Error Coach result at its failing step.
+- Desktop light and dark browser checks confirmed readable IDE chrome, source colors, note bands, focus states, and action controls.
+- A 390 by 844 dark-mode check of the 27-line Object-Oriented Pet Care Tracker kept the dialog within the viewport, wrapped 21 Detailed notes, and produced no page-level or preview-level horizontal overflow.
+- An intercepted copy action returned the exact generated 12-line commented Python document for the default example. It included `# Code Explorer:` notes and original Python but excluded visual line numbers, file chrome, badges, and status text.
 
 ### v4 boundaries
 

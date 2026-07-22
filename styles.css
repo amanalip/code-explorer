@@ -52,6 +52,13 @@
   --code-operator: #c9d3cf;
   --code-comment: #89968f;
   --code-invalid: #ff8290;
+  /* Study-editor tokens create an IDE surface without changing the main editor theme. */
+  --study-editor-bg: #0b1017;
+  --study-editor-raised: #101720;
+  --study-editor-gutter: #080c12;
+  --study-editor-line: #263241;
+  --study-editor-note: rgba(169, 139, 255, 0.1);
+  --study-editor-note-hover: rgba(169, 139, 255, 0.16);
   --shadow: 0 22px 70px rgba(0, 0, 0, 0.32);
   --mono: "IBM Plex Mono", "Liberation Mono", monospace;
   --sans: "DM Sans", system-ui, sans-serif;
@@ -100,6 +107,13 @@
   --code-operator: #46534e;
   --code-comment: #66756e;
   --code-invalid: #be2942;
+  /* Light IDE tokens retain editor structure and contrast without becoming glaring white. */
+  --study-editor-bg: #f7f9fc;
+  --study-editor-raised: #e9eef4;
+  --study-editor-gutter: #edf1f6;
+  --study-editor-line: #cbd5df;
+  --study-editor-note: rgba(109, 75, 211, 0.075);
+  --study-editor-note-hover: rgba(109, 75, 211, 0.12);
   --shadow: 0 22px 70px rgba(40, 54, 47, 0.13);
 }
 
@@ -1009,16 +1023,38 @@ main {
  */
 .cm-editor .cm-learning-comment {
   box-sizing: border-box;
+  display: flex;
   width: 100%;
-  margin: 3px 0 2px;
-  padding: 7px 12px 7px calc(12px + var(--learning-comment-indent, 0ch));
+  gap: 10px;
+  align-items: flex-start;
+  margin: 4px 0 3px;
+  padding: 8px 12px 8px calc(12px + var(--learning-comment-indent, 0ch));
   border-left: 2px solid var(--purple);
-  color: var(--code-comment);
+  color: var(--text-soft);
   background: color-mix(in srgb, var(--purple-soft) 62%, transparent);
-  font: italic 500 0.88em/1.5 var(--mono);
+  font: 500 0.88em/1.55 var(--mono);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   pointer-events: none;
+}
+
+/* The compact badge distinguishes generated trace evidence from editable Python. */
+.cm-learning-comment-badge {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  padding: 3px 6px;
+  border: 1px solid color-mix(in srgb, var(--purple) 48%, var(--line));
+  border-radius: 999px;
+  color: var(--purple);
+  background: color-mix(in srgb, var(--purple-soft) 70%, var(--panel-solid));
+  font: 700 0.68em/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* The explanation remains ordinary readable prose instead of faint italic code. */
+.cm-learning-comment-message {
+  min-width: 0;
 }
 
 /* Styles `.cm-editor .cm-gutters`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
@@ -3381,17 +3417,24 @@ main {
   font: 600 0.62rem/1.45 var(--mono);
 }
 
-/* Automatic Learning Comments uses its own wide dialog so generated source remains easy to compare and copy. */
+/* Automatic Learning Comments uses a bounded IDE layout rather than one large plain text area. */
 .learning-comments-dialog {
-  width: min(1080px, calc(100% - 32px));
-  max-height: min(860px, calc(100vh - 40px));
+  width: min(1180px, calc(100% - 32px));
+  height: min(900px, calc(100vh - 40px));
+  max-height: calc(100vh - 40px);
   padding: 0;
-  overflow: auto;
+  overflow: hidden;
   border: 1px solid var(--line-bright);
   border-radius: 14px;
   color: var(--text);
   background: var(--panel-solid);
   box-shadow: var(--shadow);
+}
+
+/* The open dialog becomes a four-row application surface with a flexible editor center. */
+.learning-comments-dialog[open] {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
 }
 
 /* The preview backdrop matches the examples browser so modal behavior feels consistent. */
@@ -3400,18 +3443,35 @@ main {
   backdrop-filter: blur(8px);
 }
 
+/* Keeps the title and safety state together without crowding the close action. */
+.learning-comments-title-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* The read-only badge prevents the IDE appearance from implying a second editable document. */
+.learning-comments-readonly {
+  padding: 5px 8px;
+  border: 1px solid color-mix(in srgb, var(--mint) 45%, var(--line));
+  border-radius: 999px;
+  color: var(--mint);
+  background: var(--mint-soft);
+  font: 700 0.54rem/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 /* Keeps explanation-density controls visible while a long commented program is reviewed. */
 .learning-comments-toolbar {
-  position: sticky;
   z-index: 2;
-  top: 0;
   display: flex;
   gap: 20px;
   align-items: center;
   justify-content: space-between;
-  padding: 13px 22px;
+  padding: 12px 22px;
   border-bottom: 1px solid var(--line);
-  background: var(--panel-solid);
+  background: var(--panel-soft);
 }
 
 /* Presents the label and native select as one compact, keyboard-friendly control. */
@@ -3440,30 +3500,248 @@ main {
 .learning-comments-toolbar p {
   margin: 0;
   color: var(--text-soft);
-  font-size: 0.86rem;
+  font-size: 0.78rem;
   line-height: 1.45;
   text-align: right;
 }
 
-/* A scrollable monospace surface preserves Python whitespace without becoming an editable second editor. */
+/* Groups the legend and evidence summary into one readable toolbar block. */
+.learning-comments-toolbar-copy {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* The legend makes the two visual layers understandable before code is scanned. */
+.learning-comments-legend {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 10px;
+  color: var(--text-dim);
+  font: 600 0.56rem/1 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Each legend item keeps its swatch and label on one line. */
+.learning-comments-legend > span {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+}
+
+/* Small colored squares echo the generated note and source colors used below. */
+.learning-comments-legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+/* Purple identifies trace-backed explanation throughout the application. */
+.learning-legend-note {
+  background: var(--purple);
+}
+
+/* Mint identifies learner Python source and executable content. */
+.learning-legend-source {
+  background: var(--mint);
+}
+
+/* The editor shell supplies familiar chrome, a scrollable document, and a status bar. */
+.learning-comments-editor {
+  display: grid;
+  min-height: 0;
+  margin: 18px 22px;
+  overflow: hidden;
+  grid-template-rows: 42px minmax(0, 1fr) 30px;
+  border: 1px solid var(--study-editor-line);
+  border-radius: 10px;
+  background: var(--study-editor-bg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
+}
+
+/* Editor chrome provides a file tab and mode context without adding interactive controls. */
+.learning-comments-editor-chrome {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: end;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--study-editor-line);
+  background: var(--study-editor-raised);
+}
+
+/* Three small lights give the preview a recognizable development-tool silhouette. */
+.learning-editor-lights {
+  display: flex;
+  gap: 5px;
+  align-self: center;
+  padding-right: 14px;
+}
+
+/* Shared light sizing keeps the decoration subtle rather than imitating window controls. */
+.learning-editor-lights i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-dim);
+}
+
+/* Each light uses an existing semantic accent from the Code Explorer palette. */
+.learning-editor-lights i:nth-child(1) { background: var(--red); }
+.learning-editor-lights i:nth-child(2) { background: var(--amber); }
+.learning-editor-lights i:nth-child(3) { background: var(--mint); }
+
+/* The active file tab anchors the generated document to familiar main.py source. */
+.learning-editor-tab {
+  align-self: stretch;
+  display: inline-flex;
+  width: fit-content;
+  gap: 8px;
+  align-items: center;
+  padding: 0 14px;
+  border-right: 1px solid var(--study-editor-line);
+  border-left: 1px solid var(--study-editor-line);
+  color: var(--code-plain);
+  background: var(--study-editor-bg);
+  font: 600 0.68rem/1 var(--mono);
+}
+
+/* The language badge resembles an IDE file icon while staying text-accessible. */
+.learning-editor-tab b {
+  color: var(--cyan);
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+}
+
+/* Secondary tab text explains why this main.py view contains extra lines. */
+.learning-editor-tab em {
+  color: var(--text-dim);
+  font-size: 0.58rem;
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* The chrome mode label reinforces that this editor-like view is for study only. */
+.learning-editor-mode {
+  align-self: center;
+  color: var(--text-dim);
+  font: 600 0.54rem/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* A scrollable code surface keeps syntax, generated notes, and line numbers visually separate. */
 .learning-comments-preview {
-  min-height: 420px;
-  max-height: min(58vh, 620px);
-  margin: 0;
-  padding: 24px 26px;
+  min-height: 0;
+  padding: 10px 0 18px;
   overflow: auto;
   color: var(--code-plain);
-  background: var(--bg-raised);
-  font: 500 0.86rem/1.65 var(--mono);
+  background: var(--study-editor-bg);
+  font: 500 0.84rem/1.65 var(--mono);
   tab-size: 4;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  counter-reset: learning-preview-line;
 }
 
 /* Gives keyboard users a clear focus boundary when selecting or manually copying preview text. */
 .learning-comments-preview:focus-visible {
   outline: 2px solid var(--mint);
   outline-offset: -4px;
+}
+
+/* Every visual line owns a CSS-only gutter number and an exact selectable code row. */
+.learning-preview-row {
+  position: relative;
+  display: grid;
+  min-height: 27px;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: start;
+  counter-increment: learning-preview-line;
+}
+
+/* CSS-generated numbers do not contaminate copied Python source. */
+.learning-preview-row::before {
+  content: var(--learning-preview-line);
+  position: sticky;
+  left: 0;
+  align-self: stretch;
+  padding: 3px 14px 3px 6px;
+  border-right: 1px solid var(--study-editor-line);
+  color: var(--text-dim);
+  background: var(--study-editor-gutter);
+  text-align: right;
+  user-select: none;
+}
+
+/* Exact source characters wrap only inside the code column and preserve indentation. */
+.learning-preview-code {
+  display: block;
+  min-width: 0;
+  padding: 3px 18px;
+  color: var(--code-plain);
+  font: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Generated notes receive a full-row tint and edge so they cannot be mistaken for Python. */
+.learning-preview-row.trace-note {
+  border-top: 1px solid color-mix(in srgb, var(--purple) 18%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--purple) 18%, transparent);
+  background: var(--study-editor-note);
+}
+
+/* Hover helps a learner follow one long wrapped note without adding motion. */
+.learning-preview-row.trace-note:hover {
+  background: var(--study-editor-note-hover);
+}
+
+/* The owned prefix acts as a compact label but remains exact selectable document text. */
+.learning-preview-note-prefix {
+  margin-right: 8px;
+  padding: 2px 6px;
+  border: 1px solid color-mix(in srgb, var(--purple) 48%, var(--study-editor-line));
+  border-radius: 4px;
+  color: var(--purple);
+  background: color-mix(in srgb, var(--purple-soft) 72%, var(--study-editor-bg));
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Generated prose uses stronger contrast and line height than ordinary code comments. */
+.learning-preview-note-message {
+  color: var(--text-soft);
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  font-weight: 500;
+  line-height: 1.65;
+}
+
+/* Lightweight syntax colors mirror the main editor's established token palette. */
+.learning-token-keyword,
+.learning-token-constant { color: var(--code-keyword); font-weight: 600; }
+.learning-token-string { color: var(--code-string); }
+.learning-token-number { color: var(--code-number); }
+.learning-token-function { color: var(--code-property); }
+.learning-token-operator { color: var(--code-operator); }
+.learning-token-comment { color: var(--code-comment); font-style: italic; }
+.learning-token-name { color: var(--code-name); }
+
+/* The status strip closes the IDE frame with useful static document metadata. */
+.learning-comments-status {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 12px;
+  border-top: 1px solid var(--study-editor-line);
+  color: var(--text-dim);
+  background: var(--study-editor-raised);
+  font: 600 0.54rem/1 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* Separates the safety explanation from the two deliberate export actions. */
@@ -3474,7 +3752,7 @@ main {
   justify-content: space-between;
   padding: 16px 22px;
   border-top: 1px solid var(--line);
-  background: var(--panel-solid);
+  background: var(--panel-soft);
 }
 
 /* Keeps the source-protection promise visible without competing with action labels. */
@@ -3907,6 +4185,13 @@ main {
     flex-direction: column;
   }
 
+  /* The legend and evidence summary also stack so neither becomes cramped. */
+  .learning-comments-toolbar-copy {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
   /* The evidence summary reads naturally from the left in the stacked layout. */
   .learning-comments-toolbar p {
     text-align: left;
@@ -3918,11 +4203,57 @@ main {
     grid-template-columns: 1fr 1fr;
   }
 
-  /* Smaller padding preserves more horizontal room for indented Python source. */
+  /* The IDE frame uses the full available center area on a narrow phone. */
+  .learning-comments-editor {
+    margin: 12px;
+    grid-template-rows: 40px minmax(0, 1fr) 28px;
+  }
+
+  /* Decorative lights yield room to the file name on narrow screens. */
+  .learning-editor-lights {
+    display: none;
+  }
+
+  /* Mobile chrome needs only the active file and its read-only mode. */
+  .learning-comments-editor-chrome {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  /* Secondary file text is hidden before it forces the tab to wrap. */
+  .learning-editor-tab em {
+    display: none;
+  }
+
+  /* Smaller gutter and code padding preserve indentation without horizontal overflow. */
+  .learning-preview-row {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  /* Phone line numbers remain readable without taking editor space from Python. */
+  .learning-preview-row::before {
+    padding-right: 9px;
+  }
+
+  /* Compact code padding keeps nested source readable at 390 pixels. */
+  .learning-preview-code {
+    padding: 3px 10px;
+  }
+
+  /* Smaller type preserves more horizontal room for indented Python source. */
   .learning-comments-preview {
-    min-height: 360px;
-    padding: 18px 16px;
     font-size: 0.76rem;
+  }
+
+  /* The long status label is redundant with the visible note legend on phones. */
+  .learning-comments-status span:last-child {
+    display: none;
+  }
+
+  /* The safety badge moves below the title when the heading needs the full width. */
+  .learning-comments-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
   }
 
   /* Styles `.dialog-header`. This component rule controls sizing and spacing for the matching interface element. */

@@ -143,6 +143,7 @@ For JavaScript functions, use JSDoc with parameter and return information where 
 - Keep bounded concept navigation vertical when all categories can fit naturally in a list. Do not require laptop or phone users to scroll a category row sideways.
 - When a dialog contains navigation and many results, give each region an explicit height and independent vertical overflow. Never let card contents escape a compressed grid row.
 - A visual teaching layer inside the editor must remain distinguishable from actual editable Python source.
+- A read-only preview that resembles an editor must say that it is read only. File chrome, visual line numbers, syntax spans, badges, and status text must remain outside copied or adopted source.
 
 ## State and persistence rules
 
@@ -201,6 +202,8 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm Essential, Guided, and Detailed produce progressively richer previews without changing the source.
 - Confirm learner-written comments, blank lines, and indentation remain intact.
 - Confirm **Copy commented code** copies the complete generated document.
+- Confirm the IDE-style preview gutter, badges, legend, file tab, and status strip are visual only and never enter copied or replaced source.
+- Confirm learner source and generated comments are rendered as text rather than trusted HTML.
 - Confirm **Replace editor** requires confirmation, clears the stale trace, and saves the new source only after confirmation.
 - Rerun commented source and confirm older `# Code Explorer:` lines are replaced rather than duplicated.
 - Confirm repeated loop lines describe counts or changing behavior without claiming one universal value.

@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260722-5" />
+    <link rel="stylesheet" href="styles.css?v=20260722-6" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -607,7 +607,11 @@
       <div class="dialog-header learning-comments-header">
         <div>
           <span class="eyebrow"><span></span> Trace-powered study copy</span>
-          <h2>Automatic Learning Comments</h2>
+          <div class="learning-comments-title-row">
+            <h2>Automatic Learning Comments</h2>
+            <!-- The badge states that this IDE-like surface cannot alter learner source. -->
+            <span class="learning-comments-readonly">Read only</span>
+          </div>
         </div>
         <button class="dialog-close" id="closeLearningCommentsButton" type="button" aria-label="Close learning comments">×</button>
       </div>
@@ -621,10 +625,34 @@
             <option value="detailed">Detailed</option>
           </select>
         </label>
-        <p id="learningCommentsSummary">Run a trace to generate conservative comments from syntax and observed behavior.</p>
+        <div class="learning-comments-toolbar-copy">
+          <!-- A compact legend separates generated evidence from original Python before reading begins. -->
+          <span class="learning-comments-legend" aria-label="Preview legend">
+            <span><i class="learning-legend-note"></i> Trace note</span>
+            <span><i class="learning-legend-source"></i> Python source</span>
+          </span>
+          <p id="learningCommentsSummary">Run a trace to generate conservative comments from syntax and observed behavior.</p>
+        </div>
       </div>
-      <!-- The preview is plain text, so learner source is never interpreted as HTML. -->
-      <pre class="learning-comments-preview" id="learningCommentsPreview" tabindex="0" aria-label="Commented Python preview"></pre>
+      <!-- The IDE shell is read-only presentation. JavaScript still inserts only safe text nodes. -->
+      <section class="learning-comments-editor" aria-label="Read-only commented Python study editor">
+        <!-- Familiar editor chrome gives the long preview a clear file and mode context. -->
+        <div class="learning-comments-editor-chrome" aria-hidden="true">
+          <span class="learning-editor-lights"><i></i><i></i><i></i></span>
+          <span class="learning-editor-tab"><b>PY</b> main.py <em>with trace notes</em></span>
+          <span class="learning-editor-mode">Study view</span>
+        </div>
+        <!-- Rows receive line numbers and syntax colors without changing the copied document. -->
+        <div class="learning-comments-preview" id="learningCommentsPreview" tabindex="0" role="region" aria-label="Commented Python preview"></div>
+        <!-- The status bar mirrors useful IDE metadata without pretending the preview is editable. -->
+        <div class="learning-comments-status" aria-hidden="true">
+          <span>Python 3</span>
+          <span id="learningCommentsLineCount">0 lines</span>
+          <span>UTF-8</span>
+          <span>LF</span>
+          <span>Trace notes visible</span>
+        </div>
+      </section>
       <!-- Actions keep the original safe by default and clearly separate copying from replacement. -->
       <div class="learning-comments-actions">
         <p><strong>Your original stays unchanged.</strong> Replacing the editor requires one additional confirmation.</p>
@@ -639,6 +667,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260722-5"></script>
+    <script type="module" src="app.js?v=20260722-6"></script>
   </body>
 </html>

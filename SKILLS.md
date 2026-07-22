@@ -134,6 +134,7 @@ Implemented guarantees:
 
 - The original source remains unchanged by default.
 - Inline widgets are decorations attached to source line positions, not inserted document text.
+- Inline widgets use a visible `Trace note` badge and readable prose styling so generated guidance remains distinct from editable Python in both themes.
 - Editor Copy, line counts, breakpoints, heatmap ranges, and trace mapping continue to use the original document.
 - The inline mode starts off for each trace and clears on editing, pasting, example selection, or a new run.
 - The selected detail level filters both the inline view and export preview.
@@ -142,6 +143,10 @@ Implemented guarantees:
 - Repeated loop values are described carefully and are not presented as one universal value.
 - Unsupported or ambiguous constructs receive no invented explanation.
 - Comment-generation failure cannot break tracing, playback, or source editing.
+- The export dialog uses a read-only IDE-style shell with a file tab, visual gutter, syntax colors, note bands, and status strip. These elements are presentation only and never enter copied or replaced source.
+- `renderLearningPreviewDocument()` creates all source and note content with text nodes. It never treats learner-controlled source as HTML.
+- `appendPythonPreviewTokens()` is a conservative display tokenizer, not the Python parser and not a source transformer. The exact generated document remains owned by the comment-building path used by Copy and Replace.
+- The study palette derives from the existing light and dark theme variables. It adds no external theme dependency, saved preference, network request, or learner-data path.
 - The explanation engine has full-corpus evidence from the reviewed 54-program base and representative v4 checks for class definitions and object attributes. The complete 134-program corpus is separately compile-and-run validated, while syntax-error, runtime-error, repeated-line, and unsupported explanation cases remain explicit regression checks.
 - `README.md`, this file, and relevant source comments are updated in the same change.
 - `lessons_learned.md` records what the feature teaches the project during implementation and testing.
@@ -422,12 +427,14 @@ Category changes must set the card region's `scrollTop` to zero. Every mobile ca
 5. Prefer no comment over a clever but uncertain explanation.
 6. Preserve the exact `# Code Explorer:` prefix unless migration behavior is designed and documented.
 7. Keep inline display records and the export document derived from the same filtered metadata so their wording cannot drift.
-8. Render inline notes as block widgets before the related source line. Never dispatch source changes to simulate temporary comments.
-9. Test original-source preservation, inline on and off, button semantics, all detail levels, normal editor Copy, export copy, cancel, confirmed replacement, rerun deduplication, existing learner comments, blank lines, and indentation.
-10. Test invalidation through manual editing, complete-document paste, example selection, clear-trace behavior, and the start of a new run.
-11. Test CodeMirror and fallback behavior, both themes, desktop, mobile wrapping, and absence of horizontal overflow.
-12. Run the full 134-example corpus because it covers first statements, values, operators, strings, decisions, loops, functions, recursion, collections, aliases, shallow copies, input, intentional errors, classes, object attributes, inheritance, composition, and guided integrations.
-13. Inspect representative prose manually. Schema validation can catch missing fields, but it cannot catch awkward language or misleading numeric formatting.
+8. Render inline notes as block widgets before the related source line. Keep their `Trace note` label visible and never dispatch source changes to simulate temporary comments.
+9. Keep IDE chrome, CSS-generated gutter numbers, syntax spans, legends, and status text outside the generated source string. Test that none of them reaches Copy or Replace.
+10. Render learner-controlled source through text nodes. If display tokenization is uncertain, show plain text rather than guessing or using HTML interpolation.
+11. Test original-source preservation, inline on and off, button semantics, all detail levels, normal editor Copy, export copy, cancel, confirmed replacement, rerun deduplication, existing learner comments, blank lines, and indentation.
+12. Test invalidation through manual editing, complete-document paste, example selection, clear-trace behavior, and the start of a new run.
+13. Test CodeMirror and fallback behavior, both themes, desktop, mobile wrapping, bounded internal scrolling, and absence of horizontal overflow.
+14. Run the full 134-example corpus because it covers first statements, values, operators, strings, decisions, loops, functions, recursion, collections, aliases, shallow copies, input, intentional errors, classes, object attributes, inheritance, composition, and guided integrations.
+15. Inspect representative prose manually. Schema validation can catch missing fields, but it cannot catch awkward language or misleading numeric formatting.
 
 ### Add or change a graph
 
@@ -548,6 +555,9 @@ Verify all three detail levels, inline on and off, unchanged source statistics, 
 - Starting another trace while widgets were visible immediately removed the old widgets and completed with Automatic comments available but off.
 - Selecting another example while inline notes were visible removed all widgets, disabled the control, cleared stale trace data, and preserved the newly selected source.
 - The Learning Comments export dialog remained available after the inline mode was added and still showed Guided evidence plus Copy and confirmation-gated replacement actions.
+- The IDE-style export preview rendered the default program and the 27-line Object-Oriented Pet Care Tracker in light and dark themes. Its visual gutter, syntax spans, file chrome, and status strip remained outside the copied document.
+- At 390 by 844, the longer Detailed preview used bounded internal scrolling, wrapped note prose, kept its actions visible, and produced no page-level or preview-level horizontal overflow.
+- An intercepted **Copy commented code** action returned the generated 12-line Python document for the default example, including real `# Code Explorer:` lines and original Python, with no visual gutter numbers or IDE labels.
 - The vertical examples browser exposed all 13 filter choices, accurate counts, 134 landing-page cards, 16 Loop cards, and no horizontal filter overflow.
 - Selecting the Classes and Objects checkpoint produced 33 recorded steps, a class-definition learning note, stable `<Pet instance>` labels, and bounded `.name`, `.animal`, `.meals`, and `.exercised` attribute branches.
 - Selecting the intentional `IndexError` investigation program displayed its warning before opening it, then produced the expected Error Coach explanation at the failing step.

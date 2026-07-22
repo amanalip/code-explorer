@@ -1234,6 +1234,24 @@ Aman deserves credit for identifying the gap from a first-time reader's perspect
 
 Status: Implemented in the README Error Coach, troubleshooting, curriculum, and glossary sections.
 
+## 63. Familiar IDE structure can reduce beginner reading effort
+
+Aman correctly identified that technically accurate generated comments were still difficult to read when shown as one plain monospaced document. The problem was not the amount of evidence. It was the missing visual hierarchy between original Python, generated teaching notes, and interface information.
+
+The useful correction was to borrow familiar IDE cues without pretending the preview is editable:
+
+```text
+Original Python       -> syntax color and source rows
+Generated explanation -> labeled Trace note bands
+Document position     -> visual line-number gutter
+Preview identity      -> main.py tab and Read only status
+Copy boundary         -> IDE chrome stays outside copied Python
+```
+
+This is a user lesson because the product observation came from looking at the feature as a learner rather than accepting functional completion. Visual design can be part of teaching when it separates concepts, makes long material scannable, and reduces uncertainty about what is real source.
+
+Status: Implemented in v4 with a light and dark IDE-style study view, visible Trace note labels, bounded mobile scrolling, and presentation-only chrome.
+
 # Lessons learned by Codex
 
 ## 1. Do not confuse technical possibility with a reliable product promise
@@ -1971,6 +1989,31 @@ No unexplained coverage lists
 The final question exposed an additional implementation boundary: compile-time indentation problems travel through Code Explorer's syntax-error path. The README now states that the heading may say `SyntaxError` while the Python message explains indentation, rather than implying that the interface always presents a separate `IndentationError` header.
 
 The permanent Codex lesson is that a long document can still be shallow at one crucial point. Section presence, heading counts, and feature lists do not replace reading each technical term as though it were the learner's first encounter.
+
+## 52. Preserve the data model while improving presentation
+
+Codex initially optimized Automatic Learning Comments for conservative wording, source preservation, and exact copy behavior. Those protections were correct, but the first export preview treated correctness as sufficient and left the generated document visually flat.
+
+The stronger implementation keeps the trusted data path unchanged and builds a separate presentation layer:
+
+```text
+Generated source string
+       |
+       +-- Copy and confirmed Replace use exact text
+       |
+       +-- Preview renderer creates safe text nodes
+                     |
+                     +-- syntax spans
+                     +-- visual gutter
+                     +-- note bands
+                     +-- IDE chrome
+```
+
+The important rule is that a visual improvement must not silently become a source transformation. CSS line numbers, file tabs, badges, and status labels are useful on screen but must never enter the clipboard or editor. A conservative display tokenizer may color recognizable Python tokens, but it is not allowed to change execution, parsing, or exported text. When uncertain, plain text is safer than invented highlighting.
+
+The permanent Codex lesson is to test optional learning surfaces for comprehension as well as correctness. A feature can preserve every byte and still need redesign before it is genuinely beginner friendly.
+
+Status: Implemented and verified with the default loop program and the longer Object-Oriented Pet Care Tracker at desktop and 390 by 844 mobile widths.
 
 # Shared lessons for future work
 

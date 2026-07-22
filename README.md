@@ -345,6 +345,7 @@ for number in range(1, 4):            # Code Explorer: the body ran 3 times.
 Why this matters:
 
 - The program's natural reading flow can be restored instantly.
+- Each temporary explanation has a visible **Trace note** label, so it cannot be mistaken for Python that the learner typed.
 - Line numbers still refer to the real Python source.
 - Breakpoints and execution highlighting do not move to artificial comment lines.
 - **Copy** and **Paste** continue to operate on the original editor document.
@@ -393,6 +394,33 @@ Code Explorer provides two related surfaces from the same conservative note set:
 | **Learning comments** dialog | Preview, copy, or deliberately adopt a real commented document | No by default | **Copy commented code** copies source plus generated `# Code Explorer:` lines |
 
 Use the editor toggle when you want to preserve flow and switch explanations on and off. Use the dialog when you want a portable study artifact for notes, teaching, or later review.
+
+### The IDE-style study view
+
+The Learning Comments dialog presents the generated document as a read-only IDE-style study view. Its structure is designed to make a long commented program easier to scan, not to pretend that the preview is another editable file.
+
+```text
+AUTOMATIC LEARNING COMMENTS
++-- Read only status
++-- Comment detail: Essential, Guided, or Detailed
++-- Legend
+|   +-- purple: trace-powered teaching note
+|   +-- green: original Python source
++-- IDE study surface
+|   +-- main.py tab
+|   +-- visual line-number gutter
+|   +-- conservative Python syntax colors
+|   +-- full-width Trace note bands
+|   +-- Python 3, line count, UTF-8, and LF status
++-- Copy commented code
++-- Replace editor, with confirmation
+```
+
+The study surface follows the website's Light mode or Dark mode. There is no separate IDE-theme setting to learn or save. Light mode uses a bright editor palette, while Dark mode uses a low-glare dark palette with stronger contrast for comments, strings, keywords, numbers, and note text.
+
+The visual line numbers, file tab, legend, colors, and status strip are presentation only. **Copy commented code** copies the exact generated Python document, including real `# Code Explorer:` lines, but it never copies the visual gutter, badges, file name, or status text. The lightweight syntax coloring also changes presentation only. It does not rewrite, parse differently, or execute the displayed source.
+
+On a narrow phone screen, the dialog becomes a compact vertical workspace. The preview scrolls inside its own bounded region, long notes wrap within their rows, and the whole page avoids sideways scrolling. On a larger screen, the same hierarchy has more room without stretching the code into an excessively wide reading line.
 
 Automatic Learning Comments combines two kinds of evidence. Python's parsed syntax explains the role of a statement, while the completed trace supplies facts that were actually observed during this run.
 

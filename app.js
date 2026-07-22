@@ -10,7 +10,7 @@
 
 // The expanded curriculum lives in a dedicated data module so application
 // controllers remain readable while the library grows to 134 programs.
-import { ADDITIONAL_EXAMPLES } from "./curriculum.js?v=20260722-5";
+import { ADDITIONAL_EXAMPLES } from "./curriculum.js?v=20260722-6";
 
 /**
  * The initial program shown in the editor.
@@ -1318,6 +1318,7 @@ const els = Object.fromEntries(
     "playButton", "nextButton", "restartButton", "bookmarkButton", "stepSlider", "progressPercent", "speedSelect",
     "consoleOutput", "clearOutputButton", "examplesDialog", "closeExamplesButton", "exampleFilters", "exampleCount", "exampleGrid",
     "learningCommentsDialog", "closeLearningCommentsButton", "learningCommentDetail", "learningCommentsSummary",
+    "learningCommentsLineCount",
     "learningCommentsPreview", "copyLearningCommentsButton", "replaceWithLearningCommentsButton", "toast",
   ].map((id) => [id, document.getElementById(id)]),
 );
@@ -1601,7 +1602,15 @@ async function initializeEditor() {
         const row = document.createElement("div");
         row.className = "cm-learning-comment";
         row.style.setProperty("--learning-comment-indent", `${this.indentation}ch`);
-        row.textContent = `${LEARNING_COMMENT_PREFIX} ${this.text}`;
+        // A short badge and a separate message are easier to scan than a long
+        // source-style prefix. Both remain outside the editable document.
+        const badge = document.createElement("span");
+        badge.className = "cm-learning-comment-badge";
+        badge.textContent = "Trace note";
+        const message = document.createElement("span");
+        message.className = "cm-learning-comment-message";
+        message.textContent = this.text;
+        row.append(badge, message);
         row.setAttribute("aria-label", `Automatic learning comment: ${this.text}`);
         return row;
       }
@@ -1815,6 +1824,97 @@ const LEARNING_COMMENT_PREFIX = "# Code Explorer:";
 /** Maps visible detail choices to the highest worker note level included in the preview. */
 const LEARNING_COMMENT_LEVELS = Object.freeze({ essential: 1, guided: 2, detailed: 3 });
 
+/** Python words that receive an IDE-like keyword color in the read-only study preview. */
+const PYTHON_PREVIEW_KEYWORDS = new Set([
+  "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del",
+  "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in",
+  "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while",
+  "with", "yield",
+]);
+
+/** Common Python constants receive a distinct color instead of looking like variable names. */
+const PYTHON_PREVIEW_CONSTANTS = new Set(["True", "False", "None"]);
+
+/**
+ * Appends presentation-only Python token spans while preserving every character.
+ * The intentionally small highlighter improves scanning without pretending to be
+ * a second parser or changing the generated study source used by Copy and Replace.
+ *
+ * @param {HTMLElement} container Row content that receives safe text nodes and spans.
+ * @param {string} line Exact Python source line to present.
+ */
+function appendPythonPreviewTokens(container, line) {
+  // These conservative categories cover the visual distinctions beginners need
+  // most. Anything unmatched remains ordinary source text.
+  const tokenPattern = /("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|#[^\n]*|\b[A-Za-z_]\w*\b|\b\d+(?:\.\d+)?\b|(?:\*\*|\/\/|==|!=|<=|>=|:=|->|[+\-*/%=<>!&|^~:]))/g;
+  let cursor = 0;
+  for (const match of line.matchAll(tokenPattern)) {
+    const token = match[0];
+    const start = match.index || 0;
+    if (start > cursor) container.append(document.createTextNode(line.slice(cursor, start)));
+    const span = document.createElement("span");
+    const followingText = line.slice(start + token.length);
+    if (token.startsWith("#")) span.className = "learning-token-comment";
+    else if (token.startsWith("\"") || token.startsWith("'")) span.className = "learning-token-string";
+    else if (/^\d/.test(token)) span.className = "learning-token-number";
+    else if (PYTHON_PREVIEW_KEYWORDS.has(token)) span.className = "learning-token-keyword";
+    else if (PYTHON_PREVIEW_CONSTANTS.has(token)) span.className = "learning-token-constant";
+    else if (/^\s*\(/.test(followingText)) span.className = "learning-token-function";
+    else if (/^(?:\*\*|\/\/|==|!=|<=|>=|:=|->|[+\-*/%=<>!&|^~:])$/.test(token)) span.className = "learning-token-operator";
+    else span.className = "learning-token-name";
+    span.textContent = token;
+    container.append(span);
+    cursor = start + token.length;
+    // A Python comment owns the remainder of its line.
+    if (token.startsWith("#")) break;
+  }
+  if (cursor < line.length) container.append(document.createTextNode(line.slice(cursor)));
+  // A blank row still needs selectable content so its newline remains apparent.
+  if (!line.length) container.append(document.createTextNode(" "));
+}
+
+/**
+ * Renders a safe, line-numbered IDE presentation of the generated study document.
+ * Generated comments receive a distinct trace-note treatment, while ordinary
+ * Python characters remain selectable in their original order.
+ *
+ * @param {string} source Complete generated commented source.
+ */
+function renderLearningPreviewDocument(source) {
+  if (!els.learningCommentsPreview) return;
+  const fragment = document.createDocumentFragment();
+  const lines = source.split("\n");
+  lines.forEach((line, index) => {
+    const row = document.createElement("div");
+    row.className = "learning-preview-row";
+    row.style.setProperty("--learning-preview-line", `"${index + 1}"`);
+    row.setAttribute("aria-label", `Line ${index + 1}: ${line || "blank"}`);
+    const content = document.createElement("code");
+    content.className = "learning-preview-code";
+    const trimmed = line.trimStart();
+    if (trimmed.startsWith(LEARNING_COMMENT_PREFIX)) {
+      row.classList.add("trace-note");
+      // Leading spaces keep a note visually attached to its related Python block.
+      content.append(document.createTextNode(line.slice(0, line.length - trimmed.length)));
+      const prefix = document.createElement("span");
+      prefix.className = "learning-preview-note-prefix";
+      prefix.textContent = LEARNING_COMMENT_PREFIX;
+      const message = document.createElement("span");
+      message.className = "learning-preview-note-message";
+      message.textContent = trimmed.slice(LEARNING_COMMENT_PREFIX.length);
+      content.append(prefix, message);
+    } else {
+      appendPythonPreviewTokens(content, line);
+    }
+    row.append(content);
+    fragment.append(row);
+  });
+  els.learningCommentsPreview.replaceChildren(fragment);
+  if (els.learningCommentsLineCount) {
+    els.learningCommentsLineCount.textContent = `${lines.length} line${lines.length === 1 ? "" : "s"}`;
+  }
+}
+
 /**
  * Synchronizes the toolbar toggle and the editor-only automatic-comment layer.
  * CodeMirror receives block widgets at original line positions. The native
@@ -1941,7 +2041,7 @@ function buildLearningCommentedSource(detail = "guided") {
 function renderLearningCommentsPreview() {
   const detail = els.learningCommentDetail?.value || "guided";
   const generated = buildLearningCommentedSource(detail);
-  if (els.learningCommentsPreview) els.learningCommentsPreview.textContent = generated.source;
+  renderLearningPreviewDocument(generated.source);
   if (els.learningCommentsSummary) {
     els.learningCommentsSummary.textContent = `${generated.noteCount} ${detail} learning note${generated.noteCount === 1 ? "" : "s"} generated from Python syntax and the latest recorded run.`;
   }
@@ -2091,7 +2191,7 @@ function ensureWorker() {
 
   // The version query keeps GitHub Pages and long-lived browser caches from
   // pairing a new interface with an older tracing or serialization contract.
-  state.worker = new Worker("py-worker.js?v=20260722-5", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260722-6", { type: "module" });
   state.worker.addEventListener("message", handleWorkerMessage);
   state.worker.addEventListener("error", (event) => {
     const message = event.message || "Python worker failed to load.";
