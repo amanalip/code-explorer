@@ -1664,7 +1664,8 @@ Growing a list      Find and skip loop examples
        One Guided Challenge
                  |
                  v
-       Generate learning comments
+       Turn on Automatic comments
+       Export a study copy if useful
 ```
 
 ## Guided beginner walkthroughs

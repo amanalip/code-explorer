@@ -722,7 +722,7 @@ This file should be updated whenever a future task produces a reusable insight, 
 
 ## 41. Inline annotations and source comments are different products
 
-The discussion about inline variable values led to an important clarification. CodeMirror can display temporary information beside code without changing the Python document. Automatic Learning Comments, by contrast, generate real `#` comments that can be copied or placed into source after confirmation.
+The discussion about inline variable values led to an important clarification. CodeMirror can display temporary information beside code without changing the Python document. The v2 Learning Comments dialog generates a real `#`-commented study document that can be copied or placed into source after confirmation. The v3 Automatic comments toggle reuses the same reliable explanations as temporary editor widgets, so learners can choose either product deliberately.
 
 ```text
 Inline annotation
@@ -733,7 +733,12 @@ Inline annotation
 Generated source comment
        +-- Is real Python text
        +-- Can be copied and studied elsewhere
-       +-- Must preserve source and require safe replacement behavior
+       +-- Enters the editor only after confirmation
+
+Automatic comments widget
+       +-- Looks like a Python comment above its source line
+       +-- Never becomes part of the document
+       +-- Can be hidden without reconstructing source
 ```
 
 The lesson is to identify whether a learning aid is presentation, generated content, or an actual source transformation before estimating or implementing it.
@@ -1250,7 +1255,7 @@ The interface should state when no reliable comment can be generated.
 
 ## 26. Generated explanations should remain reversible
 
-Automatic Learning Comments must first appear in a separate preview. Copying is safe. Hiding is safe. Replacing the editor is reversible only if the original remains recoverable and the learner confirms the action.
+Generated explanations must remain non-destructive by default. The Automatic comments toolbar mode can show them as temporary widgets that never enter source. The Learning Comments export mode must show a separate preview before real generated lines can replace the editor. Copying is safe. Hiding either surface is safe. Replacing the editor is allowed only after the learner reviews the preview and confirms the action.
 
 The general lesson applies to any future transformation:
 
