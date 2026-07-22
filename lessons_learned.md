@@ -1210,6 +1210,30 @@ The user-side lesson is not simply that more examples are better. More examples 
 
 Status: Implemented in v4.
 
+## 62. A list of beginner terms is not an explanation
+
+The Error Coach guide named ten Python error types but explained only one of them in detail. Aman noticed that a complete beginner could see names such as `TypeError`, `ValueError`, `IndexError`, and `KeyError` without having enough knowledge to distinguish them.
+
+That observation creates a documentation test:
+
+```text
+Beginner term introduced
+          |
+          +-- plain-language meaning
+          +-- tiny concrete cause
+          +-- first evidence to inspect
+          +-- reasonable next experiment
+          |
+          v
+Term becomes usable knowledge
+```
+
+A list can help an experienced reader scan coverage, but it can frighten or confuse a beginner when the surrounding guide assumes the vocabulary it is supposed to teach. The README now explains every Error Coach type, the difference between Python errors and workspace messages, the three intentional-error programs, indentation as part of the syntax-error family, EOF as the end of prepared input, and several commonly confused exception pairs.
+
+Aman deserves credit for identifying the gap from a first-time reader's perspective. The broader lesson is that documentation depth should be judged at each introduced term, not by the total length of the document.
+
+Status: Implemented in the README Error Coach, troubleshooting, curriculum, and glossary sections.
+
 # Lessons learned by Codex
 
 ## 1. Do not confuse technical possibility with a reliable product promise
@@ -1924,6 +1948,29 @@ Python validator
 ```
 
 This separation makes failures easier to diagnose and prevents one mistaken infinite loop from stalling the whole audit. The permanent lesson is to distinguish a harness or environment failure from a learner-program failure, then strengthen the harness instead of lowering the quality claim.
+
+## 51. Documentation coverage must be checked at the vocabulary level
+
+Codex documented the Error Coach feature, listed its supported exception families, and included one `IndexError` walkthrough. That looked complete at the section level but remained incomplete at the vocabulary level. Nine named terms still depended on prior Python knowledge.
+
+The corrected audit method is:
+
+```text
+Find every beginner-facing named concept
+                 |
+                 +-- Is it defined nearby or linked clearly?
+                 +-- Is there a small example?
+                 +-- Is the first inspection step stated?
+                 +-- Is it distinguished from similar terms?
+                 +-- Does the wording match actual tool behavior?
+                 |
+                 v
+No unexplained coverage lists
+```
+
+The final question exposed an additional implementation boundary: compile-time indentation problems travel through Code Explorer's syntax-error path. The README now states that the heading may say `SyntaxError` while the Python message explains indentation, rather than implying that the interface always presents a separate `IndentationError` header.
+
+The permanent Codex lesson is that a long document can still be shallow at one crucial point. Section presence, heading counts, and feature lists do not replace reading each technical term as though it were the learner's first encounter.
 
 # Shared lessons for future work
 

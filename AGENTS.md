@@ -123,6 +123,8 @@ For JavaScript functions, use JSDoc with parameter and return information where 
 - Base runtime explanations on recorded trace evidence.
 - Base source structure explanations on parsed Python syntax.
 - If evidence is missing or ambiguous, say that the explanation is unavailable instead of guessing.
+- When beginner-facing documentation introduces a technical term, define it nearby or link to a clear definition. For important terms, include a small cause or example, the first evidence to inspect, and a reasonable next experiment.
+- Audit vocabulary individually. A feature list or table of supported names is not complete documentation when a first-time learner still needs prior knowledge to understand its entries.
 - Clearly distinguish conceptual references from physical RAM addresses.
 - Escape learner-controlled content before placing it into HTML.
 - Bound displayed values, nested structures, graph sizes, and recorded steps.

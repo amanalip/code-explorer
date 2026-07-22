@@ -561,6 +561,8 @@ Before describing a feature as complete, answer all of these questions:
 - Can a first-time learner discover it?
 - Does the README explain why and when to use it?
 - Is there a small code example or walkthrough when useful?
+- Is every beginner-facing technical term defined nearby or connected to a clear glossary entry?
+- When similar terms can be confused, does the guide explain the difference with a concrete example or inspection step?
 - Does the README state the expected behavior?
 - Are limits, persistence, permissions, and failure states documented?
 - Does this file identify its state, data, dependencies, risks, and tests?

@@ -764,16 +764,43 @@ The Error Coach shows:
 
 Built-in guidance is available for common failures:
 
-- `SyntaxError`
-- `IndentationError`
-- `NameError`
-- `TypeError`
-- `ValueError`
-- `IndexError`
-- `KeyError`
-- `ZeroDivisionError`
-- `AttributeError`
-- `EOFError`
+| Error type | What it means in beginner language | Tiny example that can cause it | First thing to inspect |
+| --- | --- | --- | --- |
+| `SyntaxError` | Python could not understand the program's grammar, so execution never started. | `if ready` is missing its final colon. | Check the highlighted line and the line immediately before it for missing colons, commas, quotes, or brackets. |
+| `IndentationError` | Statements inside a block do not have the indentation Python expects. It is a specialized kind of `SyntaxError`. | Writing `print("Go")` directly under `if ready:` without indenting it. | Align statements that belong to the same block and use spaces consistently. Code Explorer handles compile-time indentation problems through its syntax-error path, so the heading may say `SyntaxError` while the message describes indentation. |
+| `NameError` | Python tried to use a variable or function name that has not been created in the current scope. | `print(score)` before assigning `score`. | Check spelling, capitalization, statement order, and whether the name exists inside the active function or global scope. |
+| `TypeError` | An operation received a kind of value it cannot use in that way. | `"5" + 2` tries to add text and an integer. | Open Variables and compare the visible types. Convert a value only when that conversion matches the program's intention. |
+| `ValueError` | The operation accepts this general type, but the particular value is unsuitable. | `int("twelve")` receives text that is not an integer representation. | Inspect the exact value, including spaces and punctuation, then validate or clean it before conversion. |
+| `IndexError` | A list, tuple, string, or other sequence was asked for a position outside its available range. | `colors[2]` when `colors` contains only two items. | Inspect the sequence length. Indexes begin at `0`, so a sequence of length `2` has indexes `0` and `1`. |
+| `KeyError` | A dictionary was asked for a key it does not contain. | `prices["marker"]` when only `"pen"` and `"book"` exist. | Open Structures and inspect the actual keys. Use membership checking or `dict.get()` when a missing key is an expected possibility. |
+| `ZeroDivisionError` | A division or remainder operation used zero as its divisor. | `average = total / count` when `count` is `0`. | Inspect the divisor and decide what the program should do when there are no values to divide by. |
+| `AttributeError` | A value does not provide the requested attribute or method. | `name.apend("!")` misspells a method and also asks a string for list-like behavior. | Inspect the value's type and check the attribute or method spelling. Different types provide different methods. |
+| `EOFError` | `input()` requested another response, but Input Playground had no prepared line left. EOF means end of input. | Three calls to `input()` with only two prepared response lines. | Count the `input()` calls on the observed path and add one prepared line for each call. |
+
+Do not read an error type as the whole explanation. A Python failure has several useful parts:
+
+```text
+ERROR TYPE
+What family of problem occurred?
+        |
+        v
+MESSAGE
+What specific operation or value caused Python to stop?
+        |
+        v
+SOURCE LINE
+Which statement was active?
+        |
+        v
+RECORDED STATE
+What values, types, keys, lengths, and frames existed just before it?
+        |
+        v
+NEXT EXPERIMENT
+What one small correction or input change will test your explanation?
+```
+
+An exception is not always a programming mistake. Programs can deliberately raise and catch exceptions to handle expected problems. Error Coach is most important when an error stops the run. If the program catches the exception successfully, execution can continue into its `except` block instead.
 
 Example:
 
@@ -1699,7 +1726,15 @@ A Guided Challenge is not a test you must pass before using it. Load it, run it,
 
 Guided checkpoints are interleaved in **All programs** after their prerequisite sections. The Guided Mini Programs filter also collects all 12 in one place. A prerequisite is advice, not a lock. The application does not record whether it was completed.
 
-Three debugging examples intentionally stop with `IndexError`, `ValueError`, or `KeyError`. Their failure is the lesson, not a broken example. Error Coach, Variables, and Structures let you inspect the evidence immediately before the failure.
+Three debugging examples intentionally stop. Their failure is the lesson, not a broken example:
+
+| Investigation | Why Python stops | Evidence to inspect | A reasonable correction experiment |
+| --- | --- | --- | --- |
+| **An index to investigate** | It requests index `2` from a two-item list. The available indexes are `0` and `1`, so Python raises `IndexError`. | Open Structures to count the items and Variables to inspect `requested_index`. | Change the requested index to `1`, or check that the index is smaller than `len(colors)` before reading it. |
+| **A number to investigate** | It passes the prepared text `"twelve"` to `int()`. That text does not represent an integer, so Python raises `ValueError`. | Open Input Playground to see the original text and Variables to distinguish the text from a converted number. | Prepare `12`, or validate the text and catch `ValueError` before continuing. |
+| **A key to investigate** | It requests `"marker"` from a dictionary containing only `"pen"` and `"book"`, so Python raises `KeyError`. | Open Structures to inspect the existing keys and Variables to inspect `requested_item`. | Request an existing key, check `requested_item in prices`, or use `prices.get(requested_item)` when absence is expected. |
+
+These cards show an **Intentional learning error** warning before opening. Do not fix them immediately. First predict the error, run the trace, inspect the final recorded state, explain the mismatch in your own words, and then make one small correction.
 
 ### Learning ladders
 
@@ -2729,6 +2764,22 @@ RUNNING
 
 ## Errors and helpful messages
 
+This section contains two different kinds of messages:
+
+```text
+Python error
++-- comes from the learner program
++-- examples: NameError, TypeError, IndexError
++-- investigate with Error Coach and recorded state
+
+Code Explorer status or limit
++-- comes from the learning workspace
++-- examples: Runtime unavailable, trace limit reached
++-- follow the recovery action in the table below
+```
+
+The table below explains workspace messages. For Python exception types, use the detailed [Error Coach reference](#error-coach).
+
 | Message or situation | Meaning | What to do |
 | --- | --- | --- |
 | Add some Python code first | The editor contains no executable source | Enter or load a program |
@@ -3058,7 +3109,9 @@ Try:
 
 ### Input produces EOFError
 
-Count the calls to `input()` along the path being tested. Add at least that many lines to Input Playground.
+EOF means end of input. In a terminal it traditionally means that no more input can be read. In Code Explorer it means the program called `input()` after all prepared Input Playground lines had already been consumed.
+
+Count the calls to `input()` along the path being tested. Remember that conditions and loops can make the number of calls vary between runs. Add at least one prepared line for every call on the path you want to test.
 
 ```python
 first = input()
@@ -3736,6 +3789,15 @@ if ready
 
 The missing colon prevents execution from starting, so no runtime timeline exists.
 
+Indentation problems are part of the same compile-time family. For example, the body below must move to the right because it belongs to the `if` block:
+
+```python
+if ready:
+print("Go")
+```
+
+Code Explorer may show this through its `SyntaxError` path with a message about expected indentation. Because parsing failed, Variables, Coverage, and other runtime views have no execution evidence yet.
+
 Common misunderstanding: a syntax error is not a false condition or a runtime branch. Python cannot begin the program.
 
 Best views: **Error Coach**, editor line highlight.
@@ -3752,6 +3814,17 @@ print(numbers[3])
 The earlier assignment can still appear in a partial trace before the `IndexError`.
 
 Common misunderstanding: an exception message is evidence, not a judgement about the learner. Read the type, failing line, and current values together.
+
+Several exception names sound similar at first. Use the object being accessed or the operation being attempted to separate them:
+
+| Do not confuse | Key difference |
+| --- | --- |
+| `SyntaxError` and a runtime exception | A syntax error prevents the program from starting. A runtime exception happens after valid source has begun executing. |
+| `TypeError` and `ValueError` | `TypeError` usually means the kind of value is unsuitable for the operation. `ValueError` usually means the kind is accepted but the particular content is unsuitable. |
+| `IndexError` and `KeyError` | `IndexError` concerns a sequence position. `KeyError` concerns a missing dictionary key. |
+| `NameError` and `AttributeError` | `NameError` concerns a name Python cannot find in scope. `AttributeError` concerns a method or attribute that a found value does not provide. |
+
+See the [Error Coach reference](#error-coach) for individual meanings, examples, and first inspection steps.
 
 Best views: **Error Coach**, **Variables**, **Structures**.
 
