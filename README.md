@@ -18,6 +18,8 @@ The workspace helps answer questions that are often difficult when learning Pyth
 
 Code Explorer is intended for learning, experimentation, demonstrations, and small Python exercises. It runs the program privately in the browser and does not require an account, project setup, or server workspace.
 
+This README is the living beginner guide for Code Explorer. It is reviewed whenever the tool changes so its controls, examples, limits, workflows, and expected behavior remain synchronized with the website.
+
 ## Contents
 
 - [Start here](#start-here)
