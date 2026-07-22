@@ -38,6 +38,7 @@ Never claim that Code Explorer supports behavior that has not been implemented a
 - `favicon.svg`: code-themed browser-tab icon shared by both pages.
 - `README.md`: public beginner guide for using Code Explorer and understanding its features.
 - `SKILLS.md`: internal project knowledge, capability ledger, recurring implementation recipes, and verification guidance.
+- `lessons_learned.md`: living post-mortem containing reusable product and engineering lessons from the user and Codex perspectives.
 - `LICENSE`: GPL license text. Do not modify it while adding explanatory material.
 
 ## Required workflow for every change
@@ -49,8 +50,9 @@ Never claim that Code Explorer supports behavior that has not been implemented a
 5. Review `README.md` on every change.
 6. Update `README.md` whenever the learner-visible interface, behavior, examples, limits, privacy, persistence, workflow, or expected result changes.
 7. Update `SKILLS.md` whenever a capability, dependency, data contract, recurring implementation pattern, project boundary, risk, or validation requirement changes.
-8. Run proportional syntax, static, and browser checks.
-9. Inspect the final diff for unrelated edits, stale comments, and forbidden dash characters.
+8. Update `lessons_learned.md` whenever the work produces a reusable discovery, mistake, correction, successful pattern, deferred decision, or new contributor rule.
+9. Run proportional syntax, static, and browser checks.
+10. Inspect the final diff for unrelated edits, stale comments, and forbidden dash characters.
 
 A purely internal refactor does not need artificial material added to the public guide. It still requires an explicit README review, and `SKILLS.md` must be updated if the internal working knowledge changed.
 
@@ -139,14 +141,14 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 
 Use this mapping during every change:
 
-| Change | README.md | SKILLS.md |
-| --- | --- | --- |
-| New learner feature | Explain purpose, controls, workflow, examples, and expected behavior | Record components, state, data, risks, and tests |
-| Changed interface text or navigation | Update names, maps, and walkthroughs | Update selectors or event-flow knowledge if affected |
-| New example | Update catalog and suggested learning route | Record example schema or coverage changes |
-| Changed limit or supported behavior | Update limits and troubleshooting | Update safety boundaries and tests |
-| New saved preference | Update persistence and privacy guidance | Record key, default, validation, and reset behavior |
-| Internal refactor only | Review for accuracy, edit only if learner behavior changed | Update file ownership or implementation recipe if changed |
-| Bug fix | Correct any affected expected behavior or troubleshooting text | Record a reusable regression check |
+| Change | README.md | SKILLS.md | lessons_learned.md |
+| --- | --- | --- | --- |
+| New learner feature | Explain purpose, controls, workflow, examples, and expected behavior | Record components, state, data, risks, and tests | Record reusable product or implementation insight |
+| Changed interface text or navigation | Update names, maps, and walkthroughs | Update selectors or event-flow knowledge if affected | Record the reason when it teaches a broader lesson |
+| New example | Update catalog and suggested learning route | Record example schema or coverage changes | Record curriculum insight when relevant |
+| Changed limit or supported behavior | Update limits and troubleshooting | Update safety boundaries and tests | Record the evidence and tradeoff behind the decision |
+| New saved preference | Update persistence and privacy guidance | Record key, default, validation, and reset behavior | Record a lesson when persistence behavior was surprising |
+| Internal refactor only | Review for accuracy, edit only if learner behavior changed | Update file ownership or implementation recipe if changed | Update only when a reusable pattern or correction emerged |
+| Bug fix | Correct any affected expected behavior or troubleshooting text | Record a reusable regression check | Preserve the cause, correction, and prevention lesson |
 
 Documentation work is part of feature completion, not a later cleanup task.

@@ -1,6 +1,6 @@
 # Code Explorer project knowledge and working playbook
 
-This file preserves the practical knowledge needed to extend Code Explorer safely. It complements `AGENTS.md`: that file defines the rules, while this file records what the application currently does and how its major parts fit together.
+This file preserves the practical knowledge needed to extend Code Explorer safely. It complements `AGENTS.md`: that file defines the rules, while this file records what the application currently does and how its major parts fit together. Reusable discoveries, mistakes, successful patterns, and deferred decisions belong in `lessons_learned.md`.
 
 Update this document whenever a capability, dependency, data contract, implementation pattern, important risk, or regression test changes.
 
@@ -120,6 +120,7 @@ Required guarantees:
 - Comment-generation failure cannot break tracing, playback, or source editing.
 - The feature is tested against every included example plus error and unsupported cases.
 - `README.md`, this file, and relevant source comments are updated in the same change.
+- `lessons_learned.md` records what the feature teaches the project during implementation and testing.
 
 ## Runtime and dependency map
 

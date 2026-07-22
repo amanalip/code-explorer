@@ -1,0 +1,1324 @@
+# Code Explorer lessons learned
+
+This is a living post-mortem for Code Explorer. It records what Aman Ali Pogaku learned while defining and reviewing the product, and what Codex learned while researching, building, testing, correcting, and documenting it.
+
+The purpose is not to assign blame. The purpose is to preserve reasoning that would otherwise disappear after a feature is finished. A future beginner, contributor, or maintainer should be able to understand why the project looks and behaves the way it does.
+
+## How to read this document
+
+```text
+Question or idea
+       |
+       v
+Discussion and feasibility check
+       |
+       v
+Decision
+       |
+       +-- Implemented
+       +-- Deferred
+       +-- Rejected or narrowed
+       |
+       v
+Lesson preserved here
+       |
+       v
+Better decisions during the next change
+```
+
+The document has two main viewpoints:
+
+- **Lessons learned by the user** records product, learning, scope, design, and project-management insights that emerged from Aman's questions and decisions.
+- **Lessons learned by Codex** records engineering, testing, communication, reliability, and maintenance insights that should improve future work.
+
+## Status words used below
+
+| Status | Meaning |
+| --- | --- |
+| Implemented | The behavior exists in the current codebase and should be tested before it is described as complete. |
+| Approved next | The feature has been approved, but development has not started or has not finished. |
+| Deferred | The idea is useful, but the project intentionally postponed it. |
+| Explored | The idea was researched or discussed without a build decision. |
+| Boundary | The project intentionally does not promise this behavior. |
+
+## Project journey at a glance
+
+```text
+Static Python visualizer idea
+          |
+          v
+Feasibility before implementation
+          |
+          v
+Python-first beginner MVP
+          |
+          v
+Dedicated execution workspace
+          |
+          v
+Reliable trace, variables, loops, and output
+          |
+          v
+Expanded Trace, Data, Flow, and Labs views
+          |
+          v
+UI stability, themes, fonts, graphs, and editor tools
+          |
+          v
+18 guided examples and a detailed beginner README
+          |
+          v
+Repository governance through AGENTS.md and SKILLS.md
+          |
+          v
+Living post-mortems through lessons_learned.md
+          |
+          v
+Approved next: Automatic Learning Comments
+```
+
+# Lessons learned by the user
+
+## 1. A useful project starts with feasibility, not code
+
+The first important decision was to ask whether the idea was possible before authorizing a build. The original vision involved pasting Python code, visualizing data flow, showing variables and memory-like relationships, and drawing a program graph.
+
+The lesson is that a strong idea benefits from being separated into three categories:
+
+```text
+Easy and reliable now
+       +-- Source editor
+       +-- Browser execution
+       +-- Output capture
+       +-- Step playback
+       +-- Variable snapshots
+
+Moderate work
+       +-- Conditions and loop explanations
+       +-- Function frames
+       +-- Mutation history
+       +-- Reference and flow graphs
+
+Hard or misleading without strict limits
+       +-- Exact physical memory visualization
+       +-- Every Python feature and package
+       +-- Production-debugger behavior
+       +-- Unlimited execution and trace storage
+```
+
+Asking for this distinction prevented an exciting concept from becoming an unreliable promise.
+
+## 2. A static, client-side product can still be substantial
+
+The project began with a practical constraint: CachyOS, Codex on Linux, a GitHub account, and GitHub Pages, with no desire to operate a server.
+
+The resulting lesson is that a static site is not limited to simple text pages. Modern browser technologies can provide:
+
+- A real Python runtime through Pyodide.
+- Background execution through a Web Worker.
+- A capable editor through CodeMirror.
+- Interactive graphs through Cytoscape.
+- Local persistence through browser storage.
+- A dedicated workspace that can be bookmarked and reloaded.
+
+The lack of a server became a product value. Learner code remains inside the browser, hosting stays simple, and the open-source project remains easier to deploy.
+
+## 3. A clear audience is a feature filter
+
+The project deliberately focuses on beginners learning Python. That decision affects every later choice.
+
+A beginner-focused tool should:
+
+- Explain one observable fact at a time.
+- Use small programs and bounded traces.
+- Prefer plain language over debugger terminology.
+- Show values, scopes, conditions, loops, calls, and errors visually.
+- Avoid features that complete the learner's entire solution.
+- Provide examples that isolate concepts before combining them.
+- Make failure states understandable instead of merely reporting technical errors.
+
+The audience definition helped reject unnecessary complexity and justified features such as Story, Before and After, Loop Table, Error Coach, and guided examples.
+
+## 4. Python was the right first language
+
+The project considered future language expansion, but Python remained the first target because:
+
+- It is widely used by beginners.
+- Pyodide runs it in the browser.
+- Python exposes tracing through `sys.settrace`.
+- Python's AST can describe loops, conditions, and source structure.
+- Its variables, collections, functions, and exceptions create useful teaching moments.
+
+The broader lesson is to build one language deeply before offering several languages shallowly.
+
+## 5. Similar language support depends on runtime observability
+
+When other programming languages were discussed, the important question was not merely whether code could execute in a browser. The stronger question was whether the tool could reliably collect the same educational facts:
+
+- Executed source line
+- Variables in scope
+- Before and after values
+- Function calls and returns
+- Conditions and loop iterations
+- Errors
+- Mutable objects and references
+- A bounded execution path
+
+Languages with browser runtimes, interpreters, source instrumentation, or debugger hooks are better candidates than languages that only compile to opaque WebAssembly without useful source-level state.
+
+This remains an explored future direction, not a promise that every current Python feature can immediately be duplicated for every language.
+
+## 6. DevOps learning needs simulation, parsing, or visualization rather than ordinary execution
+
+Jenkins, Terraform, Docker, Kubernetes, Ansible, GitHub Actions, and similar technologies can inspire Code Explorer-like learning tools, but they are different from tracing Python variables.
+
+A safe beginner tool for these technologies would usually need to:
+
+- Parse configuration or pipeline files.
+- Visualize dependency order and lifecycle stages.
+- Explain what a command or block intends to do.
+- Simulate plans or state transitions.
+- Avoid applying real infrastructure by default.
+- Clearly separate simulated results from real provider behavior.
+
+The lesson is that the interface idea can transfer, but the execution model cannot simply be copied.
+
+## 7. Library research changes what is realistically possible
+
+It was valuable to challenge an initial difficulty estimate and ask whether JavaScript libraries could help. That led to a more grounded plan around:
+
+- CodeMirror for editing and source annotations.
+- Pyodide for client-side Python.
+- Cytoscape for graphs.
+- Browser workers, storage, clipboard, and dialog APIs.
+
+Later, checking CodeMirror's documentation revealed additional learning possibilities such as decorations, hover tooltips, lint diagnostics, custom gutters, and educational autocomplete.
+
+The lesson is to research mature browser primitives before declaring a feature too difficult or inventing a custom implementation.
+
+## 8. The project does not use Vue, and it does not need Vue yet
+
+The application uses plain JavaScript, HTML, and CSS. Asking whether Vue was present clarified the actual technology stack.
+
+The lesson is that framework choice should follow a demonstrated need. A larger feature count does not automatically require a framework. The current direct architecture remains understandable for beginners and avoids a build step. If state coordination becomes unsafe later, that decision can be revisited with evidence.
+
+## 9. MVP screens should be defined before styling and implementation
+
+Defining the landing page, examples dialog, and execution workspace before building helped establish the main journey:
+
+```text
+Landing page
+     |
+     +-- Start exploring
+     |       |
+     |       v
+     |   workspace.html
+     |
+     +-- Load an example
+             |
+             v
+       Select program
+             |
+             v
+       workspace.html with saved source
+```
+
+The lesson is that screens, navigation, and persistence are product behavior, not decoration.
+
+## 10. A workspace needs its own URL and persistent source
+
+The initial single-page behavior made reloading costly because the learner could be returned to the beginning. Requesting a separate `workspace.html` established a durable location.
+
+The important learning is that a serious browser tool should let the user:
+
+- Bookmark the working page.
+- Reload without losing source.
+- Enter from a direct link.
+- Navigate home with a normal link.
+- Select an example on the landing page and arrive with it already loaded.
+
+This is a small architectural decision with a large usability benefit.
+
+## 11. Navigation must be tested as a user journey
+
+At one point, Start exploring and selecting an example did not open the editor correctly. The screenshots showed that individual components could look correct while the complete journey remained broken.
+
+The lesson is to test actions from their true starting point:
+
+```text
+Landing action
+       |
+       v
+Navigation
+       |
+       v
+Saved or selected state
+       |
+       v
+Workspace initialization
+       |
+       v
+Expected editor content
+```
+
+A button is not complete merely because it has a click handler. Its destination and resulting state must be verified.
+
+## 12. Dark mode is a complete visual system, not one background color
+
+Early screenshots showed surfaces that remained dark in light mode and text that was hard to read in dark mode. The lesson is that theme work must cover:
+
+- Page backgrounds
+- Panels and dialogs
+- Editor surfaces
+- Text and muted text
+- Borders and focus rings
+- Syntax highlighting
+- Graph labels and nodes
+- Buttons, sliders, and native form controls
+- Empty states and overlays
+
+Theme testing must inspect every nested surface in both modes.
+
+## 13. Explicit labels are often better than unexplained symbols
+
+The original theme button used a symbol. Replacing it with explicit Dark mode and Light mode text made the action understandable without prior knowledge.
+
+The GitHub control moved in the opposite direction because the GitHub mark is broadly recognizable and retains a complete accessible label.
+
+The lesson is not that text is always better than icons. The lesson is to evaluate recognition, context, and accessibility for each control.
+
+## 14. Geeky design still needs readable typography
+
+The desired visual identity was geeky, creative, and technical. Later screenshots exposed blurry or low-contrast graph and interface text.
+
+The lesson is that aesthetic character must not reduce legibility. A technical interface benefits from monospace accents, terminal motifs, grids, and bold geometry, but body copy and graph labels still need:
+
+- Sufficient size
+- Strong contrast
+- Stable rendering
+- Sensible line height
+- Appropriate font weight
+- Clear light and dark theme colors
+
+The best visual style supports comprehension rather than competing with it.
+
+## 15. Graph movement can become a health and comfort problem
+
+The description of graph windows “shaking as though they got seizures” was important feedback. Repeated layout work, resizing, or refitting can cause distracting motion and physical discomfort.
+
+The lesson is that visualization stability is part of accessibility. Graphs should:
+
+- Reuse an existing graph instance where possible.
+- Avoid rerunning layout for a simple step selection.
+- Update styles without rebuilding stable elements.
+- Fit only on initial display or explicit request.
+- Respect reduced-motion preferences.
+- Avoid container size oscillation and nested scroll fighting.
+
+UI tests should include watching the interface through several trace steps, not only taking one still screenshot.
+
+## 16. Zoom needs both convenience and granular control
+
+A Fit button is useful for immediate orientation, but longer programs and larger graphs need a zoom slider. The resulting design combined:
+
+- Fit
+- Zoom out
+- Zoom in
+- A granular percentage slider
+- A visible percentage value
+- Persistent graph-specific zoom preferences
+
+The lesson is that presets and granular control serve different needs. Offering both makes visualizations more usable without making zoom behavior mysterious.
+
+## 17. Editor productivity features matter in a learning tool
+
+Text wrapping, selectable font size, complete-document Copy, and complete-document Paste were requested because learners repeatedly move code between lessons, exercises, and Code Explorer.
+
+The lesson is that learning tools still need practical editing comfort:
+
+- Wrapping should change presentation without changing source.
+- Font size should be independent from graph zoom.
+- Copy should clearly operate on the complete program.
+- Paste should clearly replace the complete program.
+- Source changes must invalidate stale trace data.
+- Preferences should survive reloads.
+
+These are not glamorous features, but they reduce friction during every use.
+
+## 18. Browser permission failures need explicit feedback
+
+Clipboard APIs depend on browser context and permission. If Paste silently fails, a learner may assume the tool is broken.
+
+The requested permission alert established a broader lesson:
+
+- A blocked capability must produce a visible explanation.
+- The explanation should identify the permission involved.
+- It should provide a fallback such as focusing the editor and pressing `Ctrl+V`.
+- Empty clipboard content should not erase useful source.
+
+Silence is not a safe fallback for user-initiated operations.
+
+## 19. Safety limits should be chosen around learning value, not maximum capacity
+
+Several possible limits were discussed, including 10,000 steps with two minutes and 5,000 steps with 45 seconds. The current code remains deliberately bounded at:
+
+```text
+Maximum trace: 3,000 steps
+Execution timeout: 30 seconds
+```
+
+The lesson is that browser capability is not the only consideration. Every step carries serialized variables, frames, output, and visualization work. Higher limits can increase:
+
+- Browser memory use
+- Mobile instability
+- Playback complexity
+- Graph size
+- Time spent waiting for an unhelpful trace
+
+For beginners, a clear limit message and advice to reduce input are often more valuable than recording a very large execution.
+
+## 20. A trace store can be improved, but should not be optimized without a concrete need
+
+The idea of improving the trace store was explored and then intentionally withdrawn. That was a useful decision.
+
+The lesson is that internal optimization should be driven by observed failures, profiling, or an approved feature that requires it. Reworking storage merely because the project is growing can introduce risk without improving the learner experience.
+
+## 21. The tool is useful for data structures, but not automatically complete for algorithms
+
+Code Explorer already teaches important data-structure ideas:
+
+- Lists, tuples, sets, and dictionaries
+- Indexes and keys
+- Nested structures
+- Mutation and reassignment
+- Aliases and shared objects
+- Value histories
+
+Classical data structures and algorithms require additional representations and examples. Stacks, queues, linked lists, trees, graphs, sorting, searching, recursion, and complexity analysis each need carefully designed educational views.
+
+The lesson is to distinguish “Python can execute this algorithm” from “the tool teaches this algorithm well.” Execution alone is not sufficient pedagogy.
+
+## 22. LeetCode compatibility is not the right success measure
+
+The question about running all LeetCode Python problems exposed several boundaries:
+
+- Many problems assume a platform-provided function signature or data type.
+- Some require large inputs or many iterations.
+- Some rely on recursion depth, performance, packages, or hidden tests.
+- A 3,000-step educational trace is intentionally smaller than many challenge workloads.
+
+The tool can help study small algorithm examples and selected challenge solutions, but it should not claim universal LeetCode compatibility.
+
+The better success measure is whether a beginner can understand the behavior of a suitably small program.
+
+## 23. A large feature set needs information architecture
+
+As the workspace grew, a flat tab row became difficult to scan. Grouping views under four learning areas created a stable mental model:
+
+```text
+TRACE
++-- Story
++-- Before and After
++-- Conditions
++-- Function Journey
++-- Error Coach
+
+DATA
++-- Variables
++-- Watches
++-- Structures
++-- References
++-- Mutation Explorer
+
+FLOW
++-- Execution Path
++-- Coverage
++-- Loop Table
++-- Loop Lab
+
+LABS
++-- Input Playground
++-- Compare Runs
++-- Trace Bookmarks
+```
+
+The lesson is that adding a feature also creates a navigation cost. Grouping by the learner's question makes a complex workspace feel smaller.
+
+## 24. Specialist views should answer different questions
+
+The expanded workspace works best when each view has a distinct purpose:
+
+- Story: What did this step do?
+- Before and After: What changed?
+- Conditions: Why was this branch chosen?
+- Function Journey: What happened across calls?
+- Error Coach: Why did execution stop?
+- Variables: What does this name contain now?
+- Watches: Which selected names should remain visible?
+- Structures: What are the children, indexes, or keys?
+- References: Do names share an object?
+- Mutation Explorer: Was the object changed or the name replaced?
+- Execution Path: Which transition occurred?
+- Coverage: Which source lines were reached?
+- Loop Table: How did values vary by iteration?
+- Loop Lab: Where is the selected step within the loop?
+- Input Playground: What responses will `input()` consume?
+- Compare Runs: What changed between two experiments?
+- Trace Bookmarks: Which moments deserve later review?
+
+The lesson is to avoid two tabs that present the same data with different titles.
+
+## 25. Example quantity should follow feature coverage
+
+The project began with fewer examples, then questioned whether eight were enough. The final library contains 18 curated programs.
+
+The useful lesson is not that 18 is a magical number. The correct number is the smallest collection that demonstrates the important feature combinations without overwhelming a beginner.
+
+The expanded examples now cover:
+
+- Variables and arithmetic
+- Strings
+- Conditions and Boolean logic
+- Prepared input
+- `for` and `while` loops
+- `break` and `continue`
+- Functions and nested calls
+- List mutation
+- Aliases and reassignment
+- Nested dictionaries and lists
+- Dictionary counting
+- Runtime errors
+
+Each example should have a primary learning goal and recommended views.
+
+## 26. Documentation should guide behavior, not merely list features
+
+The README initially felt too short even after features were documented. The most valued additions were maps such as:
+
+- A useful question map
+- The workspace map
+- A final beginner workflow
+
+The lesson is that beginners need decision support:
+
+```text
+I have a question
+       |
+       v
+Which view answers it?
+       |
+       v
+What should I look for?
+       |
+       v
+What should I try next?
+```
+
+Feature names alone do not teach someone how to use a complex tool.
+
+## 27. Documentation work benefits from deliberate sequencing
+
+The examples expansion and README expansion were intentionally divided into two phases. Examples were implemented and tested first. Documentation was updated only after the feature set was stable.
+
+The lesson is that separating major work can improve quality when one phase depends on the final truth produced by another. Documentation should be synchronized with code, but it should describe verified behavior rather than an unstable intermediate plan.
+
+## 28. The README should remain a tool guide
+
+The README was deliberately scoped to Code Explorer's features, workflows, examples, expected behavior, and beginner guidance. Implementation architecture and system design were reserved for future documentation.
+
+The lesson is that one document should not serve every audience. The current separation is:
+
+```text
+README.md
+     +-- Beginner tool guide
+
+AGENTS.md
+     +-- Contributor rules
+
+SKILLS.md
+     +-- Internal project knowledge and working recipes
+
+lessons_learned.md
+     +-- Decisions, discoveries, mistakes, and post-mortems
+
+Future documentation folder
+     +-- Deeper implementation and system-design material
+```
+
+## 29. Small wording changes can clarify product scope
+
+Changing “Paste a beginner Python program” to “Paste a Python program” removed an unnecessary restriction while preserving the beginner audience.
+
+The final capitalization, “Paste a Python program,” also matters because Python is a proper name.
+
+The lesson is that interface wording should describe what the tool accepts without making the learner feel categorized or limited.
+
+## 30. Discoverability grows in importance as features grow
+
+Adding a Tool Guide link beside the repository and theme controls recognized that a feature-rich workspace needs help close at hand.
+
+Similarly, expanding landing-page topic chips helped the introduction reflect the actual product rather than its earliest four concepts.
+
+The lesson is that every added capability should prompt two questions:
+
+- How will a beginner discover it?
+- Where will a beginner learn when to use it?
+
+## 31. Ownership and presentation details matter in open source
+
+Adding the copyright “Aman Ali Pogaku,” a recognizable GitHub icon, a guide link, explicit theme labels, and consistent landing-page topics improved the project's identity.
+
+The lesson is that open-source polish includes attribution, discoverability, accessibility, and trust, not only functionality.
+
+## 32. Code comments are part of the teaching mission
+
+The request for very detailed comments across all files recognized that the repository itself may be studied by beginners.
+
+The lesson is to comment:
+
+- Why a function exists
+- What data it receives
+- What it returns
+- What state or browser capability it changes
+- What safety limit it enforces
+- Why a fallback exists
+- Why a non-obvious design choice was made
+
+Comments should teach decisions and concepts. Comments that merely translate punctuation into English can make code harder to read.
+
+## 33. The no-em-dash rule is a real project requirement
+
+The preference to avoid em dash characters applies to responses, interface text, source comments, and documentation. It is now a permanent repository rule and an automated search check.
+
+The lesson is that writing-style requirements deserve the same consistency as code-style requirements.
+
+## 34. CodeMirror can support a learning layer, not only a text editor
+
+Research into CodeMirror documentation identified several practical future features:
+
+- Automatic Learning Comments
+- Hover variable inspection
+- Inline error diagnostics
+- Inline variable values
+- Run-to-line gutter markers
+- Read and write highlighting
+- Learning-focused autocomplete
+- Smart fold summaries
+
+CodeMirror supplies presentation primitives such as decorations, widgets, tooltips, diagnostics, gutters, and completion sources. Code Explorer must still supply accurate Python meaning from syntax and trace evidence.
+
+## 35. Automatic Learning Comments can be valuable if it is conservative
+
+The approved next feature will create a separate commented learning version after a trace. It should combine parsed syntax with observed execution facts.
+
+The feature is valuable because a learner can study or copy the explanation outside the workspace. It is also risky because a confident but false comment can teach the wrong concept.
+
+The accepted safety rules are:
+
+- Do not change the original source by default.
+- Preserve indentation, blank lines, and existing comments.
+- Do not invent explanations for unsupported or ambiguous code.
+- Do not present one loop iteration's value as universally true.
+- Require confirmation before replacing the editor with generated source.
+- Let comment-generation failure remain isolated from tracing.
+- Test every included example and additional edge cases.
+
+Automatic Learning Comments is approved next, not currently implemented.
+
+## 36. It is acceptable to defer a good idea
+
+Several ideas were intentionally deferred:
+
+- Classical algorithm-specific visualizations
+- A larger or redesigned trace store
+- A future documentation folder
+- Other programming languages
+- DevOps-specific learning tools
+- Additional CodeMirror learning features beyond Automatic Learning Comments
+
+The lesson is that saying “later” can protect the current product. A project becomes reliable by finishing selected features, not by immediately implementing every good idea.
+
+## 37. Asking for confirmation before building reduces mistakes
+
+The user repeatedly requested feasibility, reliability, feature definitions, interface maps, and difficulty explanations before authorizing implementation.
+
+This produced a useful collaboration pattern:
+
+```text
+Idea
+  |
+  v
+Can it be reliable?
+  |
+  v
+What is the exact scope?
+  |
+  v
+What will the interface look like?
+  |
+  v
+What are the failure boundaries?
+  |
+  v
+Build authorization
+```
+
+This pattern is especially valuable for features that transform learner code or expand the execution model.
+
+## 38. A growing codebase needs persistent operating knowledge
+
+Creating `AGENTS.md` and `SKILLS.md` was a response to growing complexity.
+
+The lesson is that important requirements should not depend on one conversation's memory. Persistent files now record:
+
+- Contributor rules
+- Commenting expectations
+- Safety boundaries
+- Current capabilities
+- Dependency versions
+- State and persistence behavior
+- Implementation recipes
+- Regression programs
+- Documentation synchronization
+
+This lowers the chance that a future change quietly violates an earlier decision.
+
+## 39. Sanity checks should compare documentation with code
+
+The documentation audit did more than reread prose. It checked:
+
+- All cached HTML ids exist.
+- No duplicate ids exist.
+- Both JavaScript files parse.
+- Example count matches the README catalog.
+- Asset cache versions match across pages.
+- Markdown code fences are balanced.
+- Forbidden dash characters are absent.
+- Limits and dependencies match source constants and imports.
+
+The audit also found a false `state.result` reference and corrected it to the real separated state fields.
+
+The lesson is that documentation can contain bugs and deserves automated consistency checks.
+
+## 40. Post-mortems should be a living project artifact
+
+The idea for this file is itself an important lesson. Finished features preserve code, but they do not automatically preserve uncertainty, rejected options, painful UI problems, or the reasoning behind a decision.
+
+Separating lessons into user and Codex perspectives keeps both kinds of knowledge:
+
+- Product intuition and beginner needs
+- Engineering and verification discipline
+- Questions that changed the direction
+- Mistakes that should not recur
+- Deferred ideas worth reconsidering later
+
+This file should be updated whenever a future task produces a reusable insight, even if no bug occurred.
+
+## 41. Inline annotations and source comments are different products
+
+The discussion about inline variable values led to an important clarification. CodeMirror can display temporary information beside code without changing the Python document. Automatic Learning Comments, by contrast, generate real `#` comments that can be copied or placed into source after confirmation.
+
+```text
+Inline annotation
+       +-- Exists only in the editor view
+       +-- Changes with the selected trace step
+       +-- Does not become part of the Python program
+
+Generated source comment
+       +-- Is real Python text
+       +-- Can be copied and studied elsewhere
+       +-- Must preserve source and require safe replacement behavior
+```
+
+The lesson is to identify whether a learning aid is presentation, generated content, or an actual source transformation before estimating or implementing it.
+
+## 42. Breaks are part of sustainable project work
+
+Imaginary coffee breaks, a real coffee break, and the decision to stop for sleep were lighthearted parts of the conversation, but they preserve a serious lesson. Long feature sessions can reduce visual judgment, patience, and review quality.
+
+When the interface causes a headache, the correct response is not to keep staring at it. Stop, remove the motion problem, test calmly, and return with fresh attention.
+
+Good collaboration leaves room to think between feature groups. A pause can prevent rushed requirements and unnecessary rework.
+
+# Lessons learned by Codex
+
+## 1. Do not confuse technical possibility with a reliable product promise
+
+Many behaviors are technically possible in a browser. Reliability depends on a narrower supported scope, bounded data, explicit fallbacks, and tests.
+
+For Code Explorer, statements should distinguish:
+
+- What exists now
+- What has been approved but not built
+- What is feasible with limits
+- What remains exploratory
+- What the project intentionally does not promise
+
+This distinction is especially important when discussing every Python program, all LeetCode questions, exact memory, other languages, and real DevOps systems.
+
+## 2. State the difficulty in terms of data and failure modes
+
+Labels such as easy, moderate, and difficult are only useful when explained.
+
+A better explanation identifies:
+
+- Required source metadata
+- Required runtime evidence
+- Whether the browser API needs permission
+- Whether a library provides the interface primitive
+- Whether the feature alters learner source
+- Whether it must work during repeated loops and nested calls
+- Whether mobile memory or rendering is at risk
+
+This makes estimates understandable and prevents difficulty labels from sounding arbitrary.
+
+## 3. Research official library capabilities before finalizing scope
+
+The user correctly challenged early assumptions by asking about JavaScript libraries. Future feasibility work should inspect official documentation and the current project integration before concluding that a feature is too difficult.
+
+For CodeMirror, it was important to distinguish:
+
+- Features already supplied through `basicSetup`
+- Interface primitives that Code Explorer can extend
+- Python meaning that CodeMirror cannot infer alone
+
+The library can render a tooltip or diagnostic. Code Explorer remains responsible for the accuracy of the value, error, scope, or explanation shown inside it.
+
+## 4. Keep the static architecture as a deliberate constraint
+
+The project does not need to acquire a server merely because a feature sounds advanced. Before proposing backend infrastructure, check whether the feature can be implemented through:
+
+- Pyodide
+- A Web Worker
+- Python AST data
+- Trace snapshots
+- Browser storage
+- File or clipboard export
+- CodeMirror annotations
+
+If a server is genuinely required, explain why and ask before changing the product boundary.
+
+## 5. Browser execution must stay off the main UI thread
+
+Python execution belongs inside `py-worker.js`. The worker protects interface responsiveness and can be terminated after the outer timeout.
+
+Future changes must avoid:
+
+- Running learner Python on the main thread
+- Sending live Python objects into the UI
+- Returning unbounded snapshots
+- Allowing stale worker messages to overwrite a newer run
+- Forgetting to reset the worker after a timeout
+
+The run id, worker lifecycle, 3,000-step cap, and 30-second timeout are core safety mechanisms.
+
+## 6. Trace facts and source facts should come from different evidence
+
+The reliable division is:
+
+```text
+Python AST
+     +-- What structure exists in the source?
+     +-- Where are loops and conditions?
+     +-- What statement kind is this?
+
+Recorded trace
+     +-- Which line actually executed?
+     +-- What values existed?
+     +-- What changed?
+     +-- What output and error occurred?
+```
+
+Explanations should not use static structure to claim that a branch ran, and they should not use one runtime observation to claim every possible behavior.
+
+This distinction is essential for Automatic Learning Comments.
+
+## 7. Serialization is part of product safety
+
+Every recorded value can multiply across thousands of snapshots. Safe serialization must continue to:
+
+- Limit nested depth
+- Limit container children
+- Shorten representations
+- Detect cycles
+- Mark shared objects
+- Avoid failing on a broken user-defined `repr`
+- Return JSON-compatible data
+
+The interface should state when a preview is shortened so the learner does not confuse display limits with Python's real value.
+
+## 8. UI screenshots are evidence, not decoration
+
+The screenshots revealed problems that source inspection alone would not reliably identify:
+
+- Incorrect theme surfaces
+- Weak dark-mode text
+- Unstyled or missing view content
+- Graph overflow
+- Font blur
+- Repeated graph movement
+- Controls that were not discoverable
+
+Future UI work should use screenshots and real browser interaction at representative states, themes, and viewport sizes.
+
+## 9. Test motion over time, not only static layout
+
+A still screenshot cannot reveal shaking. Visualization tests must advance through several trace steps, switch tabs, resize the viewport, use Fit, and change zoom while observing whether the panel remains stable.
+
+Graph rendering should separate:
+
+- Structural changes that require rebuilding elements
+- Selection changes that require only style updates
+- Explicit Fit requests
+- Persistent user zoom
+
+Repeated automatic fitting should be treated as a likely source of discomfort.
+
+## 10. Graph typography needs browser-level verification
+
+Cytoscape labels can look different from ordinary DOM text. Font choice, pixel ratio, canvas scaling, zoom, node size, and contrast can all affect clarity.
+
+Future graph changes should verify:
+
+- Light and dark labels
+- Active and inactive nodes
+- Edge labels
+- Minimum and maximum zoom
+- Mobile rendering
+- Device pixel ratio behavior
+- Whether text remains clear after Fit
+
+Readable labels are more important than fitting the maximum number of nodes on screen.
+
+## 11. Accessibility feedback often improves the mainstream interface
+
+Explicit theme labels, visible zoom percentages, text runtime status, focus states, stable motion, permission alerts, and accessible names help all learners.
+
+Future controls should communicate through more than color. Icon-only controls require complete accessible labels. Native controls should be retained when they provide keyboard behavior for free.
+
+## 12. Clipboard behavior must account for browser context
+
+Clipboard APIs can behave differently under `file://`, localhost, GitHub Pages, permission policies, and user gesture requirements.
+
+Reliable clipboard implementation requires:
+
+- A trusted user action
+- Modern API support checks
+- A writing fallback where appropriate
+- A visible blocked-permission alert for reading
+- Protection against empty clipboard replacement
+- Clear manual keyboard alternatives
+
+The feature should be tested under HTTP rather than assumed from local file behavior.
+
+## 13. Dedicated pages should use ordinary links when possible
+
+Normal anchor navigation works before JavaScript loads, supports bookmarks, and behaves predictably under GitHub Pages.
+
+Use JavaScript only for state preparation that must happen before navigation, such as saving selected example code and prepared inputs.
+
+The broken Start exploring and example journey demonstrated why navigation should not rely on an unnecessary single-page illusion.
+
+## 14. Persistence needs an inventory, not scattered storage calls
+
+Different values have different intended lifetimes:
+
+- Source, theme, editor preferences, graph zoom, watches, and prepared input persist locally.
+- Trace snapshots are rebuilt.
+- Bookmarks belong to one trace.
+- Breakpoint markers last for the current page session.
+- Run comparisons last for the current page session.
+
+Every new saved preference should define a key, safe default, validation, failure fallback, reset expectation, and README entry.
+
+## 15. Source changes must invalidate derived explanations
+
+A trace describes one exact program. If the editor changes, old values, coverage, paths, bookmarks, and explanations become misleading.
+
+All source-writing paths, including typing, Paste, examples, and future generated comments, must intentionally decide whether they:
+
+- Preserve the source
+- Replace the source
+- Clear stale trace data
+- Save locally
+- Require confirmation
+
+Routing source access through `getCode()` and `setCode()` helps keep CodeMirror and the fallback editor consistent.
+
+## 16. A fallback is only useful if features degrade honestly
+
+The native textarea lets source editing continue if CodeMirror fails to load. It does not automatically reproduce every CodeMirror feature.
+
+Documentation and UI should not imply that syntax highlighting, decorations, or clickable CodeMirror gutter behavior exists in the fallback. Optional enhancements must fail without blocking basic editing and tracing.
+
+## 17. Information architecture should grow before the tab row breaks
+
+The move to Trace, Data, Flow, and Labs showed that navigation redesign should happen before a flat list becomes unusable.
+
+Future views should be placed according to the question they answer. A new top-level group should require a genuinely new family of learner questions, not merely another implementation type.
+
+## 18. Empty, normal, error, and missing-data states all need design
+
+Every view renderer should handle:
+
+- No trace yet
+- A valid selected step
+- A step with no relevant change
+- Missing optional metadata
+- Syntax failure with no trace
+- Runtime error after partial execution
+- A library that fails to load
+
+An empty graph or blank panel is not an acceptable implicit error message.
+
+## 19. Example programs are integration tests in disguise
+
+Each curated example connects source editing, worker execution, tracing, a specialist view, playback, and documentation.
+
+When adding a feature, the example library should be used to identify:
+
+- Normal cases
+- Repeated lines
+- Nested frames
+- Shared references
+- Input
+- Runtime errors
+- Syntax errors
+
+Automatic Learning Comments should be tested against all 18 examples because each exercises a different explanation pattern.
+
+## 20. Do not describe implementation as complete until browser behavior is verified
+
+Source code can contain the intended feature while the interface remains broken due to:
+
+- Missing element ids
+- Cached assets
+- Incorrect event binding
+- Theme-specific CSS
+- Overflow
+- stale graph instances
+- permission restrictions
+- navigation state
+
+Completion requires testing the real user journey, not only inspecting functions.
+
+## 21. Asset cache versions are part of static-site correctness
+
+Both HTML pages use query versions for shared CSS and JavaScript. When one page receives a new version and the other does not, the landing page and workspace can run different generations of the application.
+
+Future shared asset changes must update matching query versions in `index.html` and `workspace.html` together.
+
+## 22. Documentation should be verified like code
+
+The sanity audit found and corrected:
+
+- An inaccurate “searchable” claim for a category-filtered library
+- A missing favicon entry in the repository map
+- Missing pinned dependency documentation
+- An ambiguous generated-source confirmation rule
+- A nonexistent `state.result` reference
+- Imprecise state lifetimes
+
+Useful documentation checks include:
+
+- Source constants against documented limits
+- Actual examples against catalog rows
+- Imported versions against dependency tables
+- HTML ids against cached element references
+- Matching cache versions across pages
+- Balanced Markdown fences
+- Forbidden-character searches
+
+Documentation accuracy is a functional requirement because future work uses these files as instructions.
+
+## 23. “Everything” requires organized coverage, not one enormous paragraph
+
+When a user requests that nothing be missed, the response should organize information by decisions, features, failures, boundaries, and future work. Structure makes omissions easier to notice and later updates easier to place.
+
+This document uses numbered lessons, status language, maps, tables, and two perspectives so new knowledge can be inserted without rewriting the whole history.
+
+## 24. Reflect the user's ideas back as durable rules
+
+Several strong project rules originated directly from user feedback:
+
+- Check feasibility before building.
+- Keep the project client-side.
+- Focus on Python and beginners first.
+- Use a creative technical design without sacrificing readability.
+- Support both themes completely.
+- Avoid unexplained symbols.
+- Provide granular zoom.
+- Show clipboard permission failures.
+- Keep detailed source comments.
+- Use guided maps in documentation.
+- Split large tasks into quality-focused phases.
+- Maintain project knowledge files.
+- Keep a living post-mortem.
+
+Codex should treat these as design input, not incidental conversation.
+
+## 25. Avoid overpromising Automatic Learning Comments
+
+It is reasonable to promise conservative behavior for the currently supported beginner Python scope. It is not reasonable to promise perfect comments for every possible Python program.
+
+The implementation should prefer omission over false confidence. Advanced metaprogramming, dynamic imports, asynchronous behavior, external packages, descriptors, decorators with complex effects, and other highly dynamic constructs may not support a useful automatic explanation.
+
+The interface should state when no reliable comment can be generated.
+
+## 26. Generated explanations should remain reversible
+
+Automatic Learning Comments must first appear in a separate preview. Copying is safe. Hiding is safe. Replacing the editor is reversible only if the original remains recoverable and the learner confirms the action.
+
+The general lesson applies to any future transformation:
+
+```text
+Generate
+   |
+   v
+Preview
+   |
+   +-- Cancel
+   +-- Copy
+   +-- Confirm replacement
+```
+
+Never silently rewrite learner work.
+
+## 27. Communication should lead with the decision and boundary
+
+When the user asks whether something is possible, the answer should begin with a direct conclusion. Detail should then explain the supported scope, limitations, and difficulty.
+
+ASCII diagrams were repeatedly useful because they made workspace hierarchy, trace flow, and beginner journeys understandable without requiring a visual design file.
+
+Future planning responses should continue to use them when relationships are more important than prose.
+
+## 28. Do not start a bundled build while the user is still collecting tasks
+
+When the user said more tasks were coming, waiting for the full list was the correct choice. Features that affect the same editor toolbar, worker result, state, or documentation can be designed and tested more coherently together.
+
+However, waiting should be explicit. The current status must clearly say which approved feature remains unimplemented.
+
+## 29. Repository instructions need precise exceptions
+
+The first expanded safety rule said every complete-document replacement required confirmation. A sanity audit revealed that this would incorrectly include the dedicated Paste action, where clicking Paste is itself the explicit request.
+
+The corrected rule distinguishes:
+
+- Direct user-requested replacement such as Paste
+- Generated or transformed source replacement that needs an additional confirmation
+
+The lesson is that broad safety rules need concrete examples and exceptions to avoid creating new usability problems.
+
+## 30. A post-mortem should record wins as well as mistakes
+
+The project learned from broken navigation, weak theme contrast, graph shaking, blurry labels, and inaccurate documentation. It should also preserve successful patterns:
+
+- Separating feasibility from implementation
+- Building a dedicated workspace
+- Grouping views by learner question
+- Using a worker for safe execution
+- Providing 18 focused examples
+- Creating extensive guided documentation
+- Adding persistent contributor knowledge
+- Performing code-to-document sanity checks
+
+Post-mortems are most useful when they explain what should be repeated as well as what should be avoided.
+
+## 31. Never treat a clarifying question as a lack of ability
+
+Questions such as whether a library already solves part of the problem, whether 16 examples are enough, or whether a limit is safe are signs of careful product ownership.
+
+Codex should explain tradeoffs without condescension, match the user's level, and treat challenges to an estimate as useful review. “Beginner-friendly” describes the tool's audience. It should never be used to make assumptions about the person designing the tool.
+
+## 32. Every promised feature needs a completion ledger
+
+The user later asked Codex to verify that every promised improvement, including an earlier group numbered 1 through 7 and the later 17-view workspace map, had actually been completed.
+
+The lesson is that a prose promise should become a checklist before implementation begins:
+
+```text
+Promised capability
+       |
+       +-- Interface mounting point
+       +-- State and data source
+       +-- Normal rendering
+       +-- Empty and error rendering
+       +-- Light and dark styles
+       +-- Desktop and mobile behavior
+       +-- Browser interaction test
+       +-- README explanation
+       +-- Capability ledger update
+```
+
+A function name or empty tab is not proof of completion. The user-visible behavior must be exercised.
+
+## 33. User trust increases the responsibility to verify
+
+The user explicitly trusted Codex to build carefully and reliably. Trust should never reduce testing or make uncertainty disappear from the report.
+
+The correct response to trust is:
+
+- Keep scope honest.
+- Preserve learner source.
+- Test the complete journey.
+- Report what was and was not verified.
+- Correct inaccuracies found during audits.
+- Avoid describing approved future work as implemented.
+
+Trust is a reason for stronger evidence, not a substitute for evidence.
+
+# Shared lessons for future work
+
+## The reliability checklist
+
+Before approving a feature:
+
+```text
+Does it help a beginner answer a clear question?
+                    |
+                    v
+Can the current static architecture support it?
+                    |
+                    v
+What evidence makes its explanation true?
+                    |
+                    v
+What happens when evidence is missing?
+                    |
+                    v
+Can it fail without damaging source or trace state?
+                    |
+                    v
+How will desktop, mobile, light, and dark modes behave?
+                    |
+                    v
+What examples and regression programs test it?
+                    |
+                    v
+Have README.md, SKILLS.md, comments, and this file been reviewed?
+```
+
+## The beginner-value test
+
+A proposed feature is a strong fit when it does at least one of these:
+
+- Reveals an otherwise invisible runtime fact.
+- Connects source code to a changing value.
+- Explains why Python selected a path.
+- Makes a function or loop easier to follow.
+- Helps compare two deliberate experiments.
+- Turns an error into a next learning action.
+- Reduces friction without hiding the code.
+
+A feature is a weak fit when it mainly adds decoration, completes the learner's work, requires an unrelated server, or presents more information without a clear question.
+
+## The documentation update rule
+
+```text
+Learner-visible behavior changed?
+       |
+       +-- Yes: update README.md
+       |
+       +-- No: review README.md for accuracy
+
+Project knowledge or implementation pattern changed?
+       |
+       +-- Yes: update SKILLS.md
+
+Contributor rule changed?
+       |
+       +-- Yes: update AGENTS.md
+
+Reusable discovery, mistake, decision, or success occurred?
+       |
+       +-- Yes: update lessons_learned.md
+```
+
+## Current decisions and deferred work
+
+| Topic | Current decision |
+| --- | --- |
+| Automatic Learning Comments | Approved next, not implemented |
+| Hover variable inspector | Explored for later |
+| Inline diagnostics | Explored for later |
+| Inline variable values | Explored for later |
+| Run-to-line navigation | Existing replay breakpoints provide part of this behavior |
+| Read and write highlighting | Explored for later |
+| Learning autocomplete | Explored for later |
+| Smart fold summaries | Explored for later |
+| Classical algorithm visualizations | Deferred |
+| Trace-store redesign | Deferred |
+| Other programming languages | Explored, no build approved |
+| DevOps learning tools | Explored as separate or future tools |
+| Documentation folder | Deferred until the code and public guide are ready for deeper system documentation |
+| Maximum trace | 3,000 steps |
+| Execution timeout | 30 seconds |
+| Hosting model | Static GitHub Pages, client-side execution |
+
+# Future update template
+
+Copy this section when a future task creates a reusable lesson.
+
+```text
+## YYYY-MM-DD: Short lesson title
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented
+- Approved next
+- Deferred
+- Explored
+- Boundary
+
+What happened:
+Describe the question, observation, failure, or successful decision.
+
+What we learned:
+State the reusable lesson in beginner-friendly language.
+
+What changed:
+List code, interface, test, documentation, or process changes.
+
+What to do next time:
+Write the exact action future contributors should repeat or avoid.
+
+How to verify:
+List the source check, browser journey, example, viewport, theme, or documentation comparison that proves the lesson was applied.
+```
+
+# Closing perspective
+
+Code Explorer improved because questions were treated as design evidence. Concerns about feasibility, limits, permissions, readability, motion, navigation, documentation, and beginner confusion all produced concrete improvements.
+
+The project should continue using this loop:
+
+```text
+Listen carefully
+      |
+      v
+Define the real learner problem
+      |
+      v
+Research available tools
+      |
+      v
+Set an honest boundary
+      |
+      v
+Build conservatively
+      |
+      v
+Test the real journey
+      |
+      v
+Document the behavior
+      |
+      v
+Preserve the lesson
+```
+
+That final step is why this file now exists.
