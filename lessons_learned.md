@@ -31,6 +31,37 @@ The document has two main viewpoints:
 - **Lessons learned by the user** records product, learning, scope, design, and project-management insights that emerged from Aman's questions and decisions.
 - **Lessons learned by Codex** records engineering, testing, communication, reliability, and maintenance insights that should improve future work.
 
+## Attribution and correction standard
+
+This document should state clearly where an important correction, constraint, or product idea originated. Giving credit is not about declaring a winner. It preserves the actual collaboration that improved the project.
+
+The standard is:
+
+- Credit Aman when his question, observation, or correction materially improves the product decision.
+- Record Codex's mistaken assumption or incomplete reasoning directly instead of rewriting history to make it appear correct from the beginning.
+- Credit Codex when technical evidence, testing, or a safety boundary corrects an unsafe or impractical proposal.
+- Explain the evidence when either participant changes the other's mind.
+- Distinguish a discussed idea from an approved feature and an implemented feature.
+- Correct this document when later evidence shows that an earlier lesson is incomplete.
+
+```text
+Initial idea or claim
+        |
+        v
+Question or challenge
+        |
+        v
+Evidence and reasoning
+        |
+        v
+Corrected decision
+        |
+        v
+Credit the person who identified the improvement
+```
+
+Honesty matters more than defending an earlier answer. Aman should expect Codex to challenge him respectfully when a request would be misleading, unsafe, unreliable, or unnecessarily complicated. Codex should expect Aman to correct product assumptions that overlook the learner's experience, the project's values, or the intended ambition. Both kinds of correction strengthen an open-source project.
+
 ## Status words used below
 
 | Status | Meaning |
@@ -928,6 +959,78 @@ GitHub repository Insights can separately show aggregate items such as recent re
 
 Status: Verified and documented as a permanent project boundary on 2026-07-22.
 
+## 53. A recommended learning path must not imply learner tracking
+
+During planning for a larger beginner curriculum, Codex said that the Smart Cafe Bill checkpoint would appear after the learner had "studied enough" variables, arithmetic, assignment, and simple conditions. Aman correctly identified the hidden implication: Code Explorer does not collect progress data, so it cannot know what an individual learner has studied or whether that learner is ready.
+
+The corrected model is static guidance rather than observed progress:
+
+```text
+What Code Explorer can do
++-- number curriculum sections
++-- place concepts in a recommended order
++-- list prerequisites on a project card
++-- label difficulty and source length
++-- let the learner open, skip, or revisit anything
+
+What Code Explorer must not claim
++-- that it knows which lesson was completed
++-- that it knows whether a learner is ready
++-- that it observed study time or progress
++-- that it maintains a learner profile
+```
+
+The important wording correction is:
+
+```text
+Misleading
+"This appears after the learner has studied enough."
+
+Accurate
+"This appears after its prerequisite topics in the recommended curriculum order."
+```
+
+Aman deserves explicit credit for catching this privacy and language inconsistency. The correction protects the permanent no-analytics rule while still allowing the site to provide a useful beginner route. It also demonstrates why privacy review must inspect product wording, not only network code.
+
+Status: Explored curriculum rule. No curriculum expansion or progress feature has been implemented from this discussion.
+
+## 54. Expanding a curriculum should preserve and blend proven examples
+
+When a larger curriculum was proposed, Aman asked whether the original 54 programs were being removed. That question exposed an ambiguity in the plan. The proposal discussed a final count and new buckets without stating clearly that the existing programs would remain part of the curriculum.
+
+The original 54 programs are not disposable placeholders. They already cover important beginner and debugging behavior, including:
+
+- Prepared input
+- Syntax and runtime investigation
+- Index, key, and conversion errors
+- Conditions and Boolean logic
+- Several `for` and `while` loop patterns
+- Functions, nested calls, scope, and recursion
+- Lists, tuples, sets, dictionaries, and nested collections
+- Aliasing, mutation, reassignment, and shallow copying
+
+The correct expansion model is:
+
+```text
+Existing 54 programs
+        |
+        +-- keep programs that remain accurate and useful
+        +-- reposition them in the recommended sequence
+        +-- rename topics or categories where clarity improves
+        +-- revise weak examples instead of preserving them blindly
+        +-- retain error and debugging coverage
+        |
+        v
+Add new concept lessons and guided checkpoints
+        |
+        v
+One blended curriculum with no accidental coverage loss
+```
+
+This is not a promise that every existing title must remain unchanged. It is a promise that expansion starts with a coverage inventory and migration plan rather than deleting a tested corpus and rebuilding from memory. Aman deserves credit for requiring that clarification before development, especially for calling out errors and other easy-to-miss concepts.
+
+Status: Explored curriculum rule. The current implemented library remains the original 54 examples.
+
 # Lessons learned by Codex
 
 ## 1. Do not confuse technical possibility with a reliable product promise
@@ -1551,6 +1654,45 @@ The application code contains no fetch, XHR, socket, beacon, cookie, form submis
 
 The technical lesson is also to avoid an absolute statement that the browser makes no network requests. Pinned dependencies and fonts load from external hosts, and GitHub Pages serves the site. The precise promise is that Code Explorer performs no analytics, sends no learner-authored or learner-derived content to those hosts, and receives no provider request logs that maintainers could inspect through this project. GitHub's aggregate repository traffic panel remains a separate platform summary and cannot be used to open or reconstruct a learner's workspace.
 
+## 46. Do not imply personalized knowledge when presenting a static curriculum
+
+Codex used the phrase "after the learner has studied enough" while describing where a guided checkpoint would appear. That wording was inaccurate. A card's position in a fixed list is evidence about the curriculum designer's recommendation, not evidence about one person's learning history.
+
+Future curriculum language must identify its evidence precisely:
+
+```text
+Fixed order                  Local interface state             Collected progress
++-- recommended sequence     +-- current open card             +-- learner profile
++-- listed prerequisites     +-- saved source                  +-- completion history
++-- difficulty label         +-- local preferences             +-- study analytics
+          |                             |                                |
+          v                             v                                v
+May be described directly    Must be described as local        Prohibited in Code Explorer
+```
+
+The correction came from Aman, not from a later code audit. Codex should preserve that fact and use the lesson during future interface writing, README updates, and curriculum planning. Privacy-safe implementation can still be undermined by wording that suggests surveillance or personalization that does not exist.
+
+## 47. A larger target count is a migration plan, not a replacement plan
+
+Codex proposed a reorganized 126-example curriculum and later a 134-example curriculum with more guided mini programs. The arithmetic was presented clearly, but the relationship to the existing 54 examples was not. That omission reasonably created concern that the tested examples, including error and debugging lessons, might be discarded.
+
+Before proposing or implementing a curriculum expansion, Codex should produce a coverage ledger:
+
+```text
+Existing example
+       |
+       +-- keep unchanged
+       +-- revise for teaching quality
+       +-- rename
+       +-- move to another bucket
+       +-- merge only when no learning behavior is lost
+       +-- retire only with an explicit reason and replacement
+```
+
+Every existing topic should map to the new structure before new counts are treated as final. Intentional error examples must remain clearly labeled and executable as regression cases. New guided programs should combine earlier concepts, while focused examples should continue isolating individual ideas.
+
+Aman identified the ambiguity before code changed. The permanent lesson for Codex is to say "blend and expand" explicitly when that is the plan, and to verify preservation through a title, topic, feature, and regression mapping.
+
 # Shared lessons for future work
 
 ## The reliability checklist
@@ -1625,6 +1767,8 @@ Reusable discovery, mistake, decision, or success occurred?
 | Automatic Learning Comments export preview | Implemented in v2 |
 | Automatic comments inline editor view | Implemented in v3 |
 | Examples category navigation | Vertical sidebar on desktop and stacked vertical region on mobile in v3 |
+| Larger beginner curriculum | Explored only; preserve and blend the implemented 54 examples before adding new lessons |
+| Curriculum progress language | Use a fixed recommended order and prerequisite labels; do not imply observed completion or readiness |
 | Analytics and telemetry | Permanently prohibited; no consent-based analytics exception |
 | Learner data uploads | Prohibited; source, input, traces, output, clipboard, watches, bookmarks, and preferences remain local |
 | External asset requests | Allowed only for documented pinned dependencies with no learner content attached |
