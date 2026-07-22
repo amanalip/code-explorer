@@ -15,6 +15,147 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v4, 2026-07-22
+
+v4 turns the starter library into a structured 134-program beginner curriculum and makes learner-defined objects inspectable across the existing trace views.
+
+### A blended 134-program curriculum
+
+The original 54-program library was treated as reviewed learning coverage, not as disposable placeholder content. Each existing lesson was kept, renamed, moved, or expanded only when its teaching purpose remained represented. Eighty additional programs were then blended into the same library.
+
+```text
+54 reviewed programs
+        +
+80 additional programs
+        |
+        v
+134-program curriculum
+        |
+        +-- short focused lessons
+        +-- repeated practice with useful variation
+        +-- intentional debugging investigations
+        +-- longer guided checkpoints
+        +-- classes and object state
+```
+
+The shipped category totals are:
+
+| Category | Programs |
+| --- | ---: |
+| First Steps | 10 |
+| Variables and Types | 10 |
+| Operators and Expressions | 10 |
+| Strings | 8 |
+| Decisions | 12 |
+| Loops | 16 |
+| Functions and Scope | 16 |
+| Collections | 16 |
+| References and Mutation | 8 |
+| Input, Errors and Debugging | 8 |
+| Classes and Objects | 8 |
+| Guided Mini Programs | 12 |
+| **Total** | **134** |
+
+The level totals are 46 Beginner, 56 Developing, and 32 Guided Challenge. Twenty programs contain at least 15 source lines, giving learners a bridge between isolated ideas and complete small programs.
+
+### Fixed recommended order without learner tracking
+
+Selecting **All** presents a fixed curriculum route. Focused concept lessons appear in teaching order, and a guided checkpoint is inserted after the concepts listed on its card.
+
+This is a curriculum recommendation only. Code Explorer does not collect completion history, calculate readiness, build a learner profile, or claim to know what a particular person has studied. A learner can open any category or any program at any time.
+
+```text
+Curriculum metadata
+        |
+        +-- fixed order
+        +-- listed prerequisites
+        +-- checkpoint number
+        |
+        v
+Recommended display sequence
+
+No account + no progress events + no learner profile
+```
+
+Each category row now displays its exact program count. Each card displays its topic, level, title, purpose, recommended views, and accurate singular or plural line count. Guided cards also display prerequisites and their checkpoint position.
+
+### Twelve guided mini programs
+
+The guided checkpoints combine earlier concepts into programs with a beginning, middle, and useful result:
+
+| Checkpoint | Program | Lines | Main integration |
+| ---: | --- | ---: | --- |
+| 1 | Smart Cafe Bill | 27 | values, arithmetic, and a decision |
+| 2 | Temperature Week Summary | 19 | a list, loop, totals, and comparison |
+| 3 | Quiz Score Reporter | 22 | score processing, decisions, and a report |
+| 4 | Habit Streak Tracker | 19 | Boolean values, loop state, and best-result tracking |
+| 5 | Student Gradebook | 18 | nested collection records and aggregation |
+| 6 | Personal Expense Summary | 28 | dictionaries, categories, loops, and totals |
+| 7 | Inventory Assistant | 19 | mutable records and restock decisions |
+| 8 | Classroom Attendance Report | 24 | nested records, counting, and summaries |
+| 9 | Word and Sentence Analyzer | 24 | string cleanup, word loops, and measurements |
+| 10 | Library Loan Tracker | 25 | record updates, due-state decisions, and output |
+| 11 | Resilient Order Intake | 31 | prepared input, validation, retrying, and error handling |
+| 12 | Object-Oriented Pet Care Tracker | 27 | a class, instances, methods, attributes, and a collection |
+
+The longer programs range from 18 through 31 lines. Length is used to support a coherent task, not to inflate the curriculum count.
+
+### Deliberate errors are visibly different from mistakes
+
+Three programs intentionally stop with an error so a beginner can study Error Coach:
+
+- **An index to investigate** expects `IndexError`.
+- **A number to investigate** expects `ValueError`.
+- **A key to investigate** expects `KeyError`.
+
+Their cards display an **Intentional learning error** warning and the expected exception before the learner opens the program. Every other program must compile and finish with its prepared input. This makes an intentional debugging lesson visibly different from an accidental broken example.
+
+### Classes and object state across the workspace
+
+The new Classes and Objects category introduces classes, instances, attributes, methods, constructors, inheritance, composition, and a guided object-oriented program.
+
+Learner-defined instances now expose a bounded attribute mapping to the existing data views:
+
+```text
+pet variable
+     |
+     v
+<Pet instance>
+     |
+     +-- .name = "Milo"
+     +-- .animal = "cat"
+     +-- .meals = 2
+     +-- .exercised = True
+```
+
+Variables and Structures can expand the attributes. Mutation Explorer can show attribute-bearing instances as mutable objects. References can connect a name to an instance and the instance to its contained values. The same depth, item, cycle, representation, and graph-size limits used for built-in collections remain active.
+
+Default Python instance text often contains a hexadecimal process address. v4 normalizes that text to a stable label such as `<Pet instance>`. The interface therefore avoids implying that a temporary address is a useful or permanent RAM location.
+
+Automatic Learning Comments now recognize class definitions and can explain that a class creates a reusable object blueprint. Runtime details remain limited to recorded evidence.
+
+### v4 verification evidence
+
+- The structural validator found exactly 54 reviewed base examples plus 80 additional examples, for 134 unique titles.
+- All 12 category totals and all three level totals matched the documented values.
+- All 134 sources compiled and executed with their prepared input under an individual timeout guard.
+- Exactly the three visibly labeled investigation programs raised their declared exception types. No other example produced an accidental syntax or runtime error.
+- The 12 guided programs retained their prerequisite lists and fixed checkpoint positions.
+- A desktop browser displayed all 134 cards, all 13 filter choices, accurate counts, independently scrolling regions, and no horizontal category scrolling.
+- A 390 by 844 mobile browser displayed the vertical categories above one-column cards without page-level horizontal overflow or card-content escape.
+- Light and dark mode checks confirmed readable categories, cards, badges, prerequisites, and intentional-error warnings.
+- The Object-Oriented Pet Care Tracker produced 33 trace steps, a class-definition learning note, stable instance labels, and expandable object attributes.
+- The intentional `IndexError` program showed its warning before selection and the expected Error Coach result at its failing step.
+
+### v4 boundaries
+
+- The examples form a recommended curriculum, not a complete Python language reference or a record of learner progress.
+- Opening a later program is always allowed. Prerequisites are guidance, not locks.
+- Object attributes are deliberately bounded. Extremely deep, large, slot-only, extension, or unusual proxy objects may have less detail.
+- Inheritance and composition examples teach introductory mechanics. They do not attempt to cover every object-oriented design pattern.
+- The trace remains limited to 3,000 recorded steps and the outer execution timeout remains 30 seconds.
+- Code Explorer remains a static client-side learning tool and does not collect analytics or learner data.
+
 ## v3, 2026-07-22
 
 v3 improves how learners read a large curriculum and how they use generated explanations without interrupting the original program flow.

@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260722-2" />
+    <link rel="stylesheet" href="styles.css?v=20260722-5" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -575,7 +575,9 @@
       <div class="dialog-header">
         <div>
           <span class="eyebrow"><span></span> Starter programs</span>
-          <h2>Pick a concept</h2>
+          <h2>Explore Python through 134 programs</h2>
+          <!-- The subtitle explains that ordering is guidance, not recorded progress. -->
+          <p class="dialog-intro">Follow the recommended order or open any program directly.</p>
         </div>
         <button class="dialog-close" id="closeExamplesButton" type="button" aria-label="Close examples">×</button>
       </div>
@@ -583,6 +585,8 @@
       <div class="example-browser-body">
         <!-- Category navigation stays visible while learners browse a long filtered result list. -->
         <aside class="example-browser-toolbar" aria-label="Starter program categories">
+          <!-- This static label describes the curriculum order without implying completion tracking. -->
+          <span class="example-curriculum-label">Recommended order</span>
           <!-- The generated vertical buttons expose names, counts, and their pressed state. -->
           <div class="example-filters" id="exampleFilters" role="group" aria-label="Filter starter programs"></div>
           <!-- This live count tells learners how much of the library is currently visible. -->
@@ -635,6 +639,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260722-2"></script>
+    <script type="module" src="app.js?v=20260722-5"></script>
   </body>
 </html>

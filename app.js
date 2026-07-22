@@ -8,6 +8,10 @@
  * module makes the MVP easy for a new contributor to follow from top to bottom.
  */
 
+// The expanded curriculum lives in a dedicated data module so application
+// controllers remain readable while the library grows to 134 programs.
+import { ADDITIONAL_EXAMPLES } from "./curriculum.js?v=20260722-5";
+
 /**
  * The initial program shown in the editor.
  *
@@ -215,9 +219,9 @@ function prepareExampleInputs(inputs) {
  * place in the editor. Keeping the examples as data avoids duplicating dialog
  * markup and makes a new example a small, reviewable addition.
  */
-const EXAMPLES = [
+const BASE_EXAMPLES = [
   {
-    category: "Foundations",
+    category: "Variables and Types",
     topic: "Variables",
     level: "Beginner",
     title: "A tiny calculation",
@@ -229,7 +233,7 @@ total = price * quantity
 print("Total:", total)`,
   },
   {
-    category: "Foundations",
+    category: "Strings",
     topic: "Strings",
     level: "Beginner",
     title: "Building a message",
@@ -456,7 +460,7 @@ for word in words:
 print(counts)`,
   },
   {
-    category: "Input and Debugging",
+    category: "Input, Errors and Debugging",
     topic: "Input",
     level: "Beginner",
     title: "A personalized greeting",
@@ -474,21 +478,22 @@ else:
 print(message)`,
   },
   {
-    category: "Input and Debugging",
+    category: "Input, Errors and Debugging",
     topic: "Errors",
     level: "Beginner",
     title: "An index to investigate",
     description: "Stop at an IndexError and inspect the state that explains it.",
     views: ["Error Coach", "Variables", "Structures"],
+    expectedError: "Intentional IndexError",
     code: `colors = ["mint", "purple"]
 requested_index = 2
 print(colors[requested_index])`,
   },
 
-  // Foundations add several value types and two complete small programs so
-  // learners can progress beyond the original arithmetic and string examples.
+  // These reviewed base lessons add value types, expressions, and two complete
+  // small programs. Their categories now place them beside matching v4 concepts.
   {
-    category: "Foundations",
+    category: "Variables and Types",
     topic: "Numeric conversion",
     level: "Beginner",
     title: "Celsius to Fahrenheit",
@@ -502,7 +507,7 @@ rounded = round(fahrenheit, 1)
 print("Fahrenheit:", rounded)`,
   },
   {
-    category: "Foundations",
+    category: "Operators and Expressions",
     topic: "Number types",
     level: "Developing",
     title: "Division and remainders",
@@ -516,7 +521,7 @@ decimal_hours = minutes / 60
 print(hours, remaining_minutes, round(decimal_hours, 2))`,
   },
   {
-    category: "Foundations",
+    category: "Strings",
     topic: "String methods",
     level: "Developing",
     title: "Cleaning a username",
@@ -532,7 +537,7 @@ print(username)
 print("Characters:", length)`,
   },
   {
-    category: "Foundations",
+    category: "Variables and Types",
     topic: "Boolean values",
     level: "Beginner",
     title: "Building status flags",
@@ -546,31 +551,44 @@ profile_ready = has_name and has_email and accepted_rules
 print("Ready:", profile_ready)`,
   },
   {
-    category: "Foundations",
-    topic: "Complete calculation",
+    category: "Guided Mini Programs",
+    topic: "First guided checkpoint",
     level: "Guided Challenge",
-    title: "Cafe receipt calculator",
-    description: "Read a longer calculation that produces subtotal, tax, tip, and total.",
-    views: ["Before and After", "Variables", "Story"],
-    code: `coffee_price = 4.50
-sandwich_price = 8.25
-coffee_quantity = 2
-sandwich_quantity = 1
+    title: "Smart Cafe Bill",
+    description: "Combine variables, arithmetic, a membership decision, tax, and a readable receipt.",
+    views: ["Story", "Before and After", "Conditions", "Variables"],
+    prerequisites: ["Variables", "Arithmetic operators", "Simple conditions", "print()"],
+    checkpointAfter: "Decisions",
+    code: `customer = "Maya"
+drink_price = 4.50
+pastry_price = 3.25
+drink_count = 2
+pastry_count = 1
+is_member = True
 
-coffee_cost = coffee_price * coffee_quantity
-sandwich_cost = sandwich_price * sandwich_quantity
-subtotal = coffee_cost + sandwich_cost
-tax_rate = 0.13
-tax = subtotal * tax_rate
-tip = 3.00
-total = subtotal + tax + tip
+drink_total = drink_price * drink_count
+pastry_total = pastry_price * pastry_count
+subtotal = drink_total + pastry_total
 
-print("Subtotal:", round(subtotal, 2))
+if is_member:
+    discount_rate = 0.10
+else:
+    discount_rate = 0
+
+discount = subtotal * discount_rate
+discounted_total = subtotal - discount
+tax = discounted_total * 0.13
+final_total = discounted_total + tax
+
+print("Cafe receipt for", customer)
+print("Drinks:", round(drink_total, 2))
+print("Pastries:", round(pastry_total, 2))
+print("Member discount:", round(discount, 2))
 print("Tax:", round(tax, 2))
-print("Total:", round(total, 2))`,
+print("Total:", round(final_total, 2))`,
   },
   {
-    category: "Foundations",
+    category: "Variables and Types",
     topic: "Mixed values",
     level: "Guided Challenge",
     title: "Personal profile summary",
@@ -803,12 +821,14 @@ print("Days:", total_days)
 print("Sessions:", total_sessions)`,
   },
   {
-    category: "Loops",
-    topic: "Loop report",
+    category: "Guided Mini Programs",
+    topic: "Loops checkpoint",
     level: "Guided Challenge",
-    title: "Weekly temperature report",
+    title: "Temperature Week Summary",
     description: "Calculate a total, average, maximum, and warm-day count in one pass.",
     views: ["Loop Table", "Watches", "Conditions"],
+    prerequisites: ["Lists", "For loops", "Running totals", "Conditions"],
+    checkpointAfter: "Loops",
     code: `temperatures = [19, 23, 17, 26, 25, 21, 28]
 total = 0
 highest = temperatures[0]
@@ -1026,12 +1046,14 @@ bottom_left = matrix[2][0]
 print(top_right, center, bottom_left)`,
   },
   {
-    category: "Collections",
-    topic: "Nested gradebook",
+    category: "Guided Mini Programs",
+    topic: "Collections checkpoint",
     level: "Guided Challenge",
-    title: "Student gradebook report",
+    title: "Student Gradebook",
     description: "Traverse a dictionary of lists and build a summary dictionary.",
     views: ["Structures", "Loop Table", "Mutation Explorer"],
+    prerequisites: ["Dictionaries", "Lists", "Loops", "Averages"],
+    checkpointAfter: "Collections",
     code: `gradebook = {
     "Ava": [82, 91, 88],
     "Noah": [75, 79, 84],
@@ -1052,12 +1074,14 @@ print("Student averages:", averages)
 print("Class average:", round(class_average, 1))`,
   },
   {
-    category: "Collections",
-    topic: "Inventory data",
+    category: "Guided Mini Programs",
+    topic: "Collections checkpoint",
     level: "Guided Challenge",
-    title: "Inventory restock report",
+    title: "Inventory Assistant",
     description: "Inspect nested records, collect low-stock names, and total inventory value.",
     views: ["Structures", "Loop Table", "Watches"],
+    prerequisites: ["Lists", "Dictionaries", "Loops", "Conditions"],
+    checkpointAfter: "Collections",
     code: `inventory = [
     {"name": "Notebook", "stock": 3, "price": 5.0},
     {"name": "Pen", "stock": 12, "price": 1.5},
@@ -1127,12 +1151,13 @@ print("Copied:", copied)`,
   // Input and debugging additions exercise deterministic input, conversion,
   // missing keys, validation loops, and a complete order-processing scenario.
   {
-    category: "Input and Debugging",
+    category: "Input, Errors and Debugging",
     topic: "Conversion error",
     level: "Beginner",
     title: "A number to investigate",
     description: "Trigger ValueError when prepared text cannot become an integer.",
     views: ["Error Coach", "Input Playground", "Variables"],
+    expectedError: "Intentional ValueError",
     inputs: "twelve",
     code: `raw_age = input("Age: ")
 age = int(raw_age)
@@ -1141,12 +1166,13 @@ next_age = age + 1
 print("Next age:", next_age)`,
   },
   {
-    category: "Input and Debugging",
+    category: "Input, Errors and Debugging",
     topic: "Missing dictionary key",
     level: "Developing",
     title: "A key to investigate",
     description: "Connect a KeyError to the keys that actually exist in a dictionary.",
     views: ["Error Coach", "Structures", "Variables"],
+    expectedError: "Intentional KeyError",
     code: `prices = {"pen": 2, "book": 8}
 requested_item = "marker"
 available_items = list(prices.keys())
@@ -1156,7 +1182,7 @@ price = prices[requested_item]
 print("Price:", price)`,
   },
   {
-    category: "Input and Debugging",
+    category: "Input, Errors and Debugging",
     topic: "Validation loop",
     level: "Developing",
     title: "Validate a positive number",
@@ -1177,47 +1203,85 @@ print("Accepted:", accepted)
 print("Number:", number)`,
   },
   {
-    category: "Input and Debugging",
-    topic: "Input scenario",
+    category: "Guided Mini Programs",
+    topic: "Debugging checkpoint",
     level: "Guided Challenge",
-    title: "Prepared order processor",
-    description: "Combine three inputs, conversion, conditions, calculations, and output.",
-    views: ["Input Playground", "Compare Runs", "Conditions"],
+    title: "Resilient Order Intake",
+    description: "Validate prepared order input, calculate a member discount, and report a safe result.",
+    views: ["Input Playground", "Compare Runs", "Conditions", "Error Coach"],
+    prerequisites: ["Input", "Conversion", "Exception handling", "Conditions"],
+    checkpointAfter: "Input, Errors and Debugging",
     inputs: "Notebook\n3\nyes",
     code: `item_name = input("Item: ")
 quantity_text = input("Quantity: ")
 member_text = input("Member yes or no: ")
-quantity = int(quantity_text)
-unit_price = 5.00
-subtotal = unit_price * quantity
-is_member = member_text.lower() == "yes"
-if is_member:
-    discount = subtotal * 0.10
+quantity = 0
+
+try:
+    quantity = int(quantity_text)
+except ValueError:
+    print("Quantity must contain digits")
+
+if quantity <= 0:
+    print("Order not created")
 else:
-    discount = 0
+    unit_price = 5.00
+    subtotal = unit_price * quantity
+    is_member = member_text.strip().lower() == "yes"
 
-discounted = subtotal - discount
-tax = discounted * 0.13
-total = discounted + tax
+    if is_member:
+        discount_rate = 0.10
+    else:
+        discount_rate = 0
 
-print("Item:", item_name)
-print("Quantity:", quantity)
-print("Discount:", round(discount, 2))
-print("Total:", round(total, 2))`,
+    discount = subtotal * discount_rate
+    discounted = subtotal - discount
+    tax = discounted * 0.13
+    total = discounted + tax
+
+    print("Item:", item_name)
+    print("Quantity:", quantity)
+    print("Discount:", round(discount, 2))
+    print("Total:", round(total, 2))`,
   },
 ];
 
-/** Ordered filters keep the larger example library easy to scan without hiding its complete size. */
+/**
+ * The complete curriculum preserves the original tested corpus and adds the
+ * expanded beginner sequence from curriculum.js. Freezing the outer array
+ * prevents interface code from changing the catalog order accidentally.
+ */
+const EXAMPLES = Object.freeze([...BASE_EXAMPLES, ...ADDITIONAL_EXAMPLES]);
+
+/**
+ * Ordered filters match the fixed recommended curriculum shown to learners.
+ * All is a library view, while the numbered entries are teaching sections.
+ * Guided Mini Programs remains filterable even though its checkpoints are
+ * interleaved after prerequisite sections in the All view.
+ */
 const EXAMPLE_CATEGORIES = Object.freeze([
   "All",
-  "Foundations",
+  "First Steps",
+  "Variables and Types",
+  "Operators and Expressions",
+  "Strings",
   "Decisions",
   "Loops",
   "Functions and Scope",
   "Collections",
   "References and Mutation",
-  "Input and Debugging",
+  "Input, Errors and Debugging",
+  "Classes and Objects",
+  "Guided Mini Programs",
 ]);
+
+/** Maps a curriculum section name to its two-digit number in the sidebar. */
+const EXAMPLE_CATEGORY_NUMBERS = Object.freeze(Object.fromEntries(
+  EXAMPLE_CATEGORIES.slice(1).map((category, index) => [category, String(index + 1).padStart(2, "0")]),
+));
+
+/** Difficulty ranks produce a gentle progression inside every focused bucket. */
+const EXAMPLE_LEVEL_RANKS = Object.freeze({ Beginner: 1, Developing: 2, "Guided Challenge": 3 });
 
 /**
  * Cached references to every interactive or dynamically updated DOM element.
@@ -2025,7 +2089,9 @@ function ensureWorker() {
     state.rejectWorkerReady = reject;
   });
 
-  state.worker = new Worker("py-worker.js", { type: "module" });
+  // The version query keeps GitHub Pages and long-lived browser caches from
+  // pairing a new interface with an older tracing or serialization contract.
+  state.worker = new Worker("py-worker.js?v=20260722-5", { type: "module" });
   state.worker.addEventListener("message", handleWorkerMessage);
   state.worker.addEventListener("error", (event) => {
     const message = event.message || "Python worker failed to load.";
@@ -2305,6 +2371,7 @@ function valueSignature(value) {
     display: value.display,
     items: value.items,
     entries: value.entries,
+    attributes: value.attributes,
   });
 }
 
@@ -2911,7 +2978,8 @@ function variableHistory(name) {
 function createValueTree(value, label = "value") {
   const hasItems = Array.isArray(value?.items) && value.items.length > 0;
   const hasEntries = Array.isArray(value?.entries) && value.entries.length > 0;
-  if (!hasItems && !hasEntries) {
+  const hasAttributes = Array.isArray(value?.attributes) && value.attributes.length > 0;
+  if (!hasItems && !hasEntries && !hasAttributes) {
     const leaf = document.createElement("div");
     leaf.className = "value-tree-leaf";
     const name = document.createElement("span");
@@ -2945,10 +3013,16 @@ function createValueTree(value, label = "value") {
       createValueTree(entry.value, `[${entry.key?.display ?? "?"}]`),
     ));
   }
-  if ((value.length ?? 0) > (value.items?.length ?? value.entries?.length ?? 0)) {
+  if (hasAttributes) {
+    value.attributes.forEach((attribute) => children.append(
+      createValueTree(attribute.value, `.${attribute.name}`),
+    ));
+  }
+  const visibleChildCount = value.items?.length ?? value.entries?.length ?? value.attributes?.length ?? 0;
+  if ((value.length ?? 0) > visibleChildCount) {
     const omitted = document.createElement("div");
     omitted.className = "value-tree-omitted";
-    omitted.textContent = `${value.length - (value.items?.length ?? value.entries?.length ?? 0)} more item(s) omitted`;
+    omitted.textContent = `${value.length - visibleChildCount} more item(s) omitted`;
     children.append(omitted);
   }
   branch.append(children);
@@ -3197,8 +3271,10 @@ function renderWatches() {
 function renderStructures() {
   if (!state.trace.length) return;
   const variables = variablesForStep(state.trace[state.currentStep]);
-  const supported = Object.entries(variables).filter(([, value]) =>
-    ["list", "tuple", "dict", "set", "frozenset", "str"].includes(value.type));
+  const supported = Object.entries(variables).filter(([, value]) => (
+    ["list", "tuple", "dict", "set", "frozenset", "str"].includes(value.type)
+    || Array.isArray(value.attributes)
+  ));
   els.emptyStructures.classList.toggle("hidden", supported.length > 0);
   els.structuresContent.classList.toggle("hidden", supported.length === 0);
   if (!supported.length) return;
@@ -3243,6 +3319,8 @@ function renderStructures() {
     value.items.forEach((item, index) => cells.append(createStructureCell(index, item.display)));
   } else if (Array.isArray(value.entries)) {
     value.entries.forEach((entry) => cells.append(createStructureCell(entry.key?.display ?? "?", entry.value?.display ?? "?")));
+  } else if (Array.isArray(value.attributes)) {
+    value.attributes.forEach((attribute) => cells.append(createStructureCell(`.${attribute.name}`, attribute.value?.display ?? "?")));
   }
   const behavior = document.createElement("div");
   behavior.className = `mutation-note ${latest?.kind || "created"}`;
@@ -3274,7 +3352,9 @@ function renderMutationExplorer() {
     return;
   }
   const variables = variablesForStep(state.trace[state.currentStep]);
-  const mutableEntries = Object.entries(variables).filter(([, value]) => ["list", "dict", "set"].includes(value.type));
+  const mutableEntries = Object.entries(variables).filter(([, value]) => (
+    ["list", "dict", "set"].includes(value.type) || Array.isArray(value.attributes)
+  ));
   els.emptyMutation.classList.toggle("hidden", mutableEntries.length > 0);
   els.mutationContent.classList.toggle("hidden", mutableEntries.length === 0);
   if (!mutableEntries.length) return;
@@ -4045,6 +4125,10 @@ function referenceElements(step) {
       const childLabel = `[${entry.key?.display ?? index}]`;
       addValue(entry.value, objectId, childLabel, `${path}-entry-${index}`, depth + 1);
     });
+    (value.attributes || []).slice(0, 12).forEach((attribute, index) => {
+      const childLabel = `.${attribute.name}`;
+      addValue(attribute.value, objectId, childLabel, `${path}-attribute-${index}`, depth + 1);
+    });
   };
 
   const scopes = scopesForStep(step);
@@ -4390,6 +4474,43 @@ function showToast(message, isError = false) {
 }
 
 /**
+ * Sorts one focused concept bucket from approachable programs toward larger challenges.
+ * Difficulty is the primary signal, source length breaks ties, and original catalog
+ * position keeps the result stable when two programs share the same teaching size.
+ * @param {object[]} examples Programs belonging to one focused curriculum bucket.
+ * @returns {object[]} A new sorted array that never mutates the shared catalog.
+ */
+function sortFocusedExamples(examples) {
+  return [...examples].sort((first, second) => {
+    const levelDifference = (EXAMPLE_LEVEL_RANKS[first.level] || 99) - (EXAMPLE_LEVEL_RANKS[second.level] || 99);
+    if (levelDifference !== 0) return levelDifference;
+    const lineDifference = first.code.split("\n").length - second.code.split("\n").length;
+    if (lineDifference !== 0) return lineDifference;
+    return EXAMPLES.indexOf(first) - EXAMPLES.indexOf(second);
+  });
+}
+
+/**
+ * Builds the fixed recommended curriculum without reading or recording learner behavior.
+ * Guided checkpoints are inserted after their declared prerequisite section, while
+ * ordinary lessons remain grouped in the numbered sidebar order.
+ * @returns {object[]} Complete 134-program route in its visible recommended order.
+ */
+function buildRecommendedExamples() {
+  const ordered = [];
+  const focusedCategories = EXAMPLE_CATEGORIES.slice(1).filter((category) => category !== "Guided Mini Programs");
+  for (const category of focusedCategories) {
+    const focused = EXAMPLES.filter((example) => example.category === category);
+    ordered.push(...sortFocusedExamples(focused));
+    const checkpoints = EXAMPLES.filter((example) => (
+      example.category === "Guided Mini Programs" && example.checkpointAfter === category
+    ));
+    ordered.push(...checkpoints);
+  }
+  return ordered;
+}
+
+/**
  * Creates category filters and example cards from the shared EXAMPLES data.
  * Landing cards are native links to the workspace, while workspace cards are
  * buttons that update the open editor. Text nodes keep all metadata safe.
@@ -4410,7 +4531,10 @@ function renderExamples() {
         ? EXAMPLES.length
         : EXAMPLES.filter((example) => example.category === category).length;
       const label = document.createElement("span");
-      label.textContent = category;
+      // Numbered focused sections communicate a fixed route without implying progress tracking.
+      label.textContent = category === "All"
+        ? "All programs"
+        : `${EXAMPLE_CATEGORY_NUMBERS[category]}  ${category}`;
       const count = document.createElement("span");
       count.className = "example-filter-count";
       count.textContent = String(categoryCount);
@@ -4428,13 +4552,15 @@ function renderExamples() {
       return filter;
     }),
   );
-  // All remains the complete library, while other filters expose one teaching family.
+  // All follows the fixed curriculum route. A selected category keeps the same
+  // relative order so switching filters never changes the teaching progression.
+  const recommendedExamples = buildRecommendedExamples();
   const visibleExamples = state.activeExampleCategory === "All"
-    ? EXAMPLES
-    : EXAMPLES.filter((example) => example.category === state.activeExampleCategory);
+    ? recommendedExamples
+    : recommendedExamples.filter((example) => example.category === state.activeExampleCategory);
   els.exampleCount.textContent = `Showing ${visibleExamples.length} of ${EXAMPLES.length} programs`;
   els.exampleGrid.replaceChildren(
-    ...visibleExamples.map((example) => {
+    ...visibleExamples.map((example, visibleIndex) => {
       // Native links make landing-page navigation reliable for file URLs and hosted URLs.
       const card = document.createElement(isWorkspace ? "button" : "a");
       if (isWorkspace) {
@@ -4442,7 +4568,7 @@ function renderExamples() {
       } else {
         card.href = "workspace.html";
       }
-      card.className = "example-card";
+      card.className = `example-card ${example.category === "Guided Mini Programs" ? "guided-checkpoint" : ""}`.trim();
       card.innerHTML = `
         <span class="example-card-meta">
           <span class="example-topic"></span>
@@ -4450,18 +4576,43 @@ function renderExamples() {
         </span>
         <h3></h3>
         <p></p>
+        <span class="example-warning" hidden></span>
+        <span class="example-prerequisites" hidden>
+          <span>RECOMMENDED BEFORE STARTING</span>
+          <strong></strong>
+        </span>
         <span class="example-views">
           <span>BEST VIEWS</span>
           <strong></strong>
         </span>`;
-      card.querySelector(".example-topic").textContent = example.topic;
+      const sequenceWidth = state.activeExampleCategory === "All" ? 3 : 2;
+      const sequence = String(visibleIndex + 1).padStart(sequenceWidth, "0");
+      const guidedExamples = recommendedExamples.filter((candidate) => candidate.category === "Guided Mini Programs");
+      const checkpointNumber = String(guidedExamples.indexOf(example) + 1).padStart(2, "0");
+      card.querySelector(".example-topic").textContent = example.category === "Guided Mini Programs"
+        ? `Guided checkpoint ${checkpointNumber}${state.activeExampleCategory === "All" ? ` · Program ${sequence}` : ""}`
+        : `${sequence} · ${example.topic}`;
       const level = card.querySelector(".example-level");
       const sourceLineCount = example.code.split("\n").length;
-      level.textContent = `${example.level} · ${sourceLineCount} lines`;
+      level.textContent = `${example.level} · ${sourceLineCount} line${sourceLineCount === 1 ? "" : "s"}`;
       // Multi-word levels become separate safe class tokens, such as guided and challenge.
       level.classList.add(...example.level.toLowerCase().split(/\s+/));
       card.querySelector("h3").textContent = example.title;
       card.querySelector("p").textContent = example.description;
+      // Intentional failure programs are labelled before selection so beginners
+      // never confuse a planned Error Coach lesson with broken example code.
+      const warning = card.querySelector(".example-warning");
+      if (example.expectedError) {
+        warning.hidden = false;
+        warning.textContent = `LEARNING ERROR · ${example.expectedError}`;
+      }
+      // Checkpoint prerequisites are recommendations only. They are fixed card
+      // metadata and do not depend on accounts, completion records, or analytics.
+      const prerequisiteBlock = card.querySelector(".example-prerequisites");
+      if (Array.isArray(example.prerequisites) && example.prerequisites.length) {
+        prerequisiteBlock.hidden = false;
+        prerequisiteBlock.querySelector("strong").textContent = example.prerequisites.join(" · ");
+      }
       card.querySelector(".example-views strong").textContent = example.views.join(" · ");
       card.addEventListener("click", () => {
         // Save before navigation so the chosen example is waiting in the new editor.

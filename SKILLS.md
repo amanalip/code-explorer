@@ -93,11 +93,15 @@ The tool records a bounded execution first and then replays it. Playback breakpo
 
 ### Examples and guidance
 
-- 54 curated examples grouped into seven concept categories and three difficulty levels.
+- 134 curated examples grouped into 12 concept categories and three difficulty levels.
+- The current library blends 54 reviewed base examples with 80 additional programs. Existing debugging, recursion, mutation, copying, input, and collection coverage was preserved while names, categories, and longer programs were improved where useful.
 - Category-filterable starter-program library with a vertical category navigator and per-category count badges.
 - Independent vertical scrolling for desktop navigation and cards, plus stacked vertical navigation above one-column cards on mobile.
 - Accurate source-line counts, program counts, filter-reset scrolling, and prepared input for input-driven examples.
-- Twelve 15 to 20 line Guided Challenge programs that combine earlier concepts.
+- A fixed recommended sequence that interleaves 12 named guided checkpoints after their listed prerequisite concepts without collecting or inferring learner progress.
+- Twenty programs of at least 15 lines, including 12 guided mini programs from 18 through 31 lines.
+- Three clearly labeled investigation programs that intentionally raise `IndexError`, `ValueError`, or `KeyError`. All other examples must finish without an accidental error.
+- Eight Classes and Objects programs, including classes, instances, attributes, methods, constructors, inheritance, composition, and a longer object-oriented checkpoint.
 - Extensive README walkthroughs, question maps, workflows, expected behavior, troubleshooting, and glossary.
 
 ### Automatic Learning Comments
@@ -138,7 +142,7 @@ Implemented guarantees:
 - Repeated loop values are described carefully and are not presented as one universal value.
 - Unsupported or ambiguous constructs receive no invented explanation.
 - Comment-generation failure cannot break tracing, playback, or source editing.
-- The feature is validated against all 54 included examples plus syntax-error, runtime-error, repeated-line, and unsupported cases.
+- The explanation engine has full-corpus evidence from the reviewed 54-program base and representative v4 checks for class definitions and object attributes. The complete 134-program corpus is separately compile-and-run validated, while syntax-error, runtime-error, repeated-line, and unsupported explanation cases remain explicit regression checks.
 - `README.md`, this file, and relevant source comments are updated in the same change.
 - `lessons_learned.md` records what the feature teaches the project during implementation and testing.
 
@@ -156,6 +160,11 @@ workspace.html
      |
      v
 app.js
+     |
+     +-- curriculum.js
+     |      +-- 80 additional examples
+     |      +-- guided prerequisites
+     |      +-- intentional-error metadata
      |
      +-- CodeMirror modules from esm.sh
      |      +-- editing
@@ -320,6 +329,8 @@ None of these values is an analytics event. There is no synchronization, account
 - Serialized containers stop at a bounded depth and item count.
 - Representations are shortened before crossing into the interface.
 - Cyclic and shared objects are represented without infinite recursion.
+- Learner-defined instances expose a bounded `attributes` mapping when a safe `__dict__` is available. The mapping obeys the same depth, item, cycle, and representation limits as built-in containers.
+- Default Python object representations are normalized to stable teaching labels such as `<Pet instance>` so the interface does not display process-specific hexadecimal addresses as meaningful memory locations.
 - Only frames belonging to the learner's virtual file enter the educational call stack.
 - Graphs are conceptual views and must not claim to show physical RAM addresses.
 - Learner strings rendered as markup must be escaped.
@@ -368,21 +379,24 @@ None of these values is an analytics event. There is no synchronization, account
 
 ### Add a starter program
 
-1. Keep it short enough for a beginner to inspect step by step.
+1. Decide whether the program is a focused concept example or a guided integration checkpoint. Keep a focused example small enough to inspect step by step, and let a guided program grow only when each added line advances a coherent learner task.
 2. Give it a single primary concept, category, difficulty, description, source, and optional prepared input.
-3. Confirm it runs within all safety limits.
-4. Inspect its Story, Variables, relevant specialist view, and final output.
-5. Update the README catalog and suggested learning route.
-6. Update the exact example count in this file and any learner-facing interface comment that states it.
+3. Add prerequisite metadata to every guided program. The prerequisites describe a recommended fixed sequence, not tracked completion.
+4. If failure is the lesson, label it as an intentional learning error and declare the exact expected exception type. Never use an accidental error as teaching content.
+5. Confirm it runs within all safety limits.
+6. Inspect its Story, Variables, relevant specialist view, and final output.
+7. Update the README catalog and suggested learning route.
+8. Update the exact example count in this file and any learner-facing interface comment that states it.
+9. Run both curriculum validators before shipping.
 
 Current library invariants:
 
 | Dimension | Required value |
 | --- | --- |
-| Total | 54 |
-| Categories | Foundations 8, Decisions 7, Loops 11, Functions and Scope 8, Collections 10, References and Mutation 4, Input and Debugging 6 |
-| Levels | Beginner 19, Developing 22, Guided Challenge 13 |
-| Extended programs | 12 programs from 15 through 20 source lines |
+| Total | 134, formed from 54 reviewed base examples plus 80 additional examples |
+| Categories | First Steps 10, Variables and Types 10, Operators and Expressions 10, Strings 8, Decisions 12, Loops 16, Functions and Scope 16, Collections 16, References and Mutation 8, Input, Errors and Debugging 8, Classes and Objects 8, Guided Mini Programs 12 |
+| Levels | Beginner 46, Developing 56, Guided Challenge 32 |
+| Extended programs | 20 programs of at least 15 source lines; the 12 guided checkpoints range from 18 through 31 lines |
 | Intentional failures | `IndexError`, `ValueError`, and `KeyError` in three named debugging examples |
 
 The examples browser has its own layout invariants:
@@ -412,7 +426,7 @@ Category changes must set the card region's `scrollTop` to zero. Every mobile ca
 9. Test original-source preservation, inline on and off, button semantics, all detail levels, normal editor Copy, export copy, cancel, confirmed replacement, rerun deduplication, existing learner comments, blank lines, and indentation.
 10. Test invalidation through manual editing, complete-document paste, example selection, clear-trace behavior, and the start of a new run.
 11. Test CodeMirror and fallback behavior, both themes, desktop, mobile wrapping, and absence of horizontal overflow.
-12. Run the full 54-example corpus because it covers loops, nested conditions, functions, recursion, collections, aliases, shallow copies, input, and intentional errors.
+12. Run the full 134-example corpus because it covers first statements, values, operators, strings, decisions, loops, functions, recursion, collections, aliases, shallow copies, input, intentional errors, classes, object attributes, inheritance, composition, and guided integrations.
 13. Inspect representative prose manually. Schema validation can catch missing fields, but it cannot catch awkward language or misleading numeric formatting.
 
 ### Add or change a graph
@@ -520,8 +534,10 @@ Verify all three detail levels, inline on and off, unchanged source statistics, 
 
 ## Current validation evidence
 
-- All 54 starter sources parse as valid Python.
-- All 54 were executed with their prepared inputs. Only the three intentionally failing debugging programs raised their documented errors.
+- The structural curriculum validator found exactly 134 unique programs, 12 exact category totals, 46 Beginner, 56 Developing, 32 Guided Challenge, 12 guided prerequisite lists, and three exact intentional-error declarations.
+- All 134 starter sources compiled and executed with their prepared inputs. Only the three explicitly labeled investigation programs raised their exact documented errors.
+- The detached validator applies a per-program execution alarm so one mistaken infinite loop cannot stall the complete curriculum audit.
+- The current corpus includes 20 programs of at least 15 lines and 12 guided programs ranging from 18 through 31 lines.
 - The complete corpus produced 421 learning-comment records during automated validation, with valid line numbers, levels, kinds, and nonempty text.
 - Manual prose review caught and corrected awkward `elif` wording and overly noisy floating-point values. This is a permanent reason to combine automated schema checks with human reading.
 - Browser testing of an intentional `IndexError` caught and corrected a false repeated-completion count caused by exception and frame-exit events sharing one line.
@@ -532,7 +548,9 @@ Verify all three detail levels, inline on and off, unchanged source statistics, 
 - Starting another trace while widgets were visible immediately removed the old widgets and completed with Automatic comments available but off.
 - Selecting another example while inline notes were visible removed all widgets, disabled the control, cleared stale trace data, and preserved the newly selected source.
 - The Learning Comments export dialog remained available after the inline mode was added and still showed Guided evidence plus Copy and confirmation-gated replacement actions.
-- The vertical examples browser exposed all eight filter choices, accurate counts, 54 landing-page cards, 11 Loop cards, and no horizontal filter overflow.
+- The vertical examples browser exposed all 13 filter choices, accurate counts, 134 landing-page cards, 16 Loop cards, and no horizontal filter overflow.
+- Selecting the Classes and Objects checkpoint produced 33 recorded steps, a class-definition learning note, stable `<Pet instance>` labels, and bounded `.name`, `.animal`, `.meals`, and `.exercised` attribute branches.
+- Selecting the intentional `IndexError` investigation program displayed its warning before opening it, then produced the expected Error Coach explanation at the failing step.
 - Desktop light and dark screenshots confirmed the sidebar and cards remain readable. A 390 by 844 mobile check found and corrected compressed 42-pixel card rows; the final cards retain a 190-pixel minimum, stay inside their boundaries, and create no page-level horizontal overflow.
 - Mobile inline comments in light and dark themes retained a 390-pixel page width, a 360-pixel editor width, five wrapped widgets, and the original seven-line source count.
 

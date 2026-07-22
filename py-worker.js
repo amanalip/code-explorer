@@ -40,6 +40,8 @@ import contextlib
 import io
 # JSON creates a value that crosses the Python and JavaScript boundary safely.
 import json
+# Regular expressions remove default object addresses from teaching previews.
+import re
 # sys.settrace supplies the call, line, return, and exception events used below.
 import sys
 # traceback locates the learner's source line when execution raises an exception.
@@ -71,6 +73,15 @@ def _safe_repr(value, limit=120):
     # A user-defined repr can raise, so failure falls back to the object's type name.
     except Exception:
         text = f"<{type(value).__name__}>"
+    # Python's default instance repr includes a process-specific hexadecimal
+    # address. Replacing it with an instance label prevents a conceptual object
+    # view from looking like a physical RAM-address lesson. The serializer's
+    # separate objectId still supports alias and identity reasoning internally.
+    text = re.sub(
+        r"<(?:__main__\.)?([A-Za-z_]\w*) object at 0x[0-9a-fA-F]+>",
+        r"<\1 instance>",
+        text,
+    )
     # Long values are shortened to protect the layout and the size of every snapshot.
     if len(text) > limit:
         return text[:limit - 3] + "..."
@@ -144,6 +155,25 @@ def _serialize(value, seen=None, depth=0):
             for key, item in items
         ]
         result["length"] = len(value)
+
+    # Beginner-defined instances commonly keep their state in __dict__. Expose
+    # those attributes with the same depth and item limits used for containers
+    # so Classes and Objects lessons can show meaningful internal state without
+    # invoking arbitrary properties, descriptors, or attribute access hooks.
+    elif hasattr(value, "__dict__") and not isinstance(value, type):
+        try:
+            attributes = list(vars(value).items())[:MAX_ITEMS]
+        except Exception:
+            attributes = []
+        result["attributes"] = [
+            {
+                "name": str(name),
+                "value": _serialize(item, next_seen, depth + 1),
+            }
+            for name, item in attributes
+            if not str(name).startswith("__")
+        ]
+        result["length"] = len(result["attributes"])
 
     # Objects without recognized container structure still return their common summary.
     return result
@@ -304,6 +334,10 @@ def _learning_description(node, source_lines):
     if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
         parameters = ", ".join(argument.arg for argument in node.args.args) or "no parameters"
         return (f"Defines {node.name} with {parameters}. Its body runs only when the function is called.", 1, "function")
+    if isinstance(node, ast.ClassDef):
+        base_names = [_node_text(base, "a base class") for base in node.bases]
+        inheritance = f" It extends {', '.join(base_names)}." if base_names else ""
+        return (f"Defines the {node.name} class as a reusable blueprint for objects.{inheritance}", 1, "class")
     if isinstance(node, ast.For):
         target = _node_text(node.target, "the loop variable")
         iterable = _node_text(node.iter, "the iterable")
@@ -375,8 +409,8 @@ def _learning_description(node, source_lines):
         return (f"Checks that {_node_text(node.test, 'the assertion')} is true and raises AssertionError otherwise.", 2, "assert")
     if isinstance(node, ast.Pass):
         return ("Keeps this block syntactically valid without performing an action.", 3, "pass")
-    # Class definitions and other advanced statements are omitted instead of
-    # receiving an explanation that could hide important Python semantics.
+    # Other advanced statements are omitted instead of receiving an explanation
+    # that could hide important Python semantics.
     return None
 
 # Build detached comment metadata after execution so syntax and runtime evidence can be combined.
@@ -438,7 +472,7 @@ def _learning_comment_metadata(tree, source_lines, steps):
                     text += f" In this run, {assignment_target} became {display}."
         # Repeated execution is reported as a count without pretending that one
         # observed value represents every loop iteration or function call.
-        elif len(visits) > 1 and not exception_visits and not isinstance(node, (ast.For, ast.While, ast.If)):
+        elif len(visits) > 1 and not exception_visits and not isinstance(node, (ast.For, ast.While, ast.If, ast.ClassDef)):
             text += f" This line completed {len(visits)} times during the recorded run."
 
         # The first exception snapshot contains the original Python type and

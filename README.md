@@ -1413,7 +1413,9 @@ Bookmarks belong to the current execution. Running a new trace clears them becau
 
 ## Starter programs
 
-Select **Examples** to open a curated library of 54 programs. The library is a small curriculum, not a random code collection. It begins with single ideas, repeats important concepts in different situations, and ends with 15 to 20 line programs that combine several skills.
+Select **Examples** to open a curated library of 134 programs. The library is a structured beginner curriculum, not a random code collection. It begins with the smallest useful `print()` programs, progresses through values, decisions, loops, functions, collections, references, debugging, and classes, and places 12 complete guided checkpoints after their prerequisite sections.
+
+The current library is a blend rather than a replacement. The tested 54-program v2 corpus was reviewed, renamed or moved where useful, and combined with 80 new programs. Input, intentional errors, recursion, mutation, shallow copying, and nested collections were preserved instead of being lost during the reorganization.
 
 Every example card shows:
 
@@ -1422,19 +1424,27 @@ Every example card shows:
 - The exact number of source lines
 - A short learning purpose
 - The views that reveal its most useful behavior
+- A fixed sequence number
+- Recommended prerequisite concepts for guided checkpoints
+- A visible learning-error label when failure is intentional
 
 ### Filtering the library
 
 ```text
-ALL 54 PROGRAMS
+ALL 134 PROGRAMS
 |
-+-- Foundations ................. 8
-+-- Decisions ................... 7
-+-- Loops ...................... 11
-+-- Functions and Scope ......... 8
-+-- Collections ................ 10
-+-- References and Mutation ..... 4
-+-- Input and Debugging .......... 6
++-- 01 First Steps .................... 10
++-- 02 Variables and Types ............ 10
++-- 03 Operators and Expressions ...... 10
++-- 04 Strings ......................... 8
++-- 05 Decisions ...................... 12
++-- 06 Loops .......................... 16
++-- 07 Functions and Scope ............ 16
++-- 08 Collections .................... 16
++-- 09 References and Mutation ......... 8
++-- 10 Input, Errors and Debugging ...... 8
++-- 11 Classes and Objects .............. 8
++-- 12 Guided Mini Programs ............ 12
 ```
 
 The active filter reports both the visible count and the complete count. Categories use a vertical navigation region, so a learner never has to hunt left and right for a concept.
@@ -1444,22 +1454,27 @@ DESKTOP EXAMPLES BROWSER
 +----------------------+--------------------------------------+
 | CATEGORY SIDEBAR     | PROGRAM CARDS                        |
 |                      |                                      |
-| All              54  | [A tiny calculation] [A message]    |
-| Foundations        8 | [Pass or try again]  [Logic check]   |
-| Decisions          7 | [More programs continue below]       |
-| Loops             11 |                                      |
-| Functions and Scope 8| independent vertical card scrolling  |
-| Collections       10 |                                      |
-| References...      4 |                                      |
-| Input...           6 |                                      |
+| All programs     134 | [Hello, Python] [Store one value]    |
+| 01 First Steps    10 | [A tiny calculation] [Smart Cafe]    |
+| 02 Variables      10 | [More programs continue below]       |
+| 03 Operators      10 |                                      |
+| 04 Strings         8 | independent vertical card scrolling  |
+| 05 Decisions      12 |                                      |
+| 06 Loops          16 |                                      |
+| 07 Functions      16 |                                      |
+| 08 Collections    16 |                                      |
+| 09 References      8 |                                      |
+| 10 Input/Errors    8 |                                      |
+| 11 Classes         8 |                                      |
+| 12 Guided         12 |                                      |
 |                      |                                      |
-| Showing 54 of 54     |                                      |
+| Showing 134 of 134   |                                      |
 +----------------------+--------------------------------------+
 
 PHONE EXAMPLES BROWSER
 +----------------------------------+
 | vertical category region         |
-| All, Foundations, Decisions, ... |
+| All, First Steps, Variables, ...  |
 +----------------------------------+
 | one-column program cards          |
 | scroll down through the results   |
@@ -1468,30 +1483,85 @@ PHONE EXAMPLES BROWSER
 
 On a wide screen, the category sidebar and card list scroll vertically as separate regions. On a narrow screen, the category region stacks above the one-column card list and keeps vertical navigation. Selecting a category returns its result list to the first program. Category names receive enough room to wrap rather than creating horizontal navigation.
 
+The numbers are a fixed recommendation, not tracked progress. Code Explorer does not know which lesson a learner completed, whether someone is ready for a checkpoint, or how long anyone studied. There are no accounts, progress profiles, completion analytics, or learner scores. A learner may open, skip, or revisit any program at any time.
+
+```text
+Code Explorer provides             Code Explorer does not record
++-- recommended sequence           +-- completed lessons
++-- prerequisite labels            +-- study time
++-- difficulty and line count      +-- learner readiness
++-- best-view suggestions          +-- personal progress
+```
+
 ### Difficulty labels
 
 - **Beginner** examples isolate one main idea and use direct names and control flow.
 - **Developing** examples combine two or more familiar ideas, such as a loop with a condition or a function with a collection.
-- **Guided Challenge** examples are longer, often 15 to 20 lines, and invite you to coordinate several ideas while the visual views remain available as guidance.
+- **Guided Challenge** examples coordinate several familiar ideas. The 12 checkpoint projects range from 18 to 31 lines and increase the amount of state, structure, and control flow a learner must follow.
 
 A Guided Challenge is not a test you must pass before using it. Load it, run it, and study one view at a time. Moving back to a shorter example is normal learning, not failure.
 
-### Complete 54-program catalog
+### Complete 134-program catalog
 
-#### Foundations, 8 programs
+#### First Steps, 10 programs
 
-| Level | Example | Main learning goal | Best views |
-| --- | --- | --- | --- |
-| Beginner | A tiny calculation | Follow names and values through multiplication | Story, Before and After, Variables |
-| Beginner | Building a message | Combine strings into a new value | Story, Before and After, Structures |
-| Beginner | Celsius to Fahrenheit | Follow arithmetic and a rounded result | Story, Before and After, Variables |
-| Developing | Division and remainders | Compare `/`, `//`, and `%` | Variables, Before and After, Story |
-| Developing | Cleaning a username | Observe a chain of string transformations | Before and After, Variables, Story |
-| Beginner | Building status flags | Combine Boolean facts into one result | Variables, Before and After, Conditions |
-| Guided Challenge | Cafe receipt calculator | Coordinate quantities, subtotal, tax, tip, and total | Before and After, Variables, Story |
-| Guided Challenge | Personal profile summary | Combine text, numbers, conversion, and Boolean state | Variables, Story, Before and After |
+| Level | Example | Main learning goal |
+| --- | --- | --- |
+| Beginner | Hello, Python | Run the smallest complete Python program |
+| Beginner | Print text and a number | Display different literal types together |
+| Beginner | Three steps in order | Follow statements from first to last |
+| Beginner | Label every answer | Make console values understandable |
+| Beginner | A comment for the reader | Distinguish explanation from execution |
+| Beginner | Meet four literal values | Meet text, integer, decimal, and Boolean literals |
+| Beginner | Calculate inside print | Evaluate an expression before output |
+| Beginner | Ask Python about a value | Inspect the type of a literal |
+| Beginner | Repeat a text pattern | Multiply a string to repeat text |
+| Beginner | A morning routine | Read a five-step program in order |
 
-#### Decisions, 7 programs
+#### Variables and Types, 10 programs
+
+| Level | Example | Main learning goal |
+| --- | --- | --- |
+| Beginner | Store one value | Assign and print one descriptive name |
+| Beginner | Change a variable | Observe reassignment and value history |
+| Beginner | Create two names together | Use multiple assignment |
+| Beginner | A tiny calculation | Follow names through multiplication |
+| Beginner | Reserve an empty result | Use `None` for a result not chosen yet |
+| Beginner | Celsius to Fahrenheit | Follow arithmetic and a rounded value |
+| Beginner | Building status flags | Combine Boolean facts |
+| Developing | Swap two values | Exchange values with tuple assignment |
+| Developing | Convert text into numbers | Convert numeric text before calculation |
+| Guided Challenge | Personal profile summary | Combine text, numbers, and Boolean state |
+
+#### Operators and Expressions, 10 programs
+
+| Level | Example | Main learning goal |
+| --- | --- | --- |
+| Beginner | Add and subtract | Calculate a remaining amount |
+| Beginner | Multiply and raise a power | Compare multiplication and `**` |
+| Beginner | Compare two scores | Store comparison results as Booleans |
+| Developing | Division and remainders | Compare `/`, `//`, and `%` |
+| Developing | Pack complete boxes | Use quotient and remainder together |
+| Developing | Control calculation order | Compare default precedence with parentheses |
+| Developing | Require two facts | Use logical `and` |
+| Developing | Accept either permission | Use logical `or` |
+| Developing | Reverse a Boolean | Use logical `not` |
+| Developing | Check collection membership | Compare `in` and `not in` |
+
+#### Strings, 8 programs
+
+| Level | Example | Main learning goal |
+| --- | --- | --- |
+| Beginner | Building a message | Concatenate text values |
+| Beginner | Read characters by position | Use positive and negative indexes |
+| Beginner | Measure a message | Count characters with `len` |
+| Developing | Cleaning a username | Chain `strip`, `lower`, and `replace` |
+| Developing | Slice a word | Select a range of characters |
+| Developing | Format a profile sentence | Insert values with an f-string |
+| Developing | Rebuild a sentence | Use `split` and `join` |
+| Developing | Build initials | Clean, split, and index a name |
+
+#### Decisions, 12 programs
 
 | Level | Example | Main learning goal | Best views |
 | --- | --- | --- | --- |
@@ -1502,8 +1572,13 @@ A Guided Challenge is not a test you must pass before using it. Load it, run it,
 | Guided Challenge | Account access check | Follow nested identity and permission decisions | Conditions, Coverage, Execution Path |
 | Beginner | Allowed color check | Test membership with `in` | Conditions, Structures, Coverage |
 | Guided Challenge | Shipping quote | Combine membership, totals, distance, and pricing rules | Conditions, Coverage, Before and After |
+| Beginner | Classify a number | Choose even or odd with modulo | Conditions, Story, Coverage |
+| Developing | Positive, zero, or negative | Follow three mutually exclusive paths | Conditions, Coverage, Execution Path |
+| Developing | Check a safe range | Use a chained comparison | Conditions, Story, Coverage |
+| Developing | Check an empty collection | Observe list truthiness | Conditions, Structures, Coverage |
+| Guided Challenge | Choose a ticket price | Combine age bands and membership | Conditions, Before and After, Coverage |
 
-#### Loops, 11 programs
+#### Loops, 16 programs
 
 | Level | Example | Main learning goal | Best views |
 | --- | --- | --- | --- |
@@ -1517,9 +1592,14 @@ A Guided Challenge is not a test you must pass before using it. Load it, run it,
 | Beginner | Save until the goal | Repeat deposits until a target is reached | Loop Lab, Loop Table, Watches |
 | Guided Challenge | Process a task queue | Mutate pending and completed lists in a `while` loop | Loop Lab, Mutation Explorer, Structures |
 | Guided Challenge | Build a session schedule | Coordinate nested outer and inner loops | Execution Path, Loop Table, Coverage |
-| Guided Challenge | Weekly temperature report | Produce total, average, maximum, and count in one pass | Loop Table, Watches, Conditions |
+| Beginner | Count by twos | Use a custom `range` step | Loop Table, Loop Lab, Execution Path |
+| Developing | Number a reading list | Receive positions and values with `enumerate` | Loop Table, Variables, Structures |
+| Developing | Visit product prices | Iterate through dictionary items | Loop Table, Structures, Before and After |
+| Developing | Read until done | Stop at a sentinel input value | Input Playground, Loop Lab, Conditions |
+| Guided Challenge | Search with a loop else | Run `else` when no `break` occurs | Execution Path, Coverage, Loop Table |
+| Guided Challenge | Build labels concisely | Construct a list with a comprehension | Story, Structures, Before and After |
 
-#### Functions and Scope, 8 programs
+#### Functions and Scope, 16 programs
 
 | Level | Example | Main learning goal | Best views |
 | --- | --- | --- | --- |
@@ -1531,8 +1611,16 @@ A Guided Challenge is not a test you must pass before using it. Load it, run it,
 | Developing | Return minimum and maximum | Return a tuple and unpack it at the caller | Function Journey, Structures, Variables |
 | Guided Challenge | Recursive factorial | Watch recursive frames grow and return | Function Journey, Story, Variables |
 | Guided Challenge | Invoice calculation pipeline | Pass values through several focused functions | Function Journey, Before and After, Variables |
+| Beginner | Define and call a greeting | See that a body waits for a call | Function Journey, Call Stack, Story |
+| Beginner | Pass a name into a function | Follow an argument into a parameter | Function Journey, Call Stack, Variables |
+| Developing | Return instead of only printing | Store and reuse a returned calculation | Function Journey, Before and After, Call Stack |
+| Developing | Name the supplied arguments | Use clear keyword arguments | Function Journey, Variables, Call Stack |
+| Developing | Calculate without changing outside state | Observe a pure calculation | Function Journey, Before and After, Variables |
+| Developing | Average a list of values | Pass a collection and return a summary | Function Journey, Structures, Call Stack |
+| Guided Challenge | Validate before calculating | Use an early return | Function Journey, Conditions, Coverage |
+| Guided Challenge | Use a private helper function | Follow a nested helper frame | Function Journey, Call Stack, Execution Path |
 
-#### Collections, 10 programs
+#### Collections, 16 programs
 
 | Level | Example | Main learning goal | Best views |
 | --- | --- | --- | --- |
@@ -1544,10 +1632,16 @@ A Guided Challenge is not a test you must pass before using it. Load it, run it,
 | Developing | Unique visitors | Remove duplicates with a set | Structures, Variables, Before and After |
 | Developing | Update a product record | Add and replace dictionary values | Structures, Mutation Explorer, References |
 | Developing | Read a small matrix | Navigate nested row and column indexes | Structures, Variables, References |
-| Guided Challenge | Student gradebook report | Traverse nested data and build a summary | Structures, Loop Table, Mutation Explorer |
-| Guided Challenge | Inventory restock report | Inspect records, collect names, and total value | Structures, Loop Table, Watches |
+| Beginner | Select part of a list | Create a new list with slicing | Structures, References, Before and After |
+| Developing | Read a fixed coordinate record | Unpack a three-value tuple | Structures, Variables, Before and After |
+| Developing | Find shared interests | Use set intersection | Structures, Before and After, Variables |
+| Beginner | Use a default for a missing key | Read safely with dictionary `get` | Structures, Story, Before and After |
+| Developing | Build a price report | Iterate over dictionary items | Loop Table, Structures, Variables |
+| Guided Challenge | Index words by length | Build a dictionary comprehension | Structures, Before and After, Story |
+| Developing | Use a list as a stack | Observe last-in, first-out behavior | Structures, Mutation Explorer, Value History |
+| Developing | Use a list as a small queue | Observe first-in, first-out behavior | Structures, Mutation Explorer, Value History |
 
-#### References and Mutation, 4 programs
+#### References and Mutation, 8 programs
 
 | Level | Example | Main learning goal | Best views |
 | --- | --- | --- | --- |
@@ -1555,8 +1649,12 @@ A Guided Challenge is not a test you must pass before using it. Load it, run it,
 | Developing | Mutate or replace a list | Contrast changing an object with rebinding a name | Mutation Explorer, References, Before and After |
 | Developing | Copy an outer list | See a new outer list share nested objects | References, Mutation Explorer, Structures |
 | Guided Challenge | Shared settings experiment | Compare an alias, shallow copy, and nested mutation | References, Mutation Explorer, Before and After |
+| Beginner | Reassign an integer | Contrast immutable values with shared mutable objects | References, Mutation Explorer, Before and After |
+| Developing | Copy before changing | Change a separate shallow list copy | References, Mutation Explorer, Structures |
+| Guided Challenge | Share one nested list | Observe a shared list inside two dictionaries | References, Mutation Explorer, Structures |
+| Guided Challenge | Mutate a list in a function | Follow a list reference through a call | Function Journey, References, Mutation Explorer |
 
-#### Input and Debugging, 6 programs
+#### Input, Errors and Debugging, 8 programs
 
 | Level | Example | Main learning goal | Best views |
 | --- | --- | --- | --- |
@@ -1565,24 +1663,60 @@ A Guided Challenge is not a test you must pass before using it. Load it, run it,
 | Beginner | A number to investigate | Connect `ValueError` to failed integer conversion | Error Coach, Input Playground, Variables |
 | Developing | A key to investigate | Connect `KeyError` to available dictionary keys | Error Coach, Structures, Variables |
 | Developing | Validate a positive number | Repeat prepared input until a value is accepted | Input Playground, Loop Lab, Conditions |
-| Guided Challenge | Prepared order processor | Combine input, conversion, decisions, calculation, and output | Input Playground, Compare Runs, Conditions |
+| Developing | Handle invalid number text | Catch `ValueError` and print a fallback | Input Playground, Error Coach, Coverage |
+| Developing | Validate a menu choice | Repeat until input belongs to an allowed set | Input Playground, Loop Lab, Conditions |
+| Guided Challenge | Reject an impossible quantity | Raise and catch a meaningful exception | Error Coach, Function Journey, Execution Path |
+
+#### Classes and Objects, 8 programs
+
+| Level | Example | Main learning goal | Best views |
+| --- | --- | --- | --- |
+| Beginner | Create a simple object | Define a class and attach one attribute | Story, Variables, Structures |
+| Developing | Initialize an object | Give an instance state with `__init__` | Function Journey, Variables, Structures |
+| Developing | Change object state with a method | Mutate an attribute through a method | Function Journey, Mutation Explorer, Structures |
+| Developing | Keep objects independent | Compare state on two instances | References, Structures, Variables |
+| Developing | Ask an object for a result | Return a calculation from a method | Function Journey, Structures, Before and After |
+| Guided Challenge | Share a class-level value | Compare class and instance attributes | Structures, References, Variables |
+| Guided Challenge | Extend a base class | Inherit shared behavior | Function Journey, Call Stack, Structures |
+| Guided Challenge | Place one object inside another | Explore composition and nested objects | Structures, References, Function Journey |
+
+#### Guided Mini Programs, 12 programs
+
+| Checkpoint | Program | Recommended prerequisites | Length |
+| ---: | --- | --- | ---: |
+| 01 | Smart Cafe Bill | Variables, arithmetic, simple conditions, output | 27 lines |
+| 02 | Quiz Score Reporter | Variables, lists, loops, conditions | 22 lines |
+| 03 | Temperature Week Summary | Lists, `for` loops, running totals, conditions | 19 lines |
+| 04 | Habit Streak Tracker | Lists, loops, counters, conditions | 19 lines |
+| 05 | Personal Expense Summary | Functions, lists, dictionaries, loops | 28 lines |
+| 06 | Student Gradebook | Dictionaries, lists, loops, averages | 18 lines |
+| 07 | Inventory Assistant | Nested records, loops, conditions | 19 lines |
+| 08 | Classroom Attendance Report | Lists, sets, dictionaries, loops | 24 lines |
+| 09 | Word and Sentence Analyzer | String methods, lists, dictionaries, loops | 24 lines |
+| 10 | Library Loan Tracker | Functions, nested dictionaries, mutation | 25 lines |
+| 11 | Resilient Order Intake | Input, conversion, exception handling, conditions | 31 lines |
+| 12 | Object-Oriented Pet Care Tracker | Classes, methods, instances, lists, loops | 27 lines |
+
+Guided checkpoints are interleaved in **All programs** after their prerequisite sections. The Guided Mini Programs filter also collects all 12 in one place. A prerequisite is advice, not a lock. The application does not record whether it was completed.
 
 Three debugging examples intentionally stop with `IndexError`, `ValueError`, or `KeyError`. Their failure is the lesson, not a broken example. Error Coach, Variables, and Structures let you inspect the evidence immediately before the failure.
 
 ### Learning ladders
 
-Use a ladder when 54 choices feel like too many. Each row is a suggested order, not a requirement.
+Use a ladder when 134 choices feel like too many. Each row is a fixed suggested order, not a tracked requirement.
 
 | Goal | Start | Continue | Finish |
 | --- | --- | --- | --- |
-| Understand values | A tiny calculation | Division and remainders | Cafe receipt calculator |
-| Understand decisions | Pass or try again | Grade bands | Shipping quote |
-| Understand `for` loops | Running total | Count passing scores | Weekly temperature report |
+| Start from scratch | Hello, Python | Store one value | Smart Cafe Bill |
+| Understand values | Store one value | Division and remainders | Personal profile summary |
+| Understand decisions | Pass or try again | Grade bands | Quiz Score Reporter |
+| Understand `for` loops | Running total | Count passing scores | Temperature Week Summary |
 | Understand `while` loops | Countdown | Save until the goal | Process a task queue |
 | Understand functions | A function call | Same name, different scope | Invoice calculation pipeline |
 | Understand collections | Growing a list | Update a product record | Inventory restock report |
 | Understand references | Two names sharing one list | Copy an outer list | Shared settings experiment |
 | Learn from errors | An index to investigate | A key to investigate | Fix each example and rerun it |
+| Understand objects | Create a simple object | Change object state with a method | Object-Oriented Pet Care Tracker |
 
 ```text
 ONE CONCEPT
@@ -1626,7 +1760,9 @@ Different inputs, different paths: 72
 A personalized greeting: Aman, then 25
 A number to investigate: twelve
 Validate a positive number: -3, then 7
-Prepared order processor: Notebook, 3, then yes
+Read until done: Read chapter, Practise loops, then done
+Validate a menu choice: 9, then 2
+Resilient Order Intake: Notebook, 3, then yes
 ```
 
 You can replace these values in Input Playground before running.
@@ -1634,13 +1770,19 @@ You can replace these values in Input Playground before running.
 ### A broad first-time route
 
 ```text
-A tiny calculation
+Hello, Python
         |
         v
-Building a message
+Store one value
+        |
+        v
+Add and subtract
         |
         v
 Pass or try again
+        |
+        v
+Smart Cafe Bill
         |
         v
 Running total -----> Countdown
@@ -1661,7 +1803,13 @@ Growing a list      Find and skip loop examples
         Input comparison and errors
                  |
                  v
-       One Guided Challenge
+      Functions and collections
+                 |
+                 v
+       Classes and objects
+                 |
+                 v
+ Object-Oriented Pet Care Tracker
                  |
                  v
        Turn on Automatic comments
@@ -1676,7 +1824,7 @@ The walkthroughs below are lessons, not merely demonstrations. For each one, pre
 
 **Learning objective:** understand the relationship between source lines, trace steps, variable state, and console output.
 
-Load **Foundations > A tiny calculation**:
+Load **Variables and Types > A tiny calculation**:
 
 ```python
 price = 8
@@ -1781,7 +1929,7 @@ Check your answer: the final result remains `30`, and Story should still explain
 
 **Learning objective:** see that strings are values with indexed contents and that concatenation creates a new string.
 
-Load **Foundations > Building a message**:
+Load **Strings > Building a message**:
 
 ```python
 language = "Python"
@@ -2436,7 +2584,7 @@ Run A with 72: Pass
 Run B with 40: Try again
 ```
 
-Part B uses **Input and Debugging > An index to investigate**:
+Part B uses **Input, Errors and Debugging > An index to investigate**:
 
 ```python
 colors = ["mint", "purple"]
@@ -3303,6 +3451,109 @@ Common misunderstanding: recursion is not automatically infinite. It becomes uns
 
 Best views: **Function Journey**, **Variables**, **Execution Path**.
 
+### Class, object, and instance
+
+A **class** is a reusable definition of data and behavior. An **object** is one value created from a class. The word **instance** means an object considered as a member of that class.
+
+```python
+class Book:
+    pass
+
+first_book = Book()
+second_book = Book()
+```
+
+`Book` is the class. `first_book` and `second_book` are separate `Book` instances.
+
+Common misunderstanding: defining a class does not automatically create the useful instances a program needs. Calling the class creates an instance.
+
+Best views: **Story**, **Variables**, **Structures**, **References**.
+
+### Attribute
+
+An attribute is a named value connected to an object. Attribute access uses a dot.
+
+```python
+book.title = "Python Basics"
+print(book.title)
+```
+
+Code Explorer serializes a bounded set of ordinary instance attributes. A structure can therefore appear as:
+
+```text
+book
++-- Book instance
+    +-- .title = "Python Basics"
+    +-- .pages = 240
+```
+
+Common misunderstanding: an attribute is not automatically a local variable. `title` and `book.title` can be different names in different places.
+
+Best views: **Structures**, **Variables**, **Mutation Explorer**.
+
+### Method and `self`
+
+A method is a function defined inside a class. An instance method receives the current object through its first parameter, conventionally named `self`.
+
+```python
+class Counter:
+    def increase(self):
+        self.value += 1
+```
+
+Calling `counter.increase()` supplies `counter` as `self` automatically.
+
+Common misunderstanding: `self` is not a reserved Python keyword, but using the conventional name makes code understandable to other Python programmers.
+
+Best views: **Function Journey**, **Call Stack**, **Structures**, **Mutation Explorer**.
+
+### Constructor and `__init__`
+
+For these beginner lessons, the constructor call creates an instance and Python then calls `__init__` to initialize its state.
+
+```python
+class Student:
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score
+
+student = Student("Maya", 82)
+```
+
+Common misunderstanding: `__init__` initializes an already-created instance. It normally does not return the new object explicitly.
+
+Best views: **Function Journey**, **Variables**, **Structures**.
+
+### Inheritance
+
+Inheritance lets a more specific class reuse and extend behavior from a base class.
+
+```python
+class Animal:
+    def describe(self):
+        return "Animal"
+
+class Dog(Animal):
+    def speak(self):
+        return "Woof"
+```
+
+Common misunderstanding: inheritance is not required whenever two classes interact. Use it when the new class genuinely represents a more specific form of the base class.
+
+Best views: **Function Journey**, **Call Stack**, **Structures**.
+
+### Composition
+
+Composition means one object contains or collaborates with another object. A library containing book objects is composition.
+
+```python
+library.books.append(Book("Python Basics"))
+```
+
+Common misunderstanding: composition and inheritance answer different design questions. Inheritance describes an "is a" relationship. Composition describes a "has a" relationship.
+
+Best views: **Structures**, **References**, **Function Journey**.
+
 ### List
 
 A list is an ordered, mutable collection. Positions use zero-based indexes.
@@ -3564,6 +3815,10 @@ PYTHON PROGRAM
 |       +-- mutable objects can change contents
 |       +-- aliases can share one object
 |       +-- shallow copies share nested objects
+|       +-- classes define reusable object blueprints
+|       +-- instances carry attributes and use methods
+|       +-- inheritance extends a parent class
+|       +-- composition connects one object to another
 |
 +-- communication and failure
 |       +-- input supplies strings

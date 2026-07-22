@@ -73,8 +73,11 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 - `index.html`: landing page, project introduction, starter-program dialog, shared header, and footer.
 - `workspace.html`: persistent execution workspace and all dynamic mounting points.
 - `styles.css`: complete light theme, dark theme, responsive layout, editor presentation, graphs, panels, and controls.
-- `app.js`: application state, editor setup, examples, playback, learning views, graph rendering, persistence, and UI events.
+- `app.js`: application state, editor setup, the original reviewed example set, playback, learning views, graph rendering, persistence, and UI events.
+- `curriculum.js`: the additional curriculum examples that blend with the reviewed base set to form the 134-program library.
 - `py-worker.js`: isolated Pyodide runtime, Python tracing harness, safe serialization, input handling, and execution limits.
+- `scripts/validate-curriculum.mjs`: structural curriculum validator and detached-example exporter.
+- `scripts/validate_curriculum.py`: Python compile-and-run validator for all detached examples and their documented intentional errors.
 - `favicon.svg`: code-themed browser-tab icon shared by both pages.
 - `README.md`: public beginner guide for using Code Explorer and understanding its features.
 - `SKILLS.md`: internal project knowledge, capability ledger, recurring implementation recipes, and verification guidance.
@@ -205,17 +208,23 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 
 ### Starter library checks
 
-- Confirm the library contains exactly 54 examples across the documented seven categories.
-- Confirm category counts are 8 Foundations, 7 Decisions, 11 Loops, 8 Functions and Scope, 10 Collections, 4 References and Mutation, and 6 Input and Debugging.
-- Confirm difficulty counts are 19 Beginner, 22 Developing, and 13 Guided Challenge.
-- Parse every example as Python before shipping.
-- Execute every example with its prepared input and confirm only the three intentional debugging programs stop with their documented exceptions.
+- Confirm the blended library contains exactly 134 examples: 54 reviewed base examples and 80 additional curriculum examples.
+- Confirm category counts are 10 First Steps, 10 Variables and Types, 10 Operators and Expressions, 8 Strings, 12 Decisions, 16 Loops, 16 Functions and Scope, 16 Collections, 8 References and Mutation, 8 Input, Errors and Debugging, 8 Classes and Objects, and 12 Guided Mini Programs.
+- Confirm difficulty counts are 46 Beginner, 56 Developing, and 32 Guided Challenge.
+- Confirm all 12 guided programs retain their documented prerequisite lists and appear as fixed recommended checkpoints. Never describe their position as evidence that a learner completed earlier work.
+- Confirm at least the documented 20 programs remain 15 lines or longer and that longer programs still progress coherently from setup to result.
+- Run `node scripts/validate-curriculum.mjs --export /tmp/code-explorer-curriculum.json` to validate metadata, unique titles, counts, checkpoint placement, and the intentional-error contract.
+- Run `python3 scripts/validate_curriculum.py /tmp/code-explorer-curriculum.json` to compile and execute every program with its prepared input.
+- Confirm only the three explicitly labeled investigation programs stop with their exact documented exception types. An accidental syntax or runtime error in any other program blocks release.
+- Remove the temporary detached-example export after validation.
 - Confirm cards display accurate line counts and filters report accurate visible and total counts.
-- Confirm all eight filter choices, including All, are visible through vertical scrolling and never require horizontal scrolling.
+- Confirm all 13 filter choices, including All, are visible through vertical scrolling and never require horizontal scrolling.
 - Confirm each filter shows its exact category count and selecting one returns the program list to its first card.
 - Confirm the desktop sidebar and card list scroll independently.
 - Confirm the mobile category region stacks above one-column cards, card text remains inside each card, and the page has no horizontal overflow.
-- Inspect Story, the primary specialist views, output, and generated learning comments across representative short and 15 to 20 line examples.
+- Inspect Story, the primary specialist views, output, and generated learning comments across representative one-line, focused, 15-to-20-line, longer guided, intentional-error, and class-based examples.
+- Confirm class instances display stable labels such as `<Pet instance>` instead of physical-looking default memory addresses.
+- Confirm bounded instance attributes appear in Variables, Structures, Mutation Explorer, and References without bypassing serialization depth, item, cycle, or graph-size limits.
 
 ## Documentation synchronization
 

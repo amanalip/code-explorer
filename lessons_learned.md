@@ -112,6 +112,9 @@ Vertical curriculum navigation and inline study comments in v3
           |
           v
 Explicit permanent no-analytics project rule
+          |
+          v
+Blended 134-program curriculum and inspectable object state in v4
 ```
 
 # Lessons learned by the user
@@ -992,7 +995,7 @@ Accurate
 
 Aman deserves explicit credit for catching this privacy and language inconsistency. The correction protects the permanent no-analytics rule while still allowing the site to provide a useful beginner route. It also demonstrates why privacy review must inspect product wording, not only network code.
 
-Status: Explored curriculum rule. No curriculum expansion or progress feature has been implemented from this discussion.
+Status: Implemented in v4. The All view now uses a fixed recommended sequence with prerequisite labels and no progress collection, readiness calculation, completion claim, or locked lesson.
 
 ## 54. Expanding a curriculum should preserve and blend proven examples
 
@@ -1029,7 +1032,74 @@ One blended curriculum with no accidental coverage loss
 
 This is not a promise that every existing title must remain unchanged. It is a promise that expansion starts with a coverage inventory and migration plan rather than deleting a tested corpus and rebuilding from memory. Aman deserves credit for requiring that clarification before development, especially for calling out errors and other easy-to-miss concepts.
 
-Status: Explored curriculum rule. The current implemented library remains the original 54 examples.
+Status: Implemented in v4. The reviewed 54-program corpus was blended with 80 additional programs, and its important debugging, recursion, input, collection, and mutation coverage remains represented in the 134-program curriculum.
+
+## 55. Guided programs should integrate concepts into a meaningful result
+
+Aman asked for more guided mini programs and rejected the idea of adding cheap examples merely to raise a number. He wanted the source to become longer where useful so a beginner could experience increasing complexity and finish feeling capable rather than overwhelmed.
+
+That led to a practical quality test for every guided checkpoint:
+
+```text
+Clear task
+    |
+    +-- recognizable data
+    +-- two or more earlier concepts
+    +-- visible state changes
+    +-- useful final output
+    +-- coherent beginning, middle, and end
+    |
+    v
+Small complete program
+```
+
+Length is not quality by itself. A 25-line program that tells one understandable story is better than 25 unrelated statements. v4 therefore uses 12 guided programs ranging from 18 through 31 lines, including a cafe bill, gradebook, expense summary, attendance report, library tracker, resilient order flow, and object-oriented pet tracker.
+
+Aman deserves credit for insisting that examples should build confidence rather than decorate the catalog. The correction to Codex is permanent: curriculum expansion must be evaluated by learning progression and program coherence, not only counts.
+
+Status: Implemented in v4.
+
+## 56. Intentional errors must be unmistakable before execution
+
+Error examples are valuable, but a complete beginner may interpret a planned exception as proof that the site or lesson is broken. The earlier 54-program library contained three important debugging cases. Preserving them in a larger curriculum required a stronger contract than a descriptive title.
+
+v4 gives each intentional failure:
+
+- A visible learning-error badge on its card
+- The exact expected exception type
+- Structural validation of the declaration
+- Runtime validation that the declared exception actually occurs
+
+Every other example must compile and finish with its prepared input. This creates a clean distinction:
+
+```text
+Declared investigation       Ordinary lesson
++-- warning shown first      +-- no error expected
++-- exact error named        +-- must compile
++-- exact error verified     +-- must finish
+```
+
+The learner benefit is emotional as well as technical. A beginner can explore failure with confidence because the interface has already explained that the stop is the lesson.
+
+Status: Implemented in v4.
+
+## 57. A larger catalog needs both freedom and a recommended route
+
+Aman correctly observed that 134 examples remain usable because learners can filter by concept and serious exploration is comfortable on a laptop or desktop. That does not remove the need for a beginner-friendly starting point.
+
+The resulting design supports both needs:
+
+```text
+Want guidance?                     Know the topic you need?
++-- open All                       +-- select a category
++-- follow fixed order             +-- open any card
++-- read prerequisites             +-- skip or revisit freely
++-- meet guided checkpoints        +-- no lock and no profile
+```
+
+This balances a comprehensive library with learner autonomy. The vertical navigator keeps all category subsections accessible without sideways scrolling, while the All view creates a route without pretending to personalize it.
+
+Status: Implemented in v4.
 
 # Lessons learned by Codex
 
@@ -1276,7 +1346,7 @@ When adding a feature, the example library should be used to identify:
 - Runtime errors
 - Syntax errors
 
-Automatic Learning Comments should be tested against all 54 examples because the full curriculum exercises different explanation patterns, repeated lines, nested decisions, calls, collections, aliases, inputs, and intentional runtime errors.
+Automatic Learning Comments should be tested against all 134 examples because the full curriculum exercises different explanation patterns, repeated lines, nested decisions, calls, collections, aliases, inputs, intentional runtime errors, class definitions, and object attributes.
 
 ## 20. Do not describe implementation as complete until browser behavior is verified
 
@@ -1408,7 +1478,7 @@ The project learned from broken navigation, weak theme contrast, graph shaking, 
 - Building a dedicated workspace
 - Grouping views by learner question
 - Using a worker for safe execution
-- Providing 54 focused examples with filters and learning ladders
+- Growing from 54 focused examples to a validated 134-program curriculum with filters, recommended order, and learning ladders
 - Creating extensive guided documentation
 - Adding persistent contributor knowledge
 - Performing code-to-document sanity checks
@@ -1497,7 +1567,7 @@ AUTOMATED CHECKS                 HUMAN READING
 
 ## 36. A full example corpus is a regression suite, not only content
 
-The 54 programs collectively exercise more behavior than a small hand-written test list:
+The original 54 programs already exercised more behavior than a small hand-written test list. The blended 134-program corpus expands that regression surface:
 
 - Assignments and conversions
 - Boolean logic and nested branches
@@ -1506,6 +1576,9 @@ The 54 programs collectively exercise more behavior than a small hand-written te
 - Lists, tuples, sets, dictionaries, and nested structures
 - Aliases, mutation, reassignment, and shallow copies
 - Prepared input and three intentional error types
+- First statements, values, operators, and strings
+- Classes, instances, methods, attributes, inheritance, and composition
+- Twelve guided programs that combine several earlier concepts
 
 Running the entire corpus found integration problems that isolated unit examples could miss. Future trace metadata or explanation changes should keep this corpus executable as a standard regression step.
 
@@ -1541,18 +1614,21 @@ This boundary should remain stable when more explanation patterns are added.
 
 Updating five documents independently creates a real risk of inconsistent counts, statuses, labels, dates, and limits. A final audit must search for stale facts and compare each document with executable source.
 
-For this release, the important cross-file invariants are:
+For the current release, the important cross-file invariants are:
 
-- 54 total examples
-- Seven exact category counts
-- Three exact difficulty counts
-- Twelve 15 to 20 line programs
+- 134 total examples formed from 54 reviewed base examples and 80 additions
+- Twelve exact category counts totaling 134
+- Difficulty totals of 46 Beginner, 56 Developing, and 32 Guided Challenge
+- Twenty programs of at least 15 lines
+- Twelve guided checkpoints from 18 through 31 lines with listed prerequisites
 - Three intentional error examples
 - Automatic Learning Comments marked implemented, not approved next
 - 3,000 trace steps and 30 seconds
-- v1 dated 2026-07-20, v2 dated 2026-07-21, and v3 dated 2026-07-22
+- v1 dated 2026-07-20, v2 dated 2026-07-21, and v3 and v4 dated 2026-07-22
 - Automatic comments marked as a non-destructive v3 editor view
 - Vertical examples navigation documented without stale horizontal-scroll instructions
+- Class definitions, object attributes, stable instance labels, and bounded object serialization marked implemented in v4
+- Recommended order described as fixed guidance without learner tracking
 
 Documentation is not complete merely because every requested file changed. The files must agree with each other and with the interface.
 
@@ -1693,6 +1769,53 @@ Every existing topic should map to the new structure before new counts are treat
 
 Aman identified the ambiguity before code changed. The permanent lesson for Codex is to say "blend and expand" explicitly when that is the plan, and to verify preservation through a title, topic, feature, and regression mapping.
 
+## 48. Object-oriented examples need observable object state
+
+Adding syntactically valid class examples would not have been enough for Code Explorer. The product promise is to reveal changing data, so a learner-defined instance must connect to the same Variables, Structures, References, and Mutation Explorer questions as a list or dictionary.
+
+The implementation therefore serializes a bounded instance attribute mapping when a safe `__dict__` is available. It does not bypass the existing depth, item, cycle, shortening, or graph-size protections.
+
+```text
+class example runs
+       |
+       +-- class definition gets a structural learning note
+       +-- instance gets a stable teaching label
+       +-- safe attributes enter bounded serialized data
+       +-- existing views reuse that data
+```
+
+This is a reusable test for feature completeness: when a new language concept is added, ask whether the existing learning views can reveal the concept's important runtime state rather than merely execute its syntax.
+
+## 49. Default object representations can teach the wrong memory lesson
+
+Python's default instance representation includes a hexadecimal process address. Displaying it inside a conceptual beginner tool can make a temporary implementation detail look like a permanent object identity or a precise RAM map.
+
+v4 normalizes default representations such as `<__main__.Pet object at 0x...>` to `<Pet instance>`. Learner-defined `__repr__` output remains useful, but the default physical-looking address is removed.
+
+The lesson is broader than visual polish. Interface text can make an inaccurate conceptual claim even when the underlying runtime value is technically real. Beginner tools should expose the stable fact, the instance type, and avoid elevating incidental addresses into learning content.
+
+## 50. Large content validation benefits from separate structural and runtime stages
+
+The first validator design attempted to launch the Python corpus runner from the JavaScript structural validator. In the restricted development environment, that combined process did not complete reliably. Treating the timeout as proof of a curriculum error would have been dishonest.
+
+The corrected workflow separates responsibilities:
+
+```text
+JavaScript validator
++-- import real application modules
++-- check counts, titles, metadata, prerequisites, expected errors
++-- export detached JSON
+             |
+             v
+Python validator
++-- compile every source
++-- supply prepared input
++-- execute with a per-program alarm
++-- match exact intentional exception types
+```
+
+This separation makes failures easier to diagnose and prevents one mistaken infinite loop from stalling the whole audit. The permanent lesson is to distinguish a harness or environment failure from a learner-program failure, then strengthen the harness instead of lowering the quality claim.
+
 # Shared lessons for future work
 
 ## The reliability checklist
@@ -1767,7 +1890,7 @@ Reusable discovery, mistake, decision, or success occurred?
 | Automatic Learning Comments export preview | Implemented in v2 |
 | Automatic comments inline editor view | Implemented in v3 |
 | Examples category navigation | Vertical sidebar on desktop and stacked vertical region on mobile in v3 |
-| Larger beginner curriculum | Explored only; preserve and blend the implemented 54 examples before adding new lessons |
+| Larger beginner curriculum | Implemented in v4 as 134 blended programs across 12 categories |
 | Curriculum progress language | Use a fixed recommended order and prerequisite labels; do not imply observed completion or readiness |
 | Analytics and telemetry | Permanently prohibited; no consent-based analytics exception |
 | Learner data uploads | Prohibited; source, input, traces, output, clipboard, watches, bookmarks, and preferences remain local |

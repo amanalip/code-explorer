@@ -3104,11 +3104,19 @@ main {
   font-size: 1.8rem;
 }
 
+/* Explains the fixed curriculum route without suggesting stored learner progress. */
+.dialog-intro {
+  margin: 9px 0 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
 /* Divides category navigation from the independently scrolling program-card region. */
 .example-browser-body {
   display: grid;
   min-height: 0;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 285px minmax(0, 1fr);
 }
 
 /* Places categories in a stable vertical sidebar that never needs horizontal scrolling. */
@@ -3121,6 +3129,14 @@ main {
   overflow-y: auto;
   border-right: 1px solid var(--line);
   background: var(--panel-soft);
+}
+
+/* Labels the sidebar as a recommendation rather than a completion tracker. */
+.example-curriculum-label {
+  color: var(--text-dim);
+  font: 700 0.58rem/1.2 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 /* Stacks every category in the natural top-to-bottom reading direction. */
@@ -3213,7 +3229,7 @@ main {
 /* Styles `.example-card`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment, motion and interaction feedback for the matching interface element. */
 .example-card {
   display: flex;
-  min-height: 210px;
+  min-height: 220px;
   flex-direction: column;
   padding: 20px;
   border: 1px solid var(--line);
@@ -3225,6 +3241,19 @@ main {
   text-decoration: none;
   cursor: pointer;
   transition: 160ms ease;
+}
+
+/* Guided checkpoints receive extra room and a subtle accent because they show prerequisites. */
+.example-card.guided-checkpoint {
+  min-height: 285px;
+  border-color: color-mix(in srgb, var(--amber) 42%, var(--line));
+  background: color-mix(in srgb, var(--amber) 5%, var(--bg-raised));
+}
+
+/* A stronger checkpoint hover preserves the card's project identity during selection. */
+.example-card.guided-checkpoint:hover {
+  border-color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 9%, var(--bg-raised));
 }
 
 /* Aligns the topic and difficulty labels at opposite sides of every card. */
@@ -3244,6 +3273,7 @@ main {
 
 /* Styles `.example-topic`. This component rule controls color and visual emphasis, typography, motion and interaction feedback for the matching interface element. */
 .example-topic {
+  min-width: 0;
   color: var(--purple);
   font: 600 0.6rem/1 var(--mono);
   letter-spacing: 0.1em;
@@ -3252,6 +3282,7 @@ main {
 
 /* Uses a quiet badge to communicate the assumed experience level before selection. */
 .example-level {
+  flex-shrink: 0;
   padding: 5px 7px;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -3260,10 +3291,11 @@ main {
   font: 600 0.54rem/1 var(--mono);
   letter-spacing: 0.07em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
-/* Gives intermediate programs a distinct purple cue without suggesting an error state. */
-.example-level.intermediate {
+/* Gives developing programs a distinct purple cue without suggesting an error state. */
+.example-level.developing {
   border-color: color-mix(in srgb, var(--purple) 44%, var(--line));
   color: var(--purple);
 }
@@ -3285,6 +3317,47 @@ main {
   margin: 0;
   color: var(--text-soft);
   line-height: 1.5;
+}
+
+/* Clearly identifies examples that intentionally stop for an Error Coach lesson. */
+.example-warning {
+  width: fit-content;
+  margin-top: 13px;
+  padding: 5px 7px;
+  border: 1px solid color-mix(in srgb, var(--red) 48%, var(--line));
+  border-radius: 999px;
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 7%, var(--bg-raised));
+  font: 700 0.52rem/1 var(--mono);
+  letter-spacing: 0.06em;
+}
+
+/* Stacks checkpoint prerequisites as fixed guidance, never as recorded progress. */
+.example-prerequisites {
+  display: grid;
+  gap: 5px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+/* Hides optional metadata completely when a normal concept card does not supply it. */
+.example-prerequisites[hidden],
+.example-warning[hidden] {
+  display: none;
+}
+
+/* Uses the same quiet metadata language as best-view recommendations. */
+.example-prerequisites > span {
+  color: var(--text-dim);
+  font: 600 0.52rem/1 var(--mono);
+  letter-spacing: 0.1em;
+}
+
+/* Prerequisite concept names remain readable in both themes and can wrap naturally. */
+.example-prerequisites strong {
+  color: var(--amber);
+  font: 600 0.62rem/1.45 var(--mono);
 }
 
 /* Anchors view recommendations to the card bottom so rows remain visually aligned. */
@@ -3819,7 +3892,12 @@ main {
      A real minimum is important here because a constrained CSS Grid can
      otherwise shrink button rows and let their text overlap neighboring cards. */
   .example-card {
-    min-height: 190px;
+    min-height: 224px;
+  }
+
+  /* Mobile checkpoint cards retain enough height for purpose, prerequisites, and views. */
+  .example-card.guided-checkpoint {
+    min-height: 330px;
   }
 
   /* Comment controls stack above the preview on phones while retaining native keyboard behavior. */
