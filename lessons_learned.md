@@ -1252,6 +1252,45 @@ This is a user lesson because the product observation came from looking at the f
 
 Status: Implemented in v4 with a light and dark IDE-style study view, visible Trace note labels, bounded mobile scrolling, and presentation-only chrome.
 
+## 64. Product boundaries become clearer when two perspectives test the same idea
+
+The data-structure discussion contributed two necessary perspectives. Aman introduced the learning direction and then tested whether it still served Code Explorer's main purpose. Codex explored how the existing trace, object, mutation, and graph capabilities could support the subject. Neither perspective was sufficient alone: the technical map showed what was possible, while the boundary question showed what was appropriate.
+
+That question revealed an important boundary:
+
+```text
+Code Explorer's purpose
+Show what Python does to values, objects, references, and control flow
+                |
+                +-- Python data-structure operations
+                |      strengthen the purpose
+                |
+                +-- Curated classical structures written in Python
+                |      can strengthen the purpose when bounded
+                |
+                +-- A universal algorithm animation platform
+                       would create a different and much larger product
+```
+
+Lists, dictionaries, sets, stacks, queues, linked nodes, and small trees fit when the learner can connect ordinary Python source to an observed structural change. A large catalog of abstract algorithms, automatic semantic guessing, formal complexity analysis, and a separate interface for every structure would move the project away from its current beginner trace focus.
+
+The shared product lesson is to test adjacency against purpose. A feature can be educational and technically possible while still being the wrong size or shape for the product. Broad exploration is useful because it exposes possibilities and hidden costs. Boundary testing is equally useful because it turns that exploration into an intentional decision.
+
+```text
+One person proposes a direction
+              +
+Another maps possibilities and constraints
+              +
+Both challenge scope and purpose
+              |
+              v
+A better decision than either first position alone
+```
+
+Credit belongs to the conversation: Aman identified the subject and insisted on a purpose check; Codex connected it to the current architecture and separated the easy, moderate, difficult, and unreliable forms. The conclusion was produced together, not by declaring one participant right and the other wrong.
+
+Status: Explored. A bounded data-structure expansion is aligned, but no development is approved. A universal data-structure and algorithm platform is outside the current scope.
+
 # Lessons learned by Codex
 
 ## 1. Do not confuse technical possibility with a reliable product promise
@@ -2015,6 +2054,37 @@ The permanent Codex lesson is to test optional learning surfaces for comprehensi
 
 Status: Implemented and verified with the default loop program and the longer Object-Oriented Pet Care Tracker at desktop and 390 by 844 mobile widths.
 
+## 53. Separate possibility mapping from scope approval
+
+The first broad Data Structure Lab outline was useful as a possibility map. It exposed how built-in collections, stacks, queues, linked lists, trees, heaps, graphs, traversal, invariants, and complexity might connect to existing Code Explorer capabilities. It was not yet a project recommendation. Aman's follow-up purpose question supplied the missing evaluation stage and turned the map into a bounded decision.
+
+The honest difficulty map is:
+
+```text
+Curated examples using existing views
+        -> easy and low architectural risk
+
+One contextual visualizer for a declared structure
+        -> moderate and testable
+
+Linked nodes or a small tree using bounded object attributes
+        -> moderate to difficult
+
+Synchronized heap, traversal, and graph teaching systems
+        -> difficult and substantial
+
+Automatic interpretation of arbitrary pasted code
+        -> unreliable without explicit learner intent or a narrow contract
+```
+
+A Python list does not reveal whether the learner intends it to be an ordinary collection, stack, queue, work list, or history. Class names such as `Node` do not prove that an object is part of a linked list or tree. Reliable visualizations therefore need curated example metadata, an explicit learner-selected interpretation, or a documented structural contract. Guessing from names would violate the project's conservative explanation rule.
+
+The jointly reached boundary is to keep the existing workspace and add depth contextually inside Data views. If development is approved later, begin with a small proof of concept that uses curated metadata and existing trace snapshots. Do not create a new permanent top-level system or promise support for arbitrary implementations.
+
+The permanent Codex lesson is not to suppress broad exploration. It is to label its stage accurately. A possibility map should be followed by a product-fit discussion, a difficulty gradient, and the smallest experiment that could test the shared assumptions safely. The technical exploration and the user's boundary challenge are complementary parts of that process.
+
+Status: Recorded as an explored boundary. No data-structure feature is approved or implemented.
+
 # Shared lessons for future work
 
 ## The reliability checklist
@@ -2101,6 +2171,7 @@ Reusable discovery, mistake, decision, or success occurred?
 | Read and write highlighting | Explored for later |
 | Learning autocomplete | Explored for later |
 | Smart fold summaries | Explored for later |
+| Data-structure learning expansion | Aligned only as a bounded extension of Python tracing; no build approved; avoid universal auto-detection and a separate algorithm platform |
 | Classical algorithm visualizations | Deferred |
 | Trace-store redesign | Deferred |
 | Other programming languages | Explored, no build approved |
