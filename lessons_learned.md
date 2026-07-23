@@ -1291,6 +1291,32 @@ Credit belongs to the conversation: Aman identified the subject and insisted on 
 
 Status: Explored. A bounded data-structure expansion is aligned, but no development is approved. A universal data-structure and algorithm platform is outside the current scope.
 
+## 65. A large idea becomes discussable when its scope is preserved outside the code
+
+The discussion moved from a single contextual data-structure view to a separate Data Structures workspace that could reuse Code Explorer's reliable foundations without crowding the existing Python workspace. Aman then selected Tier A as the only current discussion target and asked that all three tiers be preserved before any code began.
+
+Codex contributed the technical and curriculum inventory. Aman contributed the separation-of-concerns model, the instruction to focus on Tier A, and the requirement that planning remain distinct from implementation. Together these produced `Tier.md` as a shared reference rather than an accidental feature promise.
+
+The reusable lesson is:
+
+```text
+Large possibility space
+        |
+        v
+Write explicit tiers and boundaries
+        |
+        v
+Mark current approval state
+        |
+        v
+Discuss one tier without losing later ideas
+        |
+        v
+Build only after a separate decision
+```
+
+Status: Tier A is approved for feature discussion only. No Data Structures workspace code is approved or implemented.
+
 # Lessons learned by Codex
 
 ## 1. Do not confuse technical possibility with a reliable product promise
@@ -2085,6 +2111,22 @@ The permanent Codex lesson is not to suppress broad exploration. It is to label 
 
 Status: Recorded as an explored boundary. No data-structure feature is approved or implemented.
 
+## 54. A roadmap must distinguish inventory, approval, and implementation
+
+The Tier A, B, and C catalog is intentionally broader than the current development scope. Without explicit status language, a long roadmap can be misread as a promise that every listed item will be built automatically.
+
+`Tier.md` therefore separates three facts:
+
+```text
+Listed       -> preserved as a candidate
+Approved     -> selected through discussion
+Implemented  -> built, verified, and documented
+```
+
+The permanent Codex lesson is to preserve ambitious ideas without converting them into hidden commitments. A future contributor should be able to recover the complete discussion while still knowing exactly what exists today.
+
+Status: Implemented as a documentation and planning rule. Tier A remains discussion-only.
+
 # Shared lessons for future work
 
 ## The reliability checklist
@@ -2171,8 +2213,9 @@ Reusable discovery, mistake, decision, or success occurred?
 | Read and write highlighting | Explored for later |
 | Learning autocomplete | Explored for later |
 | Smart fold summaries | Explored for later |
-| Data-structure learning expansion | Aligned only as a bounded extension of Python tracing; no build approved; avoid universal auto-detection and a separate algorithm platform |
-| Classical algorithm visualizations | Deferred |
+| Data-structure learning expansion | A separate workspace is approved for Tier A feature discussion only; no code is approved or implemented |
+| Data Structures tier reference | `Tier.md` preserves Tier A, B, and C; only Tier A is under discussion |
+| Classical algorithm visualizations | Recorded in `Tier.md`; implementation remains unapproved |
 | Trace-store redesign | Deferred |
 | Other programming languages | Explored, no build approved |
 | DevOps learning tools | Explored as separate or future tools |

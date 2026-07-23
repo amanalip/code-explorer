@@ -83,6 +83,7 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 - `SKILLS.md`: internal project knowledge, capability ledger, recurring implementation recipes, and verification guidance.
 - `lessons_learned.md`: living post-mortem containing reusable product and engineering lessons from the user and Codex perspectives.
 - `changelog.md`: dated learner-visible release history, verification notes, compatibility boundaries, and upgrade guidance.
+- `Tier.md`: planning reference for the proposed separate Data Structures workspace, including Tier A, B, and C boundaries. Listed items are not implemented claims.
 - `LICENSE`: GPL license text. Do not modify it while adding explanatory material.
 
 ## Required workflow for every change

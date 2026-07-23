@@ -22,6 +22,8 @@ Recorded execution
 
 The tool records a bounded execution first and then replays it. Playback breakpoints and timeline controls navigate the recorded trace. They do not pause the original Python interpreter.
 
+`Tier.md` records the explored Tier A, B, and C curriculum for a possible separate Data Structures workspace. It is a planning reference only. Do not treat a listed structure or algorithm as approved or implemented unless the current task and learner-visible documentation say so explicitly.
+
 ## Current capability ledger
 
 ### Landing and navigation
