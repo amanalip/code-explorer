@@ -24,9 +24,9 @@
     <link rel="preconnect" href="https://esm.sh" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <!-- The synchronized version query prevents stale cross-workspace styling. -->
-    <link rel="stylesheet" href="styles.css?v=20260723-3" />
+    <link rel="stylesheet" href="styles.css?v=20260723-4" />
   </head>
-  <body>
+  <body class="dsa-page">
     <!-- The shared decorative layer never enters the accessibility tree. -->
     <div class="ambient-grid" aria-hidden="true"></div>
 
@@ -137,8 +137,34 @@
             <!-- The reusable controller mounts CodeMirror or a native fallback here. -->
             <div class="editor-shell" id="dsaEditorShell">
               <div id="dsaEditor" aria-label="DSA Python code editor"></div>
-              <!-- The read-only teaching copy replaces only the editor surface, never the source document. -->
-              <pre class="dsa-automatic-preview hidden" id="dsaAutomaticPreview" aria-label="Read-only automatically commented Python"></pre>
+              <!--
+                The read-only teaching copy replaces only the editor surface.
+                Its IDE chrome, line numbers, note bands, and status text remain
+                presentation only and never enter learner source or copied code.
+              -->
+              <section
+                class="dsa-automatic-preview hidden"
+                id="dsaAutomaticPreview"
+                aria-label="Read-only automatically commented Python"
+              >
+                <div class="learning-comments-editor-chrome" aria-hidden="true">
+                  <span class="learning-editor-lights"><i></i><i></i><i></i></span>
+                  <span class="learning-editor-tab"><b>PY</b> main.py <em>with DSA notes</em></span>
+                  <span class="learning-editor-mode">Read only</span>
+                </div>
+                <div
+                  class="learning-comments-preview"
+                  id="dsaAutomaticPreviewDocument"
+                  tabindex="0"
+                  role="region"
+                  aria-label="Automatically commented DSA Python preview"
+                ></div>
+                <div class="learning-comments-status" aria-hidden="true">
+                  <span>Python 3</span>
+                  <span id="dsaAutomaticLineCount">0 lines</span>
+                  <span>Original source unchanged</span>
+                </div>
+              </section>
             </div>
             <!-- Statistics always describe original source, never future presentation overlays. -->
             <div class="editor-footer">
@@ -151,7 +177,7 @@
           <section class="panel story-panel dsa-learning-panel">
             <!-- Four areas are generated from one validated contract. -->
             <nav class="learning-mode-nav" id="dsaAreaNav" aria-label="DSA learning area"></nav>
-            <!-- Tabs change with the active area and remain horizontally bounded by wrapping. -->
+            <!-- Tabs stay on one horizontal row at desktop widths and scroll only on narrow screens. -->
             <div class="panel-header tabs-header">
               <div class="panel-tabs dsa-view-tabs" id="dsaViewTabs" role="tablist" aria-label="DSA learning view"></div>
               <span class="step-count" id="dsaStepCount">STEP 00 / 00</span>
@@ -162,15 +188,15 @@
 
           <!-- Playback controls navigate the completed recording without rerunning Python. -->
           <section class="panel dsa-playback-panel" aria-label="DSA trace playback">
-            <div class="playback-buttons">
-              <button id="dsaPreviousButton" type="button" disabled aria-label="Previous DSA trace step">←</button>
+            <div class="playback-controls dsa-playback-controls">
+              <button class="control-button" id="dsaPreviousButton" type="button" disabled aria-label="Previous DSA trace step">←</button>
               <button id="dsaPlayButton" class="play-button" type="button" disabled aria-label="Play DSA trace">▶</button>
-              <button id="dsaNextButton" type="button" disabled aria-label="Next DSA trace step">→</button>
-              <button id="dsaRestartButton" type="button" disabled aria-label="Restart DSA trace">↺</button>
+              <button class="control-button" id="dsaNextButton" type="button" disabled aria-label="Next DSA trace step">→</button>
+              <button class="control-button restart-button" id="dsaRestartButton" type="button" disabled aria-label="Restart DSA trace">↺</button>
             </div>
-            <div class="timeline-wrap">
+            <div class="progress-area dsa-progress-area">
               <input id="dsaTimeline" type="range" min="0" max="0" value="0" disabled aria-label="DSA execution step" />
-              <div class="timeline-labels"><span>START</span><span id="dsaProgressLabel">0%</span><span>END</span></div>
+              <div class="progress-labels"><span>START</span><span id="dsaProgressLabel">0%</span><span>END</span></div>
             </div>
             <label class="speed-control" for="dsaSpeedSelect">
               <span>SPEED</span>
@@ -245,21 +271,39 @@
 
     <!-- The study-copy dialog keeps generated comments separate from editable source. -->
     <dialog class="learning-comments-dialog dsa-comments-dialog" id="dsaCommentsDialog">
-      <div class="dialog-header">
+      <div class="dialog-header learning-comments-header">
         <div>
           <span class="eyebrow"><span></span> Trace-powered study copy</span>
-          <h2>DSA Learning Comments</h2>
+          <div class="learning-comments-title-row">
+            <h2>DSA Learning Comments</h2>
+            <span class="learning-comments-readonly">Read only</span>
+          </div>
           <p class="dialog-intro">Observed Python notes and reviewed curriculum context remain visibly distinct.</p>
         </div>
         <button class="dialog-close" id="dsaCloseCommentsButton" type="button" aria-label="Close DSA learning comments">×</button>
       </div>
-      <div class="dsa-comment-preview-shell">
-        <div class="dsa-comment-preview-bar">
-          <span>main.commented.py</span>
-          <span>READ ONLY</span>
+      <!-- The IDE-like shell is a safe presentation layer around the exact generated document. -->
+      <section class="learning-comments-editor dsa-comment-preview-shell" aria-label="Read-only DSA commented Python study editor">
+        <div class="learning-comments-editor-chrome" aria-hidden="true">
+          <span class="learning-editor-lights"><i></i><i></i><i></i></span>
+          <span class="learning-editor-tab"><b>PY</b> main.py <em>with DSA notes</em></span>
+          <span class="learning-editor-mode">Study view</span>
         </div>
-        <pre id="dsaCommentPreview"></pre>
-      </div>
+        <div
+          class="learning-comments-preview"
+          id="dsaCommentPreview"
+          tabindex="0"
+          role="region"
+          aria-label="Commented DSA Python preview"
+        ></div>
+        <div class="learning-comments-status" aria-hidden="true">
+          <span>Python 3</span>
+          <span id="dsaCommentLineCount">0 lines</span>
+          <span>UTF-8</span>
+          <span>LF</span>
+          <span>DSA notes visible</span>
+        </div>
+      </section>
       <div class="learning-comments-footer">
         <p><strong>Your original stays unchanged.</strong> Replacing the editor requires confirmation.</p>
         <div>
@@ -273,6 +317,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- One version keeps this page aligned with its contracts and shared modules. -->
-    <script type="module" src="dsa-app.js?v=20260723-3"></script>
+    <script type="module" src="dsa-app.js?v=20260723-4"></script>
   </body>
 </html>

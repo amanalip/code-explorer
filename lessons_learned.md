@@ -2650,6 +2650,57 @@ After adding 66 programs, the correct status changed from 131 of 535 with 404 re
 
 Updating one label is not synchronization. The release is complete only when source, validators, visible counts, and every current-status document agree. Historical v6 and Chunk 1 entries remain unchanged because they describe what was true at that release.
 
+# DSA interface correction lessons learned by the user
+
+## 77. Horizontal reading can be the right choice when the panel is given enough room
+
+Perspective:
+- User
+
+The first proposed repair considered a stable two-row tab layout. Aman corrected that direction. For these short DSA view names, one horizontal row is easier to scan on a laptop. The real problem was not horizontal navigation itself. The problem was placing a horizontal set inside a panel that was too narrow and allowing the browser to wrap it accidentally.
+
+That correction led to a better sequence:
+
+```text
+Need several related DSA view labels
+        |
+        +-- widen the desktop workspace
+        +-- give the learning panel enough minimum width
+        +-- keep labels on one stable row
+        +-- stack source and learning panels before they become cramped
+        +-- use bounded tab-strip scrolling only on a narrow phone
+```
+
+Credit belongs to the user for distinguishing an intentional horizontal reading path from unwanted page-level sideways scrolling. The reusable lesson is to ask which boundary is wrong before changing the navigation model.
+
+# DSA interface correction lessons learned by Codex
+
+## 78. Similar controls need the same structural classes, not merely similar intentions
+
+Perspective:
+- Codex
+
+The broken DSA playback bar used the correct conceptual controls, but its previous, next, and restart buttons were missing the shared control class. Its wrapper also lacked the flex contract used by the working Python playback bar. The browser therefore rendered a pile of default controls rather than one designed group.
+
+The correction was structural:
+
+```text
+shared button class
+        +
+dedicated grouped wrapper
+        +
+flexible timeline column
+        +
+fixed speed control
+        |
+        v
+stable playback bar
+```
+
+The same lesson applied to generated comments. Reusing a background color was not enough to create an IDE-like learning experience. Both DSA comment surfaces now reuse one safe presentation model: file chrome, read-only status, visual line numbers, syntax spans, note bands, and a status strip. Copy and replacement still use the plain generated document rather than reading from visual DOM.
+
+The prevention rule is simple: when a second workspace promises parity with an existing control, compare its HTML structure, CSS classes, state flow, copy boundary, and browser behavior. Matching labels alone do not provide feature parity.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

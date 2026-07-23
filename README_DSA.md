@@ -153,6 +153,32 @@ DATA STRUCTURES AND ALGORITHMS WORKSPACE
     +-- clear visual output without changing the program
 ```
 
+### Workspace layout
+
+The DSA workspace uses a wider desktop boundary than the Python workspace because a structure or algorithm view often needs to sit beside the source that produced it.
+
+```text
+WIDE LAPTOP OR DESKTOP
+
++-------------------------+  +----------------------------------+
+| Python source           |  | TRACE | DATA | FLOW | LABS       |
+| editor or study preview |  | one horizontal view-label row    |
+|                         |  | current evidence and explanation |
++-------------------------+  +----------------------------------+
+
+NARROW LAPTOP OR PHONE
+
++---------------------------------------------------------------+
+| Python source or study preview                                |
++---------------------------------------------------------------+
+| TRACE | DATA | FLOW | LABS                                    |
+| one horizontal view-label row                                 |
+| the label strip scrolls inside this panel only when necessary |
++---------------------------------------------------------------+
+```
+
+At a wide laptop size, source and the selected learning view appear beside each other. Before either column becomes too narrow, the panels stack vertically. View names never break into an accidental second row. On a narrow phone, the view-label strip keeps one horizontal row and can scroll inside its own boundary. The complete page does not scroll sideways.
+
 ## The 197-program curriculum
 
 ### Exact implemented counts
@@ -295,6 +321,8 @@ The code editor highlights the selected source line. Output is shown only when t
 
 Playback is a review of recorded evidence. It does not re-execute Python at every slider position.
 
+The four navigation buttons remain one grouped row. On a wide screen, the timeline receives the flexible middle region and Speed stays at the right. On a phone, the timeline moves to its own complete row below the buttons so its labels and slider never collide.
+
 ## Evidence labels and honesty
 
 Every important explanation uses a text label as well as color:
@@ -430,6 +458,16 @@ Original editable source
                 +-- original editor returns unchanged
 ```
 
+The visible teaching layer is formatted like a small IDE:
+
+- The file bar identifies `main.py`, the DSA note mode, and the read-only state.
+- Visual line numbers help a learner return to the matching original line.
+- Conservative syntax colors distinguish Python keywords, names, strings, numbers, constants, and operators.
+- DSA learning notes use a separate tinted row and a visible `# Code Explorer DSA:` label.
+- The status strip reports Python 3, the generated line count, and that original source remains unchanged.
+
+These elements are presentation only. Visual line numbers, colors, badges, file chrome, and status text are never inserted into the editor and are never included by normal Copy.
+
 ### Learning comments
 
 **Learning comments** opens an IDE-style read-only preview. It can:
@@ -440,6 +478,8 @@ Original editable source
 - Remove older Code Explorer DSA comment lines before creating a fresh copy.
 
 Generated comments use observed trace evidence plus reviewed context when available. Unsupported statements receive no invented explanation.
+
+The dialog uses the same safe line renderer as Automatic comments, so the two study surfaces do not drift into different visual languages. **Copy commented code** copies the real generated Python document only. **Replace editor** uses that same document, but only after explicit confirmation. The IDE frame, visual gutter, badges, syntax spans, and status strip remain outside both actions.
 
 ## Pasted-code boundary
 

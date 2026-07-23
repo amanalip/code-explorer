@@ -15,6 +15,43 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v8, 2026-07-23
+
+v8 corrects the DSA workspace interface before the next curriculum chunk. It does not add programs, views, dependencies, storage, analytics, or new network behavior.
+
+### Stable horizontal view navigation
+
+- The DSA workspace uses a wider desktop boundary so the editor and learning view both receive useful reading width.
+- Trace and Data view labels remain on one horizontal baseline rather than wrapping into an accidental second row.
+- The source and learning panels stack before either column becomes cramped.
+- On a narrow phone, only the bounded view-label strip may scroll horizontally. The complete page retains zero horizontal overflow.
+
+### Repaired playback bar
+
+- Previous, Play, Next, and Restart now use one grouped control row.
+- The timeline receives the complete flexible middle region on desktop.
+- Speed remains a fixed readable control at the right.
+- On a narrow screen, the timeline moves to its own row below the buttons.
+
+### IDE-style DSA learning comments
+
+- Automatic comments and the Learning comments dialog now share one safe line-numbered study renderer.
+- The renderer adds conservative Python syntax colors, clearly tinted DSA note rows, read-only file chrome, generated line counts, and a compact status strip.
+- Visual line numbers, syntax spans, badges, file chrome, and status text remain presentation only.
+- Normal Copy continues to copy original Python.
+- Copy commented code continues to copy the plain generated study document.
+- Replace editor still requires explicit confirmation and adopts only that same plain document.
+
+### Verification evidence
+
+- JavaScript syntax checks and repository whitespace checks passed.
+- Both the five-label Trace row and six-label Data row remained one baseline at a 1,493-pixel desktop viewport.
+- At 1,280 pixels, the panels stacked cleanly and the Data labels remained one row.
+- At 390 by 844, the tab strip used bounded internal scrolling with zero page-level horizontal overflow.
+- Playback controls shared one baseline with a 1,069-pixel desktop timeline and a 320-pixel mobile timeline.
+- A reviewed run generated 20 preview rows and 10 DSA note rows in both comment surfaces.
+- Automatic comments preserved the exact stored learner source in light and dark themes.
+
 ## v7, 2026-07-23
 
 v7 ships **Chunk 2: linear and hashed structures** for the Python Data Structures and Algorithms workspace. It adds 66 reviewed programs to the 131-program Chunk 1 foundation. The implemented catalog now contains 197 programs across nine sections. The approved Tier A destination remains 535 programs, so 338 later programs are explicitly unavailable.

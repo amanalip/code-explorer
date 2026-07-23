@@ -8,24 +8,25 @@
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260723-3";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260723-3";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260723-4";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260723-4";
 import {
   DSA_AREAS,
   DSA_CATALOG_TARGET,
   DSA_EVIDENCE_LABELS,
   DSA_STRUCTURE_TYPES,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260723-3";
+} from "./dsa-contracts.js?v=20260723-4";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260723-3";
+} from "./dsa-curriculum.js?v=20260723-4";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260723-3";
+} from "./dsa-curriculum-chunk2.js?v=20260723-4";
 import {
+  DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
   classifyDsaEvent,
   nearestCondition,
@@ -34,7 +35,7 @@ import {
   structureCandidate,
   variableChanges,
   variablesForStep,
-} from "./dsa-runtime.js?v=20260723-3";
+} from "./dsa-runtime.js?v=20260723-4";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
@@ -79,6 +80,7 @@ const els = Object.fromEntries(
     "runtimeStatus", "runtimeLabel", "themeButton", "themeLabel", "dsaExamplesButton",
     "dsaLearningCommentsButton", "dsaRunButton", "dsaEditor", "dsaEditorShell",
     "dsaWrapButton", "dsaAutomaticCommentsButton", "dsaAutomaticPreview",
+    "dsaAutomaticPreviewDocument", "dsaAutomaticLineCount",
     "dsaFontSizeSelect", "dsaCopyButton", "dsaPasteButton", "dsaCodeStats",
     "dsaAreaNav", "dsaViewTabs", "dsaViewStage", "dsaStepCount",
     "dsaPreviousButton", "dsaPlayButton", "dsaNextButton", "dsaRestartButton",
@@ -87,7 +89,8 @@ const els = Object.fromEntries(
     "dsaStructureCount", "dsaCatalogTarget", "dsaExamplesDialog",
     "dsaCloseExamplesButton", "dsaExampleFilters", "dsaExampleCount",
     "dsaExampleGrid", "dsaCommentsDialog", "dsaCloseCommentsButton",
-    "dsaCommentPreview", "dsaCopyCommentsButton", "dsaReplaceCommentsButton", "toast",
+    "dsaCommentPreview", "dsaCommentLineCount", "dsaCopyCommentsButton",
+    "dsaReplaceCommentsButton", "toast",
   ].map((id) => [id, document.getElementById(id)]),
 );
 
@@ -1042,6 +1045,98 @@ function currentCommentedSource() {
   );
 }
 
+/** Python keywords receive a familiar IDE color in both DSA study surfaces. */
+const DSA_PREVIEW_KEYWORDS = new Set([
+  "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del",
+  "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in",
+  "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while",
+  "with", "yield",
+]);
+
+/** Common Python constants remain visually distinct from ordinary variable names. */
+const DSA_PREVIEW_CONSTANTS = new Set(["True", "False", "None"]);
+
+/**
+ * Appends safe, presentation-only syntax spans for one exact Python line.
+ *
+ * This conservative tokenizer improves scanning but does not parse, validate,
+ * execute, copy, or transform Python. Unmatched characters remain text nodes.
+ *
+ * @param {HTMLElement} container Code row receiving safe text and token spans.
+ * @param {string} line Exact generated document line.
+ * @returns {void}
+ */
+function appendDsaPreviewTokens(container, line) {
+  const tokenPattern = /("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|#[^\n]*|\b[A-Za-z_]\w*\b|\b\d+(?:\.\d+)?\b|(?:\*\*|\/\/|==|!=|<=|>=|:=|->|[+\-*/%=<>!&|^~:]))/g;
+  let cursor = 0;
+  for (const match of line.matchAll(tokenPattern)) {
+    const token = match[0];
+    const start = match.index || 0;
+    if (start > cursor) container.append(document.createTextNode(line.slice(cursor, start)));
+    const span = document.createElement("span");
+    const followingText = line.slice(start + token.length);
+    if (token.startsWith("#")) span.className = "learning-token-comment";
+    else if (token.startsWith("\"") || token.startsWith("'")) span.className = "learning-token-string";
+    else if (/^\d/.test(token)) span.className = "learning-token-number";
+    else if (DSA_PREVIEW_KEYWORDS.has(token)) span.className = "learning-token-keyword";
+    else if (DSA_PREVIEW_CONSTANTS.has(token)) span.className = "learning-token-constant";
+    else if (/^\s*\(/.test(followingText)) span.className = "learning-token-function";
+    else if (/^(?:\*\*|\/\/|==|!=|<=|>=|:=|->|[+\-*/%=<>!&|^~:])$/.test(token)) span.className = "learning-token-operator";
+    else span.className = "learning-token-name";
+    span.textContent = token;
+    container.append(span);
+    cursor = start + token.length;
+    if (token.startsWith("#")) break;
+  }
+  if (cursor < line.length) container.append(document.createTextNode(line.slice(cursor)));
+  if (!line.length) container.append(document.createTextNode(" "));
+}
+
+/**
+ * Renders one generated DSA study document as a safe, line-numbered IDE view.
+ *
+ * Visual chrome and syntax spans remain outside `currentCommentedSource()`.
+ * Copy and Replace therefore continue using the exact plain generated document.
+ *
+ * @param {string} source Complete generated study source.
+ * @param {HTMLElement|null} target Scrollable preview document.
+ * @param {HTMLElement|null} lineCountTarget Presentation-only line counter.
+ * @returns {void}
+ */
+function renderDsaStudyPreview(source, target, lineCountTarget) {
+  if (!target) return;
+  const fragment = document.createDocumentFragment();
+  const lines = source.split("\n");
+  lines.forEach((line, index) => {
+    const row = document.createElement("div");
+    row.className = "learning-preview-row";
+    row.style.setProperty("--learning-preview-line", `"${index + 1}"`);
+    row.setAttribute("aria-label", `Line ${index + 1}: ${line || "blank"}`);
+    const content = document.createElement("code");
+    content.className = "learning-preview-code";
+    const trimmed = line.trimStart();
+    if (trimmed.startsWith(DSA_COMMENT_PREFIX)) {
+      row.classList.add("trace-note");
+      content.append(document.createTextNode(line.slice(0, line.length - trimmed.length)));
+      const prefix = document.createElement("span");
+      prefix.className = "learning-preview-note-prefix";
+      prefix.textContent = DSA_COMMENT_PREFIX;
+      const message = document.createElement("span");
+      message.className = "learning-preview-note-message";
+      message.textContent = trimmed.slice(DSA_COMMENT_PREFIX.length);
+      content.append(prefix, message);
+    } else {
+      appendDsaPreviewTokens(content, line);
+    }
+    row.append(content);
+    fragment.append(row);
+  });
+  target.replaceChildren(fragment);
+  if (lineCountTarget) {
+    lineCountTarget.textContent = `${lines.length} line${lines.length === 1 ? "" : "s"}`;
+  }
+}
+
 /** Shows or hides the read-only automatic-comment surface. */
 function renderAutomaticComments() {
   const available = state.learningComments.length > 0;
@@ -1055,9 +1150,14 @@ function renderAutomaticComments() {
   els.dsaAutomaticPreview.classList.toggle("hidden", !state.automaticCommentsVisible);
   els.dsaEditor.classList.toggle("hidden", state.automaticCommentsVisible);
   if (state.automaticCommentsVisible) {
-    els.dsaAutomaticPreview.textContent = currentCommentedSource();
+    renderDsaStudyPreview(
+      currentCommentedSource(),
+      els.dsaAutomaticPreviewDocument,
+      els.dsaAutomaticLineCount,
+    );
   } else {
-    els.dsaAutomaticPreview.textContent = "";
+    els.dsaAutomaticPreviewDocument.replaceChildren();
+    els.dsaAutomaticLineCount.textContent = "0 lines";
   }
 }
 
@@ -1071,7 +1171,11 @@ function toggleAutomaticComments() {
 /** Opens the read-only study-copy dialog from current evidence. */
 function openCommentsDialog() {
   if (!state.learningComments.length) return;
-  els.dsaCommentPreview.textContent = currentCommentedSource();
+  renderDsaStudyPreview(
+    currentCommentedSource(),
+    els.dsaCommentPreview,
+    els.dsaCommentLineCount,
+  );
   els.dsaCommentsDialog.showModal();
 }
 
@@ -1172,7 +1276,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260723-3", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260723-4", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;

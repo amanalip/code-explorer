@@ -218,8 +218,13 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm all 18 views render without an exception after a reviewed trace.
 - Confirm 3,000 trace steps produce the explicit limit message and retain an inspectable partial trace.
 - Confirm Automatic comments never change original editor source and Learning comments replacement requires confirmation.
+- Confirm Automatic comments and Learning comments use the same line-numbered IDE presentation while normal Copy, Copy commented code, and confirmed replacement continue using their documented plain-source targets.
+- Confirm visual gutters, syntax spans, file chrome, badges, and status text never enter copied or adopted Python.
 - Confirm Structure Canvas stops at 30 entries, Watches at 12 names, Operation Journey at 30 events, Algorithm Path at 80 transitions, Step Table at 120 rows, and Compare Algorithms at 2 summaries.
 - Confirm exact reviewed stack, queue, deque, linked, hash, and set examples receive their documented conceptual orientation while edited or pasted source remains on the generic observed layout.
+- Confirm the Trace and Data view-label sets each remain on one horizontal row at desktop and laptop widths.
+- Confirm narrow screens scroll only inside the DSA view-label strip and never create page-level horizontal overflow.
+- Confirm playback buttons remain one grouped row, the timeline receives usable width, and mobile moves the timeline below the controls.
 - Confirm light and dark themes, desktop and mobile layouts, visible focus, tab semantics, and no horizontal page overflow.
 - Confirm the status panel states 197 implemented programs, 9 implemented sections, 20 representations, the 535 target, and the honest remaining count of 338.
 

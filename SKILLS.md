@@ -54,7 +54,10 @@ The approved 535-program target has a curriculum quality contract. Counts alone 
 - Working playback and 18 views grouped under Trace, Data, Flow, and Labs.
 - Visible Observed, Curriculum context, Unavailable, and Shortened evidence states.
 - Exact-source matching before reviewed algorithm, phase, invariant, edge-case, comparison, or Big O context can appear.
-- Automatic comments as a read-only editor replacement layer, plus confirmation-gated Learning comments export.
+- Automatic comments as a read-only IDE-style editor replacement layer, plus confirmation-gated Learning comments export.
+- One safe DSA study renderer for both comment surfaces, with visual line numbers, conservative syntax spans, explicit read-only chrome, note bands, and presentation text that never enters copied or adopted source.
+- A wider DSA desktop boundary with one horizontal view-label row. The source and view columns stack before becoming cramped, while narrow screens scroll only the bounded label strip.
+- A stable playback grid with one grouped button row, a flexible timeline, and a fixed speed selector. The timeline receives its own row on narrow screens.
 - Stable contracts for 31 event names, 20 structure representation names, required program metadata, and the 535-program Tier A arithmetic.
 - Bounded DSA presentation: 12 watches, 30 structure entries, 30 journey events, 80 path transitions, 120 table rows, and 2 comparison summaries.
 - `scripts/validate-dsa-foundation.mjs` checks contracts, routes, guide targets, and required HTML ids.
@@ -544,6 +547,29 @@ Category changes must set the card region's `scrollTop` to zero. Every mobile ca
 5. Check label legibility in both themes and at several zoom levels.
 6. Check that switching tabs does not produce shaking or repeated resizing.
 
+### Change a DSA study preview
+
+1. Keep `currentCommentedSource()` as the only plain generated document used by copy and replacement actions.
+2. Send that string to `renderDsaStudyPreview()` for presentation. Never read copy content back from the rendered DOM.
+3. Build every row with text nodes and bounded syntax spans. Never insert learner-controlled or trace-derived text as trusted HTML.
+4. Keep file chrome, CSS line numbers, read-only badges, line counts, and status text outside the generated document.
+5. Use the exact `# Code Explorer DSA:` prefix to distinguish generated learning-note rows from original Python.
+6. Test Automatic comments and the Learning comments dialog in light and dark themes.
+7. Confirm both surfaces show the same generated line count and note rows for the same completed run.
+8. Confirm normal Copy returns original Python while Automatic comments are visible.
+9. Confirm Copy commented code returns only the generated Python document.
+10. Confirm toggling either preview does not change local source, trace evidence, source statistics, or playback state.
+
+### Change the DSA learning-panel navigation
+
+1. Keep Trace, Data, Flow, and Labs as the bounded top-level grouping.
+2. Keep every selected area's view labels in one horizontal row.
+3. Provide enough desktop width for the complete row before considering internal scrolling.
+4. Stack the source and learning panels before either panel becomes too narrow.
+5. On a phone, allow horizontal overflow only inside the view-label strip. Never create page-level horizontal overflow.
+6. Verify the longest Data row, not only the shorter Trace row.
+7. Check tab baselines, panel height, and selected underline before and after changing areas and trace steps.
+
 ### Add a saved preference
 
 1. Define a specific storage key and safe default.
@@ -662,6 +688,12 @@ Verify all three detail levels, inline on and off, unchanged source statistics, 
 - Selecting the intentional `IndexError` investigation program displayed its warning before opening it, then produced the expected Error Coach explanation at the failing step.
 - Desktop light and dark screenshots confirmed the sidebar and cards remain readable. A 390 by 844 mobile check found and corrected compressed 42-pixel card rows; the final cards retain a 190-pixel minimum, stay inside their boundaries, and create no page-level horizontal overflow.
 - Mobile inline comments in light and dark themes retained a 390-pixel page width, a 360-pixel editor width, five wrapped widgets, and the original seven-line source count.
+- DSA UI testing on 2026-07-23 confirmed the five Trace tabs and six longer Data tabs share one baseline at 1,493 pixels with no internal or page overflow.
+- At 1,280 pixels, the DSA source and learning panels stack to one 1,248-pixel column before either side becomes cramped. The Data tab row still needs no internal scrolling.
+- At 390 by 844, the DSA tab labels remain one row with 144 pixels of bounded internal tab-strip overflow and zero page-level overflow.
+- The repaired playback bar keeps all four buttons on one baseline. Its timeline measured 1,069 pixels at desktop and 320 pixels on mobile, with the mobile timeline on its own row.
+- The DSA Learning comments dialog and Automatic comments surface each rendered 20 safe line rows, 10 visibly separated DSA notes, conservative token colors, read-only chrome, and matching line counts for the reviewed test run.
+- Toggling the DSA automatic study surface in light and dark themes left the separately stored original DSA source unchanged.
 
 ## Documentation completion test
 
