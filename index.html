@@ -12,7 +12,7 @@
     <!-- Search engines and link previews use this short explanation of the application. -->
     <meta
       name="description"
-      content="Watch beginner Python programs execute one step at a time in your browser."
+      content="Explore Python programs, data structures, and algorithms visually in your browser."
     />
     <!-- This advertises that both theme families are supported by native browser controls. -->
     <meta name="color-scheme" content="dark light" />
@@ -20,23 +20,20 @@
     <title>Code Explorer | See Python Think</title>
     <!-- The small terminal mark gives the browser tab a recognizable project icon. -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <!-- These early connections reduce the delay when CodeMirror and Pyodide load later. -->
-    <link rel="preconnect" href="https://esm.sh" />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <!-- All application styling lives in one readable stylesheet. -->
     <!--
       The version query keeps the landing page synchronized with workspace
       styling when a browser or GitHub Pages has cached an earlier release.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260722-6" />
+    <link rel="stylesheet" href="styles.css?v=20260723-1" />
   </head>
   <body>
     <!-- This decorative grid sits behind the application and is hidden from screen readers. -->
     <div class="ambient-grid" aria-hidden="true"></div>
 
     <!--
-      The persistent header provides project identity, runtime feedback, theme
-      control, and a path to the source repository on every application screen.
+      The persistent header provides project identity, a local-execution cue,
+      theme control, and a path to the source repository.
     -->
     <header class="site-header">
       <!-- The brand is a normal page link, so it also works before JavaScript loads. -->
@@ -44,27 +41,17 @@
         <span class="brand-mark" aria-hidden="true">&gt;_</span>
         <span>CODE EXPLORER</span>
       </a>
-      <!-- JavaScript updates these controls as the runtime and selected theme change. -->
+      <!-- The landing page reports its browser-only model and exposes shared controls. -->
       <div class="header-actions">
-        <!-- The text and dot are updated together to communicate runtime state accessibly. -->
-        <span class="runtime-status" id="runtimeStatus">
+        <!-- Text accompanies the dot so color is never the only privacy or readiness signal. -->
+        <span class="runtime-status ready">
           <span class="status-dot"></span>
-          <span id="runtimeLabel">Runtime offline</span>
+          <span>Browser based</span>
         </span>
         <!-- The visible action text removes any guesswork about what the theme control will do. -->
         <button class="icon-button theme-button" id="themeButton" type="button" aria-label="Switch to dark mode">
           <span id="themeLabel">Dark mode</span>
         </button>
-        <!-- This named link gives first-time learners a direct path to the complete feature guide. -->
-        <a
-          class="icon-button guide-button"
-          href="https://github.com/amanalip/code-explorer/blob/main/README.md"
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Open the Code Explorer tool guide in a new tab"
-        >
-          Tool Guide
-        </a>
         <!-- This external link lets contributors reach the open-source repository. -->
         <a class="icon-button" href="https://github.com/amanalip/code-explorer" target="_blank" rel="noreferrer" aria-label="Open Code Explorer on GitHub">
           <!-- The familiar GitHub mark provides a polished visual cue while the link retains a complete accessible name. -->
@@ -91,18 +78,19 @@
             Paste a Python program and follow every variable, loop, and output as it happens.
             Everything runs privately inside your browser.
           </p>
-          <!-- Both actions lead toward the workspace, either directly or through an example. -->
+          <!-- Each explicit action opens one separate learning workspace. -->
           <div class="hero-actions">
-            <!-- A native link works for local files, GitHub Pages, and browsers with scripts blocked. -->
+            <!-- The existing workspace keeps the complete Python execution curriculum. -->
             <a class="primary-button" href="workspace.html">
-              Start exploring <span aria-hidden="true">→</span>
+              Start exploring Python <span aria-hidden="true">→</span>
             </a>
-            <button class="secondary-button" id="heroExampleButton" type="button">
-              Load an example
-            </button>
+            <!-- The DSA path opens its independent foundation and future curriculum. -->
+            <a class="primary-button" href="data-structures.html">
+              Python Data Structures and Algorithms <span aria-hidden="true">→</span>
+            </a>
           </div>
           <!-- These chips summarize the broader Python concepts and execution details learners can explore. -->
-          <div class="feature-chips" aria-label="Supported Python topics and learning views">
+          <div class="feature-chips" aria-label="Supported topics and learning views">
             <!-- The first group names the fundamental language concepts most beginners learn first. -->
             <span>variables</span>
             <span>conditions</span>
@@ -116,6 +104,11 @@
             <!-- These final concepts highlight the deeper runtime explanations unique to the workspace. -->
             <span>references</span>
             <span>call stack</span>
+            <!-- The second workspace expands the project into visual DSA study. -->
+            <span>data structures</span>
+            <span>algorithms</span>
+            <span>comparisons</span>
+            <span>complexity</span>
           </div>
         </div>
 
@@ -167,40 +160,7 @@
       <small>&copy; 2026 Aman Ali Pogaku</small>
     </footer>
 
-    <!--
-      The native dialog displays starter programs. JavaScript creates its cards
-      from one shared EXAMPLES data collection so the HTML stays concise.
-    -->
-    <dialog class="examples-dialog" id="examplesDialog">
-      <div class="dialog-header">
-        <div>
-          <span class="eyebrow"><span></span> Starter programs</span>
-          <h2>Explore Python through 134 programs</h2>
-          <!-- The subtitle explains that ordering is guidance, not recorded progress. -->
-          <p class="dialog-intro">Follow the recommended order or open any program directly.</p>
-        </div>
-        <button class="dialog-close" id="closeExamplesButton" type="button" aria-label="Close examples">×</button>
-      </div>
-      <!-- The vertical category sidebar prevents laptop users from scrolling filters sideways. -->
-      <div class="example-browser-body">
-        <!-- Category navigation remains visible while the program-card area scrolls independently. -->
-        <aside class="example-browser-toolbar" aria-label="Starter program categories">
-          <!-- This static label describes the curriculum order without implying completion tracking. -->
-          <span class="example-curriculum-label">Recommended order</span>
-          <!-- JavaScript creates one vertical pressed-state button with a count for every category. -->
-          <div class="example-filters" id="exampleFilters" role="group" aria-label="Filter starter programs"></div>
-          <!-- The count confirms how many cards the active filter currently reveals. -->
-          <span class="example-count" id="exampleCount"></span>
-        </aside>
-        <!-- Filtered example cards are generated from the shared curated program collection. -->
-        <div class="example-grid" id="exampleGrid"></div>
-      </div>
-    </dialog>
-
-    <!-- Polite live-region announcements report completion and errors without stealing focus. -->
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-    <!-- The version query prevents browsers from reusing navigation code cached before the page split. -->
-    <script type="module" src="app.js?v=20260722-6"></script>
+    <!-- The landing controller owns only the theme because catalogs now live inside their workspaces. -->
+    <script type="module" src="landing.js?v=20260723-1"></script>
   </body>
 </html>

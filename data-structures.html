@@ -1,0 +1,195 @@
+<!doctype html>
+<!--
+  The DSA workspace is a separate document so its curriculum, persistence, and
+  future visualizations cannot crowd or silently alter the Python workspace.
+-->
+<html lang="en">
+  <head>
+    <!-- UTF-8 safely supports interface symbols and Python source text. -->
+    <meta charset="UTF-8" />
+    <!-- The real viewport width drives responsive laptop and mobile layouts. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Search and link previews identify the page as an honest foundation preview. -->
+    <meta
+      name="description"
+      content="Prepare and study Python data structures and algorithms in a dedicated Code Explorer workspace."
+    />
+    <!-- Native controls may use either palette because both themes are supported. -->
+    <meta name="color-scheme" content="dark light" />
+    <!-- A page-specific title distinguishes this workspace in tabs and bookmarks. -->
+    <title>Data Structures and Algorithms | Code Explorer</title>
+    <!-- The shared terminal icon preserves project identity. -->
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <!-- CodeMirror is the only external Chunk 0 interface dependency. -->
+    <link rel="preconnect" href="https://esm.sh" />
+    <!-- The synchronized version query prevents stale cross-workspace styling. -->
+    <link rel="stylesheet" href="styles.css?v=20260723-1" />
+  </head>
+  <body>
+    <!-- The shared decorative layer never enters the accessibility tree. -->
+    <div class="ambient-grid" aria-hidden="true"></div>
+
+    <!-- This header keeps page identity, status, theme, guide, and source access visible. -->
+    <header class="site-header">
+      <!-- A normal link returns to the learning-path choice without requiring JavaScript. -->
+      <a class="brand" href="index.html" aria-label="Code Explorer home">
+        <span class="brand-mark" aria-hidden="true">&gt;_</span>
+        <span>CODE EXPLORER</span>
+      </a>
+      <!-- Named controls remain understandable without recognizing icons. -->
+      <div class="header-actions">
+        <!-- JavaScript changes both dot class and text after the editor foundation is ready. -->
+        <span class="runtime-status" id="runtimeStatus">
+          <span class="status-dot"></span>
+          <span id="runtimeLabel">Preparing DSA foundation</span>
+        </span>
+        <!-- The visible label says which theme the button will activate. -->
+        <button class="icon-button theme-button" id="themeButton" type="button" aria-label="Switch to dark mode">
+          <span id="themeLabel">Dark mode</span>
+        </button>
+        <!-- This workspace-specific guide never redirects learners into the Python guide. -->
+        <a
+          class="icon-button guide-button"
+          href="https://github.com/amanalip/code-explorer/blob/main/README_DSA.md"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Open the data structures and algorithms tool guide in a new tab"
+        >
+          Tool Guide
+        </a>
+        <!-- The repository link keeps a complete accessible name around its visual mark. -->
+        <a class="icon-button" href="https://github.com/amanalip/code-explorer" target="_blank" rel="noreferrer" aria-label="Open Code Explorer on GitHub">
+          <svg class="github-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.65 7.65 0 0 1 8 4.58c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
+          </svg>
+        </a>
+      </div>
+    </header>
+
+    <!-- The main region owns the independent source and learning-view foundation. -->
+    <main>
+      <section class="workspace dsa-workspace" aria-label="Python data structures and algorithms workspace">
+        <!-- Heading copy states the shipped chunk so a preview cannot look feature-complete. -->
+        <div class="workspace-heading">
+          <div>
+            <a class="back-button" href="index.html">← Home</a>
+            <div class="dsa-heading-label">Chunk 0 foundation preview</div>
+            <h1>Data structures and algorithms workspace</h1>
+            <p class="dsa-heading-copy">
+              Prepare Python source and inspect the approved learning-view map. Execution,
+              curriculum programs, and DSA results begin in later verified chunks.
+            </p>
+          </div>
+          <!-- Disabled actions name future capabilities without pretending they currently work. -->
+          <div class="workspace-actions">
+            <button class="text-button" type="button" disabled title="The DSA program catalog begins in Chunk 1">
+              Examples in Chunk 1
+            </button>
+            <button class="text-button learning-comments-button" type="button" disabled>
+              Learning comments unavailable
+            </button>
+            <button class="primary-button compact" type="button" disabled title="Python tracing is not implemented in Chunk 0">
+              Run trace unavailable
+            </button>
+          </div>
+        </div>
+
+        <!-- Two bounded columns place source beside the eighteen-view learning shell. -->
+        <div class="dsa-workspace-grid">
+          <!-- The DSA editor has its own source key and does not overwrite workspace.html. -->
+          <section class="panel editor-panel">
+            <div class="panel-header">
+              <div>
+                <span class="panel-index">01</span>
+                <span class="panel-title">DSA PYTHON SOURCE</span>
+              </div>
+              <!-- Implemented presentation actions remain distinct from unavailable trace actions. -->
+              <div class="editor-header-tools">
+                <button class="editor-tool-button" id="dsaWrapButton" type="button" aria-pressed="true">Wrap on</button>
+                <button
+                  class="editor-tool-button automatic-comments-toggle"
+                  id="dsaAutomaticCommentsButton"
+                  type="button"
+                  aria-pressed="false"
+                  disabled
+                  title="Automatic comments require a verified DSA trace"
+                >
+                  Automatic comments unavailable
+                </button>
+                <label class="editor-font-control" for="dsaFontSizeSelect">
+                  <span>Font</span>
+                  <select id="dsaFontSizeSelect" aria-label="DSA editor font size">
+                    <option value="12">12 px</option>
+                    <option value="14" selected>14 px</option>
+                    <option value="16">16 px</option>
+                    <option value="18">18 px</option>
+                    <option value="20">20 px</option>
+                    <option value="22">22 px</option>
+                  </select>
+                </label>
+                <!-- Clipboard actions remain disabled until an enhanced or fallback editor owns source. -->
+                <button class="editor-tool-button editor-clipboard-button" id="dsaCopyButton" type="button" disabled>Copy</button>
+                <button class="editor-tool-button editor-clipboard-button" id="dsaPasteButton" type="button" disabled>Paste</button>
+                <span class="file-label">main.py</span>
+              </div>
+            </div>
+            <!-- The reusable controller mounts CodeMirror or a native fallback here. -->
+            <div class="editor-shell" id="dsaEditorShell">
+              <div id="dsaEditor" aria-label="DSA Python code editor"></div>
+            </div>
+            <!-- Statistics always describe original source, never future presentation overlays. -->
+            <div class="editor-footer">
+              <span id="dsaCodeStats">0 lines</span>
+              <span>Python 3 · source only</span>
+            </div>
+          </section>
+
+          <!-- The learning shell proves navigation and language before runtime rendering begins. -->
+          <section class="panel story-panel dsa-learning-panel">
+            <!-- Four areas are generated from one validated contract. -->
+            <nav class="learning-mode-nav" id="dsaAreaNav" aria-label="DSA learning area"></nav>
+            <!-- Tabs change with the active area and remain horizontally bounded by wrapping. -->
+            <div class="panel-header tabs-header">
+              <div class="panel-tabs dsa-view-tabs" id="dsaViewTabs" role="tablist" aria-label="DSA learning view"></div>
+              <span class="step-count">FOUNDATION</span>
+            </div>
+            <!-- Contract previews use static reviewed text and never interpret learner source. -->
+            <div class="dsa-view-stage" id="dsaViewStage" role="tabpanel"></div>
+          </section>
+
+          <!-- This status panel separates implemented foundation facts from roadmap promises. -->
+          <section class="panel dsa-foundation-panel" aria-labelledby="foundationStatusTitle">
+            <div class="panel-header">
+              <div>
+                <span class="panel-index">02</span>
+                <span class="panel-title" id="foundationStatusTitle">FOUNDATION STATUS</span>
+              </div>
+              <span class="foundation-status-badge">CHUNK 0</span>
+            </div>
+            <div class="dsa-foundation-grid">
+              <div><strong id="dsaViewCount">0</strong><span>approved view contracts</span></div>
+              <div><strong id="dsaEventCount">0</strong><span>normalized event names</span></div>
+              <div><strong id="dsaStructureCount">0</strong><span>representation names</span></div>
+              <div><strong id="dsaCatalogTarget">0</strong><span>planned Tier A programs</span></div>
+            </div>
+            <p class="dsa-foundation-note">
+              These counts describe validated contracts and the approved curriculum target.
+              They do not claim that tracing, visualizations, comparisons, or 535 programs are implemented.
+            </p>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <!-- Ownership stays visible without competing with the workspace. -->
+    <footer class="site-footer">
+      <small>&copy; 2026 Aman Ali Pogaku</small>
+    </footer>
+
+    <!-- Clipboard and fallback-editor messages use a polite non-modal status region. -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <!-- One version keeps this page aligned with its contracts and shared modules. -->
+    <script type="module" src="dsa-app.js?v=20260723-1"></script>
+  </body>
+</html>

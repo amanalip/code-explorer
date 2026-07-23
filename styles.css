@@ -228,6 +228,11 @@ select:focus-visible {
   gap: 10px;
 }
 
+/* Both equally important learning destinations wrap as complete buttons instead of shrinking their labels. */
+.hero-actions {
+  flex-wrap: wrap;
+}
+
 /* Styles `.runtime-status`. This component rule controls layout, sizing and spacing, color and visual emphasis, typography, motion and interaction feedback for the matching interface element. */
 .runtime-status {
   display: inline-flex;
@@ -3098,6 +3103,224 @@ main {
   color: var(--red);
 }
 
+/* Data Structures and Algorithms foundation */
+
+/* Gives the longer DSA heading enough readable width without stretching body copy across the page. */
+.dsa-heading-copy {
+  max-width: 760px;
+  margin: 12px 0 0;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* Identifies the current implementation chunk without implying curriculum progress. */
+.dsa-heading-label {
+  margin: 18px 0 8px;
+  color: var(--purple);
+  font: 700 0.6rem/1 var(--mono);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+/* Separates the DSA editor and learning shell while reserving a full-width status row below them. */
+.dsa-workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(480px, 0.92fr);
+  gap: 14px;
+  margin-top: 24px;
+}
+
+/*
+  The Python workspace assigns named grid areas to these shared panel classes.
+  The separate DSA grid owns a simpler document order, so it must explicitly
+  clear those inherited placements before sizing its two columns.
+*/
+.dsa-workspace-grid > .editor-panel,
+.dsa-workspace-grid > .story-panel {
+  grid-area: auto;
+}
+
+/* Both primary DSA panels use stable heights so view changes cannot cause page shaking. */
+.dsa-workspace-grid > .editor-panel,
+.dsa-learning-panel {
+  min-height: 690px;
+}
+
+/* The editor receives a generous laptop-height document without escaping its panel. */
+.dsa-workspace-grid .editor-shell {
+  height: 598px;
+}
+
+/* The DSA learning panel is a fixed grid whose center absorbs all remaining space. */
+.dsa-learning-panel {
+  display: grid;
+  min-width: 0;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+/* DSA tabs wrap inside their panel because horizontal category scrolling is not acceptable. */
+.dsa-view-tabs {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+/* A wrapping DSA tab row needs natural height instead of the Python panel's single-row assumption. */
+.dsa-learning-panel .tabs-header {
+  height: auto;
+  min-height: 51px;
+}
+
+/* The stage centers one readable contract card while reserving stable space for future renderers. */
+.dsa-view-stage {
+  display: grid;
+  min-height: 0;
+  place-items: center;
+  padding: clamp(22px, 4vw, 48px);
+  overflow: auto;
+  background:
+    linear-gradient(var(--graph-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--graph-grid) 1px, transparent 1px);
+  background-size: 31px 31px;
+}
+
+/* The preview card uses strong hierarchy so an unavailable result still teaches the view's purpose. */
+.dsa-view-preview {
+  width: min(560px, 100%);
+  padding: clamp(24px, 4vw, 40px);
+  border: 1px solid var(--line-bright);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--panel-solid) 94%, transparent);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+}
+
+/* The evidence badge uses text and a boundary, not color alone, to identify unavailable conclusions. */
+.evidence-badge {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  padding: 0 9px;
+  border: 1px solid var(--line-bright);
+  border-radius: 999px;
+  color: var(--text-soft);
+  background: var(--panel-soft);
+  font: 700 0.55rem/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Purple distinguishes unavailable evidence from success and error states. */
+.evidence-badge.unavailable {
+  border-color: color-mix(in srgb, var(--purple) 48%, var(--line));
+  color: var(--purple);
+}
+
+/* A small area label anchors the selected view inside the four-part navigation model. */
+.dsa-view-area {
+  display: block;
+  margin-top: 22px;
+  color: var(--text-dim);
+  font: 700 0.58rem/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The selected view name remains prominent without competing with the workspace page title. */
+.dsa-view-preview h2 {
+  margin: 10px 0 12px;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+/* Purpose text explains the future learner question in comfortable prose. */
+.dsa-view-preview > p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.96rem;
+  line-height: 1.7;
+}
+
+/* The boundary callout prevents a polished shell from looking like a working result panel. */
+.dsa-boundary-note {
+  margin-top: 26px;
+  padding: 16px;
+  border-left: 3px solid var(--purple);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--purple) 7%, var(--panel-soft));
+}
+
+/* The boundary heading names the missing evidence before its explanation. */
+.dsa-boundary-note strong {
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+/* Recovery copy stays quieter than the selected view purpose. */
+.dsa-boundary-note p {
+  margin: 6px 0 0;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+/* The foundation panel spans both columns because its status applies to the complete workspace. */
+.dsa-foundation-panel {
+  grid-column: 1 / -1;
+  overflow: hidden;
+}
+
+/* A text badge makes the release boundary visible without relying on accent color. */
+.foundation-status-badge {
+  padding: 5px 8px;
+  border: 1px solid color-mix(in srgb, var(--mint) 45%, var(--line));
+  border-radius: 999px;
+  color: var(--mint);
+  font: 700 0.55rem/1 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+/* Four contract totals fit in one scan-friendly laptop row. */
+.dsa-foundation-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+}
+
+/* Each metric uses its own raised cell while inheriting the shared panel palette. */
+.dsa-foundation-grid > div {
+  display: grid;
+  gap: 7px;
+  min-height: 105px;
+  place-content: center;
+  padding: 18px;
+  background: var(--bg-raised);
+  text-align: center;
+}
+
+/* Large figures make contract totals easy to distinguish from learner output. */
+.dsa-foundation-grid strong {
+  color: var(--mint);
+  font: 700 1.65rem/1 var(--mono);
+}
+
+/* Metric labels explain that counts describe contracts, names, or plans. */
+.dsa-foundation-grid span {
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+/* The final note explicitly separates a foundation contract from implemented learning behavior. */
+.dsa-foundation-note {
+  margin: 0;
+  padding: 15px 18px;
+  border-top: 1px solid var(--line);
+  color: var(--text-dim);
+  background: var(--panel-soft);
+  font: 600 0.65rem/1.55 var(--mono);
+}
+
 /* Examples */
 /* Styles `.examples-dialog`. This component rule controls sizing and spacing, color and visual emphasis, boundaries and focus treatment, overflow behavior for the matching interface element. */
 .examples-dialog {
@@ -4259,6 +4482,48 @@ main {
   /* Styles `.dialog-header`. This component rule controls sizing and spacing for the matching interface element. */
   .dialog-header {
     padding: 22px 18px 18px;
+  }
+}
+
+/* Stacks the DSA foundation before either column becomes too narrow for readable source or prose. */
+@media (max-width: 1120px) {
+  /* One column preserves the complete editor and view stage without horizontal page scrolling. */
+  .dsa-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* The full-width status panel naturally follows both primary panels in the stacked layout. */
+  .dsa-foundation-panel {
+    grid-column: 1;
+  }
+}
+
+/* Adapts DSA-specific content to the same narrow-phone boundary as the shared workspace. */
+@media (max-width: 680px) {
+  /* The DSA heading follows the shared stacked workspace action layout. */
+  .dsa-heading-copy {
+    font-size: 0.86rem;
+  }
+
+  /* Mobile editor and learning panels remain bounded while providing useful study height. */
+  .dsa-workspace-grid > .editor-panel,
+  .dsa-learning-panel {
+    min-height: 590px;
+  }
+
+  /* A slightly shorter source area keeps the view preview reachable on phones. */
+  .dsa-workspace-grid .editor-shell {
+    height: 492px;
+  }
+
+  /* Contract cards use the phone width efficiently without touching panel edges. */
+  .dsa-view-stage {
+    padding: 16px;
+  }
+
+  /* Four metrics become a readable two-by-two grid instead of compressed columns. */
+  .dsa-foundation-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

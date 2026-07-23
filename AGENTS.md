@@ -70,20 +70,28 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 
 ## Repository map
 
-- `index.html`: landing page, project introduction, starter-program dialog, shared header, and footer.
+- `index.html`: landing page, two learning-path actions, shared header, and footer.
 - `workspace.html`: persistent execution workspace and all dynamic mounting points.
+- `data-structures.html`: separate Chunk 0 DSA editor and 18-view foundation shell.
 - `styles.css`: complete light theme, dark theme, responsive layout, editor presentation, graphs, panels, and controls.
 - `app.js`: application state, editor setup, the original reviewed example set, playback, learning views, graph rendering, persistence, and UI events.
+- `landing.js`: lightweight landing-page theme controller after example selection moved inside workspaces.
+- `dsa-app.js`: DSA foundation source persistence, editor controls, clipboard actions, and view navigation.
+- `dsa-contracts.js`: approved DSA areas, views, evidence labels, event names, representation names, metadata fields, and Tier A totals.
+- `shared-ui.js`: theme and guarded local-storage helpers shared by new page controllers.
+- `shared-editor.js`: reusable Python CodeMirror foundation with a native textarea fallback.
 - `curriculum.js`: the additional curriculum examples that blend with the reviewed base set to form the 134-program library.
 - `py-worker.js`: isolated Pyodide runtime, Python tracing harness, safe serialization, input handling, and execution limits.
 - `scripts/validate-curriculum.mjs`: structural curriculum validator and detached-example exporter.
 - `scripts/validate_curriculum.py`: Python compile-and-run validator for all detached examples and their documented intentional errors.
+- `scripts/validate-dsa-foundation.mjs`: structural validator for Chunk 0 DSA contracts, routing, ids, and the 535-program target.
 - `favicon.svg`: code-themed browser-tab icon shared by both pages.
 - `README.md`: public beginner guide for using Code Explorer and understanding its features.
+- `README_DSA.md`: public guide for implemented DSA workspace behavior, unavailable boundaries, limits, privacy, and later verified chunks.
 - `SKILLS.md`: internal project knowledge, capability ledger, recurring implementation recipes, and verification guidance.
 - `lessons_learned.md`: living post-mortem containing reusable product and engineering lessons from the user and Codex perspectives.
 - `changelog.md`: dated learner-visible release history, verification notes, compatibility boundaries, and upgrade guidance.
-- `Tier.md`: planning reference for the proposed separate Data Structures workspace, including Tier A, B, and C boundaries. Listed items are not implemented claims.
+- `Tier.md`: planning reference for the separate Data Structures workspace, including the implemented Chunk 0 boundary and unimplemented Tier A, B, and C curriculum scope.
 - `LICENSE`: GPL license text. Do not modify it while adding explanatory material.
 
 ## Required workflow for every change
@@ -166,7 +174,7 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Run `git diff --check`.
 - Search changed text for em dash and en dash characters.
 - Confirm HTML ids used by JavaScript exist and remain unique.
-- When `app.js` or `styles.css` changes, keep the cache-version query synchronized in both HTML documents.
+- When `app.js` or `styles.css` changes, keep the cache-version query synchronized in all three HTML documents and their imported modules.
 - Confirm all new functions and non-obvious blocks have accurate comments.
 - Search for analytics, telemetry, tracking, beacon, cookie, form-submission, remote-log, and network APIs whenever dependencies, URLs, storage, or browser capabilities change.
 - Confirm no learner source, input, trace, output, clipboard, or stored preference is added to a request URL, body, header, log upload, or third-party API call.
@@ -175,11 +183,25 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 
 - Serve the repository through a local HTTP server rather than relying only on `file://` behavior.
 - Test the landing page and the dedicated workspace page.
+- Test the separate DSA workspace and confirm unavailable Chunk 0 actions remain honest.
 - Check light mode and dark mode.
 - Check a desktop viewport and a narrow mobile viewport.
 - Confirm there are no browser console errors.
 - Confirm controls remain stable while the trace step changes.
 - Confirm source survives a workspace reload.
+- Confirm Python and DSA source keys do not overwrite each other.
+
+### DSA foundation checks
+
+- Run `node scripts/validate-dsa-foundation.mjs`.
+- Confirm the landing page has two matching primary learning-path buttons and no Tool Guide.
+- Confirm `workspace.html` links to `README.md` and `data-structures.html` links to `README_DSA.md`.
+- Confirm the DSA editor supports wrapping, six validated font sizes, Copy, Paste, fallback editing, source statistics, and separate local persistence.
+- Confirm all 18 approved views appear under Trace, Data, Flow, and Labs.
+- Confirm every DSA view displays **Unavailable** until runtime evidence is implemented.
+- Confirm Run trace, examples, Automatic comments, and Learning comments remain visibly disabled in Chunk 0.
+- Confirm light and dark themes, desktop and mobile layouts, visible focus, tab semantics, and no horizontal page overflow.
+- Confirm the status panel describes 18 view contracts, 31 event names, 19 representation names, and 535 planned programs without claiming those runtime capabilities or programs are implemented.
 
 ### Trace checks
 
@@ -249,4 +271,6 @@ Use this mapping during every change:
 
 Documentation work is part of feature completion, not a later cleanup task.
 
-After documentation changes, compare README.md, AGENTS.md, SKILLS.md, lessons_learned.md, and changelog.md for matching feature names, dates, limits, example totals, category totals, state behavior, and release status. A Markdown file being modified is not evidence that it is correct.
+For DSA changes, apply the same mapping to `README_DSA.md` and keep `README.md` focused on the Python workspace.
+
+After documentation changes, compare README.md, README_DSA.md, AGENTS.md, SKILLS.md, lessons_learned.md, Tier.md, and changelog.md for matching feature names, dates, limits, example totals, category totals, state behavior, and release status. A Markdown file being modified is not evidence that it is correct.

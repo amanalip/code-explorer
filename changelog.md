@@ -15,6 +15,90 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v5, 2026-07-23
+
+v5 begins the separate Python Data Structures and Algorithms learning path with a deliberately bounded Chunk 0 foundation. It does not claim that DSA execution or the 535-program curriculum is complete.
+
+### Two first-class learning paths
+
+The landing page now presents two matching primary actions:
+
+```text
+Start exploring Python
+Python Data Structures and Algorithms
+```
+
+Both use the same dark green structure, arrow, focus, and hover treatment. The Python example catalog moved completely inside `workspace.html`, so the landing page no longer downloads or opens a workspace-specific catalog.
+
+The shared landing-page Tool Guide was removed. Each workspace now provides the guide that matches its own behavior:
+
+```text
+workspace.html       -> README.md
+data-structures.html -> README_DSA.md
+```
+
+### Separate DSA workspace foundation
+
+`data-structures.html` provides:
+
+- An independent DSA `main.py` editor.
+- A separate local source key that does not overwrite Python workspace source.
+- Text wrapping.
+- Font sizes from 12 px through 22 px.
+- Complete-document Copy and Paste.
+- CodeMirror with a native textarea fallback.
+- Light and dark themes.
+- Source line and character statistics.
+- Responsive desktop and mobile layout.
+
+Python execution is deliberately unavailable in the DSA workspace during Chunk 0. Run trace, examples, Automatic comments, and Learning comments remain disabled with visible explanations.
+
+### Final 18-view foundation
+
+The DSA page renders the approved navigation under Trace, Data, Flow, and Labs:
+
+| Area | Views |
+| --- | --- |
+| Trace | Algorithm Story, Before and After, Decisions, Calls and Recursion, Error Coach |
+| Data | Variables, Watches, Structure Canvas, References, Mutation Explorer, Invariant Checker |
+| Flow | Operation Journey, Algorithm Path, Step Table, Complexity Lab |
+| Labs | Input Playground, Compare Algorithms, Edge Case Lab |
+
+Every view displays **Unavailable** and states that no runtime evidence exists yet. Selecting a view validates navigation and purpose text only.
+
+### Contracts and validation
+
+Chunk 0 records stable contracts for:
+
+- 18 view names.
+- 31 normalized event names.
+- 19 structure representation names.
+- Required future curriculum metadata.
+- The 535-program Tier A section arithmetic.
+
+`scripts/validate-dsa-foundation.mjs` checks contract uniqueness, area membership, routing, guide destinations, required HTML ids, and the exact program target.
+
+### Documentation and limits
+
+`README_DSA.md` documents only implemented Chunk 0 behavior. Its limits section explains:
+
+- Why no DSA execution limits are active yet.
+- Separate editor persistence.
+- Valid font sizes.
+- Clipboard permission boundaries.
+- Storage failure behavior.
+- The zero-program and zero-event runtime state.
+- Responsive presentation.
+- Privacy and ordinary dependency requests.
+
+The guide explicitly distinguishes implemented controls, approved contracts, unavailable runtime behavior, and planned curriculum.
+
+### Verification boundary
+
+Chunk 0 is complete only after static checks, the DSA contract validator, Python curriculum regression checks, real-browser navigation, editor interaction, persistence, themes, desktop and mobile layout, privacy review, and documentation consistency checks pass.
+
+The 535 DSA programs remain a future Tier A target. v5 does not count the editable starter source as a curriculum program.
+
 ## v4, 2026-07-22
 
 v4 turns the starter library into a structured 134-program beginner curriculum and makes learner-defined objects inspectable across the existing trace views.

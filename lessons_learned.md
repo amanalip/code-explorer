@@ -1348,7 +1348,7 @@ Shared landing page      -> no ambiguous guide
 
 This preserves separation of concerns in the documentation as well as the code. A learner who is studying Python execution should not be sent into a large DSA guide, and a learner studying data structures should not have to search the Python guide for workspace-specific instructions.
 
-The planned landing-page action is named **Start exploring Python data structures and algorithms**. Including algorithms in the label sets the correct expectation because the proposed workspace teaches both structures and the operations and algorithms that use them.
+The landing-page action is named **Python Data Structures and Algorithms**. Including algorithms in the label sets the correct expectation because the workspace teaches both structures and the operations and algorithms that use them. Removing the repeated instruction phrase also makes the two-path landing page easier to scan.
 
 Status: Approved as a navigation and documentation plan. No HTML or new guide has been created yet.
 
@@ -1400,6 +1400,24 @@ learning progression
 The user contribution is the refusal to treat scale and quality as opposing choices. Chunking exists so the project can preserve both. Codex must enforce that correction through metadata validation, line-distribution reports, near-duplicate checks, trace inspection, and manual curriculum review rather than merely promising to make examples good.
 
 Status: Approved as a release gate for every future DSA curriculum chunk.
+
+## 70. Equal learning paths need equal visual weight
+
+During the first Chunk 0 browser review, Aman noticed that the new DSA destination looked like a weaker secondary action while **Start exploring Python** used the dark green primary treatment. That hierarchy contradicted the product decision that both workspaces are first-class learning paths.
+
+The correction gives both destinations the same button structure, color, spacing, hover behavior, and arrow:
+
+```text
+Start exploring Python                    ->
+Python Data Structures and Algorithms      ->
+
+Same visual priority
+Different learning destination
+```
+
+This is a useful user-side lesson in interface hierarchy. Button styling communicates product importance before a learner reads documentation. Two equally supported choices should not accidentally look like a preferred path and a less important alternative.
+
+Status: Implemented in Chunk 0.
 
 # Lessons learned by Codex
 
@@ -2209,7 +2227,7 @@ Implemented  -> built, verified, and documented
 
 The permanent Codex lesson is to preserve ambitious ideas without converting them into hidden commitments. A future contributor should be able to recover the complete discussion while still knowing exactly what exists today.
 
-Status: Implemented as a documentation and planning rule. The Tier A catalog target is approved, while features remain under discussion.
+Status: Implemented as a documentation and planning rule. Chunk 0 is now implemented; later Tier A programs and runtime features remain unimplemented until their verified chunks ship.
 
 ## 55. Feasible and easy are different engineering claims
 
@@ -2271,6 +2289,26 @@ For the DSA catalog, automation should flag suspicious evidence:
 - Longer programs with no additional conceptual progression.
 
 Human review must then judge whether the similarity is pedagogically intentional, whether the length fits the objective, and whether the learner encounters a meaningful new idea. The correct response to 535 programs is stronger review infrastructure and smaller release chunks, not lower standards.
+
+## 59. Shared CSS classes can carry hidden layout contracts
+
+The first DSA browser interaction found that the learning panel could intercept clicks intended for the editor at a stacked laptop width. The new grid reused `.editor-panel` and `.story-panel`, but those classes already carried named `grid-area` values for the Python workspace.
+
+```text
+Reusable panel appearance
+        +
+Inherited named grid placement
+        |
+        v
+Unexpected implicit DSA grid rows
+        |
+        v
+Editor interaction blocked
+```
+
+The correction explicitly resets inherited grid placement inside `.dsa-workspace-grid`. The broader lesson is that reusing a visual class can also reuse placement, overflow, and sizing assumptions. A shared component must be tested inside the new parent layout, not judged only by matching colors and borders.
+
+The defect was found before documentation and commit because the Chunk 0 workflow tested an actual editor click instead of relying only on screenshots.
 
 # Shared lessons for future work
 
@@ -2358,10 +2396,10 @@ Reusable discovery, mistake, decision, or success occurred?
 | Read and write highlighting | Explored for later |
 | Learning autocomplete | Explored for later |
 | Smart fold summaries | Explored for later |
-| Data-structure learning expansion | A separate workspace and 535-program Tier A catalog target are approved for planning; feature behavior and code remain unapproved |
-| Data Structures tier reference | `Tier.md` preserves Tier A, B, and C; Tier A has an approved catalog count but no implementation |
-| Workspace tool guides | Remove the shared landing-page guide; Python workspace links `README.md`; future DSA workspace links `README_DSA.md`; landing action reads **Start exploring Python data structures and algorithms** |
-| Classical algorithm visualizations | Recorded in `Tier.md`; implementation remains unapproved |
+| Data-structure learning expansion | Chunk 0 separate workspace foundation is implemented; the 535-program Tier A curriculum and DSA runtime results remain unimplemented |
+| Data Structures tier reference | `Tier.md` preserves Tier A, B, and C and records the implemented Chunk 0 boundary |
+| Workspace tool guides | Shared landing-page guide removed; Python workspace links `README.md`; DSA workspace links `README_DSA.md`; both landing actions use matching primary styling |
+| Classical algorithm visualizations | Contracts and honest unavailable states exist in Chunk 0; renderers remain unimplemented |
 | Trace-store redesign | Deferred |
 | Other programming languages | Explored, no build approved |
 | DevOps learning tools | Explored as separate or future tools |

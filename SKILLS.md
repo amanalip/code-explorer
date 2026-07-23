@@ -22,11 +22,11 @@ Recorded execution
 
 The tool records a bounded execution first and then replays it. Playback breakpoints and timeline controls navigate the recorded trace. They do not pause the original Python interpreter.
 
-`Tier.md` records the Tier A, B, and C curriculum for a possible separate Data Structures workspace. The 535-program Tier A catalog target is approved as a planning contract, but its features and implementation remain unapproved. Do not treat a listed structure or algorithm as implemented unless code, verification, and learner-visible documentation prove it.
+`Tier.md` records the Tier A, B, and C curriculum for the separate Data Structures workspace. Chunk 0 implements only the workspace foundation, shared contracts, editor controls, and honest 18-view navigation. The 535-program Tier A catalog remains an approved target with zero DSA curriculum programs shipped in Chunk 0. Do not treat a listed structure, algorithm, event, renderer, or view result as implemented unless code, verification, and learner-visible documentation prove it.
 
-Documentation routing for the proposed split is also approved in planning: `index.html` will have no ambiguous Tool Guide control, its planned DSA action will read **Start exploring Python data structures and algorithms**, `workspace.html` will link to the existing `README.md`, and the future `data-structures.html` will link to `README_DSA.md`. The DSA guide must be created with implemented workspace behavior, not prefilled with roadmap claims from `Tier.md`.
+Documentation routing is implemented: `index.html` has no ambiguous Tool Guide control, its two matching primary actions open the Python and DSA paths, `workspace.html` links to `README.md`, and `data-structures.html` links to `README_DSA.md`.
 
-The future DSA guide has a complete limits-documentation contract. For every implemented execution, serialization, display, visualization, history, comparison, explanation, complexity, persistence, platform, and curriculum boundary, `README_DSA.md` must state the verified value, what is counted, why it exists, threshold behavior, whether execution stopped or presentation was shortened, what evidence remains safe, and what the learner can try next. Do not invent planning numbers. Trace implementation constants and tests before documenting them, and visibly label shortened visual output.
+The DSA guide now documents every implemented Chunk 0 limit and explicitly states which execution and visualization limits are not active because those features do not exist yet. For every later execution, serialization, display, visualization, history, comparison, explanation, complexity, persistence, platform, and curriculum boundary, `README_DSA.md` must state the verified value, what is counted, why it exists, threshold behavior, whether execution stopped or presentation was shortened, what evidence remains safe, and what the learner can try next.
 
 The approved 535-program target has a curriculum quality contract. Counts alone never establish completion. Each section must progress from focused foundations through standard operations, meaningful variations, applied programs, and comparisons. Reject constant-only or name-only variations, filler lines, incoherent scripts, weak metadata, and examples whose recommended views have nothing useful to show. Validation must report line-count distributions and near-duplicate candidates, while human review must judge correctness, teaching depth, readability, coherent progression, and whether longer concepts received enough space. Short programs remain valid when the concept is genuinely atomic.
 
@@ -36,11 +36,24 @@ The approved 535-program target has a curriculum quality contract. Counts alone 
 
 - Dedicated landing page at `index.html`.
 - Dedicated, reloadable workspace at `workspace.html`.
-- Starter-program picker shared by landing and workspace flows.
-- Tool Guide link to the public README.
+- Dedicated DSA foundation at `data-structures.html`.
+- Two matching primary learning-path actions on the landing page.
+- The Python starter-program picker lives only inside `workspace.html`.
+- Contextual Tool Guide links live inside their matching workspaces.
 - GitHub icon link to the repository.
 - Explicit Dark mode and Light mode control.
 - Copyright attribution for Aman Ali Pogaku.
+
+### DSA Chunk 0 foundation
+
+- Separate DSA `main.py` source and editor-preference storage.
+- CodeMirror Python editing with a native textarea fallback.
+- Wrapping, six font sizes, complete-document Copy and Paste, and source statistics.
+- Final 18-view navigation grouped under Trace, Data, Flow, and Labs.
+- Static reviewed purpose text and an explicit **Unavailable** evidence state for every view.
+- Disabled Run trace, examples, Automatic comments, and Learning comments until later chunks implement their evidence.
+- Stable contracts for 31 event names, 19 structure representation names, required program metadata, and the 535-program Tier A arithmetic.
+- `scripts/validate-dsa-foundation.mjs` checks contracts, routes, guide targets, and required HTML ids.
 
 ### Source editor
 
@@ -566,7 +579,7 @@ Verify all three detail levels, inline on and off, unchanged source statistics, 
 - The IDE-style export preview rendered the default program and the 27-line Object-Oriented Pet Care Tracker in light and dark themes. Its visual gutter, syntax spans, file chrome, and status strip remained outside the copied document.
 - At 390 by 844, the longer Detailed preview used bounded internal scrolling, wrapped note prose, kept its actions visible, and produced no page-level or preview-level horizontal overflow.
 - An intercepted **Copy commented code** action returned the generated 12-line Python document for the default example, including real `# Code Explorer:` lines and original Python, with no visual gutter numbers or IDE labels.
-- The vertical examples browser exposed all 13 filter choices, accurate counts, 134 landing-page cards, 16 Loop cards, and no horizontal filter overflow.
+- The vertical Python workspace examples browser exposed all 13 filter choices, accurate counts, 134 cards, 16 Loop cards, and no horizontal filter overflow.
 - Selecting the Classes and Objects checkpoint produced 33 recorded steps, a class-definition learning note, stable `<Pet instance>` labels, and bounded `.name`, `.animal`, `.meals`, and `.exercised` attribute branches.
 - Selecting the intentional `IndexError` investigation program displayed its warning before opening it, then produced the expected Error Coach explanation at the failing step.
 - Desktop light and dark screenshots confirmed the sidebar and cards remain readable. A 390 by 844 mobile check found and corrected compressed 42-pixel card rows; the final cards retain a 190-pixel minimum, stay inside their boundaries, and create no page-level horizontal overflow.

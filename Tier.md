@@ -1,15 +1,15 @@
 # Code Explorer Data Structures and Algorithms tiers
 
-This document preserves the proposed curriculum boundary for the separate Python Data Structures workspace. It is a planning reference, not a claim that the listed features are implemented.
+This document preserves the curriculum boundary for the separate Python Data Structures and Algorithms workspace. Chunk 0 implements the workspace foundation and contracts. Tier listings remain a planning reference, not a claim that their programs or runtime results are implemented.
 
 ```text
 CURRENT STATUS
 
-Tier A  -> 535-program catalog target approved; features remain under discussion
+Tier A  -> Chunk 0 foundation implemented; 535-program catalog target approved
 Tier B  -> recorded for later evaluation
 Tier C  -> recorded as an optional specialist catalog
 
-No Data Structures workspace code has been approved or implemented yet.
+No DSA execution, visualization, comparison, or curriculum program is implemented yet.
 ```
 
 ## Why the work is divided into tiers
@@ -39,7 +39,7 @@ Completing Tier A does not automatically approve Tier B. Completing Tier B does 
 
 ## Shared product boundary
 
-The proposed Data Structures workspace is separate from the existing Python workspace.
+The Data Structures and Algorithms workspace is separate from the existing Python workspace.
 
 ```text
 Code Explorer landing page
@@ -48,10 +48,10 @@ Code Explorer landing page
 |      +-- existing workspace.html
 |      +-- existing Python curriculum and trace views
 |
-+-- Start exploring Python data structures and algorithms
-       +-- proposed data-structures.html
-       +-- structure and algorithm curriculum
-       +-- specialized visualizations
++-- Python Data Structures and Algorithms
+       +-- implemented data-structures.html foundation
+       +-- planned structure and algorithm curriculum
+       +-- planned specialized visualizations
 ```
 
 The two workspaces may reuse the editor, theme, Pyodide worker foundation, trace playback, serialization, dialogs, accessibility helpers, and safe local persistence. They must not become two copied applications that drift apart.
@@ -71,7 +71,7 @@ index.html
 |   workspace.html
 |      +-- Tool Guide -> README.md
 |
-+-- Start exploring Python data structures and algorithms
++-- Python Data Structures and Algorithms
        |
        v
    data-structures.html
@@ -80,15 +80,49 @@ index.html
 
 The existing `README.md` remains the public beginner guide for the Python execution workspace and its 134-program curriculum. It should be linked from `workspace.html`, not from the shared landing page or the Data Structures workspace.
 
-The future `README_DSA.md` will be the public beginner guide for the Data Structures workspace, its visual vocabulary, its implemented curriculum chunks, and its verified limits. It should be linked from `data-structures.html`, not from the existing Python workspace.
+`README_DSA.md` is the public beginner guide for the Data Structures workspace, its implemented foundation, unavailable boundaries, verified limits, and later completed curriculum chunks. It is linked from `data-structures.html`, not from the existing Python workspace.
 
-`README_DSA.md` must not be created as a catalogue of unimplemented promises. Create it with the Data Structures workspace and update it after each verified Tier A chunk. `Tier.md` remains the planning catalogue; `README_DSA.md` will describe only learner-visible behavior that actually exists.
+`README_DSA.md` must not become a catalogue of unimplemented promises. Update it after each verified Tier A chunk. `Tier.md` remains the planning catalogue; `README_DSA.md` describes only learner-visible behavior that actually exists and explicitly marks unavailable behavior.
 
 Both workspace links should use the same accessible Tool Guide label and visual treatment. Their targets differ by workspace context. External GitHub links must preserve the existing privacy and `noreferrer` rules.
 
+### Implemented Chunk 0 view contract
+
+Chunk 0 renders the final eighteen names and purposes under four bounded areas:
+
+```text
+TRACE
++-- Algorithm Story
++-- Before and After
++-- Decisions
++-- Calls and Recursion
++-- Error Coach
+
+DATA
++-- Variables
++-- Watches
++-- Structure Canvas
++-- References
++-- Mutation Explorer
++-- Invariant Checker
+
+FLOW
++-- Operation Journey
++-- Algorithm Path
++-- Step Table
++-- Complexity Lab
+
+LABS
++-- Input Playground
++-- Compare Algorithms
++-- Edge Case Lab
+```
+
+The navigation contract is implemented. Runtime results are not. Every Chunk 0 view displays **Unavailable** and explains that recorded DSA evidence will arrive only through later verified chunks.
+
 ### Complete limits documentation contract
 
-The future `README_DSA.md` must contain one discoverable section that explains every enforced limit in the implemented Data Structures and Algorithms workspace. It must not mention only the graph-size limit or assume that beginners understand why a limit exists.
+`README_DSA.md` contains one discoverable section that explains every enforced limit in the implemented Data Structures and Algorithms workspace. It must not mention only the graph-size limit or assume that beginners understand why a limit exists.
 
 The section must cover every applicable category:
 

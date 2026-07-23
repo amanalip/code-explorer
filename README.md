@@ -20,8 +20,11 @@ Code Explorer is intended for learning, experimentation, demonstrations, and sma
 
 This README is the living beginner guide for Code Explorer. It is reviewed whenever the tool changes so its controls, examples, limits, workflows, and expected behavior remain synchronized with the website.
 
+The landing page now also links to a separate **Data Structures and Algorithms foundation preview**. Its implemented behavior and current unavailable boundaries are documented in [README_DSA.md](README_DSA.md). This Python guide does not describe planned DSA features as though they already exist.
+
 ## Contents
 
+- [Choose a learning path](#choose-a-learning-path)
 - [Start here](#start-here)
 - [What happens when you run a trace](#what-happens-when-you-run-a-trace)
 - [Workspace map](#workspace-map)
@@ -42,12 +45,28 @@ This README is the living beginner guide for Code Explorer. It is reviewed whene
 - [Troubleshooting](#troubleshooting)
 - [Python concepts glossary](#python-concepts-glossary)
 
+## Choose a learning path
+
+```text
+Code Explorer landing page
+|
++-- Start exploring Python
+|      +-- this implemented 134-program Python workspace
+|      +-- Tool Guide -> README.md
+|
++-- Python Data Structures and Algorithms
+       +-- separate Chunk 0 foundation preview
+       +-- Tool Guide -> README_DSA.md
+```
+
+The landing page does not display one ambiguous Tool Guide. Open a workspace to reach the guide that matches the selected learning path.
+
 ## Start here
 
 ### Your first trace
 
 1. Open Code Explorer.
-2. Select **Start exploring**.
+2. Select **Start exploring Python**.
 3. Leave the starter program in the editor, or replace it with your own Python.
 4. Select **Run trace**.
 5. Use the **Next step** button to move through the execution.
@@ -2981,7 +3000,7 @@ The privacy boundary can be summarized as three separate layers:
    -> contains no learner program, input, trace, clipboard, or local-storage data
 ```
 
-Selecting **Tool Guide** or the GitHub icon deliberately navigates to GitHub in a new tab. Both links use `noreferrer`, so Code Explorer does not send the current page address as a referrer through those links.
+Selecting **Tool Guide** inside the Python workspace or selecting the GitHub icon deliberately navigates to GitHub in a new tab. Both links use `noreferrer`, so Code Explorer does not send the current page address as a referrer through those links.
 
 This is a permanent project boundary: future contributors must not add first-party or third-party analytics, telemetry, tracking, advertising pixels, session recording, user profiling, fingerprinting, or automatic remote error reporting. A useful learning feature is not permission to monitor learners.
 
