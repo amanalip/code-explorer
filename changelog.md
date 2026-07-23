@@ -73,6 +73,19 @@ The correction was tested in light and dark themes at desktop and 390 by 844. Th
 
 This correction changes presentation only. It adds no curriculum programs, trace events, dependencies, storage keys, analytics, network requests, or execution limits. Desktop and 390 by 844 browser checks cover light and dark themes, playback movement, variable-card growth, selected-row movement, and page overflow.
 
+### Bounded DSA learning-panel scrolling
+
+- The DSA source and learning panels now keep matching explicit heights instead of using only minimum heights.
+- All 18 views share the same bounded stage. Long results under Trace, Data, Flow, and Labs scroll inside it with the mouse, trackpad, touch, keyboard, or visible scrollbar.
+- The desktop panel height is 690 pixels. The narrow-phone panel height is 590 pixels.
+- Contained overscroll prevents a view from unexpectedly handing movement to the page while it still has content to scroll.
+- A stable scrollbar gutter prevents the selected view width from jumping when its vertical scrollbar appears.
+- Playback, Console Output, and Chunk Status no longer move farther down the page as a selected view gains rows.
+
+This correction changes layout behavior only. It adds no programs, views, dependencies, storage keys, analytics, network requests, trace events, or execution limits.
+
+During the complete 18-view browser audit, Variables, Watches, and References exposed a missing `variablesForStep()` import left by the earlier state-comparison refactor. The import was restored before release, and the full view inventory was rerun without exceptions.
+
 ## v8, 2026-07-23
 
 v8 corrects the DSA workspace interface before the next curriculum chunk. It does not add programs, views, dependencies, storage, analytics, or new network behavior.

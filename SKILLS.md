@@ -58,6 +58,7 @@ The approved 535-program target has a curriculum quality contract. Counts alone 
 - One safe DSA study renderer for both comment surfaces, with visual line numbers, conservative syntax spans, explicit read-only chrome, note bands, and presentation text that never enters copied or adopted source.
 - A Python-parity DSA Learning comments dialog with Essential, Guided, and Detailed filtering, a live note summary, a three-part evidence legend, visibly separate curriculum-context rows, and a footer that remains reachable inside the bounded modal.
 - A wider DSA desktop boundary with one horizontal view-label row. The source and view columns stack before becoming cramped, while narrow screens scroll only the bounded label strip.
+- A fixed-height DSA source and learning pair shared by all 18 views: 690 pixels at laptop widths and 590 pixels on narrow phones. Any long result scrolls inside `#dsaViewStage` instead of expanding the complete workspace.
 - A stable playback grid with one grouped button row, a flexible timeline, and a fixed speed selector. The timeline receives its own row on narrow screens.
 - Local metadata search across every implemented DSA record, composed with vertical section filters and accurate per-section match counts.
 - Stable contracts for 31 event names, 20 structure representation names, required program metadata, and the 535-program Tier A arithmetic.
@@ -613,6 +614,9 @@ Category changes must set the card region's `scrollTop` to zero. Every mobile ca
 5. On a phone, allow horizontal overflow only inside the view-label strip. Never create page-level horizontal overflow.
 6. Verify the longest Data row, not only the shorter Trace row.
 7. Check tab baselines, panel height, and selected underline before and after changing areas and trace steps.
+8. Keep the source and learning panels at the same explicit height. A `min-height` alone does not constrain a CSS grid row when a child has tall intrinsic content.
+9. Keep `#dsaViewStage` as the vertical scroll owner with `min-height: 0`, `overflow: auto`, contained overscroll, and a stable scrollbar gutter.
+10. Test a short unavailable view and representative long views from Trace, Data, Flow, and Labs at the same viewport. The learning panel height and the top position of playback must remain unchanged while only `dsaViewStage.scrollTop` changes.
 
 ### Change a DSA trace-state view
 
@@ -762,6 +766,9 @@ Verify all three detail levels, inline on and off, unchanged source statistics, 
 - Search queries cleared after page navigation, created no search-related local-storage key, and were absent from request URLs.
 - Before and After displayed the exact selected step, line, and source above one full-width vertical card per visible name. Advancing playback added, retained, updated, and removed cards according to the recorded scopes rather than showing only one line's changes.
 - Step Table kept exactly one visible `Current step` label and `aria-current` row synchronized with Previous and Next movement. Operation Journey retained its existing selected-operation behavior.
+- A 14-row Step Table kept the desktop source and learning panels at 690 pixels. Its stage measured 593 visible pixels against 717 scrollable pixels, and `scrollTop` moved from 0 to 100 without changing panel height.
+- At 390 by 844, both primary panels measured 590 pixels, the Step Table stage measured 448 visible pixels against 656 scrollable pixels, and the four-card Before and After view measured 1,156 scrollable pixels. The page width remained exactly 390 pixels.
+- The bounded stage is keyboard-focusable, visibly identifies focus, and retains native mouse, trackpad, touch, and keyboard scrolling.
 
 ## Documentation completion test
 

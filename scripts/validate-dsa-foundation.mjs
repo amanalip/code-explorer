@@ -162,6 +162,10 @@ expect(
   dsaHtml.includes("blob/main/README_DSA.md"),
   "DSA workspace does not link to README_DSA.md.",
 );
+expect(
+  /id="dsaViewStage"[\s\S]*?role="tabpanel"[\s\S]*?tabindex="0"[\s\S]*?aria-label="Selected DSA learning view"/.test(dsaHtml),
+  "DSA view stage is missing its focusable keyboard-scrolling contract.",
+);
 
 // Every id read by the DSA controller must exist in the dedicated document.
 const requiredDsaIds = [
@@ -207,6 +211,14 @@ expect(
 expect(
   /\.dsa-change-grid\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)/.test(stylesSource),
   "Before and After does not retain one full-width card column.",
+);
+expect(
+  /\.dsa-workspace-grid\s*>\s*\.editor-panel,\s*[\s\S]*?\.dsa-learning-panel\s*\{[\s\S]*?height:\s*690px/.test(stylesSource),
+  "DSA desktop panels are missing their explicit 690-pixel height boundary.",
+);
+expect(
+  /\.dsa-view-stage\s*\{[\s\S]*?overflow:\s*auto[\s\S]*?overscroll-behavior:\s*contain[\s\S]*?scrollbar-gutter:\s*stable/.test(stylesSource),
+  "DSA view stage is missing its bounded internal scrolling contract.",
 );
 
 if (failures.length) {

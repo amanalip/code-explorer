@@ -8,24 +8,24 @@
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260723-9";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260723-9";
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260723-9";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260723-12";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260723-12";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260723-12";
 import {
   DSA_AREAS,
   DSA_CATALOG_TARGET,
   DSA_EVIDENCE_LABELS,
   DSA_STRUCTURE_TYPES,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260723-9";
+} from "./dsa-contracts.js?v=20260723-12";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260723-9";
+} from "./dsa-curriculum.js?v=20260723-12";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260723-9";
+} from "./dsa-curriculum-chunk2.js?v=20260723-12";
 import {
   DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
@@ -36,7 +36,8 @@ import {
   structureCandidate,
   variableChanges,
   variableComparisons,
-} from "./dsa-runtime.js?v=20260723-9";
+  variablesForStep,
+} from "./dsa-runtime.js?v=20260723-12";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
@@ -1440,7 +1441,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260723-9", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260723-12", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;

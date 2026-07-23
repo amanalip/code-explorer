@@ -232,6 +232,9 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm every Before and After card presents Before above After with visible labels and a downward cue. Long serialized values must wrap inside the card.
 - Confirm Step Table gives only the selected trace row `aria-current="true"` and visible `Current step` text, and that the marker follows Previous, Next, playback, restart, and timeline movement.
 - Confirm Operation Journey keeps its existing selected-event treatment and is not coupled to the Before and After or Step Table implementation.
+- Confirm the DSA source and learning panels remain 690 pixels high on desktop and 590 pixels high on narrow phones.
+- Open representative long results under Trace, Data, Flow, and Labs and confirm the learning panel and playback positions do not move as content grows. Mouse-wheel, trackpad, touch, and keyboard scrolling must move only the bounded DSA view stage.
+- Confirm `dsaViewStage.scrollHeight` can exceed `clientHeight`, its `scrollTop` changes, and the complete page gains no horizontal overflow.
 - Confirm exact reviewed stack, queue, deque, linked, hash, and set examples receive their documented conceptual orientation while edited or pasted source remains on the generic observed layout.
 - Confirm the Trace and Data view-label sets each remain on one horizontal row at desktop and laptop widths.
 - Confirm narrow screens scroll only inside the DSA view-label strip and never create page-level horizontal overflow.

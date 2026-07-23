@@ -180,6 +180,29 @@ NARROW LAPTOP OR PHONE
 
 At a wide laptop size, source and the selected learning view appear beside each other. Before either column becomes too narrow, the panels stack vertically. View names never break into an accidental second row. On a narrow phone, the view-label strip keeps one horizontal row and can scroll inside its own boundary. The complete page does not scroll sideways.
 
+### Scrolling long learning views
+
+The DSA source panel and learning panel keep stable heights. This is the shared contract for all 18 learning views. A long Step Table, Before and After list, Operation Journey, graph, comparison, or any other learning result does not keep enlarging the complete workspace.
+
+Move the pointer over the learning result and use a mouse wheel, trackpad gesture, touch scroll, Page Up, Page Down, Home, End, or the visible scrollbar. Only the result stage moves:
+
+```text
++---------------- DSA LEARNING PANEL ----------------+
+| TRACE | DATA | FLOW | LABS                         |
+| view tabs                              STEP 20 / 20 |
++----------------------------------------------------+
+|                                                    |
+|   long selected view                         ^     |
+|   scrolls inside this region                 |     |
+|                                              |     |
+|                                              v     |
++----------------------------------------------------+
+
+Playback, Console Output, and Chunk Status keep their positions below the bounded panel.
+```
+
+The learning result uses a stable scrollbar gutter, so its readable width does not jump when a short view becomes long enough to scroll. Short results remain inside the same stable region without needing vertical movement. On a phone, the panel uses a shorter but still bounded height. The view-label strip can scroll horizontally, while the selected learning result scrolls vertically.
+
 ## The 197-program curriculum
 
 ### Exact implemented counts

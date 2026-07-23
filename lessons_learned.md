@@ -2851,6 +2851,69 @@ What to repeat:
 - Inspect existing neighboring views before proposing duplicate behavior.
 - State corrections honestly and credit the person who found the missing contract.
 
+# DSA bounded-panel scrolling lessons learned by the user
+
+## 85. A scrollbar declaration is ineffective until an ancestor supplies a real height boundary
+
+Aman compared the completed Python workspace with the DSA workspace using a long result. The Python panel kept its size and accepted mouse-wheel scrolling. The DSA stage already declared `overflow: auto`, but the complete panel continued growing. That observation revealed that the problem was not a missing scrollbar style. The parent grid had only `min-height`, so tall child content was still allowed to enlarge the grid row.
+
+Credit belongs to Aman for testing the same learner action in both workspaces and describing the difference in behavior. The screenshot showed the practical cost clearly: a 20-row Step Table pushed playback and later panels far below the useful source comparison area.
+
+The learner expectation is:
+
+```text
+More trace rows
+      |
+      +-- increase the stage's scrollable content
+      |
+      +-- do not increase the workspace panel height
+```
+
+# DSA bounded-panel scrolling lessons learned by Codex
+
+## 86. Test overflow through geometry and interaction, not the CSS property alone
+
+Codex had previously documented `.dsa-view-stage` as internally scrollable because it used `overflow: auto`. That statement was incomplete. Overflow activates only when the element is smaller than its content. Since `.dsa-learning-panel` had a minimum height but no explicit height, the grid could satisfy the content by growing instead.
+
+The correction gives the primary panels explicit heights and keeps the one shared 18-view stage in a `minmax(0, 1fr)` row. The rule belongs to the stage rather than an individual renderer, so present and future Trace, Data, Flow, and Labs views inherit it automatically. Reliable verification must measure:
+
+- The learning panel height before and after opening a long view.
+- The stage's `clientHeight` and `scrollHeight`.
+- A real increase in `scrollTop` after wheel or keyboard input.
+- The playback panel's top position before and after trace growth.
+- Page and stage widths at desktop and narrow-phone viewports.
+
+What to repeat:
+
+1. Compare a short view and the longest realistic view.
+2. Measure geometry rather than inferring it from `overflow: auto`.
+3. Test real mouse or trackpad scrolling inside the intended region.
+4. Keep scroll ownership visually and structurally clear.
+5. Use a stable scrollbar gutter when scrollbar appearance would otherwise move content.
+6. Recheck both themes and the mobile height override.
+
+# DSA complete-view regression lesson learned by Codex
+
+## 87. A focused helper replacement still requires every consumer view to run
+
+While changing Before and After from `variablesForStep()` to the new `variableComparisons()` helper, Codex removed `variablesForStep()` from the shared import list. Before and After continued working, but Variables, Watches, and References still depended on the original helper. Static JavaScript syntax checks could not detect the missing runtime name.
+
+The new all-view scrolling audit exposed the error immediately by selecting all 18 views after a completed trace. Restoring both imports was the correct fix because the helpers serve different contracts:
+
+```text
+variableComparisons() -> complete adjacent-state cards
+variablesForStep()    -> one selected snapshot for Data views
+```
+
+Codex caused this regression and should record it plainly. The prevention rule is to search every use of an imported helper before removing it, then execute every registered renderer after changing a shared import list.
+
+What to repeat:
+
+1. Use `rg` to count every remaining helper reference before changing imports.
+2. Treat `node --check` as syntax evidence, not runtime completeness.
+3. Select all 18 DSA views after any shared renderer, runtime, or import change.
+4. Fail the release when any view logs a console exception, even if the feature under direct development looks correct.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

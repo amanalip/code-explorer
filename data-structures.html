@@ -24,7 +24,7 @@
     <link rel="preconnect" href="https://esm.sh" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <!-- The synchronized version query prevents stale cross-workspace styling. -->
-    <link rel="stylesheet" href="styles.css?v=20260723-9" />
+    <link rel="stylesheet" href="styles.css?v=20260723-12" />
   </head>
   <body class="dsa-page">
     <!-- The shared decorative layer never enters the accessibility tree. -->
@@ -182,8 +182,18 @@
               <div class="panel-tabs dsa-view-tabs" id="dsaViewTabs" role="tablist" aria-label="DSA learning view"></div>
               <span class="step-count" id="dsaStepCount">STEP 00 / 00</span>
             </div>
-            <!-- Contract previews use static reviewed text and never interpret learner source. -->
-            <div class="dsa-view-stage" id="dsaViewStage" role="tabpanel"></div>
+            <!--
+              The selected result owns bounded mouse, touch, and keyboard scrolling.
+              A focusable tab panel lets keyboard learners use Page Up, Page Down,
+              Home, End, and arrow keys without moving the complete page.
+            -->
+            <div
+              class="dsa-view-stage"
+              id="dsaViewStage"
+              role="tabpanel"
+              tabindex="0"
+              aria-label="Selected DSA learning view"
+            ></div>
           </section>
 
           <!-- Playback controls navigate the completed recording without rerunning Python. -->
@@ -356,6 +366,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- One version keeps this page aligned with its contracts and shared modules. -->
-    <script type="module" src="dsa-app.js?v=20260723-9"></script>
+    <script type="module" src="dsa-app.js?v=20260723-12"></script>
   </body>
 </html>

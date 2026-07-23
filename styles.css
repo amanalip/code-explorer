@@ -3153,9 +3153,14 @@ main {
   grid-area: auto;
 }
 
-/* Both primary DSA panels use stable heights so view changes cannot cause page shaking. */
+/*
+  Both primary DSA panels use one explicit desktop height. A minimum alone would
+  allow a long table or variable history to enlarge the complete grid row, so
+  the learning stage would push playback and output farther down the page.
+*/
 .dsa-workspace-grid > .editor-panel,
 .dsa-learning-panel {
+  height: 690px;
   min-height: 690px;
 }
 
@@ -3197,17 +3202,30 @@ main {
   left: 8px;
 }
 
-/* The stage centers one readable contract card while reserving stable space for future renderers. */
+/*
+  The stage owns vertical mouse, trackpad, touch, and keyboard scrolling. Its
+  parent has a fixed height, so long views scroll here instead of expanding the
+  complete workspace. A stable gutter prevents the content width from shifting
+  when a scrollbar first becomes necessary.
+*/
 .dsa-view-stage {
   display: grid;
   min-height: 0;
   place-items: center;
   padding: clamp(22px, 4vw, 48px);
   overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   background:
     linear-gradient(var(--graph-grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--graph-grid) 1px, transparent 1px);
   background-size: 31px 31px;
+}
+
+/* Keyboard focus identifies the exact bounded region that arrow and page keys will scroll. */
+.dsa-view-stage:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: -3px;
 }
 
 /* The preview card uses strong hierarchy so an unavailable result still teaches the view's purpose. */
@@ -5328,6 +5346,7 @@ main {
   /* Mobile editor and learning panels remain bounded while providing useful study height. */
   .dsa-workspace-grid > .editor-panel,
   .dsa-learning-panel {
+    height: 590px;
     min-height: 590px;
   }
 
