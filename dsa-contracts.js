@@ -1,8 +1,8 @@
 /**
  * Data Structures and Algorithms shared contracts.
  *
- * Chunk 0 defined stable names and relationships. Chunk 1 connects the first
- * six curriculum sections to bounded execution and evidence-aware views.
+ * Chunk 0 defined stable names and relationships. Chunks 1 and 2 connect the
+ * first nine curriculum sections to bounded execution and evidence-aware views.
  * Remaining catalog sections are still planning contracts, not implementation
  * claims.
  */
@@ -18,7 +18,7 @@ export const DSA_AREAS = Object.freeze([
 /**
  * Final approved DSA view inventory.
  *
- * Purpose text describes the intended learner question. Chunk 1 renderers use
+ * Purpose text describes the intended learner question. DSA renderers use
  * observed trace evidence, reviewed curriculum context, or an explicit
  * unavailable state according to the source and selected view.
  */
@@ -52,7 +52,7 @@ export const DSA_EVIDENCE_LABELS = Object.freeze({
 });
 
 /**
- * Normalized runtime vocabulary used by Chunk 1 cues and reserved for later
+ * Normalized runtime vocabulary used by current cues and reserved for later
  * structure-specific instrumentation. Events remain neutral facts; renderers
  * add meaning only after checking trace evidence and curriculum metadata.
  */

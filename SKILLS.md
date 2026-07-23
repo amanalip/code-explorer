@@ -22,11 +22,11 @@ Recorded execution
 
 The tool records a bounded execution first and then replays it. Playback breakpoints and timeline controls navigate the recorded trace. They do not pause the original Python interpreter.
 
-`Tier.md` records the Tier A, B, and C curriculum for the separate Data Structures workspace. Chunk 1 implements the first 131 reviewed programs across six sections, local execution, playback, and all 18 DSA learning views. The complete Tier A target remains 535, so 404 programs remain unimplemented. Do not treat a later listed structure, algorithm, renderer extension, or program as implemented unless code, verification, and learner-visible documentation prove it.
+`Tier.md` records the Tier A, B, and C curriculum for the separate Data Structures workspace. Chunk 2 implements the first 197 reviewed programs across nine sections, local execution, playback, and all 18 DSA learning views. The complete Tier A target remains 535, so 338 programs remain unimplemented. Do not treat a later listed structure, algorithm, renderer extension, or program as implemented unless code, verification, and learner-visible documentation prove it.
 
 Documentation routing is implemented: `index.html` has no ambiguous Tool Guide control, its two matching primary actions open the Python and DSA paths, `workspace.html` links to `README.md`, and `data-structures.html` links to `README_DSA.md`.
 
-The DSA guide documents every active Chunk 1 execution, serialization, display, history, comparison, explanation, complexity, persistence, platform, and curriculum boundary. It states the verified value, what is counted, why it exists, threshold behavior, whether execution stopped or presentation was shortened, what evidence remains safe, and what the learner can try next.
+The DSA guide documents every active Chunk 2 execution, serialization, display, history, comparison, explanation, complexity, persistence, platform, and curriculum boundary. It states the verified value, what is counted, why it exists, threshold behavior, whether execution stopped or presentation was shortened, what evidence remains safe, and what the learner can try next.
 
 The approved 535-program target has a curriculum quality contract. Counts alone never establish completion. Each section must progress from focused foundations through standard operations, meaningful variations, applied programs, and comparisons. Reject constant-only or name-only variations, filler lines, incoherent scripts, weak metadata, and examples whose recommended views have nothing useful to show. Validation must report line-count distributions and near-duplicate candidates, while human review must judge correctness, teaching depth, readability, coherent progression, and whether longer concepts received enough space. Short programs remain valid when the concept is genuinely atomic.
 
@@ -45,10 +45,10 @@ The approved 535-program target has a curriculum quality contract. Counts alone 
 - Explicit Dark mode and Light mode control.
 - Copyright attribution for Aman Ali Pogaku.
 
-### DSA Chunk 1 core sequences
+### DSA Chunk 2 linear and hashed structures
 
 - Separate DSA `main.py` source, prepared input, active-view state, and editor preferences.
-- 131 reviewed programs: 24 foundations, 12 abstract data types, 42 Python-native containers, 20 array and sequence techniques, 9 searches, and 24 sorting lessons.
+- 197 reviewed programs: 24 foundations, 12 abstract data types, 42 Python-native containers, 20 array and sequence techniques, 9 searches, 24 sorting lessons, 22 stack, queue, and deque lessons, 20 linked-structure lessons, and 24 hash-table and set lessons.
 - CodeMirror Python editing with a native textarea fallback, wrapping, six font sizes, whole-document Copy and Paste, and local source statistics.
 - Existing `py-worker.js` local execution with a 3,000-step trace limit and a 30-second outer worker timeout.
 - Working playback and 18 views grouped under Trace, Data, Flow, and Labs.
@@ -59,7 +59,7 @@ The approved 535-program target has a curriculum quality contract. Counts alone 
 - Bounded DSA presentation: 12 watches, 30 structure entries, 30 journey events, 80 path transitions, 120 table rows, and 2 comparison summaries.
 - `scripts/validate-dsa-foundation.mjs` checks contracts, routes, guide targets, and required HTML ids.
 - `scripts/validate-dsa-curriculum.mjs` validates exact counts, schema, uniqueness, source depth, metadata, and near-duplicate candidates.
-- `scripts/validate_dsa_curriculum.py` compiles, executes, and checks the expected result for all 131 detached programs.
+- `scripts/validate_dsa_curriculum.py` compiles, executes, and checks the expected result for all 197 detached programs.
 
 ### DSA evidence flow
 
@@ -253,6 +253,11 @@ dsa-app.js
      |      +-- 6 Chunk 1 sections
      |      +-- 131 reviewed records
      |
+     +-- dsa-curriculum-chunk2.js
+     |      +-- 3 Chunk 2 sections
+     |      +-- 66 reviewed records
+     |      +-- 197 combined reviewed records
+     |
      +-- dsa-runtime.js
      |      +-- pure observed-evidence helpers
      |      +-- bounded comment generation
@@ -381,7 +386,7 @@ The `learningComments` result contains JSON-compatible records with `line`, `lev
 ### DSA controller relationships
 
 - `state.code` is separate from Python-workspace source and is saved under `code-explorer-dsa-source`.
-- `state.program` is non-null only when normalized editor source exactly matches one reviewed `DSA_CHUNK_ONE_PROGRAMS` record.
+- `state.program` is non-null only when normalized editor source exactly matches one record in the combined implemented DSA catalog.
 - `state.trace`, `state.error`, `state.loops`, `state.conditions`, and `state.inputLog` come from the local worker result.
 - `state.comparisonRuns` keeps at most two in-session summaries. It is not persistent learner progress.
 - `state.preparedInputs` is local browser text and is capped at 20,000 characters when loaded.
@@ -390,6 +395,8 @@ The `learningComments` result contains JSON-compatible records with `line`, `lev
 - Editing source immediately clears the old trace, error, comments, comparison eligibility, and exact reviewed-program identity.
 - Reviewed phases, invariants, edge cases, complexity, and comparison groups must read from `state.program`, never from source-text heuristics.
 - Observed views must read from worker evidence and remain useful when `state.program` is null.
+- Structure Canvas may use `state.program.structures` to orient observed cells as a stack, queue, deque, linked structure, hash table, or set only after that exact reviewed match succeeds.
+- The role label never changes the serialized value or claims a physical memory layout. Learner-authored or modified source receives the generic observed structure layout.
 
 ## Persistence inventory
 

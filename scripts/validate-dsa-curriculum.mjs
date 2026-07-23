@@ -1,5 +1,5 @@
 /**
- * Structural and teaching-metadata validator for the Chunk 1 DSA curriculum.
+ * Structural and teaching-metadata validator for the implemented DSA curriculum.
  *
  * This dependency-free script proves exact counts, schema completeness,
  * contract references, source uniqueness, useful source depth, and documented
@@ -18,6 +18,14 @@ import {
   DSA_CHUNK_ONE_SECTIONS,
   DSA_DIFFICULTIES,
 } from "../dsa-curriculum.js";
+import {
+  DSA_CHUNK_TWO_PROGRAMS,
+  DSA_CHUNK_TWO_SECTIONS,
+} from "../dsa-curriculum-chunk2.js";
+
+/** The release validator treats committed chunks as one ordered catalog. */
+const IMPLEMENTED_PROGRAMS = [...DSA_CHUNK_ONE_PROGRAMS, ...DSA_CHUNK_TWO_PROGRAMS];
+const IMPLEMENTED_SECTIONS = [...DSA_CHUNK_ONE_SECTIONS, ...DSA_CHUNK_TWO_SECTIONS];
 
 /** Throws a readable release-blocking error when one contract is false. */
 function expect(condition, message) {
@@ -43,20 +51,22 @@ function lineSimilarity(leftProgram, rightProgram) {
   return union ? shared / union : 0;
 }
 
-const sectionNames = new Set(DSA_CHUNK_ONE_SECTIONS.map(([name]) => name));
+const sectionNames = new Set(IMPLEMENTED_SECTIONS.map(([name]) => name));
 const structureNames = new Set(DSA_STRUCTURE_TYPES);
 const eventNames = new Set(DSA_EVENT_TYPES);
 const viewNames = new Set(DSA_VIEWS.map((view) => view.label));
 const difficultyNames = new Set(DSA_DIFFICULTIES);
 
 expect(DSA_CHUNK_ONE_PROGRAMS.length === 131, `Chunk 1 has ${DSA_CHUNK_ONE_PROGRAMS.length} programs, not 131.`);
+expect(DSA_CHUNK_TWO_PROGRAMS.length === 66, `Chunk 2 has ${DSA_CHUNK_TWO_PROGRAMS.length} programs, not 66.`);
+expect(IMPLEMENTED_PROGRAMS.length === 197, `Implemented catalog has ${IMPLEMENTED_PROGRAMS.length} programs, not 197.`);
 
 const uniqueIds = new Set();
 const uniqueTitles = new Set();
 const uniqueObjectives = new Set();
 const uniqueSources = new Set();
 
-for (const program of DSA_CHUNK_ONE_PROGRAMS) {
+for (const program of IMPLEMENTED_PROGRAMS) {
   for (const field of DSA_PROGRAM_REQUIRED_FIELDS) {
     expect(field in program, `${program.id} is missing required field ${field}.`);
   }
@@ -93,20 +103,20 @@ for (const program of DSA_CHUNK_ONE_PROGRAMS) {
   }
 }
 
-for (const [section, expectedCount] of DSA_CHUNK_ONE_SECTIONS) {
-  const actualCount = DSA_CHUNK_ONE_PROGRAMS.filter((program) => program.section === section).length;
+for (const [section, expectedCount] of IMPLEMENTED_SECTIONS) {
+  const actualCount = IMPLEMENTED_PROGRAMS.filter((program) => program.section === section).length;
   expect(actualCount === expectedCount, `${section} has ${actualCount} programs, not ${expectedCount}.`);
 }
 
 // Similarity above this conservative threshold blocks obvious copy variants.
 const nearDuplicates = [];
-for (let left = 0; left < DSA_CHUNK_ONE_PROGRAMS.length; left += 1) {
-  for (let right = left + 1; right < DSA_CHUNK_ONE_PROGRAMS.length; right += 1) {
-    const similarity = lineSimilarity(DSA_CHUNK_ONE_PROGRAMS[left], DSA_CHUNK_ONE_PROGRAMS[right]);
+for (let left = 0; left < IMPLEMENTED_PROGRAMS.length; left += 1) {
+  for (let right = left + 1; right < IMPLEMENTED_PROGRAMS.length; right += 1) {
+    const similarity = lineSimilarity(IMPLEMENTED_PROGRAMS[left], IMPLEMENTED_PROGRAMS[right]);
     if (similarity >= 0.9) {
       nearDuplicates.push({
-        left: DSA_CHUNK_ONE_PROGRAMS[left].id,
-        right: DSA_CHUNK_ONE_PROGRAMS[right].id,
+        left: IMPLEMENTED_PROGRAMS[left].id,
+        right: IMPLEMENTED_PROGRAMS[right].id,
         similarity,
       });
     }
@@ -114,13 +124,15 @@ for (let left = 0; left < DSA_CHUNK_ONE_PROGRAMS.length; left += 1) {
 }
 expect(nearDuplicates.length === 0, `Near-duplicate sources found: ${JSON.stringify(nearDuplicates)}.`);
 
-const lineCounts = DSA_CHUNK_ONE_PROGRAMS.map(sourceLines).sort((left, right) => left - right);
+const lineCounts = IMPLEMENTED_PROGRAMS.map(sourceLines).sort((left, right) => left - right);
 const longPrograms = lineCounts.filter((count) => count >= 15).length;
-expect(longPrograms >= 25, `Only ${longPrograms} Chunk 1 programs have at least 15 meaningful lines.`);
+// At least forty-five longer lessons protects substantial workflows while
+// allowing focused O(1) operations to remain concise and readable.
+expect(longPrograms >= 45, `Only ${longPrograms} implemented programs have at least 15 meaningful lines.`);
 
 const sectionReport = Object.fromEntries(
-  DSA_CHUNK_ONE_SECTIONS.map(([section]) => {
-    const counts = DSA_CHUNK_ONE_PROGRAMS
+  IMPLEMENTED_SECTIONS.map(([section]) => {
+    const counts = IMPLEMENTED_PROGRAMS
       .filter((program) => program.section === section)
       .map(sourceLines)
       .sort((left, right) => left - right);
@@ -137,10 +149,10 @@ const exportFlag = process.argv.indexOf("--export");
 if (exportFlag !== -1) {
   const exportPath = process.argv[exportFlag + 1];
   expect(exportPath, "--export requires a destination path.");
-  await writeFile(exportPath, JSON.stringify(DSA_CHUNK_ONE_PROGRAMS, null, 2));
-  console.log(`Exported ${DSA_CHUNK_ONE_PROGRAMS.length} detached DSA programs to ${exportPath}.`);
+  await writeFile(exportPath, JSON.stringify(IMPLEMENTED_PROGRAMS, null, 2));
+  console.log(`Exported ${IMPLEMENTED_PROGRAMS.length} detached DSA programs to ${exportPath}.`);
 }
 
-console.log("Chunk 1 DSA curriculum validation passed.");
+console.log("Implemented DSA curriculum validation passed.");
 console.log(JSON.stringify(sectionReport, null, 2));
 console.log(`${longPrograms} programs contain at least 15 meaningful source lines.`);

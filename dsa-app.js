@@ -1,26 +1,30 @@
 /**
  * Code Explorer Data Structures and Algorithms workspace controller.
  *
- * Chunk 1 connects the separate editor to 131 reviewed programs, the shared
+ * Chunk 2 connects the separate editor to 197 reviewed programs, the shared
  * bounded Python worker, trace playback, eighteen evidence-aware learning
  * views, prepared input, and non-destructive study comments. All persistence is
  * same-origin browser storage. No learner source or derived trace leaves the
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260723-2";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260723-2";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260723-3";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260723-3";
 import {
   DSA_AREAS,
   DSA_CATALOG_TARGET,
   DSA_EVIDENCE_LABELS,
   DSA_STRUCTURE_TYPES,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260723-2";
+} from "./dsa-contracts.js?v=20260723-3";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260723-2";
+} from "./dsa-curriculum.js?v=20260723-3";
+import {
+  DSA_CHUNK_TWO_PROGRAMS,
+  DSA_CHUNK_TWO_SECTIONS,
+} from "./dsa-curriculum-chunk2.js?v=20260723-3";
 import {
   buildDsaCommentedSource,
   classifyDsaEvent,
@@ -30,10 +34,22 @@ import {
   structureCandidate,
   variableChanges,
   variablesForStep,
-} from "./dsa-runtime.js?v=20260723-2";
+} from "./dsa-runtime.js?v=20260723-3";
+
+/** Implemented sections remain in teaching order across committed chunks. */
+const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
+  ...DSA_CHUNK_ONE_SECTIONS,
+  ...DSA_CHUNK_TWO_SECTIONS,
+]);
+
+/** One immutable catalog supports matching, filtering, comparison, and counts. */
+const DSA_IMPLEMENTED_PROGRAMS = Object.freeze([
+  ...DSA_CHUNK_ONE_PROGRAMS,
+  ...DSA_CHUNK_TWO_PROGRAMS,
+]);
 
 /** The first reviewed program is the safe source for a learner's first visit. */
-const DEFAULT_DSA_CODE = DSA_CHUNK_ONE_PROGRAMS[0].code;
+const DEFAULT_DSA_CODE = DSA_IMPLEMENTED_PROGRAMS[0].code;
 
 /** Same-origin keys remain separate from the original Python workspace. */
 const STORAGE_KEYS = Object.freeze({
@@ -192,7 +208,7 @@ function setRuntimeStatus(text, mode = "idle") {
 
 /** Finds a reviewed record only when the complete source matches exactly. */
 function matchingProgram(code = state.editor?.getCode() ?? state.code) {
-  return DSA_CHUNK_ONE_PROGRAMS.find((program) => program.code === code) || null;
+  return DSA_IMPLEMENTED_PROGRAMS.find((program) => program.code === code) || null;
 }
 
 /** Updates line and character counts from original editable source only. */
@@ -448,7 +464,7 @@ function renderAlgorithmStory() {
     const phases = makeElement("ol", "dsa-phase-list");
     state.activeProgram.phases.forEach((phase) => phases.append(makeElement("li", "", phase)));
     context.append(phases);
-    context.append(makeElement("p", "dsa-honesty-note", "The reviewed phases describe the complete program. Chunk 1 does not guess which named phase owns an arbitrary pasted line."));
+    context.append(makeElement("p", "dsa-honesty-note", "The reviewed phases describe the complete program. Code Explorer does not guess which named phase owns an arbitrary pasted line."));
     article.append(context);
   } else {
     const boundary = makeElement("section", "dsa-evidence-card unavailable-card");
@@ -585,7 +601,7 @@ function renderWatches() {
   const article = makeElement("article", "dsa-runtime-view");
   article.append(evidenceBadge("observed"));
   article.append(makeElement("h2", "", "Suggested watches"));
-  article.append(makeElement("p", "dsa-honesty-note", "Chunk 1 suggests up to 12 visible names. It does not record progress or claim that every suggested name controls the algorithm."));
+  article.append(makeElement("p", "dsa-honesty-note", "Code Explorer suggests up to 12 visible names. It does not record progress or claim that every suggested name controls the algorithm."));
   const list = makeElement("div", "dsa-watch-list");
   names.forEach((name) => {
     const row = makeElement("div", "dsa-watch-row");
@@ -597,7 +613,35 @@ function renderWatches() {
   els.dsaViewStage.replaceChildren(article);
 }
 
-/** Renders one bounded list, tuple, set, deque, or dictionary as readable cells. */
+/**
+ * Selects one reviewed visual role for an exact catalog program.
+ *
+ * Runtime snapshots describe Python values, while this optional role explains
+ * how the reviewed lesson uses those values as a stack, queue, linked chain,
+ * hash table, set, or ordinary sequence.
+ *
+ * @returns {string} Stable CSS role or an empty string for pasted source.
+ */
+function reviewedStructureRole() {
+  if (!state.activeProgram) return "";
+  const roles = [
+    "stack", "queue", "deque", "singly-linked-list", "doubly-linked-list",
+    "circular-linked-list", "hash-table", "set",
+  ];
+  return state.activeProgram.structureTypes.find((type) => roles.includes(type)) || "";
+}
+
+/** Returns a position label that teaches the reviewed structure orientation. */
+function structurePositionLabel(role, index, count) {
+  if (role === "stack") return index === count - 1 ? "TOP" : index === 0 ? "BASE" : String(index);
+  if (role === "queue" || role === "deque") return index === 0 ? "FRONT" : index === count - 1 ? "REAR" : String(index);
+  if (role.includes("linked-list")) return index === 0 ? "HEAD" : index === count - 1 ? "TAIL" : String(index);
+  if (role === "hash-table") return `ENTRY ${index}`;
+  if (role === "set") return "MEMBER";
+  return String(index);
+}
+
+/** Renders one bounded container using observed values and optional reviewed orientation. */
 function renderStructureCanvas() {
   const candidate = structureCandidate(selectedStep());
   if (!candidate) {
@@ -605,16 +649,21 @@ function renderStructureCanvas() {
     return;
   }
   const { name, value } = candidate;
+  const role = reviewedStructureRole();
   const article = makeElement("article", "dsa-runtime-view");
   article.append(evidenceBadge("observed"));
   article.append(makeElement("h2", "", `${name} · ${value.type}`));
-  const cells = makeElement("div", "dsa-structure-cells");
+  if (role) {
+    article.append(evidenceBadge("curriculum"));
+    article.append(makeElement("p", "dsa-honesty-note", `Reviewed representation: ${role}. The cells below are observed serialized Python values, not physical memory slots.`));
+  }
+  const cells = makeElement("div", `dsa-structure-cells ${role ? `role-${role}` : ""}`.trim());
   const entries = Array.isArray(value.entries)
     ? value.entries.map((entry) => `${serializedLabel(entry.key)}: ${serializedLabel(entry.value)}`)
     : (value.items || []).map(serializedLabel);
   entries.slice(0, LIMITS.structureCells).forEach((label, index) => {
     const cell = makeElement("div", "dsa-structure-cell");
-    cell.append(makeElement("span", "", String(index)));
+    cell.append(makeElement("span", "", structurePositionLabel(role, index, Math.min(entries.length, LIMITS.structureCells))));
     cell.append(makeElement("code", "", label));
     cells.append(cell);
   });
@@ -700,7 +749,7 @@ function renderInvariantChecker() {
     state.activeProgram.invariants.forEach((invariant) => list.append(makeElement("li", "", invariant)));
     article.append(list);
   }
-  article.append(makeElement("p", "dsa-honesty-note", "Chunk 1 presents these rules as reviewed curriculum context. It does not label them passed unless a program explicitly prints or records its own check."));
+  article.append(makeElement("p", "dsa-honesty-note", "Code Explorer presents these rules as reviewed curriculum context. It does not label them passed unless a program explicitly prints or records its own check."));
   els.dsaViewStage.replaceChildren(article);
 }
 
@@ -735,7 +784,7 @@ function renderOperationJourney() {
   els.dsaViewStage.replaceChildren(article);
 }
 
-/** Renders visited source lines and counts as the honest Chunk 1 path. */
+/** Renders visited source lines and counts as an honest bounded path. */
 function renderAlgorithmPath() {
   if (!state.trace.length) {
     renderUnavailable("No execution path", "Run a program to see the source lines Python actually reached.");
@@ -865,7 +914,7 @@ function renderCompareAlgorithms() {
     els.dsaViewStage.replaceChildren(article);
     return;
   }
-  const related = DSA_CHUNK_ONE_PROGRAMS.filter((program) => program.comparisonGroup === state.activeProgram.comparisonGroup);
+  const related = DSA_IMPLEMENTED_PROGRAMS.filter((program) => program.comparisonGroup === state.activeProgram.comparisonGroup);
   article.append(makeElement("p", "", `Reviewed group: ${state.activeProgram.comparisonGroup}. Run related programs one at a time with equivalent inputs.`));
   const programs = makeElement("div", "dsa-related-programs");
   related.forEach((program) => {
@@ -1044,7 +1093,7 @@ function replaceWithCommentedSource() {
 
 /** Renders vertical section filters with exact counts. */
 function renderCatalogFilters() {
-  const filters = [["All programs", DSA_CHUNK_ONE_PROGRAMS.length], ...DSA_CHUNK_ONE_SECTIONS];
+  const filters = [["All programs", DSA_IMPLEMENTED_PROGRAMS.length], ...DSA_IMPLEMENTED_SECTIONS];
   els.dsaExampleFilters.replaceChildren(
     ...filters.map(([name, count], index) => {
       const button = makeElement("button", `example-filter ${state.activeFilter === name ? "active" : ""}`);
@@ -1091,10 +1140,10 @@ function programCard(program) {
 /** Renders filtered program cards and an accurate visible count. */
 function renderCatalogPrograms() {
   const visible = state.activeFilter === "All programs"
-    ? DSA_CHUNK_ONE_PROGRAMS
-    : DSA_CHUNK_ONE_PROGRAMS.filter((program) => program.section === state.activeFilter);
+    ? DSA_IMPLEMENTED_PROGRAMS
+    : DSA_IMPLEMENTED_PROGRAMS.filter((program) => program.section === state.activeFilter);
   els.dsaExampleGrid.replaceChildren(...visible.map(programCard));
-  els.dsaExampleCount.textContent = `Showing ${visible.length} of ${DSA_CHUNK_ONE_PROGRAMS.length} programs`;
+  els.dsaExampleCount.textContent = `Showing ${visible.length} of ${DSA_IMPLEMENTED_PROGRAMS.length} programs`;
 }
 
 /** Opens the implemented catalog without changing source. */
@@ -1123,7 +1172,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260723-2", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260723-3", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;
@@ -1266,7 +1315,7 @@ function loadRunResult(result) {
   showToast(message, Boolean(state.error));
 }
 
-/** Binds all implemented Chunk 1 controls in one auditable location. */
+/** Binds all implemented DSA controls in one auditable location. */
 function bindEvents() {
   const themeControls = { button: els.themeButton, label: els.themeLabel };
   els.themeButton.addEventListener("click", () => toggleTheme(themeControls));
@@ -1300,7 +1349,7 @@ function bindEvents() {
 }
 
 /**
- * Starts the verified Chunk 1 workspace and mounts CodeMirror or its fallback.
+ * Starts the verified DSA workspace and mounts CodeMirror or its fallback.
  *
  * @returns {Promise<void>} Resolves after the editor and interface are ready.
  */
@@ -1330,11 +1379,11 @@ async function initialize() {
   renderAutomaticComments();
   renderActiveView();
 
-  els.dsaImplementedCount.textContent = String(DSA_CHUNK_ONE_PROGRAMS.length);
-  els.dsaSectionCount.textContent = String(DSA_CHUNK_ONE_SECTIONS.length);
+  els.dsaImplementedCount.textContent = String(DSA_IMPLEMENTED_PROGRAMS.length);
+  els.dsaSectionCount.textContent = String(DSA_IMPLEMENTED_SECTIONS.length);
   els.dsaStructureCount.textContent = String(DSA_STRUCTURE_TYPES.length);
   els.dsaCatalogTarget.textContent = String(DSA_CATALOG_TARGET);
-  setRuntimeStatus("Chunk 1 ready", "ready");
+  setRuntimeStatus("Chunk 2 ready", "ready");
 }
 
 initialize();

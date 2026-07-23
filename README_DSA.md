@@ -6,12 +6,12 @@ Everything runs on the learner's device. Code Explorer does not collect learner 
 
 ## Current release status
 
-The DSA workspace is at **Chunk 1: core sequences**.
+The DSA workspace is at **Chunk 2: linear and hashed structures**.
 
-Chunk 1 implements:
+Chunks 1 and 2 implement:
 
-- 131 reviewed and executable curriculum programs.
-- 6 ordered curriculum sections.
+- 197 reviewed and executable curriculum programs.
+- 9 ordered curriculum sections.
 - A vertical example browser with section counts, difficulty, line count, objective, complexity, and recommended views.
 - Local Python execution through the same isolated Pyodide worker used by the Python workspace.
 - A 3,000-step trace limit and a 30-second outer timeout.
@@ -20,14 +20,14 @@ Chunk 1 implements:
 - Automatic comments, Learning comments, wrapping, font sizing, Copy, Paste, prepared input, source persistence, and theme persistence.
 - 20 approved structure representation names and 31 stable DSA event names.
 
-Chunk 1 does **not** implement all of Tier A. The approved Tier A target is 535 programs, so 404 programs and their later structure families remain unimplemented. A planned program, structure, view extension, or algorithm in `Tier.md` is not an implemented claim.
+Chunk 2 does **not** implement all of Tier A. The approved Tier A target is 535 programs, so 338 programs and their later structure families remain unimplemented. A planned program, structure, view extension, or algorithm in `Tier.md` is not an implemented claim.
 
 ## Contents
 
 - [Start here](#start-here)
 - [Choose the correct workspace](#choose-the-correct-workspace)
 - [Workspace map](#workspace-map)
-- [The 131-program curriculum](#the-131-program-curriculum)
+- [The 197-program curriculum](#the-197-program-curriculum)
 - [Your first guided run](#your-first-guided-run)
 - [Editor controls](#editor-controls)
 - [Trace playback](#trace-playback)
@@ -110,8 +110,8 @@ DATA STRUCTURES AND ALGORITHMS WORKSPACE
 |   +-- Paste
 |
 +-- CURRICULUM
-|   +-- 131 reviewed programs
-|   +-- 6 vertical section filters
+|   +-- 197 reviewed programs
+|   +-- 9 vertical section filters
 |   +-- objective and description
 |   +-- difficulty and line count
 |   +-- reviewed time and space context
@@ -153,7 +153,7 @@ DATA STRUCTURES AND ALGORITHMS WORKSPACE
     +-- clear visual output without changing the program
 ```
 
-## The 131-program curriculum
+## The 197-program curriculum
 
 ### Exact implemented counts
 
@@ -165,11 +165,14 @@ DATA STRUCTURES AND ALGORITHMS WORKSPACE
 | 04 | Arrays and sequence techniques | 20 | Traversal, two pointers, sliding windows, prefix sums, partitioning, intervals, selection, and matrices |
 | 05 | Searching | 9 | Linear search, binary search, boundaries, insertion points, and repeated queries |
 | 06 | Sorting and sorting properties | 24 | Elementary sorts, divide-and-conquer sorts, non-comparison sorts, stability, adaptiveness, and input shape |
-| **Total** | **Chunk 1** | **131** | **Reviewed core sequence curriculum** |
+| 07 | Stacks, queues, and deques | 22 | LIFO and FIFO contracts, monotonic structures, circular queues, bounded history, and comparisons |
+| 08 | Linked structures | 20 | Singly, doubly, and circular links, traversal, insertion, deletion, reversal, pointers, and linked ADTs |
+| 09 | Hash tables and set algorithms | 24 | Buckets, collisions, chaining, resizing, membership, frequencies, grouping, and set relationships |
+| **Total** | **Chunks 1 and 2** | **197** | **Reviewed sequence, linear, and hashed structure curriculum** |
 
 Every catalog program has:
 
-- A unique stable identifier from `DSA-001` through `DSA-131`.
+- A unique stable identifier from `DSA-001` through `DSA-197`.
 - A distinct title and teaching objective.
 - A section and difficulty.
 - Reviewed source code and prepared input.
@@ -191,7 +194,30 @@ Difficulty is editorial guidance. It is not a score, test result, or claim about
 
 ### Longer programs
 
-Short examples remain useful for atomic ideas, but Chunk 1 also includes 28 programs with at least 15 meaningful source lines. Longer examples are used where setup, transformation, checks, and results need room to form one coherent lesson.
+Short examples remain useful for atomic ideas, but the implemented catalog includes 48 programs with at least 15 meaningful source lines. Longer examples are used where setup, transformation, checks, and results need room to form one coherent lesson.
+
+### What Chunk 2 adds
+
+```text
+STACK
+  push -> [ BASE | ... | TOP ] <- pop
+
+QUEUE
+  dequeue <- [ FRONT | ... | REAR ] <- enqueue
+
+LINKED CHAIN
+  HEAD -> node -> node -> TAIL
+
+HASH TABLE
+  key -> hash -> bucket -> exact-key comparison
+
+SET
+  unordered unique membership
+```
+
+These diagrams are conceptual. They explain the reviewed abstract role of observed Python values. They are not physical RAM addresses, CPython internal diagrams, or claims about an arbitrary pasted program.
+
+Chunk 2 includes representation comparisons such as list versus deque stacks, deque versus two-stack queues, linked versus array insertion, and list scan versus set membership. Comparison cards keep observed counts separate from reviewed complexity.
 
 ## Your first guided run
 
@@ -331,7 +357,7 @@ Suggests up to 12 currently visible names. These are local suggestions, not save
 
 #### Structure Canvas
 
-Shows one visible container using a representation appropriate to its serialized shape. A display contains at most 30 cells or entries. Additional content is marked Shortened.
+Shows one visible container using a representation appropriate to its serialized shape. For an exact Chunk 2 catalog program, reviewed labels can orient the same observed cells as stack TOP and BASE, queue FRONT and REAR, linked HEAD and TAIL, hash entries, or set members. Pasted code receives generic observed cells because its abstract role is not reviewed. A display contains at most 30 cells or entries. Additional content is marked Shortened.
 
 #### References
 
@@ -474,7 +500,7 @@ Limits protect the browser and keep explanations readable. An execution limit st
 | Compare Algorithms history | 2 run summaries | The oldest in-session summary is replaced |
 | Prepared-input text | 20,000 characters | Additional text is ignored when loaded into the local input field |
 | Active learning views | 18 | Custom learner-defined views are not supported |
-| Implemented curriculum | 131 programs | The remaining 404 Tier A programs are not selectable |
+| Implemented curriculum | 197 programs | The remaining 338 Tier A programs are not selectable |
 | Approved structure names | 20 | Unknown structures receive generic bounded presentation |
 | Stable event names | 31 | Runtime cues remain conservative when an exact DSA event is unavailable |
 
@@ -583,12 +609,12 @@ Chunk 0  Separate route, contracts, navigation, editor foundation
 Chunk 1  131 programs, local runtime, 18 working views
    |
    v
-Chunk 2  Next reviewed structure families from Tier A
+Chunk 2  66 stack, queue, deque, linked, hash, and set programs
    |
    v
 Later chunks
    |
-   +-- complete the remaining 404 Tier A programs
+   +-- complete the remaining 338 Tier A programs
    +-- preserve the same evidence labels and limits
    +-- extend validators before making implementation claims
 ```

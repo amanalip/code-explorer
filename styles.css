@@ -3322,7 +3322,7 @@ main {
   font: 600 0.65rem/1.55 var(--mono);
 }
 
-/* Chunk 1 DSA runtime surfaces */
+/* DSA runtime surfaces shared by every implemented curriculum chunk */
 
 /* Observed and curriculum badges use separate text labels and distinct boundaries. */
 .evidence-badge.observed {
@@ -3571,6 +3571,61 @@ main {
   overflow-wrap: anywhere;
   color: var(--mint);
   font: 600 0.68rem/1.4 var(--mono);
+}
+
+/* Stack cells form a vertical column so TOP and BASE match the taught orientation. */
+.dsa-structure-cells.role-stack {
+  grid-template-columns: minmax(150px, 320px);
+  justify-content: center;
+}
+
+/* Queue and deque cells use one scrollable conceptual lane inside the bounded view. */
+.dsa-structure-cells.role-queue,
+.dsa-structure-cells.role-deque {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+/* Linked representations draw directional connectors without animating layout. */
+.dsa-structure-cells.role-singly-linked-list .dsa-structure-cell,
+.dsa-structure-cells.role-doubly-linked-list .dsa-structure-cell,
+.dsa-structure-cells.role-circular-linked-list .dsa-structure-cell {
+  position: relative;
+  border-color: color-mix(in srgb, var(--mint) 55%, var(--line));
+}
+
+/* Shared connector placement is conceptual only and never claims a physical RAM address. */
+.dsa-structure-cells.role-singly-linked-list .dsa-structure-cell:not(:last-child)::after,
+.dsa-structure-cells.role-doubly-linked-list .dsa-structure-cell:not(:last-child)::after,
+.dsa-structure-cells.role-circular-linked-list .dsa-structure-cell::after {
+  content: "→";
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: -9px;
+  color: var(--purple);
+  font: 800 0.8rem/1 var(--mono);
+  transform: translateY(-50%);
+}
+
+/* A two-headed symbol distinguishes reviewed previous and next relationships. */
+.dsa-structure-cells.role-doubly-linked-list .dsa-structure-cell:not(:last-child)::after {
+  content: "↔";
+}
+
+/* The final circular cell visibly returns toward the head instead of appearing terminated. */
+.dsa-structure-cells.role-circular-linked-list .dsa-structure-cell:last-child::after {
+  content: "↺";
+}
+
+/* Hash entries resemble bounded buckets while retaining their observed key and value text. */
+.dsa-structure-cells.role-hash-table .dsa-structure-cell {
+  border-left: 4px solid var(--purple);
+}
+
+/* Set membership uses a rounded boundary to distinguish unordered members from indexed cells. */
+.dsa-structure-cells.role-set .dsa-structure-cell {
+  border-radius: 999px;
+  text-align: center;
 }
 
 /* Operation history uses source snippets below each normalized event label. */
@@ -4996,7 +5051,7 @@ main {
     grid-column: 1;
   }
 
-  /* Full-width Chunk 1 panels follow the same single-column document flow. */
+  /* Full-width DSA panels follow the same single-column document flow. */
   .dsa-playback-panel,
   .dsa-console-panel {
     grid-column: 1;

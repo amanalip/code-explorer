@@ -2396,10 +2396,10 @@ Reusable discovery, mistake, decision, or success occurred?
 | Read and write highlighting | Explored for later |
 | Learning autocomplete | Explored for later |
 | Smart fold summaries | Explored for later |
-| Data-structure learning expansion | Chunk 1 implements 131 reviewed programs, local execution, playback, and 18 DSA views; 404 Tier A programs remain |
-| Data Structures tier reference | `Tier.md` preserves Tier A, B, and C and records the implemented Chunk 1 slice |
+| Data-structure learning expansion | Chunk 2 implements 197 reviewed programs, local execution, playback, and 18 DSA views; 338 Tier A programs remain |
+| Data Structures tier reference | `Tier.md` preserves Tier A, B, and C and records the implemented Chunk 2 slice |
 | Workspace tool guides | Shared landing-page guide removed; Python workspace links `README.md`; DSA workspace links `README_DSA.md`; both landing actions use matching primary styling |
-| Classical algorithm visualizations | Chunk 1 provides bounded evidence renderers for foundations, containers, arrays, searching, and sorting; later specialized families remain |
+| Classical algorithm visualizations | Chunk 2 adds exact-match orientation for stacks, queues, deques, linked structures, hash tables, and sets while later specialized families remain |
 | Trace-store redesign | Deferred |
 | Other programming languages | Explored, no build approved |
 | DevOps learning tools | Explored as separate or future tools |
@@ -2537,6 +2537,118 @@ Description    -> explain what the learner can do there
 ```
 
 Credit belongs to the user for catching both wording gaps after comparing the two pages as one product rather than reviewing either page in isolation.
+
+# Chunk 2 lessons learned by the user
+
+## 71. Committed chunks let a large curriculum grow without hiding regressions
+
+Perspective:
+- User
+
+The user asked Codex to stop after Chunk 1, waited until that work was committed, and only then approved Chunk 2. That choice protected a known-good checkpoint while allowing the 535-program destination to remain ambitious.
+
+The reusable lesson is that incremental delivery does not require shrinking the educational goal:
+
+```text
+Large curriculum goal
+        |
+        +-- preserve a committed checkpoint
+        +-- add one coherent subject family
+        +-- execute every new program
+        +-- rerun the complete earlier catalog
+        +-- stop again for review and commit
+```
+
+Credit belongs to the user for maintaining this boundary consistently. It allowed Chunk 2 to add 66 programs while the validator still exercised all 197, not only the newest records.
+
+## 72. A complete subject route needs operations, applications, and comparisons
+
+Perspective:
+- User
+
+The user rejected the idea that a catalog should contain shallow programs only to reach a number. For stacks, queues, linked structures, hashes, and sets, a useful route needs more than construction and one operation. It should include standard mutations, edge cases, applied algorithms, and representation comparisons.
+
+That judgment shaped Chunk 2:
+
+- Stack lessons progress from push and pop to bracket matching, postfix evaluation, monotonic behavior, minimum tracking, and browser history.
+- Queue lessons progress from FIFO mechanics to scheduling, circular storage, two-stack queues, bounded deques, and service-desk simulation.
+- Linked lessons progress from nodes and traversal to insertion, deletion, reversal, cycle detection, two-pointer techniques, and linked implementations of abstract data types.
+- Hash and set lessons progress from insert and lookup to collision handling, load factor, rehashing, frequency algorithms, set relations, and membership comparisons.
+
+The user was right that completeness is an educational property, not just a large count. Codex remains responsible for correcting scope when a requested variation would merely duplicate an existing lesson without teaching a new decision.
+
+# Chunk 2 lessons learned by Codex
+
+## 73. Conceptual structure orientation must remain separate from observed values
+
+Perspective:
+- Codex
+
+The trace serializer can observe a Python list, dictionary, set, tuple, or instance. It cannot prove that a learner intends a particular value to be a stack, queue, deque, linked list, or hash-table teaching model.
+
+Chunk 2 therefore uses two inputs:
+
+```text
+Observed trace value
+        +
+Exact reviewed curriculum identity
+        |
+        v
+Conceptually oriented Structure Canvas
+```
+
+The exact reviewed identity can label a list-backed stack with TOP and BASE or a queue with FRONT and REAR. The observed trace provides the actual bounded cells. If source changes, the reviewed identity disappears and the canvas returns to a generic observed layout.
+
+This prevents a polished diagram from becoming a misleading claim. The view never presents conceptual links or buckets as physical RAM addresses or private CPython internals.
+
+## 74. Shared curriculum scaffolding needs execution validation, not trust
+
+Perspective:
+- Codex
+
+Chunk 2 reuses carefully reviewed metadata builders and complexity helpers so 66 records remain consistent. Reuse reduces typing drift, but it can also repeat one mistake across many records. A shared helper is not evidence that each Python program is correct.
+
+The combined validation gate checks:
+
+```text
+197 JavaScript records
+    +-- exact section arithmetic
+    +-- complete metadata
+    +-- unique identifiers, titles, and source
+    +-- source-depth distribution
+    +-- near-duplicate review
+
+197 detached Python programs
+    +-- compile
+    +-- execute
+    +-- reject unexpected exceptions
+    +-- match the documented result
+```
+
+During development, this gate caught an incorrect expected rotation result. The Python was correct, while the metadata expectation was wrong. Honest validation means correcting whichever side lacks evidence rather than defending the generated catalog.
+
+## 75. Short atomic lessons and longer journeys can coexist
+
+Perspective:
+- Shared
+
+The user asked that longer code be used where needed and that quality not dip. Codex also had to avoid padding a constant-time stack or set operation with meaningless lines. Chunk 2 preserves both needs: focused atomic programs stay concise, while comparisons, simulations, and multi-step algorithms receive full setup-to-result journeys.
+
+The resulting implemented catalog contains 48 programs with at least 15 meaningful lines. That number is evidence of depth distribution, not a quality score by itself.
+
+Fair judgment requires both statements:
+
+- The user's demand for substantial programs prevents a large catalog from becoming a collection of toy snippets.
+- Codex must still keep a short program short when extra lines would teach nothing.
+
+## 76. Current and future counts must be recomputed in every learner surface
+
+Perspective:
+- Codex
+
+After adding 66 programs, the correct status changed from 131 of 535 with 404 remaining to 197 of 535 with 338 remaining. That arithmetic appears in the workspace, public guide, tier reference, contributor guide, project playbook, lessons, and changelog.
+
+Updating one label is not synchronization. The release is complete only when source, validators, visible counts, and every current-status document agree. Historical v6 and Chunk 1 entries remain unchanged because they describe what was true at that release.
 
 # Future update template
 

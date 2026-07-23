@@ -24,7 +24,7 @@
     <link rel="preconnect" href="https://esm.sh" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <!-- The synchronized version query prevents stale cross-workspace styling. -->
-    <link rel="stylesheet" href="styles.css?v=20260723-2" />
+    <link rel="stylesheet" href="styles.css?v=20260723-3" />
   </head>
   <body>
     <!-- The shared decorative layer never enters the accessibility tree. -->
@@ -42,7 +42,7 @@
         <!-- JavaScript changes both dot class and text after the editor foundation is ready. -->
         <span class="runtime-status" id="runtimeStatus">
           <span class="status-dot"></span>
-          <span id="runtimeLabel">Preparing DSA foundation</span>
+          <span id="runtimeLabel">Preparing DSA workspace</span>
         </span>
         <!-- The visible label says which theme the button will activate. -->
         <button class="icon-button theme-button" id="themeButton" type="button" aria-label="Switch to dark mode">
@@ -74,11 +74,11 @@
         <div class="workspace-heading">
           <div>
             <a class="back-button" href="index.html">← Home</a>
-            <div class="dsa-heading-label">Chunk 1 core sequence curriculum</div>
+            <div class="dsa-heading-label">Chunk 2 linear and hashed structures</div>
             <h1>Data structures and algorithms workspace</h1>
             <p class="dsa-heading-copy">
-              Run and replay reviewed foundations, containers, array techniques, searching,
-              and sorting programs. Pasted Python remains welcome with honest evidence limits.
+              Run and replay reviewed foundations, sequences, stacks, queues, linked structures,
+              hash tables, sets, searching, and sorting. Pasted Python remains welcome with honest evidence limits.
             </p>
           </div>
           <!-- Catalog, study comments, and tracing are enabled only by their verified state. -->
@@ -194,14 +194,14 @@
             <pre id="dsaConsoleOutput">// Output will appear here</pre>
           </section>
 
-          <!-- This status panel separates implemented Chunk 1 facts from the full Tier A roadmap. -->
+          <!-- This status panel separates implemented Chunk 2 facts from the full Tier A roadmap. -->
           <section class="panel dsa-foundation-panel" aria-labelledby="foundationStatusTitle">
             <div class="panel-header">
               <div>
                 <span class="panel-index">02</span>
                 <span class="panel-title" id="foundationStatusTitle">CHUNK STATUS</span>
               </div>
-              <span class="foundation-status-badge">CHUNK 1</span>
+              <span class="foundation-status-badge">CHUNK 2</span>
             </div>
             <div class="dsa-foundation-grid">
               <div><strong id="dsaImplementedCount">0</strong><span>implemented programs</span></div>
@@ -210,8 +210,8 @@
               <div><strong id="dsaCatalogTarget">0</strong><span>complete Tier A target</span></div>
             </div>
             <p class="dsa-foundation-note">
-              Chunk 1 implements the first 131 reviewed programs. Later structures, algorithms,
-              investigations, guided challenges, and the remaining 404 programs are not yet available.
+              Chunk 2 implements the first 197 reviewed programs. Later structures, algorithms,
+              investigations, guided challenges, and the remaining 338 programs are not yet available.
             </p>
           </section>
         </div>
@@ -228,14 +228,14 @@
       <div class="dialog-header">
         <div>
           <span class="eyebrow"><span></span> DSA curriculum</span>
-          <h2>Explore 131 reviewed programs</h2>
+          <h2>Explore 197 reviewed programs</h2>
           <p class="dialog-intro">Follow the section order or open any implemented program directly.</p>
         </div>
         <button class="dialog-close" id="dsaCloseExamplesButton" type="button" aria-label="Close DSA examples">×</button>
       </div>
       <div class="example-browser-body">
         <aside class="example-browser-toolbar" aria-label="DSA curriculum sections">
-          <span class="example-curriculum-label">Chunk 1 order</span>
+          <span class="example-curriculum-label">Implemented order</span>
           <div class="example-filters" id="dsaExampleFilters" role="group" aria-label="Filter DSA programs"></div>
           <span class="example-count" id="dsaExampleCount"></span>
         </aside>
@@ -273,6 +273,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- One version keeps this page aligned with its contracts and shared modules. -->
-    <script type="module" src="dsa-app.js?v=20260723-2"></script>
+    <script type="module" src="dsa-app.js?v=20260723-3"></script>
   </body>
 </html>

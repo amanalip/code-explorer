@@ -20,7 +20,7 @@ Code Explorer is intended for learning, experimentation, demonstrations, and sma
 
 This README is the living beginner guide for Code Explorer. It is reviewed whenever the tool changes so its controls, examples, limits, workflows, and expected behavior remain synchronized with the website.
 
-The landing page also links to the separate **Python Data Structures and Algorithms** workspace. Chunk 1 provides 131 reviewed programs, local trace playback, and 18 DSA learning views. Its implemented behavior, limits, and unavailable later curriculum are documented in [README_DSA.md](README_DSA.md).
+The landing page also links to the separate **Python Data Structures and Algorithms** workspace. Chunk 2 provides 197 reviewed programs, local trace playback, and 18 DSA learning views. Its implemented behavior, limits, and unavailable later curriculum are documented in [README_DSA.md](README_DSA.md).
 
 ## Contents
 
@@ -55,7 +55,7 @@ Code Explorer landing page
 |      +-- Tool Guide -> README.md
 |
 +-- Start exploring Python Data Structures and Algorithms
-       +-- separate Chunk 1 workspace with 131 reviewed programs
+       +-- separate Chunk 2 workspace with 197 reviewed programs
        +-- local execution, playback, and 18 DSA learning views
        +-- Tool Guide -> README_DSA.md
 ```
@@ -64,7 +64,7 @@ The landing page does not display one ambiguous Tool Guide. Open a workspace to 
 
 The Python page identifies itself as **Python Programming workspace** and explains that learners can write, run, replay, and inspect programs step by step.
 
-The DSA path currently covers algorithm foundations, abstract data types, Python-native containers, array and sequence techniques, searching, and sorting. Its approved Tier A target is 535 programs, but only the 131 programs documented in `README_DSA.md` are implemented. The remaining 404 are not presented as available.
+The DSA path currently covers algorithm foundations, abstract data types, Python-native containers, array and sequence techniques, searching, sorting, stacks, queues, deques, linked structures, hash tables, and set algorithms. Its approved Tier A target is 535 programs, but only the 197 programs documented in `README_DSA.md` are implemented. The remaining 338 are not presented as available.
 
 ## Start here
 

@@ -1,4 +1,4 @@
-"""Compile and execute every detached Chunk 1 DSA curriculum program.
+"""Compile and execute every detached implemented DSA curriculum program.
 
 The JavaScript validator exports plain JSON first. This script then uses a fresh
 global namespace and captured standard output for every program, checks that no
@@ -59,7 +59,7 @@ def main() -> int:
         print("\n".join(failures))
         return 1
 
-    print(f"Validated {len(programs)} executable Chunk 1 DSA programs.")
+    print(f"Validated {len(programs)} executable implemented DSA programs.")
     return 0
 
 

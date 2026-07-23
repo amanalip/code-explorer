@@ -15,6 +15,65 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v7, 2026-07-23
+
+v7 ships **Chunk 2: linear and hashed structures** for the Python Data Structures and Algorithms workspace. It adds 66 reviewed programs to the 131-program Chunk 1 foundation. The implemented catalog now contains 197 programs across nine sections. The approved Tier A destination remains 535 programs, so 338 later programs are explicitly unavailable.
+
+### Sixty-six new reviewed programs
+
+| Chunk 2 section | Programs | Main learning journey |
+| --- | ---: | --- |
+| Stacks, queues, and deques | 22 | LIFO and FIFO behavior, bounded operations, bracket checking, postfix evaluation, monotonic stacks, two-stack queues, deques, scheduling, and representation comparisons |
+| Linked structures | 20 | Nodes, traversal, insertion, deletion, reversal, middle and cycle techniques, doubly and circular links, linked stacks, linked queues, and representation comparison |
+| Hash tables and set algorithms | 24 | Buckets, collisions, updates, deletion, load factor, rehashing, frequency maps, equality, set relations, longest consecutive runs, and membership comparison |
+| **Chunk 2 addition** | **66** | **Reviewed linear and hashed structure curriculum** |
+
+Every new record uses the same complete curriculum contract as Chunk 1. It includes runnable source, learning objective, prerequisites, difficulty, expected result, reviewed structures, phases, invariants, edge cases, comparison relationships, complexity context, recommended views, and event vocabulary.
+
+The complete implemented arithmetic is:
+
+```text
+131 Chunk 1 programs
+ 66 Chunk 2 programs
+--------------------
+197 implemented programs
+
+535 approved Tier A destination
+-197 implemented programs
+--------------------
+338 programs still unavailable
+```
+
+### Structure Canvas orientation
+
+Structure Canvas can now orient observed serialized cells according to the exact reviewed catalog program:
+
+- Stack examples identify TOP and BASE.
+- Queue and deque examples identify FRONT and REAR.
+- Linked examples identify HEAD and TAIL and show conceptual links.
+- Hash-table examples present bounded entries as bucket-like rows.
+- Set examples present unordered conceptual members.
+
+These labels are curriculum context, not a claim about a physical RAM address or Python's private internal storage. If the learner edits the reviewed source or pastes a different program, the canvas returns to its generic observed-value layout. The trace remains useful, but named structure orientation is withheld because the source no longer has an exact reviewed identity.
+
+### Representation comparisons
+
+Chunk 2 includes deliberate comparisons instead of presenting one implementation as universally correct. Examples compare list and deque stacks, deque and two-stack queues, linked and array insertion, and list scan and set membership. Runtime counts remain observed evidence. Big O descriptions remain reviewed curriculum context.
+
+### Verification evidence
+
+- JavaScript syntax checks passed for the new curriculum module, DSA controller, contracts, runtime, and validators.
+- The combined curriculum validator confirmed 197 unique programs and the exact nine section counts.
+- The Python validator compiled, executed, and checked the documented expected-result marker for all 197 programs.
+- Forty-eight implemented programs contain at least 15 meaningful source lines.
+- The new programs retain bounded values, trace steps, structure entries, path rows, comparison history, and prepared input.
+- Browser checks covered the catalog, representative stack, queue, linked, hash, and set programs, all 18 views, exact-match orientation, edited-source honesty, light and dark themes, desktop and mobile layouts, and the existing Python learning path.
+- No analytics, telemetry, remote logging, network API, storage key, runtime dependency, trace limit, or timeout was added or changed.
+
+### Known boundary
+
+Chunk 2 does not implement trees, binary-search trees, heaps, priority queues, tries, Union-Find, graphs, recursion, backtracking, greedy algorithms, dynamic programming, bit manipulation, mathematical algorithms, later investigations, or integrated capstone challenges. Those families remain part of the approved route in `Tier.md`, not selectable programs in the current catalog.
+
 ## v6, 2026-07-23
 
 v6 ships **Chunk 1: core sequences** for the separate Python Data Structures and Algorithms workspace. It implements 131 reviewed programs and the reusable local DSA learning runtime. The complete Tier A target remains 535, so 404 later programs are explicitly unavailable.
