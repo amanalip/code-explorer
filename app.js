@@ -10,7 +10,9 @@
 
 // The expanded curriculum lives in a dedicated data module so application
 // controllers remain readable while the library grows to 134 programs.
-import { ADDITIONAL_EXAMPLES } from "./curriculum.js?v=20260723-4";
+import { ADDITIONAL_EXAMPLES } from "./curriculum.js?v=20260723-6";
+// Both catalogs use one local-only matcher so metadata search behaves consistently.
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260723-6";
 
 /**
  * The initial program shown in the editor.
@@ -1254,6 +1256,15 @@ else:
 const EXAMPLES = Object.freeze([...BASE_EXAMPLES, ...ADDITIONAL_EXAMPLES]);
 
 /**
+ * Prepared search text avoids repeatedly flattening full source and metadata
+ * while a learner types. The Map remains session-only and never changes a
+ * reviewed curriculum record or writes a query to browser storage.
+ */
+const EXAMPLE_SEARCH_INDEX = new Map(
+  EXAMPLES.map((example) => [example, catalogSearchText(example)]),
+);
+
+/**
  * Ordered filters match the fixed recommended curriculum shown to learners.
  * All is a library view, while the numbered entries are teaching sections.
  * Guided Mini Programs remains filterable even though its checkpoints are
@@ -1316,7 +1327,8 @@ const els = Object.fromEntries(
     "programInputs", "inputStatus", "captureRunAButton", "captureRunBButton", "clearComparisonsButton", "comparisonResult",
     "emptyBookmarks", "bookmarksContent", "stepCount", "previousButton",
     "playButton", "nextButton", "restartButton", "bookmarkButton", "stepSlider", "progressPercent", "speedSelect",
-    "consoleOutput", "clearOutputButton", "examplesDialog", "closeExamplesButton", "exampleFilters", "exampleCount", "exampleGrid",
+    "consoleOutput", "clearOutputButton", "examplesDialog", "closeExamplesButton",
+    "exampleSearchInput", "exampleFilters", "exampleCount", "exampleGrid",
     "learningCommentsDialog", "closeLearningCommentsButton", "learningCommentDetail", "learningCommentsSummary",
     "learningCommentsLineCount",
     "learningCommentsPreview", "copyLearningCommentsButton", "replaceWithLearningCommentsButton", "toast",
@@ -1405,6 +1417,8 @@ const state = {
   toastTimer: null,
   // Keeps the selected example category stable while cards are rerendered.
   activeExampleCategory: "All",
+  // Search is temporary session state and is never persisted or sent anywhere.
+  exampleSearchQuery: "",
 };
 
 /**
@@ -2191,7 +2205,7 @@ function ensureWorker() {
 
   // The version query keeps GitHub Pages and long-lived browser caches from
   // pairing a new interface with an older tracing or serialization contract.
-  state.worker = new Worker("py-worker.js?v=20260723-4", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260723-6", { type: "module" });
   state.worker.addEventListener("message", handleWorkerMessage);
   state.worker.addEventListener("error", (event) => {
     const message = event.message || "Python worker failed to load.";
@@ -4611,6 +4625,48 @@ function buildRecommendedExamples() {
 }
 
 /**
+ * Tests one Python curriculum record against the current temporary query.
+ *
+ * @param {object} example Reviewed program record from the 134-program catalog.
+ * @returns {boolean} Whether every search word appears in its information.
+ */
+function exampleMatchesSearch(example) {
+  return matchesCatalogSearch(
+    EXAMPLE_SEARCH_INDEX.get(example) || "",
+    state.exampleSearchQuery,
+  );
+}
+
+/**
+ * Creates an accessible result when search and category filters find no cards.
+ *
+ * The recovery button clears only the temporary query. It does not change the
+ * selected category, editor source, trace, or any saved browser preference.
+ *
+ * @returns {HTMLElement} Empty-result panel safe to place inside the card grid.
+ */
+function createExampleSearchEmptyState() {
+  const empty = document.createElement("section");
+  empty.className = "example-search-empty";
+  const title = document.createElement("h3");
+  title.textContent = "No programs matched";
+  const detail = document.createElement("p");
+  detail.textContent = `Try fewer words or search another concept. The current category and search are applied together.`;
+  const clear = document.createElement("button");
+  clear.type = "button";
+  clear.className = "secondary-button compact";
+  clear.textContent = "Clear search";
+  clear.addEventListener("click", () => {
+    state.exampleSearchQuery = "";
+    els.exampleSearchInput.value = "";
+    renderExamples();
+    els.exampleSearchInput.focus();
+  });
+  empty.append(title, detail, clear);
+  return empty;
+}
+
+/**
  * Creates category filters and example cards from the shared EXAMPLES data.
  * Landing cards are native links to the workspace, while workspace cards are
  * buttons that update the open editor. Text nodes keep all metadata safe.
@@ -4628,8 +4684,10 @@ function renderExamples() {
       filter.type = "button";
       filter.className = `example-filter ${category === state.activeExampleCategory ? "active" : ""}`;
       const categoryCount = category === "All"
-        ? EXAMPLES.length
-        : EXAMPLES.filter((example) => example.category === category).length;
+        ? EXAMPLES.filter(exampleMatchesSearch).length
+        : EXAMPLES.filter((example) => (
+          example.category === category && exampleMatchesSearch(example)
+        )).length;
       const label = document.createElement("span");
       // Numbered focused sections communicate a fixed route without implying progress tracking.
       label.textContent = category === "All"
@@ -4655,10 +4713,15 @@ function renderExamples() {
   // All follows the fixed curriculum route. A selected category keeps the same
   // relative order so switching filters never changes the teaching progression.
   const recommendedExamples = buildRecommendedExamples();
-  const visibleExamples = state.activeExampleCategory === "All"
+  const categoryExamples = state.activeExampleCategory === "All"
     ? recommendedExamples
     : recommendedExamples.filter((example) => example.category === state.activeExampleCategory);
+  const visibleExamples = categoryExamples.filter(exampleMatchesSearch);
   els.exampleCount.textContent = `Showing ${visibleExamples.length} of ${EXAMPLES.length} programs`;
+  if (!visibleExamples.length) {
+    els.exampleGrid.replaceChildren(createExampleSearchEmptyState());
+    return;
+  }
   els.exampleGrid.replaceChildren(
     ...visibleExamples.map((example, visibleIndex) => {
       // Native links make landing-page navigation reliable for file URLs and hosted URLs.
@@ -4685,8 +4748,17 @@ function renderExamples() {
           <span>BEST VIEWS</span>
           <strong></strong>
         </span>`;
-      const sequenceWidth = state.activeExampleCategory === "All" ? 3 : 2;
-      const sequence = String(visibleIndex + 1).padStart(sequenceWidth, "0");
+      /*
+        Search results keep their absolute recommended-route number so a learner
+        never sees one program renamed as result 001. Focused browsing without
+        search retains its established two-digit category-relative numbering.
+      */
+      const searchIsActive = Boolean(state.exampleSearchQuery.trim());
+      const sequenceWidth = state.activeExampleCategory === "All" || searchIsActive ? 3 : 2;
+      const sequencePosition = searchIsActive
+        ? recommendedExamples.indexOf(example) + 1
+        : visibleIndex + 1;
+      const sequence = String(sequencePosition).padStart(sequenceWidth, "0");
       const guidedExamples = recommendedExamples.filter((candidate) => candidate.category === "Guided Mini Programs");
       const checkpointNumber = String(guidedExamples.indexOf(example) + 1).padStart(2, "0");
       card.querySelector(".example-topic").textContent = example.category === "Guided Mini Programs"
@@ -4749,6 +4821,12 @@ function bindEvents() {
   // Clipboard buttons operate on the complete document for fast program transfer.
   els.editorCopyButton?.addEventListener("click", copyCompleteEditor);
   els.editorPasteButton?.addEventListener("click", pasteCompleteEditor);
+  // Search is local, unsaved, and composed with the selected curriculum category.
+  els.exampleSearchInput?.addEventListener("input", (event) => {
+    state.exampleSearchQuery = event.target.value;
+    renderExamples();
+    els.exampleGrid.scrollTop = 0;
+  });
   els.heroExampleButton?.addEventListener("click", openExamples);
   els.backButton?.addEventListener("click", (event) => {
     event.preventDefault();

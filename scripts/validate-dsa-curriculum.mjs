@@ -22,6 +22,7 @@ import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
 } from "../dsa-curriculum-chunk2.js";
+import { catalogSearchText, matchesCatalogSearch } from "../catalog-search.js";
 
 /** The release validator treats committed chunks as one ordered catalog. */
 const IMPLEMENTED_PROGRAMS = [...DSA_CHUNK_ONE_PROGRAMS, ...DSA_CHUNK_TWO_PROGRAMS];
@@ -107,6 +108,41 @@ for (const [section, expectedCount] of IMPLEMENTED_SECTIONS) {
   const actualCount = IMPLEMENTED_PROGRAMS.filter((program) => program.section === section).length;
   expect(actualCount === expectedCount, `${section} has ${actualCount} programs, not ${expectedCount}.`);
 }
+
+/*
+ * Production search checks use complete reviewed records. They cover stable
+ * identifiers, hidden edge-case metadata, punctuation-tolerant complexity, AND
+ * behavior, and the empty-query contract before browser tests cover the UI.
+ */
+const indexedPrograms = IMPLEMENTED_PROGRAMS.map((program) => ({
+  program,
+  searchText: catalogSearchText(program),
+}));
+const searchPrograms = (query) => indexedPrograms
+  .filter(({ searchText }) => matchesCatalogSearch(searchText, query))
+  .map(({ program }) => program);
+expect(
+  searchPrograms("DSA-197 FIFO").length === 1
+    && searchPrograms("DSA-197 FIFO")[0].id === "dsa-197",
+  "DSA search should find the exact FIFO cache through its stable id and algorithm metadata.",
+);
+expect(
+  searchPrograms("empty list division").length === 1
+    && searchPrograms("empty list division")[0].id === "dsa-001",
+  "DSA hidden edge-case metadata should find the average lesson.",
+);
+const logarithmicMatches = searchPrograms("O(log n)");
+const normalizedLogarithmicMatches = searchPrograms("o log n");
+expect(
+  logarithmicMatches.length > 0
+    && logarithmicMatches.map((program) => program.id).join(",")
+      === normalizedLogarithmicMatches.map((program) => program.id).join(","),
+  "DSA complexity punctuation normalization is inconsistent.",
+);
+expect(
+  searchPrograms("").length === IMPLEMENTED_PROGRAMS.length,
+  "An empty DSA search should match every implemented program.",
+);
 
 // Similarity above this conservative threshold blocks obvious copy variants.
 const nearDuplicates = [];

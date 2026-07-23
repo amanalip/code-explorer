@@ -77,13 +77,14 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 - `workspace.html`: persistent execution workspace and all dynamic mounting points.
 - `data-structures.html`: separate Chunk 2 DSA workspace, editor, dialogs, playback, status, and 18-view mounting points.
 - `styles.css`: complete light theme, dark theme, responsive layout, editor presentation, graphs, panels, and controls.
+- `catalog-search.js`: shared local-only normalization, record indexing, and multi-word matching for both program catalogs.
 - `app.js`: application state, editor setup, the original reviewed example set, playback, learning views, graph rendering, persistence, and UI events.
 - `landing.js`: lightweight landing-page theme controller after example selection moved inside workspaces.
 - `dsa-app.js`: DSA state, curriculum browser, worker lifecycle, playback, comments, persistence, and 18 view renderers.
 - `dsa-contracts.js`: approved DSA areas, views, evidence labels, event names, representation names, metadata fields, and Tier A totals.
 - `dsa-curriculum.js`: 131 reviewed Chunk 1 program records and six ordered section definitions.
 - `dsa-curriculum-chunk2.js`: 66 reviewed Chunk 2 records for stacks, queues, deques, linked structures, hash tables, and sets, plus three ordered section definitions.
-- `dsa-runtime.js`: pure observed-evidence classification, value comparison, condition helpers, structure selection, and DSA comment generation.
+- `dsa-runtime.js`: pure observed-evidence classification, value comparison, condition helpers, structure selection, and level-filtered DSA comment generation.
 - `shared-ui.js`: theme and guarded local-storage helpers shared by new page controllers.
 - `shared-editor.js`: reusable Python CodeMirror foundation with a native textarea fallback.
 - `curriculum.js`: the additional curriculum examples that blend with the reviewed base set to form the 134-program library.
@@ -213,12 +214,17 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm section counts are 24 foundations, 12 abstract data types, 42 Python-native containers, 20 array and sequence techniques, 9 searching, 24 sorting, 22 stacks, queues, and deques, 20 linked structures, and 24 hash tables and set algorithms.
 - Confirm at least 45 programs retain 15 or more meaningful source lines. The current reviewed count is 48.
 - Confirm the catalog shows accurate section, difficulty, line, complexity, and recommended-view metadata.
+- Confirm DSA search matches stable ids, titles, source, edge cases, phases, invariants, complexity, structures, events, expected results, and recommended views.
+- Confirm DSA search and section filters compose as an intersection, update every section badge, announce the result count, and provide a keyboard-focusable Clear search action.
+- Confirm DSA search queries are not persisted, uploaded, logged remotely, or added to request URLs.
 - Confirm Observed appears only for trace-derived facts and Curriculum context only for exact unchanged catalog source.
 - Edit a catalog example and confirm algorithm name, phases, invariants, edge cases, comparison group, and Big O become Unavailable while observed views continue to work.
 - Confirm all 18 views render without an exception after a reviewed trace.
 - Confirm 3,000 trace steps produce the explicit limit message and retain an inspectable partial trace.
 - Confirm Automatic comments never change original editor source and Learning comments replacement requires confirmation.
 - Confirm Automatic comments and Learning comments use the same line-numbered IDE presentation while normal Copy, Copy commented code, and confirmed replacement continue using their documented plain-source targets.
+- Confirm DSA Learning comments offers Essential, Guided, and Detailed filtering, updates its exact note summary without rerunning, and keeps reviewed curriculum context visibly separate from syntax or trace notes.
+- Confirm the DSA learning-comment modal retains its header, toolbar, flexible preview, and visible Copy and Replace footer at desktop and 390-pixel mobile width in both themes.
 - Confirm visual gutters, syntax spans, file chrome, badges, and status text never enter copied or adopted Python.
 - Confirm Structure Canvas stops at 30 entries, Watches at 12 names, Operation Journey at 30 events, Algorithm Path at 80 transitions, Step Table at 120 rows, and Compare Algorithms at 2 summaries.
 - Confirm exact reviewed stack, queue, deque, linked, hash, and set examples receive their documented conceptual orientation while edited or pasted source remains on the generic observed layout.
@@ -271,6 +277,9 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm only the three explicitly labeled investigation programs stop with their exact documented exception types. An accidental syntax or runtime error in any other program blocks release.
 - Remove the temporary detached-example export after validation.
 - Confirm cards display accurate line counts and filters report accurate visible and total counts.
+- Confirm Python search matches title, topic, category, difficulty, description, views, prerequisites, expected errors, and source code.
+- Confirm Python search and category filters compose as an intersection, update all category badges, announce the result count, and preserve absolute recommended-route numbers in search results.
+- Confirm Python search queries are not persisted, uploaded, logged remotely, or added to request URLs.
 - Confirm all 13 filter choices, including All, are visible through vertical scrolling and never require horizontal scrolling.
 - Confirm each filter shows its exact category count and selecting one returns the program list to its first card.
 - Confirm the desktop sidebar and card list scroll independently.

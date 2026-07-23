@@ -16,6 +16,7 @@ import {
   DSA_STRUCTURE_TYPES,
   DSA_VIEWS,
 } from "../dsa-contracts.js";
+import { buildDsaCommentedSource } from "../dsa-runtime.js";
 
 /** Collects all failures so a contributor can correct one coherent batch. */
 const failures = [];
@@ -66,6 +67,35 @@ const calculatedTarget = DSA_CATALOG_SECTIONS.reduce((total, section) => total +
 expect(calculatedTarget === 535, `Tier A section totals add to ${calculatedTarget}, not 535.`);
 expect(DSA_CATALOG_TARGET === 535, `Exported DSA catalog target is ${DSA_CATALOG_TARGET}, not 535.`);
 
+/*
+ * The DSA study-copy density contract is tested without a browser. Curriculum
+ * context remains available at every density, while worker notes respect their
+ * Essential, Guided, or Detailed levels.
+ */
+const commentSource = "value = 1\nprint(value)";
+const commentNotes = [
+  { line: 1, level: 1, text: "Essential note." },
+  { line: 2, level: 2, text: "Guided note." },
+  { line: 2, level: 3, text: "Detailed note." },
+];
+const commentProgram = {
+  title: "Comment contract",
+  objective: "Keep reviewed context separate.",
+  complexity: { time: "O(1)", space: "O(1)" },
+};
+const essentialComments = buildDsaCommentedSource(commentSource, commentNotes, commentProgram, 1);
+const guidedComments = buildDsaCommentedSource(commentSource, commentNotes, commentProgram, 2);
+const detailedComments = buildDsaCommentedSource(commentSource, commentNotes, commentProgram, 3);
+expect(essentialComments.includes("Essential note."), "Essential DSA comments lost an Essential note.");
+expect(!essentialComments.includes("Guided note."), "Essential DSA comments included a Guided note.");
+expect(guidedComments.includes("Guided note."), "Guided DSA comments lost a Guided note.");
+expect(!guidedComments.includes("Detailed note."), "Guided DSA comments included a Detailed note.");
+expect(detailedComments.includes("Detailed note."), "Detailed DSA comments lost a Detailed note.");
+expect(
+  essentialComments.includes("Reviewed program: Comment contract."),
+  "DSA detail filtering removed exact reviewed curriculum context.",
+);
+
 // Read shipped pages as text so routing checks stay dependency-free and fast.
 const [landingHtml, pythonHtml, dsaHtml] = await Promise.all([
   readFile(new URL("../index.html", import.meta.url), "utf8"),
@@ -111,8 +141,9 @@ const requiredDsaIds = [
   "dsaExamplesButton", "dsaLearningCommentsButton", "dsaRunButton",
   "dsaPreviousButton", "dsaPlayButton", "dsaNextButton", "dsaRestartButton",
   "dsaTimeline", "dsaProgressLabel", "dsaSpeedSelect", "dsaConsoleOutput",
-  "dsaExamplesDialog", "dsaExampleFilters", "dsaExampleCount", "dsaExampleGrid",
-  "dsaCommentsDialog", "dsaCommentPreview", "dsaAutomaticPreview", "toast",
+  "dsaExamplesDialog", "dsaExampleSearchInput", "dsaExampleFilters", "dsaExampleCount", "dsaExampleGrid",
+  "dsaCommentsDialog", "dsaCommentDetail", "dsaCommentsSummary",
+  "dsaCommentPreview", "dsaCopyCommentsButton", "dsaAutomaticPreview", "toast",
 ];
 for (const id of requiredDsaIds) {
   expect(dsaHtml.includes(`id="${id}"`), `data-structures.html is missing #${id}.`);

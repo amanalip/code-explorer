@@ -15,6 +15,52 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v9, 2026-07-23
+
+v9 adds local program search to the Python and DSA example catalogs.
+
+### Complete reviewed-record search
+
+- The 134-program Python catalog searches title, topic, category, difficulty, description, views, prerequisites, intentional errors, and reviewed source.
+- The 197-program DSA catalog additionally searches stable ID, algorithm, structures, events, expected result, phases, invariants, edge cases, comparison metadata, and complexity.
+- Multiple words use AND behavior, so every word must match somewhere in the same record.
+- Case, accents, and punctuation are normalized for predictable matching.
+- Search results remain normal clickable cards that load through the existing editor path.
+
+### Filters, counts, and recovery
+
+- Search and the selected category or section apply together.
+- Every filter badge reports its current search-match count.
+- The visible result count updates and is announced politely to assistive technology.
+- A zero-result panel explains what happened and offers Clear search.
+- Clearing search retains the selected category or section.
+- Python search results preserve their absolute recommended-route number.
+- DSA results retain their stable `DSA-001` through `DSA-197` identifiers.
+
+### Privacy boundary
+
+Search queries remain temporary in-memory page state. They are not persisted, uploaded, added to a URL, logged remotely, or collected for analytics. No dependency, network request, storage key, execution limit, curriculum count, or trace behavior changed.
+
+### Verification evidence
+
+- Python hidden error metadata search found the exact intentional `KeyError` lesson and loaded it into the editor.
+- DSA hidden edge-case search found the exact empty-list division lesson.
+- `DSA-197 FIFO` found and loaded the exact hash-indexed cache program.
+- A mismatched DSA section and query produced the explicit empty state. Clear search retained the section, restored its 20 cards, and returned keyboard focus to search.
+- At 390 by 844, both catalogs retained 322-pixel search fields, one-column result cards, and zero page or dialog horizontal overflow.
+- Desktop light and dark screenshots confirmed readable fields, badges, cards, and focus treatment.
+
+### DSA Learning comments parity correction
+
+- The DSA dialog now uses the same four-row IDE hierarchy as Python: header, detail toolbar, flexible preview, and visible action footer.
+- Essential, Guided, and Detailed select worker note levels 1, 2, and 3 without rerunning Python or changing source.
+- A live summary reports the selected note density and whether three exact reviewed curriculum notes are available.
+- The legend and rows distinguish syntax or trace notes, reviewed curriculum context, and original Python using text plus separate colors.
+- Copy commented code and Replace editor remain visible inside the bounded modal at desktop and mobile sizes.
+- Copy still uses the plain generated Python document. Visual line numbers, colors, badges, legend text, summary text, and editor chrome are excluded.
+
+The correction was tested in light and dark themes at desktop and 390 by 844. The real Copy commented code action completed successfully, and the DSA foundation validator now checks all three detail boundaries. No program, curriculum total, execution limit, dependency, storage key, analytics behavior, or network request changed.
+
 ## v8, 2026-07-23
 
 v8 corrects the DSA workspace interface before the next curriculum chunk. It does not add programs, views, dependencies, storage, analytics, or new network behavior.

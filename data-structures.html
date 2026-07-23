@@ -24,7 +24,7 @@
     <link rel="preconnect" href="https://esm.sh" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <!-- The synchronized version query prevents stale cross-workspace styling. -->
-    <link rel="stylesheet" href="styles.css?v=20260723-4" />
+    <link rel="stylesheet" href="styles.css?v=20260723-6" />
   </head>
   <body class="dsa-page">
     <!-- The shared decorative layer never enters the accessibility tree. -->
@@ -261,9 +261,25 @@
       </div>
       <div class="example-browser-body">
         <aside class="example-browser-toolbar" aria-label="DSA curriculum sections">
+          <!--
+            Search stays in browser memory and composes with the active section.
+            Reviewed program information, metadata, complexity, and source are indexed.
+          -->
+          <div class="example-search">
+            <label for="dsaExampleSearchInput">Search programs</label>
+            <input
+              id="dsaExampleSearchInput"
+              type="search"
+              placeholder="ID, algorithm, structure, or code"
+              autocomplete="off"
+              spellcheck="false"
+              aria-describedby="dsaExampleSearchHelp"
+            />
+            <span id="dsaExampleSearchHelp">Use more words to narrow the results.</span>
+          </div>
           <span class="example-curriculum-label">Implemented order</span>
           <div class="example-filters" id="dsaExampleFilters" role="group" aria-label="Filter DSA programs"></div>
-          <span class="example-count" id="dsaExampleCount"></span>
+          <span class="example-count" id="dsaExampleCount" role="status" aria-live="polite"></span>
         </aside>
         <div class="example-grid dsa-example-grid" id="dsaExampleGrid"></div>
       </div>
@@ -278,9 +294,31 @@
             <h2>DSA Learning Comments</h2>
             <span class="learning-comments-readonly">Read only</span>
           </div>
-          <p class="dialog-intro">Observed Python notes and reviewed curriculum context remain visibly distinct.</p>
         </div>
         <button class="dialog-close" id="dsaCloseCommentsButton" type="button" aria-label="Close DSA learning comments">×</button>
+      </div>
+      <!--
+        The shared toolbar gives DSA learners the same detail control as the
+        Python workspace while explicitly separating evidence and curriculum context.
+      -->
+      <div class="learning-comments-toolbar">
+        <label for="dsaCommentDetail">
+          <span>Comment detail</span>
+          <select id="dsaCommentDetail">
+            <option value="essential">Essential</option>
+            <option value="guided" selected>Guided</option>
+            <option value="detailed">Detailed</option>
+          </select>
+        </label>
+        <div class="learning-comments-toolbar-copy">
+          <!-- The three-part legend prevents reviewed guidance from looking observed. -->
+          <span class="learning-comments-legend dsa-comments-legend" aria-label="DSA preview legend">
+            <span><i class="learning-legend-note"></i> Syntax or trace note</span>
+            <span><i class="learning-legend-curriculum"></i> Curriculum context</span>
+            <span><i class="learning-legend-source"></i> Python source</span>
+          </span>
+          <p id="dsaCommentsSummary">Run a trace to generate conservative Python notes and any exact reviewed context.</p>
+        </div>
       </div>
       <!-- The IDE-like shell is a safe presentation layer around the exact generated document. -->
       <section class="learning-comments-editor dsa-comment-preview-shell" aria-label="Read-only DSA commented Python study editor">
@@ -304,7 +342,8 @@
           <span>DSA notes visible</span>
         </div>
       </section>
-      <div class="learning-comments-footer">
+      <!-- Copy and replacement now share the visible, bounded Python dialog footer. -->
+      <div class="learning-comments-actions">
         <p><strong>Your original stays unchanged.</strong> Replacing the editor requires confirmation.</p>
         <div>
           <button class="secondary-button" id="dsaCopyCommentsButton" type="button">Copy commented code</button>
@@ -317,6 +356,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- One version keeps this page aligned with its contracts and shared modules. -->
-    <script type="module" src="dsa-app.js?v=20260723-4"></script>
+    <script type="module" src="dsa-app.js?v=20260723-6"></script>
   </body>
 </html>

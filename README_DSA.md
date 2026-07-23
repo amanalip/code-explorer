@@ -12,7 +12,7 @@ Chunks 1 and 2 implement:
 
 - 197 reviewed and executable curriculum programs.
 - 9 ordered curriculum sections.
-- A vertical example browser with section counts, difficulty, line count, objective, complexity, and recommended views.
+- A vertical example browser with local metadata search, section counts, difficulty, line count, objective, complexity, and recommended views.
 - Local Python execution through the same isolated Pyodide worker used by the Python workspace.
 - A 3,000-step trace limit and a 30-second outer timeout.
 - Playback controls and 18 working learning views under Trace, Data, Flow, and Labs.
@@ -111,6 +111,7 @@ DATA STRUCTURES AND ALGORITHMS WORKSPACE
 |
 +-- CURRICULUM
 |   +-- 197 reviewed programs
+|   +-- local search across complete reviewed records
 |   +-- 9 vertical section filters
 |   +-- objective and description
 |   +-- difficulty and line count
@@ -207,6 +208,47 @@ Every catalog program has:
 - A named algorithm only when the reviewed example supports that name.
 - Phases, invariants, edge cases, comparison groups, and complexity context when applicable.
 - Recommended views selected for that program.
+
+### Searching the DSA curriculum
+
+The search field examines the complete reviewed program record:
+
+```text
+DSA SEARCH INDEX
+|
++-- stable ID, title, section, and difficulty
++-- objective and description
++-- algorithm name and reviewed source
++-- prerequisites and prepared input
++-- expected result
++-- structure and event metadata
++-- phases and invariants
++-- edge cases and comparison group
++-- time, space, and complexity note
++-- recommended views
+```
+
+This makes metadata that is not printed in full on every card discoverable. For example:
+
+- `DSA-197 FIFO` finds the exact reviewed cache program through its stable ID and algorithm label.
+- `empty list division` finds **Name an algorithm's input and output** through its reviewed edge-case metadata.
+- `O(log n) guided challenge` requires complexity and difficulty terms to match the same program.
+- A class, function, variable, or operation name can match the reviewed source.
+
+Search and section filtering use an intersection:
+
+```text
+Search matches
+      +
+Selected section
+      |
+      v
+Visible cards and per-section match counts
+```
+
+Each word must match somewhere in the same reviewed record. Punctuation and capitalization do not need to be exact, so `O(n)` and `o n` are treated consistently. If the selected section has no match, the catalog shows a clear empty result and a **Clear search** action. Clearing the query retains the selected section.
+
+The query is temporary page state. It is not saved, included in learner progress, collected for analytics, or transmitted over the network. Selecting a matching card still uses the ordinary reviewed-program loading path and does not run it until the learner selects **Run trace**.
 
 The catalog validator rejects missing metadata, duplicate identifiers, duplicate titles, duplicate source, weak source depth, unsupported structure names, unsupported event names, and suspiciously similar examples. A separate Python validator compiles and executes every program and checks its expected result.
 
@@ -463,15 +505,20 @@ The visible teaching layer is formatted like a small IDE:
 - The file bar identifies `main.py`, the DSA note mode, and the read-only state.
 - Visual line numbers help a learner return to the matching original line.
 - Conservative syntax colors distinguish Python keywords, names, strings, numbers, constants, and operators.
-- DSA learning notes use a separate tinted row and a visible `# Code Explorer DSA:` label.
+- Syntax or trace notes use a purple-tinted row, reviewed curriculum context uses a cyan-tinted row, and both retain the visible `# Code Explorer DSA:` label.
 - The status strip reports Python 3, the generated line count, and that original source remains unchanged.
 
 These elements are presentation only. Visual line numbers, colors, badges, file chrome, and status text are never inserted into the editor and are never included by normal Copy.
+
+The current Essential, Guided, or Detailed choice also controls Automatic comments. Changing it refreshes the visible read-only teaching layer without rerunning Python, changing the trace, or editing the original source.
 
 ### Learning comments
 
 **Learning comments** opens an IDE-style read-only preview. It can:
 
+- Switch between Essential, Guided, and Detailed Python notes without rerunning the program.
+- Report the exact number and selected density of generated Python notes.
+- Distinguish syntax or trace notes, exact reviewed curriculum context, and original Python through a visible legend and separate row treatments.
 - Copy the complete commented document.
 - Replace the editor only after explicit confirmation.
 - Preserve indentation, blank lines, and learner comments.
@@ -479,7 +526,32 @@ These elements are presentation only. Visual line numbers, colors, badges, file 
 
 Generated comments use observed trace evidence plus reviewed context when available. Unsupported statements receive no invented explanation.
 
-The dialog uses the same safe line renderer as Automatic comments, so the two study surfaces do not drift into different visual languages. **Copy commented code** copies the real generated Python document only. **Replace editor** uses that same document, but only after explicit confirmation. The IDE frame, visual gutter, badges, syntax spans, and status strip remain outside both actions.
+```text
+DSA LEARNING COMMENTS
+|
++-- Comment detail
+|   +-- Essential: core control flow, input, output, and errors
+|   +-- Guided: Essential plus assignments, updates, and mutations
+|   +-- Detailed: Guided plus supported additional syntax notes
+|
++-- Evidence legend
+|   +-- Purple: syntax or trace note
+|   +-- Cyan: exact reviewed curriculum context
+|   +-- Mint: original Python source
+|
++-- Safe actions
+    +-- Copy commented code
+    |   +-- copies only the generated Python document
+    |
+    +-- Replace editor
+        +-- requires explicit confirmation
+```
+
+The three reviewed preamble notes, program name, objective, and reviewed complexity, stay visible at every detail level only when the editor exactly matches a catalog program. Edited or pasted code receives a direct message that curriculum context is unavailable. This prevents a generated study copy from presenting a catalog claim as trace evidence.
+
+The dialog uses the same safe line renderer, toolbar hierarchy, bounded editor center, and visible action footer as the Python Learning comments dialog. The footer remains inside the modal at desktop and mobile sizes, so **Copy commented code** and **Replace editor** are always reachable without scrolling the page behind the dialog.
+
+**Copy commented code** copies the real generated Python document only. **Replace editor** uses that same document, but only after explicit confirmation. The IDE frame, visual gutter, badges, syntax spans, legend, note count, and status strip remain outside both actions.
 
 ## Pasted-code boundary
 

@@ -2701,6 +2701,107 @@ The same lesson applied to generated comments. Reusing a background color was no
 
 The prevention rule is simple: when a second workspace promises parity with an existing control, compare its HTML structure, CSS classes, state flow, copy boundary, and browser behavior. Matching labels alone do not provide feature parity.
 
+# Catalog search lessons learned by the user
+
+## 79. A large teaching catalog needs retrieval through meaning, not only navigation
+
+Perspective:
+- User
+
+Aman identified that vertical categories solve browsing but do not fully solve retrieval. A learner may remember an error, view, invariant, complexity, algorithm phrase, or source name without remembering the exact card title or section.
+
+The request was specifically broader than title search:
+
+```text
+What the learner remembers
+        |
+        +-- part of a title
+        +-- a concept
+        +-- an error type
+        +-- a best view
+        +-- a structure
+        +-- an invariant or edge case
+        +-- a source-code name
+        |
+        v
+Find the reviewed program card
+```
+
+Credit belongs to the user for connecting catalog scale with metadata retrieval. The 134-program and 197-program catalogs now remain browsable in curriculum order while also supporting direct discovery through the information that makes each lesson useful.
+
+# Catalog search lessons learned by Codex
+
+## 80. Search must preserve curriculum identity and compose with filters
+
+Perspective:
+- Codex
+
+A quick title filter would have been easy but incomplete. The reliable design prepares a separate in-memory text index from each immutable reviewed record and requires every normalized query word to match. It then intersects that result with the active category or section.
+
+Browser testing exposed another subtle problem. The first Python implementation renumbered one search result as 001 even when it was program 120 in the recommended route. That could make the curriculum appear unstable. The corrected rule is:
+
+```text
+Normal focused category browsing
+        +-- keep established category-relative numbers
+
+Active search
+        +-- show absolute recommended-route numbers
+
+DSA search
+        +-- keep stable DSA identifiers
+```
+
+Search also needed an honest empty state, a clear recovery action, changing badge counts, a polite live result summary, and explicit privacy behavior. The query remains in current page memory only. It is not useful as a saved preference and must never become tracking data.
+
+The reusable engineering lesson is that search quality includes identity, state composition, accessibility, privacy, and recovery. Matching strings is only one part.
+
+# DSA Learning comments parity lessons learned by the user
+
+## 81. Shared styling does not guarantee shared experience
+
+The user compared the Python and DSA Learning comments dialogs as a learner would. Both used the same editor-like row renderer, but only Python showed the detail selector, evidence summary, and reliably visible export controls. The DSA dialog therefore looked like a reduced version of the feature even though its generated code was valid.
+
+The user also noticed that the DSA Copy control was effectively missing. That observation identified a real usability failure, not a cosmetic preference. A safe export action is not available if the dialog layout places it below the visible modal boundary.
+
+Credit belongs to the user for comparing complete workflows instead of accepting component-level similarity. The correction now gives DSA learners:
+
+- Essential, Guided, and Detailed control.
+- An exact note summary.
+- A legend that names each information layer.
+- A visible distinction between curriculum context and syntax or trace evidence.
+- Reachable Copy and Replace controls on desktop and mobile.
+
+The reusable lesson is that parity must be judged through information, control, safety, and reachability. Similar colors and one shared renderer are not enough.
+
+# DSA Learning comments parity lessons learned by Codex
+
+## 82. A grid-row override can silently hide a critical action
+
+The shared Learning comments component defines four rows:
+
+```text
+Header
+Toolbar
+Flexible preview
+Actions
+```
+
+The DSA specialization overrode that contract with only three rows while still rendering four children. The browser created an implicit extra row, but the fixed-height modal gave the flexible preview most of the available space. The action footer then fell below the visible boundary in some viewports.
+
+Codex should have compared the DOM child count to the explicit grid contract when the DSA dialog was first specialized. Visual testing of the preview alone did not prove that the full action journey was usable.
+
+The correction removed the conflicting three-row override and reused the shared four-row action layout. It also added a structural validator for the new detail controls and a functional contract test for note levels.
+
+What to repeat:
+
+1. Count a grid component's semantic children before overriding `grid-template-rows`.
+2. Test the first control, scrollable center, and last action in the same screenshot.
+3. Treat a clipped safety or export action as a functional defect.
+4. Test both themes because modal surfaces and evidence colors change together.
+5. Test a narrow viewport because stacked toolbars and actions change modal height.
+6. Keep curriculum context separate through wording, legend, and row styling.
+7. Confirm the copy path uses the generated source string rather than text scraped from the decorated preview.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

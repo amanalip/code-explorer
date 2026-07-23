@@ -1528,11 +1528,52 @@ ALL 134 PROGRAMS
 
 The active filter reports both the visible count and the complete count. Categories use a vertical navigation region, so a learner never has to hunt left and right for a concept.
 
+### Searching the library
+
+The search field finds programs through their complete reviewed information, not only the visible title.
+
+```text
+Search words
+    |
+    +-- title and topic
+    +-- category and difficulty
+    +-- learning-purpose description
+    +-- recommended views
+    +-- guided prerequisites
+    +-- intentional error type
+    +-- reviewed Python source
+            |
+            v
+Matching program cards
+```
+
+Search words are combined with **AND** behavior. Every word must appear somewhere in the same program record. For example:
+
+- `intentional keyerror` finds the reviewed dictionary-key investigation even though part of that phrase appears in its error metadata rather than its title.
+- `guided mutation` narrows the catalog to Guided Challenge records that also discuss mutation.
+- A variable, function, class, or method name can match reviewed source code.
+
+The selected category and the search apply together:
+
+```text
+Search: list
+        +
+Category: Classes and Objects
+        |
+        v
+Only class-and-object programs whose reviewed information contains list
+```
+
+Count badges update to show how many current search matches exist in each category. The result summary is announced politely to assistive technology. If nothing matches, the card area explains the result and provides **Clear search** without changing the selected category.
+
+Search is temporary. The query remains only in the current page memory, is not stored after reload, is not added to analytics, and is never sent over the network. Selecting a matching card loads it into the editor through the same normal example-loading path.
+
 ```text
 DESKTOP EXAMPLES BROWSER
 +----------------------+--------------------------------------+
 | CATEGORY SIDEBAR     | PROGRAM CARDS                        |
 |                      |                                      |
+| Search programs      | matching cards update while typing   |
 | All programs     134 | [Hello, Python] [Store one value]    |
 | 01 First Steps    10 | [A tiny calculation] [Smart Cafe]    |
 | 02 Variables      10 | [More programs continue below]       |
@@ -1551,6 +1592,8 @@ DESKTOP EXAMPLES BROWSER
 +----------------------+--------------------------------------+
 
 PHONE EXAMPLES BROWSER
++----------------------------------+
+| Search programs                  |
 +----------------------------------+
 | vertical category region         |
 | All, First Steps, Variables, ...  |

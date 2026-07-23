@@ -3883,37 +3883,9 @@ main {
   font: 600 0.53rem/1 var(--mono);
 }
 
-/* The DSA comments dialog uses the same reliable IDE hierarchy as the Python study copy. */
-.dsa-comments-dialog[open] {
-  grid-template-rows: auto minmax(0, 1fr) auto;
-}
-
 /* The DSA preview specializes only the shared editor shell's outer spacing. */
 .dsa-comment-preview-shell {
   margin: 18px 22px;
-}
-
-/* Study-copy safety text and explicit actions remain visible at the dialog bottom. */
-.dsa-comments-dialog .learning-comments-footer {
-  display: flex;
-  gap: 18px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px;
-  border-top: 1px solid var(--line);
-  background: var(--panel-soft);
-}
-
-.dsa-comments-dialog .learning-comments-footer p {
-  margin: 0;
-  color: var(--text-soft);
-  font-size: 0.75rem;
-}
-
-.dsa-comments-dialog .learning-comments-footer > div {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
 }
 
 /* Examples */
@@ -3985,6 +3957,47 @@ main {
   background: var(--panel-soft);
 }
 
+/* Groups the local-only catalog search label, field, and concise usage help. */
+.example-search {
+  display: grid;
+  gap: 7px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* The explicit label keeps the search purpose visible after a learner starts typing. */
+.example-search label {
+  color: var(--text);
+  font: 700 0.62rem/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* A native search field supplies familiar keyboard, selection, and clear behavior. */
+.example-search input {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 11px;
+  border: 1px solid var(--line-bright);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--bg-raised);
+  font: 600 0.7rem/1.35 var(--mono);
+}
+
+/* Placeholder contrast stays quieter than entered text while remaining readable. */
+.example-search input::placeholder {
+  color: var(--text-dim);
+  opacity: 1;
+}
+
+/* Brief guidance explains multi-word narrowing without making the sidebar noisy. */
+.example-search > span {
+  color: var(--text-dim);
+  font-size: 0.67rem;
+  line-height: 1.45;
+}
+
 /* Labels the sidebar as a recommendation rather than a completion tracker. */
 .example-curriculum-label {
   color: var(--text-dim);
@@ -4054,6 +4067,46 @@ main {
   font: 600 0.61rem/1.2 var(--mono);
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+/*
+  A failed search receives a real result panel instead of an unexplained blank
+  grid. Spanning both columns keeps the recovery action centered and readable.
+*/
+.example-search-empty {
+  display: grid;
+  width: min(520px, 100%);
+  min-height: 250px;
+  grid-column: 1 / -1;
+  place-self: center;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  padding: 34px;
+  border: 1px dashed var(--line-bright);
+  border-radius: 12px;
+  color: var(--text);
+  background: var(--panel-soft);
+  text-align: center;
+}
+
+/* The empty-result title identifies the outcome before offering recovery. */
+.example-search-empty h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+/* Recovery guidance stays bounded and calmer than the result title. */
+.example-search-empty p {
+  max-width: 390px;
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.65;
+}
+
+/* The reset control keeps a comfortable target without stretching unnecessarily. */
+.example-search-empty button {
+  margin-top: 5px;
 }
 
 /* Styles `.dialog-close`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment for the matching interface element. */
@@ -4362,6 +4415,11 @@ main {
   background: var(--purple);
 }
 
+/* Cyan identifies reviewed curriculum context that is not inferred from a trace. */
+.learning-legend-curriculum {
+  background: var(--cyan);
+}
+
 /* Mint identifies learner Python source and executable content. */
 .learning-legend-source {
   background: var(--mint);
@@ -4513,6 +4571,27 @@ main {
 /* Hover helps a learner follow one long wrapped note without adding motion. */
 .learning-preview-row.trace-note:hover {
   background: var(--study-editor-note-hover);
+}
+
+/*
+  Reviewed DSA context receives a separate cyan edge and tint. This preserves
+  the evidence boundary even before a learner reads the note wording.
+*/
+.learning-preview-row.curriculum-note {
+  border-color: color-mix(in srgb, var(--cyan) 25%, transparent);
+  background: color-mix(in srgb, var(--cyan) 8%, var(--study-editor-bg));
+}
+
+/* Curriculum context keeps its distinct surface when the learner follows the row. */
+.learning-preview-row.curriculum-note:hover {
+  background: color-mix(in srgb, var(--cyan) 13%, var(--study-editor-bg));
+}
+
+/* The owned DSA prefix adopts the curriculum color only on reviewed context rows. */
+.learning-preview-row.curriculum-note .learning-preview-note-prefix {
+  border-color: color-mix(in srgb, var(--cyan) 48%, var(--study-editor-line));
+  color: var(--cyan);
+  background: color-mix(in srgb, var(--cyan) 10%, var(--study-editor-bg));
 }
 
 /* The owned prefix acts as a compact label but remains exact selectable document text. */
@@ -4979,6 +5058,17 @@ main {
     border-bottom: 1px solid var(--line);
   }
 
+  /* The search remains full width above the vertical mobile category list. */
+  .example-search {
+    width: 100%;
+  }
+
+  /* Mobile empty results use the card region without excessive vertical space. */
+  .example-search-empty {
+    min-height: 210px;
+    padding: 24px 18px;
+  }
+
   /* The count follows the vertical list and remains left-aligned on narrow screens. */
   .example-count {
     margin-top: 2px;
@@ -5177,17 +5267,6 @@ main {
   .dsa-playback-panel .speed-control {
     grid-column: 2;
     grid-row: 1;
-  }
-
-  /* Generated study actions stack so both remain large touch targets. */
-  .dsa-comments-dialog .learning-comments-footer {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .dsa-comments-dialog .learning-comments-footer > div {
-    display: grid;
-    grid-template-columns: 1fr;
   }
 
   /* The read-only study frame uses the available phone width. */

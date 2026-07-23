@@ -56,8 +56,10 @@ The approved 535-program target has a curriculum quality contract. Counts alone 
 - Exact-source matching before reviewed algorithm, phase, invariant, edge-case, comparison, or Big O context can appear.
 - Automatic comments as a read-only IDE-style editor replacement layer, plus confirmation-gated Learning comments export.
 - One safe DSA study renderer for both comment surfaces, with visual line numbers, conservative syntax spans, explicit read-only chrome, note bands, and presentation text that never enters copied or adopted source.
+- A Python-parity DSA Learning comments dialog with Essential, Guided, and Detailed filtering, a live note summary, a three-part evidence legend, visibly separate curriculum-context rows, and a footer that remains reachable inside the bounded modal.
 - A wider DSA desktop boundary with one horizontal view-label row. The source and view columns stack before becoming cramped, while narrow screens scroll only the bounded label strip.
 - A stable playback grid with one grouped button row, a flexible timeline, and a fixed speed selector. The timeline receives its own row on narrow screens.
+- Local metadata search across every implemented DSA record, composed with vertical section filters and accurate per-section match counts.
 - Stable contracts for 31 event names, 20 structure representation names, required program metadata, and the 535-program Tier A arithmetic.
 - Bounded DSA presentation: 12 watches, 30 structure entries, 30 journey events, 80 path transitions, 120 table rows, and 2 comparison summaries.
 - `scripts/validate-dsa-foundation.mjs` checks contracts, routes, guide targets, and required HTML ids.
@@ -145,6 +147,7 @@ The runtime may classify conservative cues such as a write, condition, call, ret
 - 134 curated examples grouped into 12 concept categories and three difficulty levels.
 - The current library blends 54 reviewed base examples with 80 additional programs. Existing debugging, recursion, mutation, copying, input, and collection coverage was preserved while names, categories, and longer programs were improved where useful.
 - Category-filterable starter-program library with a vertical category navigator and per-category count badges.
+- Local metadata search across all 134 reviewed records, composed with categories and preserving absolute route numbers in search results.
 - Independent vertical scrolling for desktop navigation and cards, plus stacked vertical navigation above one-column cards on mobile.
 - Accurate source-line counts, program counts, filter-reset scrolling, and prepared input for input-driven examples.
 - A fixed recommended sequence that interleaves 12 named guided checkpoints after their listed prerequisite concepts without collecting or inferring learner progress.
@@ -152,6 +155,41 @@ The runtime may classify conservative cues such as a write, condition, call, ret
 - Three clearly labeled investigation programs that intentionally raise `IndexError`, `ValueError`, or `KeyError`. All other examples must finish without an accidental error.
 - Eight Classes and Objects programs, including classes, instances, attributes, methods, constructors, inheritance, composition, and a longer object-oriented checkpoint.
 - Extensive README walkthroughs, question maps, workflows, expected behavior, troubleshooting, and glossary.
+
+### Shared catalog search
+
+`catalog-search.js` owns one browser-local search contract for both workspaces.
+
+```text
+Immutable reviewed program record
+        |
+        +-- collect primitive metadata values
+        +-- normalize case, accents, and punctuation
+        +-- prepare one in-memory text index
+        |
+Temporary search query
+        +-- normalize into words
+        +-- require every word to match
+        |
+Selected category or section
+        |
+        v
+Matching cards, badges, and live result count
+```
+
+Implementation rules:
+
+- Prepare one index per reviewed record at module startup. Do not repeatedly flatten full source and metadata after every keystroke.
+- Search values, not learner identity or activity. Queries remain session-only state and never use browser storage.
+- Do not upload, log remotely, add to a URL, or include search queries in analytics.
+- Keep query matching and category or section matching as an intersection.
+- Update filter badges from the active search so zero-result sections are visible before selection.
+- Require all normalized query words to match somewhere in the same record.
+- Treat punctuation consistently so reviewed complexity strings remain searchable.
+- Preserve stable DSA identifiers and absolute Python route numbers in search results.
+- Use a visible label, native search input, concise help, polite live result count, keyboard focus, and a Clear search recovery action.
+- Keep curriculum records immutable. The prepared index is a separate in-memory Map.
+- Selecting a match must reuse the existing card-loading path rather than creating a second editor-mutation flow.
 
 ### Automatic Learning Comments
 
@@ -554,11 +592,17 @@ Category changes must set the card region's `scrollTop` to zero. Every mobile ca
 3. Build every row with text nodes and bounded syntax spans. Never insert learner-controlled or trace-derived text as trusted HTML.
 4. Keep file chrome, CSS line numbers, read-only badges, line counts, and status text outside the generated document.
 5. Use the exact `# Code Explorer DSA:` prefix to distinguish generated learning-note rows from original Python.
-6. Test Automatic comments and the Learning comments dialog in light and dark themes.
-7. Confirm both surfaces show the same generated line count and note rows for the same completed run.
-8. Confirm normal Copy returns original Python while Automatic comments are visible.
-9. Confirm Copy commented code returns only the generated Python document.
-10. Confirm toggling either preview does not change local source, trace evidence, source statistics, or playback state.
+6. Map Essential, Guided, and Detailed to worker levels 1, 2, and 3. Reject a missing or malformed level instead of letting it bypass the selected boundary.
+7. Keep exact reviewed program, objective, and complexity preamble notes at every density, but only while `activeProgram` proves an unchanged catalog match.
+8. Present syntax or trace notes, curriculum context, and Python source as three named visual layers. Curriculum context needs a separate class and color treatment in addition to different wording.
+9. Keep the DSA dialog on the shared four-row grid: header, toolbar, flexible editor, and actions. A three-row override makes the editor consume footer space and can hide Copy.
+10. Test Automatic comments and the Learning comments dialog in light and dark themes.
+11. Confirm Essential excludes levels 2 and 3, Guided includes levels 1 and 2, and Detailed includes levels 1 through 3.
+12. Confirm both surfaces show the same generated line count and note rows for the same selected density and completed run.
+13. Confirm normal Copy returns original Python while Automatic comments are visible.
+14. Confirm Copy commented code returns only the generated Python document.
+15. Confirm toggling either preview or changing detail does not change local source, trace evidence, source statistics, or playback state.
+16. At desktop and 390-pixel mobile width, confirm the summary, preview, Copy, and Replace controls all remain inside the modal in both themes.
 
 ### Change the DSA learning-panel navigation
 
@@ -694,6 +738,15 @@ Verify all three detail levels, inline on and off, unchanged source statistics, 
 - The repaired playback bar keeps all four buttons on one baseline. Its timeline measured 1,069 pixels at desktop and 320 pixels on mobile, with the mobile timeline on its own row.
 - The DSA Learning comments dialog and Automatic comments surface each rendered 20 safe line rows, 10 visibly separated DSA notes, conservative token colors, read-only chrome, and matching line counts for the reviewed test run.
 - Toggling the DSA automatic study surface in light and dark themes left the separately stored original DSA source unchanged.
+- The DSA Learning comments dialog now uses the same four-row hierarchy as Python. Its Essential, Guided, and Detailed control, live summary, three-part legend, cyan reviewed-context rows, and both footer actions remained visible in light and dark themes at desktop and 390 by 844.
+- The real Copy commented code action produced the success message `Copied the complete commented study program.` from the mobile dark dialog.
+- The DSA foundation validator now proves the three note-level boundaries and confirms reviewed context is retained independently of selected Python-note density.
+- Python catalog search found one hidden intentional `KeyError` record, displayed its absolute program number 120, and loaded the matching source into the editor.
+- DSA catalog search found hidden edge-case metadata for the empty-list division lesson and found `DSA-197` through combined identifier and algorithm terms.
+- Selecting Linked structures while the `DSA-197 FIFO` query remained active produced the explicit zero-result state. Clear search retained Linked structures, restored its 20 cards, and focused the search field.
+- Both production catalog validators now exercise real-record search behavior, including hidden metadata, source terms, stable identifiers, AND matching, punctuation normalization, and the empty-query contract.
+- At 390 by 844, both catalog dialogs retained 322-pixel search fields, bounded one-column cards, and zero page-level or dialog-level horizontal overflow.
+- Search queries cleared after page navigation, created no search-related local-storage key, and were absent from request URLs.
 
 ## Documentation completion test
 

@@ -8,23 +8,24 @@
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260723-4";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260723-4";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260723-6";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260723-6";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260723-6";
 import {
   DSA_AREAS,
   DSA_CATALOG_TARGET,
   DSA_EVIDENCE_LABELS,
   DSA_STRUCTURE_TYPES,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260723-4";
+} from "./dsa-contracts.js?v=20260723-6";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260723-4";
+} from "./dsa-curriculum.js?v=20260723-6";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260723-4";
+} from "./dsa-curriculum-chunk2.js?v=20260723-6";
 import {
   DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
@@ -35,7 +36,7 @@ import {
   structureCandidate,
   variableChanges,
   variablesForStep,
-} from "./dsa-runtime.js?v=20260723-4";
+} from "./dsa-runtime.js?v=20260723-6";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
@@ -48,6 +49,14 @@ const DSA_IMPLEMENTED_PROGRAMS = Object.freeze([
   ...DSA_CHUNK_ONE_PROGRAMS,
   ...DSA_CHUNK_TWO_PROGRAMS,
 ]);
+
+/**
+ * Prepared text indexes every reviewed field once instead of flattening 197
+ * complete records after every keystroke. The index and query stay in memory.
+ */
+const DSA_PROGRAM_SEARCH_INDEX = new Map(
+  DSA_IMPLEMENTED_PROGRAMS.map((program) => [program, catalogSearchText(program)]),
+);
 
 /** The first reviewed program is the safe source for a learner's first visit. */
 const DEFAULT_DSA_CODE = DSA_IMPLEMENTED_PROGRAMS[0].code;
@@ -87,9 +96,10 @@ const els = Object.fromEntries(
     "dsaTimeline", "dsaProgressLabel", "dsaSpeedSelect", "dsaClearOutputButton",
     "dsaConsoleOutput", "dsaImplementedCount", "dsaSectionCount",
     "dsaStructureCount", "dsaCatalogTarget", "dsaExamplesDialog",
-    "dsaCloseExamplesButton", "dsaExampleFilters", "dsaExampleCount",
+    "dsaCloseExamplesButton", "dsaExampleSearchInput", "dsaExampleFilters", "dsaExampleCount",
     "dsaExampleGrid", "dsaCommentsDialog", "dsaCloseCommentsButton",
-    "dsaCommentPreview", "dsaCommentLineCount", "dsaCopyCommentsButton",
+    "dsaCommentDetail", "dsaCommentsSummary", "dsaCommentPreview",
+    "dsaCommentLineCount", "dsaCopyCommentsButton",
     "dsaReplaceCommentsButton", "toast",
   ].map((id) => [id, document.getElementById(id)]),
 );
@@ -104,6 +114,7 @@ const state = {
   editorPreferences: loadEditorPreferences(),
   activeView: loadActiveView(),
   activeFilter: "All programs",
+  searchQuery: "",
   activeProgram: null,
   preparedInputs: loadPreparedInputs(),
   worker: null,
@@ -1036,12 +1047,31 @@ function togglePlayback() {
   }, interval);
 }
 
+/** Maps the shared learner-facing detail names to worker note levels. */
+const DSA_COMMENT_LEVELS = Object.freeze({
+  essential: 1,
+  guided: 2,
+  detailed: 3,
+});
+
+/**
+ * Returns the selected safe DSA comment density.
+ *
+ * @returns {"essential"|"guided"|"detailed"} Validated detail name.
+ */
+function selectedDsaCommentDetail() {
+  const detail = els.dsaCommentDetail?.value;
+  return Object.hasOwn(DSA_COMMENT_LEVELS, detail) ? detail : "guided";
+}
+
 /** Builds the complete generated study copy for the current source and evidence. */
 function currentCommentedSource() {
+  const detail = selectedDsaCommentDetail();
   return buildDsaCommentedSource(
     state.editor.getCode(),
     state.learningComments,
     state.activeProgram,
+    DSA_COMMENT_LEVELS[detail],
   );
 }
 
@@ -1123,7 +1153,15 @@ function renderDsaStudyPreview(source, target, lineCountTarget) {
       prefix.textContent = DSA_COMMENT_PREFIX;
       const message = document.createElement("span");
       message.className = "learning-preview-note-message";
-      message.textContent = trimmed.slice(DSA_COMMENT_PREFIX.length);
+      const noteMessage = trimmed.slice(DSA_COMMENT_PREFIX.length).trimStart();
+      /*
+        Only the three generated preamble labels are reviewed curriculum context.
+        Runtime and syntax notes retain the ordinary evidence style.
+      */
+      if (/^(Reviewed program:|Objective:|Reviewed time:)/.test(noteMessage)) {
+        row.classList.add("curriculum-note");
+      }
+      message.textContent = noteMessage;
       content.append(prefix, message);
     } else {
       appendDsaPreviewTokens(content, line);
@@ -1135,6 +1173,27 @@ function renderDsaStudyPreview(source, target, lineCountTarget) {
   if (lineCountTarget) {
     lineCountTarget.textContent = `${lines.length} line${lines.length === 1 ? "" : "s"}`;
   }
+}
+
+/**
+ * Refreshes the DSA evidence summary for the selected detail level.
+ *
+ * The summary says exactly when reviewed context is available. Edited or pasted
+ * code never inherits a catalog algorithm claim from a formerly selected card.
+ *
+ * @returns {void}
+ */
+function renderDsaCommentsSummary() {
+  if (!els.dsaCommentsSummary) return;
+  const detail = selectedDsaCommentDetail();
+  const maximumLevel = DSA_COMMENT_LEVELS[detail];
+  const noteCount = state.learningComments.filter((note) => (
+    Number.isInteger(note.level) && note.level <= maximumLevel
+  )).length;
+  const noteLabel = `${noteCount} ${detail} Python note${noteCount === 1 ? "" : "s"}`;
+  els.dsaCommentsSummary.textContent = state.activeProgram
+    ? `${noteLabel} plus 3 exact reviewed curriculum notes.`
+    : `${noteLabel}. Curriculum context is unavailable for edited or pasted code.`;
 }
 
 /** Shows or hides the read-only automatic-comment surface. */
@@ -1159,6 +1218,7 @@ function renderAutomaticComments() {
     els.dsaAutomaticPreviewDocument.replaceChildren();
     els.dsaAutomaticLineCount.textContent = "0 lines";
   }
+  renderDsaCommentsSummary();
 }
 
 /** Toggles visual study comments without changing the editor document. */
@@ -1171,6 +1231,7 @@ function toggleAutomaticComments() {
 /** Opens the read-only study-copy dialog from current evidence. */
 function openCommentsDialog() {
   if (!state.learningComments.length) return;
+  renderDsaCommentsSummary();
   renderDsaStudyPreview(
     currentCommentedSource(),
     els.dsaCommentPreview,
@@ -1197,7 +1258,15 @@ function replaceWithCommentedSource() {
 
 /** Renders vertical section filters with exact counts. */
 function renderCatalogFilters() {
-  const filters = [["All programs", DSA_IMPLEMENTED_PROGRAMS.length], ...DSA_IMPLEMENTED_SECTIONS];
+  const filters = [
+    ["All programs", DSA_IMPLEMENTED_PROGRAMS.filter(programMatchesSearch).length],
+    ...DSA_IMPLEMENTED_SECTIONS.map(([name]) => [
+      name,
+      DSA_IMPLEMENTED_PROGRAMS.filter((program) => (
+        program.section === name && programMatchesSearch(program)
+      )).length,
+    ]),
+  ];
   els.dsaExampleFilters.replaceChildren(
     ...filters.map(([name, count], index) => {
       const button = makeElement("button", `example-filter ${state.activeFilter === name ? "active" : ""}`);
@@ -1216,6 +1285,45 @@ function renderCatalogFilters() {
       return button;
     }),
   );
+}
+
+/**
+ * Tests a reviewed DSA record against every word in the temporary search.
+ *
+ * @param {object} program Immutable program from the implemented DSA catalog.
+ * @returns {boolean} Whether its complete reviewed record matches the query.
+ */
+function programMatchesSearch(program) {
+  return matchesCatalogSearch(
+    DSA_PROGRAM_SEARCH_INDEX.get(program) || "",
+    state.searchQuery,
+  );
+}
+
+/**
+ * Creates a clear, recoverable result instead of presenting an empty card grid.
+ *
+ * @returns {HTMLElement} Accessible empty-result panel with a local reset action.
+ */
+function createCatalogSearchEmptyState() {
+  const empty = makeElement("section", "example-search-empty");
+  empty.append(makeElement("h3", "", "No programs matched"));
+  empty.append(makeElement(
+    "p",
+    "",
+    "Try fewer words or search another concept. The current section and search are applied together.",
+  ));
+  const clear = makeElement("button", "secondary-button compact", "Clear search");
+  clear.type = "button";
+  clear.addEventListener("click", () => {
+    state.searchQuery = "";
+    els.dsaExampleSearchInput.value = "";
+    renderCatalogFilters();
+    renderCatalogPrograms();
+    els.dsaExampleSearchInput.focus();
+  });
+  empty.append(clear);
+  return empty;
 }
 
 /** Creates one richly labeled catalog card using reviewed metadata only. */
@@ -1243,10 +1351,15 @@ function programCard(program) {
 
 /** Renders filtered program cards and an accurate visible count. */
 function renderCatalogPrograms() {
-  const visible = state.activeFilter === "All programs"
+  const sectionPrograms = state.activeFilter === "All programs"
     ? DSA_IMPLEMENTED_PROGRAMS
     : DSA_IMPLEMENTED_PROGRAMS.filter((program) => program.section === state.activeFilter);
-  els.dsaExampleGrid.replaceChildren(...visible.map(programCard));
+  const visible = sectionPrograms.filter(programMatchesSearch);
+  if (!visible.length) {
+    els.dsaExampleGrid.replaceChildren(createCatalogSearchEmptyState());
+  } else {
+    els.dsaExampleGrid.replaceChildren(...visible.map(programCard));
+  }
   els.dsaExampleCount.textContent = `Showing ${visible.length} of ${DSA_IMPLEMENTED_PROGRAMS.length} programs`;
 }
 
@@ -1276,7 +1389,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260723-4", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260723-6", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;
@@ -1435,6 +1548,27 @@ function bindEvents() {
   els.dsaFontSizeSelect.addEventListener("change", (event) => changeEditorFontSize(event.target.value));
   els.dsaCopyButton.addEventListener("click", copyCompleteEditor);
   els.dsaPasteButton.addEventListener("click", pasteCompleteEditor);
+  /*
+    Detail changes update both read-only DSA comment surfaces immediately.
+    They do not rerun Python, edit source, or change reviewed-context matching.
+  */
+  els.dsaCommentDetail.addEventListener("change", () => {
+    renderAutomaticComments();
+    if (els.dsaCommentsDialog.open) {
+      renderDsaStudyPreview(
+        currentCommentedSource(),
+        els.dsaCommentPreview,
+        els.dsaCommentLineCount,
+      );
+    }
+  });
+  // Search remains local, unsaved, and composed with the active DSA section.
+  els.dsaExampleSearchInput.addEventListener("input", (event) => {
+    state.searchQuery = event.target.value;
+    renderCatalogFilters();
+    renderCatalogPrograms();
+    els.dsaExampleGrid.scrollTop = 0;
+  });
   els.dsaPreviousButton.addEventListener("click", () => selectStep(state.currentStep - 1));
   els.dsaNextButton.addEventListener("click", () => selectStep(state.currentStep + 1));
   els.dsaRestartButton.addEventListener("click", () => selectStep(0));

@@ -161,9 +161,10 @@ export function serializedLabel(value) {
  * @param {string} source Original Python source.
  * @param {Array<object>} learningComments Syntax and trace-backed worker notes.
  * @param {object|null} program Matching reviewed curriculum record, if any.
+ * @param {number} maximumLevel Highest worker detail level to include.
  * @returns {string} Complete generated study copy.
  */
-export function buildDsaCommentedSource(source, learningComments, program) {
+export function buildDsaCommentedSource(source, learningComments, program, maximumLevel = 3) {
   const sourceLines = source
     .split("\n")
     .filter((line) => !line.trimStart().startsWith(DSA_COMMENT_PREFIX));
@@ -171,6 +172,8 @@ export function buildDsaCommentedSource(source, learningComments, program) {
 
   for (const note of learningComments || []) {
     if (!Number.isInteger(note.line) || note.line < 1 || !note.text) continue;
+    // Missing or malformed levels are omitted instead of bypassing the selected detail boundary.
+    if (!Number.isInteger(note.level) || note.level > maximumLevel) continue;
     if (!notesByLine.has(note.line)) notesByLine.set(note.line, []);
     notesByLine.get(note.line).push(note.text);
   }
@@ -193,4 +196,3 @@ export function buildDsaCommentedSource(source, learningComments, program) {
   });
   return output.join("\n");
 }
-

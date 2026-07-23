@@ -50,6 +50,8 @@ vm.runInNewContext(`${defaultDeclaration}\nBASE_EXAMPLES = ${baseLiteral}`, data
 
 // The new records are ordinary frozen data and can be imported directly in Node.
 const { ADDITIONAL_EXAMPLES } = await import(new URL("../curriculum.js", import.meta.url));
+// The production matcher is tested against real reviewed records, not a mock schema.
+const { catalogSearchText, matchesCatalogSearch } = await import(new URL("../catalog-search.js", import.meta.url));
 // A fresh array mirrors the merge performed by app.js without mutating either source collection.
 const examples = [...dataContext.BASE_EXAMPLES, ...ADDITIONAL_EXAMPLES];
 
@@ -103,6 +105,33 @@ assert.deepEqual(actualCounts, expectedCounts, "Curriculum bucket totals do not 
 // Three preserved examples intentionally stop so Error Coach can teach a specific exception.
 const intentionalErrors = examples.filter((example) => example.expectedError);
 assert.equal(intentionalErrors.length, 3, "Exactly three programs should intentionally raise an error.");
+
+/*
+ * Search regression checks prove that displayed information, hidden metadata,
+ * source text, AND terms, and an empty query follow the public catalog contract.
+ */
+const indexedExamples = examples.map((example) => ({
+  example,
+  searchText: catalogSearchText(example),
+}));
+const searchExamples = (query) => indexedExamples
+  .filter(({ searchText }) => matchesCatalogSearch(searchText, query))
+  .map(({ example }) => example);
+assert.equal(
+  searchExamples("Intentional KeyError").length,
+  1,
+  "Python search should find exactly one intentional KeyError program.",
+);
+assert.equal(
+  searchExamples("Intentional KeyError")[0].title,
+  "A key to investigate",
+  "Python hidden error metadata should find the dictionary-key investigation.",
+);
+assert.ok(
+  searchExamples("class pet feed").some((example) => example.title === "Object-Oriented Pet Care Tracker"),
+  "Python search should match source-code terms inside the pet checkpoint.",
+);
+assert.equal(searchExamples("").length, examples.length, "An empty Python search should match all programs.");
 
 // A caller may request a temporary detached catalog for the Python validator.
 // The export is explicit so ordinary validation remains read-only.

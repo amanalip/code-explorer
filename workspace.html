@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260723-4" />
+    <link rel="stylesheet" href="styles.css?v=20260723-6" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -590,12 +590,28 @@
       <div class="example-browser-body">
         <!-- Category navigation stays visible while learners browse a long filtered result list. -->
         <aside class="example-browser-toolbar" aria-label="Starter program categories">
+          <!--
+            Search remains local and temporary. It combines with the selected
+            category and examines reviewed program information, metadata, and source.
+          -->
+          <div class="example-search">
+            <label for="exampleSearchInput">Search programs</label>
+            <input
+              id="exampleSearchInput"
+              type="search"
+              placeholder="Title, concept, view, or code"
+              autocomplete="off"
+              spellcheck="false"
+              aria-describedby="exampleSearchHelp"
+            />
+            <span id="exampleSearchHelp">Use more words to narrow the results.</span>
+          </div>
           <!-- This static label describes the curriculum order without implying completion tracking. -->
           <span class="example-curriculum-label">Recommended order</span>
           <!-- The generated vertical buttons expose names, counts, and their pressed state. -->
           <div class="example-filters" id="exampleFilters" role="group" aria-label="Filter starter programs"></div>
           <!-- This live count tells learners how much of the library is currently visible. -->
-          <span class="example-count" id="exampleCount"></span>
+          <span class="example-count" id="exampleCount" role="status" aria-live="polite"></span>
         </aside>
         <!-- JavaScript fills this independently scrolling grid with programs from the selected category. -->
         <div class="example-grid" id="exampleGrid"></div>
@@ -672,6 +688,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260723-4"></script>
+    <script type="module" src="app.js?v=20260723-6"></script>
   </body>
 </html>
