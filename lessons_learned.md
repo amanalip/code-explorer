@@ -1315,7 +1315,91 @@ Discuss one tier without losing later ideas
 Build only after a separate decision
 ```
 
-Status: Tier A is approved for feature discussion only. No Data Structures workspace code is approved or implemented.
+Status: The 535-program Tier A catalog is approved as a planning target. Feature behavior remains under discussion, and no Data Structures workspace code is approved or implemented.
+
+## 66. Chunking protects quality without shrinking the educational promise
+
+When the catalog grew, Aman rejected the idea that quality and completeness must compete. His correction was that a large public-service curriculum should be divided into reviewable chunks rather than weakened to make the total feel easier.
+
+Codex then audited the curriculum against Python and established algorithm-course coverage, identified missing foundations and paradigms, and calculated the revised contract as 451 direct lessons, 48 investigations, and 36 guided challenges.
+
+The shared conclusion is:
+
+```text
+Large scope
+     |
+     +-- reduce concurrent work through chunks
+     +-- increase reusable validation
+     +-- keep every published learning promise
+     +-- reject placeholders and shallow coverage
+```
+
+Status: The complete Tier A planning target is 535 programs. No implementation has begun.
+
+## 67. Separate learning paths need contextual guides
+
+Aman identified that one Tool Guide link on the shared landing page would become ambiguous after adding separate Python and Data Structures workspaces. The collaborative decision is to remove that shared guide control and place the appropriate guide inside each workspace.
+
+```text
+Python workspace         -> README.md
+Data Structures workspace -> README_DSA.md
+Shared landing page      -> no ambiguous guide
+```
+
+This preserves separation of concerns in the documentation as well as the code. A learner who is studying Python execution should not be sent into a large DSA guide, and a learner studying data structures should not have to search the Python guide for workspace-specific instructions.
+
+The planned landing-page action is named **Start exploring Python data structures and algorithms**. Including algorithms in the label sets the correct expectation because the proposed workspace teaches both structures and the operations and algorithms that use them.
+
+Status: Approved as a navigation and documentation plan. No HTML or new guide has been created yet.
+
+## 68. A limits warning is not the same as limits documentation
+
+Aman caught an important documentation gap while reviewing the proposed bounded Structure Canvas. Saying that a visualization is bounded does not help a beginner understand the boundary, what happens at it, or whether their Python program behaved incorrectly.
+
+The future `README_DSA.md` must therefore explain all implemented limits together, including execution, serialization, displayed values, structure diagrams, histories, comparisons, explanation confidence, complexity evidence, persistence, platform support, and curriculum scope.
+
+```text
+Learner sees a shortened tree
+          |
+          +-- weak documentation: "visualizations are bounded"
+          |
+          +-- useful documentation
+                 +-- maximum nodes counted
+                 +-- reason for the bound
+                 +-- visible threshold message
+                 +-- execution status
+                 +-- preserved source and trace
+                 +-- next experiment
+```
+
+This correction came from Aman. It prevents the project from treating a safety mechanism as self-explanatory and makes the eventual guide useful to someone who has never encountered browser resource limits.
+
+Status: Approved as a DSA documentation requirement. Numerical limits remain undecided until their features are implemented and verified.
+
+## 69. A large curriculum count must never become permission for shallow lessons
+
+Aman made the quality expectation explicit before development: all 535 programs must be worth studying. The catalog cannot be completed with tiny constant changes, renamed variables, padded line counts, or examples that execute correctly but teach almost nothing.
+
+The fair refinement is that longer is not automatically better. A base case, one comparison, or one stack operation may need only a few lines. Trees, graphs, recursive algorithms, dynamic programming, comparisons, and guided integrations often need more setup and several meaningful phases. Those lessons should receive the length needed to remain understandable.
+
+```text
+Wrong shortcut
+535 slots -> generate variations -> pass count
+
+Approved approach
+learning progression
+      -> distinct objectives
+      -> coherent programs
+      -> appropriate depth
+      -> executable validation
+      -> visual inspection
+      -> human teaching review
+      -> 535 earned lessons
+```
+
+The user contribution is the refusal to treat scale and quality as opposing choices. Chunking exists so the project can preserve both. Codex must enforce that correction through metadata validation, line-distribution reports, near-duplicate checks, trace inspection, and manual curriculum review rather than merely promising to make examples good.
+
+Status: Approved as a release gate for every future DSA curriculum chunk.
 
 # Lessons learned by Codex
 
@@ -2125,7 +2209,68 @@ Implemented  -> built, verified, and documented
 
 The permanent Codex lesson is to preserve ambitious ideas without converting them into hidden commitments. A future contributor should be able to recover the complete discussion while still knowing exactly what exists today.
 
-Status: Implemented as a documentation and planning rule. Tier A remains discussion-only.
+Status: Implemented as a documentation and planning rule. The Tier A catalog target is approved, while features remain under discussion.
+
+## 55. Feasible and easy are different engineering claims
+
+A 535-program curriculum is not easy, small, or quick. It is feasible to implement reliably only if shared event contracts, renderers, validators, accessibility patterns, and per-chunk release gates prevent hundreds of unrelated custom implementations.
+
+The permanent Codex lesson is to answer both parts of a feasibility question:
+
+```text
+Can it be built reliably?  -> yes, under explicit conditions
+Is it easy?                -> no
+Has implementation begun? -> no
+```
+
+Calling a large catalog easy would hide maintenance risk. Calling it impossible would ignore the value of reusable architecture and staged verification. Honest planning preserves both facts.
+
+Status: Recorded with the approved 535-program Tier A planning contract.
+
+## 56. Planning documentation and learner documentation serve different truths
+
+`Tier.md` may preserve ambitious future scope because its purpose is planning. A learner guide must describe only implemented and verified behavior. Creating `README_DSA.md` before the Data Structures workspace exists would blur that distinction and could make roadmap items look available.
+
+The permanent rule is:
+
+```text
+Tier.md        -> what may be built
+README_DSA.md  -> what learners can use now
+```
+
+Create and expand the DSA guide alongside verified curriculum chunks. Keep the Python guide and DSA guide contextually linked from their own workspaces.
+
+Status: Recorded before implementation so future documentation does not overclaim.
+
+## 57. Every bound needs a visible and documented learner outcome
+
+It is easy to think about limits only as implementation constants. A beginner experiences a limit as a product event and may otherwise confuse a shortened diagram, partial table, timeout, or stopped trace with a Python rule or a defect in their program.
+
+For every future DSA bound, implementation and documentation must agree on:
+
+- The counted resource and verified numerical threshold.
+- The message or visual marker shown at the threshold.
+- Whether Python execution stopped or only a learning view was shortened.
+- Which source, trace, output, and local state remain preserved.
+- A safe next action, such as reducing input size, focusing the graph, or selecting a smaller edge-case set.
+- Whether mobile uses the same data bound with a different presentation.
+
+The documentation must be derived from constants and tests. A roadmap may identify that a bound will be needed, but it must not invent a reassuring number before browser behavior has been measured.
+
+## 58. Curriculum scale needs automated suspicion and human judgment
+
+Automated checks can prove that examples compile, execute, match expected results, contain required metadata, and are not textually identical. They cannot prove that a program tells a coherent story, teaches at the right moment, or gives a beginner a useful sense of progress.
+
+For the DSA catalog, automation should flag suspicious evidence:
+
+- Unusually short clusters within a complex section.
+- Highly similar source with only names or constants changed.
+- Repeated descriptions, outputs, phase sequences, or metadata.
+- Recommended views that receive no meaningful events.
+- Complexity or invariant claims without reviewed support.
+- Longer programs with no additional conceptual progression.
+
+Human review must then judge whether the similarity is pedagogically intentional, whether the length fits the objective, and whether the learner encounters a meaningful new idea. The correct response to 535 programs is stronger review infrastructure and smaller release chunks, not lower standards.
 
 # Shared lessons for future work
 
@@ -2213,8 +2358,9 @@ Reusable discovery, mistake, decision, or success occurred?
 | Read and write highlighting | Explored for later |
 | Learning autocomplete | Explored for later |
 | Smart fold summaries | Explored for later |
-| Data-structure learning expansion | A separate workspace is approved for Tier A feature discussion only; no code is approved or implemented |
-| Data Structures tier reference | `Tier.md` preserves Tier A, B, and C; only Tier A is under discussion |
+| Data-structure learning expansion | A separate workspace and 535-program Tier A catalog target are approved for planning; feature behavior and code remain unapproved |
+| Data Structures tier reference | `Tier.md` preserves Tier A, B, and C; Tier A has an approved catalog count but no implementation |
+| Workspace tool guides | Remove the shared landing-page guide; Python workspace links `README.md`; future DSA workspace links `README_DSA.md`; landing action reads **Start exploring Python data structures and algorithms** |
 | Classical algorithm visualizations | Recorded in `Tier.md`; implementation remains unapproved |
 | Trace-store redesign | Deferred |
 | Other programming languages | Explored, no build approved |

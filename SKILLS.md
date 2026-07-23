@@ -22,7 +22,13 @@ Recorded execution
 
 The tool records a bounded execution first and then replays it. Playback breakpoints and timeline controls navigate the recorded trace. They do not pause the original Python interpreter.
 
-`Tier.md` records the explored Tier A, B, and C curriculum for a possible separate Data Structures workspace. It is a planning reference only. Do not treat a listed structure or algorithm as approved or implemented unless the current task and learner-visible documentation say so explicitly.
+`Tier.md` records the Tier A, B, and C curriculum for a possible separate Data Structures workspace. The 535-program Tier A catalog target is approved as a planning contract, but its features and implementation remain unapproved. Do not treat a listed structure or algorithm as implemented unless code, verification, and learner-visible documentation prove it.
+
+Documentation routing for the proposed split is also approved in planning: `index.html` will have no ambiguous Tool Guide control, its planned DSA action will read **Start exploring Python data structures and algorithms**, `workspace.html` will link to the existing `README.md`, and the future `data-structures.html` will link to `README_DSA.md`. The DSA guide must be created with implemented workspace behavior, not prefilled with roadmap claims from `Tier.md`.
+
+The future DSA guide has a complete limits-documentation contract. For every implemented execution, serialization, display, visualization, history, comparison, explanation, complexity, persistence, platform, and curriculum boundary, `README_DSA.md` must state the verified value, what is counted, why it exists, threshold behavior, whether execution stopped or presentation was shortened, what evidence remains safe, and what the learner can try next. Do not invent planning numbers. Trace implementation constants and tests before documenting them, and visibly label shortened visual output.
+
+The approved 535-program target has a curriculum quality contract. Counts alone never establish completion. Each section must progress from focused foundations through standard operations, meaningful variations, applied programs, and comparisons. Reject constant-only or name-only variations, filler lines, incoherent scripts, weak metadata, and examples whose recommended views have nothing useful to show. Validation must report line-count distributions and near-duplicate candidates, while human review must judge correctness, teaching depth, readability, coherent progression, and whether longer concepts received enough space. Short programs remain valid when the concept is genuinely atomic.
 
 ## Current capability ledger
 

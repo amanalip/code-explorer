@@ -5,7 +5,7 @@ This document preserves the proposed curriculum boundary for the separate Python
 ```text
 CURRENT STATUS
 
-Tier A  -> approved for feature discussion only
+Tier A  -> 535-program catalog target approved; features remain under discussion
 Tier B  -> recorded for later evaluation
 Tier C  -> recorded as an optional specialist catalog
 
@@ -48,7 +48,7 @@ Code Explorer landing page
 |      +-- existing workspace.html
 |      +-- existing Python curriculum and trace views
 |
-+-- Explore Python Data Structures
++-- Start exploring Python data structures and algorithms
        +-- proposed data-structures.html
        +-- structure and algorithm curriculum
        +-- specialized visualizations
@@ -56,9 +56,283 @@ Code Explorer landing page
 
 The two workspaces may reuse the editor, theme, Pyodide worker foundation, trace playback, serialization, dialogs, accessibility helpers, and safe local persistence. They must not become two copied applications that drift apart.
 
+## Documentation and navigation boundary
+
+The landing page represents two separate learning paths, so it must not present one ambiguous Tool Guide link.
+
+```text
+index.html
+|
++-- no Tool Guide control
+|
++-- Start exploring Python
+|      |
+|      v
+|   workspace.html
+|      +-- Tool Guide -> README.md
+|
++-- Start exploring Python data structures and algorithms
+       |
+       v
+   data-structures.html
+       +-- Tool Guide -> README_DSA.md
+```
+
+The existing `README.md` remains the public beginner guide for the Python execution workspace and its 134-program curriculum. It should be linked from `workspace.html`, not from the shared landing page or the Data Structures workspace.
+
+The future `README_DSA.md` will be the public beginner guide for the Data Structures workspace, its visual vocabulary, its implemented curriculum chunks, and its verified limits. It should be linked from `data-structures.html`, not from the existing Python workspace.
+
+`README_DSA.md` must not be created as a catalogue of unimplemented promises. Create it with the Data Structures workspace and update it after each verified Tier A chunk. `Tier.md` remains the planning catalogue; `README_DSA.md` will describe only learner-visible behavior that actually exists.
+
+Both workspace links should use the same accessible Tool Guide label and visual treatment. Their targets differ by workspace context. External GitHub links must preserve the existing privacy and `noreferrer` rules.
+
+### Complete limits documentation contract
+
+The future `README_DSA.md` must contain one discoverable section that explains every enforced limit in the implemented Data Structures and Algorithms workspace. It must not mention only the graph-size limit or assume that beginners understand why a limit exists.
+
+The section must cover every applicable category:
+
+- Execution limits, including recorded steps, elapsed time, recursion protection, console output, and prepared input.
+- Serialization and display limits, including nesting depth, item count, object attributes, text length, and shortened representations.
+- Visualization limits, including nodes, edges, array cells, buckets, tree depth, labels, transitions, and any structure-specific bound.
+- History and comparison limits, including operation events, Step Table rows, watched values, bookmarks, stored comparison runs, and edge-case runs.
+- Explanation limits, including the difference between observed trace evidence, reviewed curriculum metadata, and conclusions that are unavailable for arbitrary pasted code.
+- Complexity limits, including the difference between measured operation counts and reviewed theoretical complexity. One run must never be presented as proof of a Big O classification.
+- Persistence and browser-storage limits, including what is saved, what resets, and what happens if storage is unavailable.
+- Platform limits, including tested browser and viewport boundaries, mobile presentation differences, and any dependency or offline restrictions.
+- Curriculum limits, including the implemented tier, supported structures and algorithms, and behavior that remains planned rather than available.
+
+Every documented limit must answer the same beginner questions:
+
+```text
+What is limited?
+|
++-- What exactly is counted?
++-- What verified numerical limit is enforced?
++-- Why does the limit protect the browser or the learner?
++-- What happens when the limit is reached?
++-- Did execution stop, or was only the display shortened?
++-- Is the original source and recorded evidence preserved?
++-- What can the learner change and try next?
++-- Is the behavior the same on desktop and mobile?
+```
+
+Numerical values must come from implemented constants and verification, not from the planning document. If the DSA workspace reuses an existing Python workspace limit, `README_DSA.md` must still state and explain it directly. A shortened graph, table, label, or value must be visibly identified as shortened so a learner does not mistake a presentation boundary for Python behavior.
+
 ## Tier A: core curriculum
 
-Tier A establishes the reusable event model, playback system, visualization language, accessibility model, and core beginner-to-intermediate curriculum.
+Tier A establishes the reusable event model, playback system, visualization language, accessibility model, and core beginner-to-intermediate curriculum. Its approved catalog target is 535 programs. This count is a curriculum contract, not implementation status.
+
+### Approved Tier A catalog count
+
+| Tier A section | Programs |
+| --- | ---: |
+| Algorithm and complexity foundations | 24 |
+| Abstract data types and representations | 12 |
+| Python-native containers | 42 |
+| Arrays and sequence techniques | 20 |
+| Searching | 9 |
+| Sorting and sorting properties | 24 |
+| Stacks, queues, and deques | 22 |
+| Linked structures | 20 |
+| Hash tables and set algorithms | 24 |
+| Trees and binary search trees | 30 |
+| Heaps and priority queues | 18 |
+| Tries and string algorithms | 24 |
+| Union-Find | 10 |
+| Graph structures and vocabulary | 24 |
+| Graph traversal and connectivity | 20 |
+| Shortest paths and spanning trees | 14 |
+| Recursion | 18 |
+| Backtracking | 16 |
+| Divide and conquer | 10 |
+| Greedy algorithms | 16 |
+| Dynamic programming | 24 |
+| Bit manipulation | 16 |
+| Elementary mathematical algorithms | 14 |
+| **Direct lessons** | **451** |
+| Edge-case and debugging investigations | 48 |
+| Integrated guided challenges | 36 |
+| **Tier A total** | **535** |
+
+```text
+451 direct teaching programs
++ 48 edge-case and debugging investigations
++ 36 integrated guided challenges
+= 535 Tier A programs
+```
+
+Every direct lesson needs its own primary learning objective and runnable Python program. Investigation programs cover relevant boundaries and deliberate failures. Guided challenges combine earlier concepts into meaningful applications.
+
+### Program quality contract
+
+The total of 535 is a coverage contract, not a target that can be satisfied with filler. A program does not qualify merely because it compiles, has unique metadata, or changes a few names and constants from another lesson.
+
+Every catalog section must form a deliberate learning progression:
+
+```text
+Focused foundation
+        |
+        v
+Standard operation or algorithm
+        |
+        v
+Meaningful variation or edge case
+        |
+        v
+Applied or integrated program
+        |
+        v
+Comparison and reflection
+```
+
+Every published program must pass all applicable quality gates:
+
+- Teach one clearly stated primary objective and identify its prerequisites.
+- Use a coherent problem or story rather than unrelated statements assembled to increase length.
+- Contain enough setup, state change, decisions, and result inspection to make its recommended DSA views useful.
+- Use descriptive names, consistent Python style, realistic inputs, and beginner-readable control flow.
+- Produce a correct, reviewed result or carry an explicit intentional-error contract.
+- Include accurate algorithm phases, structure metadata, invariants, edge cases, comparison relationships, complexity context, and expected evidence wherever those fields apply.
+- Differ materially from nearby lessons in objective, structure, algorithm behavior, input shape, edge case, or teaching perspective. Renaming variables or changing constants is not a new lesson.
+- Avoid clever shortcuts before the relevant concept has been taught. Later examples may compare the clear implementation with a more idiomatic or efficient version.
+- Remain small enough for step-by-step study, but become longer when the concept requires initialization, helper functions, several operations, validation, reporting, or integration.
+- End with an observable result that a beginner can inspect and explain.
+
+Line count is evidence to review, not a substitute for lesson quality. A focused base-case lesson may correctly be short. An applied tree, graph, dynamic-programming, or guided program must not be compressed until its reasoning becomes obscure. Conversely, filler statements and unnecessary comments must not be added only to reach a number.
+
+Each catalog section must include substantial programs, not only minimal demonstrations. Structural validation must report source-line distributions by section and difficulty so reviewers can detect suspicious clusters of tiny examples. Human review must then decide whether each length is appropriate for the concept.
+
+No chunk is complete until:
+
+```text
+All programs compile or match an intentional-error contract
+                         +
+All prepared inputs and expected results pass
+                         +
+All metadata references valid structures, events, and views
+                         +
+Representative traces and visualizations are inspected
+                         +
+Near-duplicate and shallow-example review passes
+                         +
+Beginner readability review passes
+```
+
+### Tier A completion coverage added by curriculum audit
+
+The detailed structures and algorithms below remain part of Tier A. The following audited areas are also required for the 535-program contract.
+
+#### Algorithm and complexity foundations
+
+- Algorithm, input, output, precondition, and postcondition
+- Correctness, termination, loop invariant, and data-structure invariant
+- Time complexity and space complexity
+- Best-case, average-case, and worst-case behavior
+- Big O, Big Omega, and Big Theta
+- Constant, logarithmic, linear, linearithmic, quadratic, exponential, and factorial growth
+- Amortized analysis
+- Time-space tradeoffs
+- Comparison, swap, and operation counting
+- Formal complexity versus observed trace steps
+- Memory-use intuition
+- Input-size experiments and their evidence limits
+
+#### Abstract data types and representations
+
+- Abstract data type versus concrete implementation
+- Interface and supported operation
+- Representation and invariant
+- Choosing between implementations
+- Stack ADT implemented with a list, deque, or linked nodes
+- Queue ADT implemented with a deque, circular array, or linked nodes
+- Same Python container used for different abstract purposes
+
+#### Complete Python-native container coverage
+
+- List creation, indexing, negative indexing, replacement, slicing, and slice assignment
+- List append, extend, insert, remove, pop, clear, index, count, reverse, sort, and copy
+- List concatenation, repetition, membership, iteration, comprehension, and nested flattening
+- List mutation, reassignment, shallow copying, and aliasing
+- Dictionary creation, lookup, insertion, replacement, deletion, membership, and iteration
+- Dictionary `get`, `pop`, `update`, `setdefault`, comprehension, nesting, order, and key validity
+- Set creation, add, remove, discard, pop, clear, and membership
+- Set union, intersection, difference, symmetric difference, subset, superset, and disjointness
+- Set comprehension, frozen set, and deduplication patterns
+- Deque append, append-left, pop, pop-left, rotation, maximum length, stack use, and queue use
+- Counter frequency, arithmetic, and most-common operations
+- Selected `defaultdict`, `ChainMap`, named-tuple, and ordered-mapping lessons
+
+#### Python algorithm modules
+
+- `heapq` heapify, push, pop, push-pop, replace, merge, smallest, and largest operations
+- Stable priority queues using tuple entries and a counter
+- `bisect_left`, `bisect_right`, `insort_left`, and `insort_right`
+- Binary insertion and the difference between search cost and list insertion cost
+
+#### Algorithm-design paradigms
+
+- Brute force, exhaustive search, generate-and-test, and baseline solutions
+- Decrease-and-conquer reasoning
+- Divide, solve, and combine
+- Recursion trees
+- Greedy choice, local choice, and global result
+- Greedy activity selection, interval scheduling, fractional knapsack, and job sequencing
+- Greedy coin examples that succeed and fail
+- Dynamic-programming state, transition, base case, overlapping subproblems, and optimal substructure
+- Memoization, tabulation, reconstruction, and space optimization
+- Comparisons among greedy, backtracking, divide-and-conquer, and dynamic programming
+
+#### String and set algorithm families
+
+- String indexing, slicing, immutability, and efficient construction
+- Character frequencies, reversal, palindrome, anagram, and first non-repeating character
+- Duplicate removal, word frequencies, run-length encoding, and basic compression
+- Naive substring search, longest common prefix, and longest non-repeating substring
+- Set union, intersection, difference, symmetric difference, subset, superset, and disjointness algorithms
+- Set-based membership optimization, graph visited sets, and order-preserving deduplication
+
+#### Recursion and sorting analysis
+
+- Recursive base case, recursive case, progress, stack growth, and unwinding
+- Return-value combination, infinite recursion, depth limits, and iterative alternatives
+- Recurrence relations, recursion trees, and memoized recursion
+- Stable, unstable, in-place, out-of-place, adaptive, comparison, and non-comparison sorting
+- Sorting with keys, duplicates, already-sorted input, reverse-sorted input, and nearly sorted input
+- Comparison count, swap count, auxiliary space, and high-level TimSort concepts
+
+#### Graph foundations and additional core paths
+
+- Vertex, edge, neighbor, degree, indegree, outdegree, walk, trail, path, and cycle
+- Connected component, reachability, source, sink, isolated vertex, and weighted path
+- Strong and weak connectivity
+- Negative edges, self-loops, parallel edges, sparse graphs, and dense graphs
+- Representation tradeoffs and graph-representation conversion
+- Add and remove vertices and edges
+- Directed-graph transpose
+- Shortest path in a directed acyclic graph
+- Multi-source breadth-first search
+- Bellman-Ford and negative-cycle detection
+- Path reconstruction for shortest-path algorithms
+- Transitive-closure concept
+
+#### Bit and elementary mathematical algorithms
+
+- Binary representation and bitwise AND, OR, XOR, and NOT
+- Left shift, right shift, set, clear, toggle, and test operations
+- Set-bit counting, power-of-two checks, XOR uniqueness, subset masks, and permission flags
+- Euclidean greatest common divisor and least common multiple
+- Prime checking, Sieve of Eratosthenes, and prime factorization
+- Fast exponentiation and modular exponentiation
+- Iterative Fibonacci and Pascal's triangle
+- Combination and permutation generation
+
+#### Systematic investigations and guided integration
+
+- Relevant empty, one-item, two-item, duplicate, missing-target, negative, zero, sorted, and reverse-sorted cases
+- Relevant disconnected, cyclic, invalid-operation, capacity, and repeated-operation cases
+- Forty-eight explicitly documented investigation programs
+- Thirty-six integrated guided challenges that combine structures, algorithms, analysis, and debugging
 
 ### Tier A data structures
 
