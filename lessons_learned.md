@@ -2802,6 +2802,55 @@ What to repeat:
 6. Keep curriculum context separate through wording, legend, and row styling.
 7. Confirm the copy path uses the generated source string rather than text scraped from the decorated preview.
 
+# DSA trace-state navigation lessons learned by the user
+
+## 83. A vertical layout is not complete unless its contents follow playback
+
+The first correction made each changed variable easier to read by stacking Before above After. Aman then identified a deeper state-model problem: a readable card is still misleading if the view lists only the variables changed by one instruction. A learner moving through execution expects the visible state to grow when names are created, remain stable when unrelated lines run, update when values change, and shrink when names leave scope.
+
+Credit belongs to Aman for distinguishing layout direction from data-selection behavior. The request was not merely "make the cards vertical." It was "make the vertical state view behave like a trace-controlled workspace."
+
+The corrected contract is:
+
+```text
+Selected trace step
+        |
+        +-- exact line and source
+        |
+        +-- all names visible before or after this step
+                 |
+                 +-- created name adds a card
+                 +-- unchanged name keeps its card
+                 +-- changed name updates its values
+                 +-- removed name leaves after its final comparison
+```
+
+The user also noticed that Operation Journey already had current-operation highlighting. That prevented an unnecessary duplicate change. Product review should credit existing behavior before adding another treatment.
+
+# DSA trace-state navigation lessons learned by Codex
+
+## 84. Explain proposed UI work by view, state source, and playback behavior
+
+Codex initially described the visual hierarchy without stating whether Before and After would render changed names or the complete visible state. That ambiguity made the proposal harder to evaluate and led to an incomplete first implementation.
+
+Future view proposals should specify three things:
+
+1. Which named view changes.
+2. Which state determines its content.
+3. How Previous, Next, playback, restart, and timeline movement change it.
+
+For Before and After, the card list must use the union of visible names from adjacent serialized snapshots. `variableChanges()` classifies differences, but it must not decide which names remain visible. For Step Table, the selected marker must compare the event's original trace index with `state.currentStep`, even when the table shows only the latest bounded rows.
+
+Accessibility is also part of state correctness. The table uses visible `Current step` text and `aria-current`, while the comparison uses Before and After labels plus a downward cue. Color supports these signals but does not carry them alone.
+
+What to repeat:
+
+- Test the same view across several trace positions, not only one screenshot.
+- Include creation, no-change, mutation, and scope-exit steps.
+- Ask whether the count and identity of rendered items should change with playback.
+- Inspect existing neighboring views before proposing duplicate behavior.
+- State corrections honestly and credit the person who found the missing contract.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

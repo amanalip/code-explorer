@@ -10,9 +10,9 @@
 
 // The expanded curriculum lives in a dedicated data module so application
 // controllers remain readable while the library grows to 134 programs.
-import { ADDITIONAL_EXAMPLES } from "./curriculum.js?v=20260723-6";
+import { ADDITIONAL_EXAMPLES } from "./curriculum.js?v=20260723-9";
 // Both catalogs use one local-only matcher so metadata search behaves consistently.
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260723-6";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260723-9";
 
 /**
  * The initial program shown in the editor.
@@ -2205,7 +2205,7 @@ function ensureWorker() {
 
   // The version query keeps GitHub Pages and long-lived browser caches from
   // pairing a new interface with an older tracing or serialization contract.
-  state.worker = new Worker("py-worker.js?v=20260723-6", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260723-9", { type: "module" });
   state.worker.addEventListener("message", handleWorkerMessage);
   state.worker.addEventListener("error", (event) => {
     const message = event.message || "Python worker failed to load.";

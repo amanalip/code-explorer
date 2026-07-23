@@ -227,6 +227,11 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm the DSA learning-comment modal retains its header, toolbar, flexible preview, and visible Copy and Replace footer at desktop and 390-pixel mobile width in both themes.
 - Confirm visual gutters, syntax spans, file chrome, badges, and status text never enter copied or adopted Python.
 - Confirm Structure Canvas stops at 30 entries, Watches at 12 names, Operation Journey at 30 events, Algorithm Path at 80 transitions, Step Table at 120 rows, and Compare Algorithms at 2 summaries.
+- Confirm Before and After shows the selected step number, line number, and executed source before its values.
+- Confirm Before and After renders one full-width vertical card for every name visible in either adjacent snapshot. Advance and reverse playback to prove cards appear, disappear, remain unchanged, and update with recorded scope state.
+- Confirm every Before and After card presents Before above After with visible labels and a downward cue. Long serialized values must wrap inside the card.
+- Confirm Step Table gives only the selected trace row `aria-current="true"` and visible `Current step` text, and that the marker follows Previous, Next, playback, restart, and timeline movement.
+- Confirm Operation Journey keeps its existing selected-event treatment and is not coupled to the Before and After or Step Table implementation.
 - Confirm exact reviewed stack, queue, deque, linked, hash, and set examples receive their documented conceptual orientation while edited or pasted source remains on the generic observed layout.
 - Confirm the Trace and Data view-label sets each remain on one horizontal row at desktop and laptop widths.
 - Confirm narrow screens scroll only inside the DSA view-label strip and never create page-level horizontal overflow.

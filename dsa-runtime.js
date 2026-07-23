@@ -52,6 +52,34 @@ export function variableChanges(previousStep, currentStep) {
 }
 
 /**
+ * Builds the complete ordered state comparison used by Before and After.
+ *
+ * Unlike variableChanges(), this helper retains unchanged names. A removed name
+ * remains for its final before-to-after comparison, then disappears on the next
+ * pair of snapshots when neither side contains it. Keeping this transformation
+ * pure makes playback growth and scope-exit behavior testable without a browser.
+ *
+ * @param {object|null} previousStep Earlier recorded snapshot.
+ * @param {object|null} currentStep Selected recorded snapshot.
+ * @returns {Array<object>} Created, changed, removed, or unchanged comparisons.
+ */
+export function variableComparisons(previousStep, currentStep) {
+  const previous = variablesForStep(previousStep);
+  const current = variablesForStep(currentStep);
+  const changesByName = new Map(
+    variableChanges(previousStep, currentStep).map((change) => [change.name, change]),
+  );
+  const names = [...new Set([...Object.keys(previous), ...Object.keys(current)])].sort();
+
+  return names.map((name) => changesByName.get(name) || {
+    name,
+    kind: "unchanged",
+    before: previous[name],
+    after: current[name],
+  });
+}
+
+/**
  * Maps an executed Python line to one normalized DSA event only when its source
  * and recorded changes provide a direct cue. Unknown lines remain neutral.
  *

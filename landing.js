@@ -6,7 +6,7 @@
  * much larger Python workspace application and its 134-example curriculum.
  */
 
-import { applyTheme, preferredTheme, toggleTheme } from "./shared-ui.js?v=20260723-6";
+import { applyTheme, preferredTheme, toggleTheme } from "./shared-ui.js?v=20260723-9";
 
 /** Theme controls are optional so semantic navigation still works if markup changes. */
 const themeButton = document.getElementById("themeButton");

@@ -401,7 +401,30 @@ Shows the executed line, a conservative event cue, recorded name changes, and re
 
 #### Before and After
 
-Compares variables before and after the selected step. Created, changed, and unchanged states use text, not color alone.
+Shows the selected trace step, its Python line number, and the exact executed source line before showing any values.
+
+Every variable visible immediately before or after that step receives one full-width vertical card:
+
+```text
+STEP 7 OF 25 · LINE 4
+for temperature in temperatures:
+
+temperature                         changed
++--------------------------------------------+
+| Before                                     |
+| 18                                         |
++--------------------------------------------+
+                    |
+                    v
++--------------------------------------------+
+| After                                      |
+| 21                                         |
++--------------------------------------------+
+```
+
+The list represents the complete visible variable state, not only the names changed by one line. As playback moves forward, a newly created name adds a card, a name that leaves scope eventually removes a card, and an existing value updates inside its stable card. The change label says created, changed, removed, or unchanged. Before and After labels and the downward arrow make the reading order understandable without depending on color.
+
+The displayed values are bounded serialized snapshots. They are not live Python objects or physical RAM addresses. If the recorded scopes contain no visible variable, the view says so instead of inventing state.
 
 #### Decisions
 
@@ -447,13 +470,24 @@ Shows reviewed invariant questions for an exact catalog program. It currently pr
 
 Lists up to 30 observed event cues in order. It is a bounded learning summary, not the complete internal worker event stream.
 
+The selected operation already carries the existing current-step treatment. This view is intentionally independent from the Before and After layout.
+
 #### Algorithm Path
 
 Shows up to 80 executed source-line transitions and visit counts.
 
 #### Step Table
 
-Shows up to 120 recorded rows with step, line, event cue, and changed names.
+Shows up to 120 recorded rows with step, line, event cue, and changed names. The row matching the selected playback position receives a visible **Current step** label, a boundary, and `aria-current="true"`. Previous, Next, playback, restart, and timeline movement update that marker with the selected trace step. Color is only supporting emphasis.
+
+```text
+Step                 Line   Event cue       Changed names
+1                    1      WRITE           values
+2                    2      WRITE           total
+3  [Current step]    4      VISIT_INDEX     value
+```
+
+When more than 120 rows are available in the selected trace prefix, the view displays the latest bounded rows and marks the presentation Shortened. The underlying inspectable trace is not deleted by this presentation limit.
 
 #### Complexity Lab
 

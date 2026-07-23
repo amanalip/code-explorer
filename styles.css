@@ -3467,12 +3467,22 @@ main {
   line-height: 1.5;
 }
 
-/* Adjacent state cards adapt from multiple columns to a single narrow column. */
-.dsa-change-grid,
+/* Variable cards use two columns while retaining natural wrapping for long values. */
 .dsa-variable-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+  margin-top: 16px;
+}
+
+/*
+  Before and After is intentionally one column at every width. Each variable's
+  earlier and later values remain in one uninterrupted top-to-bottom reading path.
+*/
+.dsa-change-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
   margin-top: 16px;
 }
 
@@ -3486,6 +3496,78 @@ main {
   border: 1px solid var(--line);
   border-radius: 9px;
   background: var(--bg-raised);
+}
+
+/* The executed-step context sits above comparisons as a compact debugger cue. */
+.dsa-step-context {
+  display: grid;
+  gap: 8px;
+  margin: 15px 0 18px;
+}
+
+/* Step and line text remain visible independently from the source-code styling. */
+.dsa-step-context-label {
+  color: var(--text-dim);
+  font: 700 0.6rem/1 var(--mono);
+  letter-spacing: 0.07em;
+}
+
+/* The comparison heading introduces the list without competing with the view title. */
+.dsa-change-heading {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+}
+
+/* A change card uses one full-width vertical sequence: name, Before, arrow, After. */
+.dsa-change-card {
+  gap: 10px;
+  padding: 16px;
+}
+
+/* Name and change kind remain together at the start of each comparison. */
+.dsa-change-card-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Before and After receive explicit labels, boundaries, and separate value rows. */
+.dsa-change-state {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-soft);
+}
+
+/* State labels use text so color is never the only comparison cue. */
+.dsa-change-state > span {
+  color: var(--text-dim);
+  font: 700 0.56rem/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The earlier value stays visually quieter than the resulting state below it. */
+.dsa-change-state.before code {
+  color: var(--text-soft);
+}
+
+/* The resulting value receives the existing mint observed-evidence treatment. */
+.dsa-change-state.after {
+  border-color: color-mix(in srgb, var(--mint) 45%, var(--line));
+  background: var(--mint-soft);
+}
+
+/* The centered arrow reinforces the vertical reading direction without adding motion. */
+.dsa-change-direction {
+  color: var(--mint);
+  font: 800 1rem/1 var(--mono);
+  text-align: center;
 }
 
 /* Recorded values wrap instead of pushing the page wider. */
@@ -3736,6 +3818,32 @@ main {
   font: 700 0.56rem/1 var(--mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+/* The selected Step Table row uses shape, text, and color as redundant cues. */
+.dsa-table-wrap tbody tr.current {
+  outline: 2px solid var(--mint);
+  outline-offset: -2px;
+  background: var(--mint-soft);
+}
+
+/* The step number and visible current-state label stack without widening the table. */
+.dsa-step-number {
+  display: grid;
+  gap: 6px;
+}
+
+/* Current step remains understandable in monochrome and to low-vision learners. */
+.dsa-current-step-label {
+  width: fit-content;
+  padding: 4px 6px;
+  border: 1px solid var(--mint);
+  border-radius: 999px;
+  color: var(--mint);
+  font: 700 0.5rem/1 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* Prepared input provides enough room for several deterministic input() responses. */

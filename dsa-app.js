@@ -8,24 +8,24 @@
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260723-6";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260723-6";
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260723-6";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260723-9";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260723-9";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260723-9";
 import {
   DSA_AREAS,
   DSA_CATALOG_TARGET,
   DSA_EVIDENCE_LABELS,
   DSA_STRUCTURE_TYPES,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260723-6";
+} from "./dsa-contracts.js?v=20260723-9";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260723-6";
+} from "./dsa-curriculum.js?v=20260723-9";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260723-6";
+} from "./dsa-curriculum-chunk2.js?v=20260723-9";
 import {
   DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
@@ -35,8 +35,8 @@ import {
   serializedLabel,
   structureCandidate,
   variableChanges,
-  variablesForStep,
-} from "./dsa-runtime.js?v=20260723-6";
+  variableComparisons,
+} from "./dsa-runtime.js?v=20260723-9";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
@@ -490,7 +490,15 @@ function renderAlgorithmStory() {
   els.dsaViewStage.replaceChildren(article);
 }
 
-/** Renders changes between adjacent immutable trace snapshots. */
+/**
+ * Renders the complete visible variable state around the selected trace step.
+ *
+ * The list is intentionally cumulative rather than limited to values changed by
+ * one line. As playback advances, names enter or leave the vertical list when
+ * they enter or leave the recorded scope. This mirrors the state-reading model
+ * in the Python workspace and lets a learner keep positional context between
+ * steps. The change classification still comes only from adjacent snapshots.
+ */
 function renderBeforeAfter() {
   const step = selectedStep();
   if (!step) {
@@ -498,19 +506,47 @@ function renderBeforeAfter() {
     return;
   }
   const previous = state.trace[state.currentStep - 1] || null;
-  const changes = variableChanges(previous, step);
+  const comparisons = variableComparisons(previous, step);
   const article = makeElement("article", "dsa-runtime-view");
   article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", `Changes after line ${step.line}`));
-  if (!changes.length) {
-    article.append(makeElement("p", "dsa-honesty-note", "No visible serialized name changed after this recorded line. Python may still have performed work that is outside the bounded visible scopes."));
+  article.append(makeElement("h2", "", "Before and After"));
+  /*
+    The context strip ties this comparison to one exact recorded step. It uses
+    text rather than color so the learner can identify both the step and source
+    line before reading any values.
+  */
+  const context = makeElement("section", "dsa-step-context");
+  context.append(makeElement(
+    "span",
+    "dsa-step-context-label",
+    `STEP ${state.currentStep + 1} OF ${state.trace.length} · LINE ${step.line}`,
+  ));
+  context.append(makeElement("code", "dsa-source-line", step.source.trim()));
+  article.append(context);
+  article.append(makeElement("h3", "dsa-change-heading", "Visible variable state at this step"));
+  if (!comparisons.length) {
+    article.append(makeElement("p", "dsa-honesty-note", "No serialized variable name is visible in the recorded scopes at this step."));
   } else {
     const grid = makeElement("div", "dsa-change-grid");
-    changes.forEach((change) => {
+    comparisons.forEach((change) => {
+      // The pure helper retains unchanged values so playback keeps positional context.
       const card = makeElement("section", "dsa-change-card");
-      card.append(makeElement("strong", "", change.name));
-      card.append(makeElement("span", "dsa-change-kind", change.kind));
-      card.append(makeElement("code", "", `${serializedLabel(change.before)} → ${serializedLabel(change.after)}`));
+      const header = makeElement("div", "dsa-change-card-header");
+      header.append(makeElement("strong", "", change.name));
+      header.append(makeElement("span", "dsa-change-kind", change.kind));
+
+      const before = makeElement("div", "dsa-change-state before");
+      before.append(makeElement("span", "", "Before"));
+      before.append(makeElement("code", "", serializedLabel(change.before)));
+
+      const direction = makeElement("span", "dsa-change-direction", "↓");
+      direction.setAttribute("aria-hidden", "true");
+
+      const after = makeElement("div", "dsa-change-state after");
+      after.append(makeElement("span", "", "After"));
+      after.append(makeElement("code", "", serializedLabel(change.after)));
+
+      card.append(header, before, direction, after);
       grid.append(card);
     });
     article.append(grid);
@@ -846,7 +882,22 @@ function renderStepTable() {
   const body = document.createElement("tbody");
   visible.forEach(({ step, event, changes, index }) => {
     const row = document.createElement("tr");
-    [index + 1, step.line, event.type, changes.map((change) => change.name).join(", ") || "none"].forEach((value) => row.append(makeElement("td", "", String(value))));
+    const isCurrent = index === state.currentStep;
+    if (isCurrent) {
+      row.className = "current";
+      row.setAttribute("aria-current", "true");
+    }
+    /*
+      The visible label keeps the selected row understandable without relying
+      on its mint border or background. Other cells retain the existing table contract.
+    */
+    const stepCell = makeElement("td", "dsa-step-number", String(index + 1));
+    if (isCurrent) {
+      stepCell.append(makeElement("span", "dsa-current-step-label", "Current step"));
+    }
+    row.append(stepCell);
+    [step.line, event.type, changes.map((change) => change.name).join(", ") || "none"]
+      .forEach((value) => row.append(makeElement("td", "", String(value))));
     body.append(row);
   });
   table.append(head, body);
@@ -1389,7 +1440,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260723-6", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260723-9", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;

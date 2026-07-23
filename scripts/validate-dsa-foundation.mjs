@@ -16,7 +16,7 @@ import {
   DSA_STRUCTURE_TYPES,
   DSA_VIEWS,
 } from "../dsa-contracts.js";
-import { buildDsaCommentedSource } from "../dsa-runtime.js";
+import { buildDsaCommentedSource, variableComparisons } from "../dsa-runtime.js";
 
 /** Collects all failures so a contributor can correct one coherent batch. */
 const failures = [];
@@ -96,11 +96,43 @@ expect(
   "DSA detail filtering removed exact reviewed curriculum context.",
 );
 
-// Read shipped pages as text so routing checks stay dependency-free and fast.
-const [landingHtml, pythonHtml, dsaHtml] = await Promise.all([
+/*
+ * The vertical state list must grow with new variables and shrink after a
+ * removed local has received its final comparison. Serialized test values keep
+ * this contract independent from Pyodide and browser layout.
+ */
+const stateA = { globals: { outer: { type: "int", display: "1" } }, locals: {} };
+const stateAB = {
+  globals: { outer: { type: "int", display: "1" } },
+  locals: { inner: { type: "int", display: "2" } },
+};
+const stateAAfterScope = { globals: { outer: { type: "int", display: "1" } }, locals: {} };
+expect(
+  variableComparisons(null, stateA).length === 1,
+  "Before and After did not begin with one visible variable.",
+);
+expect(
+  variableComparisons(stateA, stateAB).length === 2,
+  "Before and After did not grow when a local variable became visible.",
+);
+expect(
+  variableComparisons(stateAB, stateAAfterScope).some(
+    (comparison) => comparison.name === "inner" && comparison.kind === "removed",
+  ),
+  "Before and After did not retain a removed local for its final comparison.",
+);
+expect(
+  variableComparisons(stateAAfterScope, stateA).length === 1,
+  "Before and After did not shrink after a removed local left both snapshots.",
+);
+
+// Read shipped pages and the two view sources as text so routing and visual-state contracts stay dependency-free and fast.
+const [landingHtml, pythonHtml, dsaHtml, dsaAppSource, stylesSource] = await Promise.all([
   readFile(new URL("../index.html", import.meta.url), "utf8"),
   readFile(new URL("../workspace.html", import.meta.url), "utf8"),
   readFile(new URL("../data-structures.html", import.meta.url), "utf8"),
+  readFile(new URL("../dsa-app.js", import.meta.url), "utf8"),
+  readFile(new URL("../styles.css", import.meta.url), "utf8"),
 ]);
 
 // The landing page chooses a path but owns neither workspace-specific guide.
@@ -148,6 +180,34 @@ const requiredDsaIds = [
 for (const id of requiredDsaIds) {
   expect(dsaHtml.includes(`id="${id}"`), `data-structures.html is missing #${id}.`);
 }
+
+/*
+ * Protect the teaching contract for the two playback-dependent state views.
+ * These focused source checks complement browser testing without pretending to
+ * prove layout geometry or runtime behavior.
+ */
+expect(
+  dsaAppSource.includes("Visible variable state at this step"),
+  "Before and After is missing its complete visible-state heading.",
+);
+expect(
+  dsaAppSource.includes("variableComparisons(previous, step)"),
+  "Before and After is not using the tested complete-state comparison helper.",
+);
+expect(
+  dsaAppSource.includes('"dsa-change-state before"')
+    && dsaAppSource.includes('"dsa-change-state after"'),
+  "Before and After is missing its explicit vertical state regions.",
+);
+expect(
+  dsaAppSource.includes('row.setAttribute("aria-current", "true")')
+    && dsaAppSource.includes('"dsa-current-step-label", "Current step"'),
+  "Step Table is missing its accessible current-row contract.",
+);
+expect(
+  /\.dsa-change-grid\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)/.test(stylesSource),
+  "Before and After does not retain one full-width card column.",
+);
 
 if (failures.length) {
   console.error(`DSA foundation validation failed with ${failures.length} issue(s):`);

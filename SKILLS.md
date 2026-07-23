@@ -108,7 +108,7 @@ The runtime may classify conservative cues such as a write, condition, call, ret
 ### Trace area
 
 - Story explains the selected step.
-- Before and After compares adjacent snapshots.
+- Before and After names the selected step, line, and executed source, then renders the complete visible variable state as one vertical card per name. Cards appear, disappear, or update with playback while each card compares adjacent snapshots.
 - Conditions explains observed branch decisions and simple operands.
 - Function Journey shows calls, local frames, arguments, and returns.
 - Error Coach presents syntax and runtime guidance.
@@ -614,6 +614,19 @@ Category changes must set the card region's `scrollTop` to zero. Every mobile ca
 6. Verify the longest Data row, not only the shorter Trace row.
 7. Check tab baselines, panel height, and selected underline before and after changing areas and trace steps.
 
+### Change a DSA trace-state view
+
+1. Keep Before and After tied to `state.currentStep`. Show its one-based step number, total trace length, executed line number, and exact recorded source before values.
+2. Build the card list with `variableComparisons()`, which uses the union of visible names in the previous and current serialized snapshots. Do not reduce the list to changed names because stable unchanged cards preserve a learner's positional context.
+3. Keep `variableChanges()` responsible for created, changed, and removed classifications inside that pure helper. Label every remaining union member unchanged.
+4. Keep one full-width card per variable at every viewport. Inside each card, order the previous value, a downward direction cue, and the resulting value.
+5. Use `serializedLabel()` for both values. Missing earlier or later values must say `not set` rather than becoming an unexplained blank.
+6. Keep the Step Table's selected row synchronized through the event's original trace index. Do not derive it from its position inside the bounded 120-row slice.
+7. Mark the selected table row with `aria-current="true"` and visible `Current step` text. A border or background may reinforce that state but must not be its only indication.
+8. Leave Operation Journey's established current-event treatment independent. Do not duplicate or replace it while changing Before and After or Step Table.
+9. Test repeated playback movement, variable creation, variable updates, scope exit, and an instruction with no value change. Confirm the vertical card count and labels follow the selected snapshot.
+10. Test light and dark themes at desktop and 390-pixel width. Confirm wrapped values stay inside cards and the table remains usable through its bounded internal overflow.
+
 ### Add a saved preference
 
 1. Define a specific storage key and safe default.
@@ -747,6 +760,8 @@ Verify all three detail levels, inline on and off, unchanged source statistics, 
 - Both production catalog validators now exercise real-record search behavior, including hidden metadata, source terms, stable identifiers, AND matching, punctuation normalization, and the empty-query contract.
 - At 390 by 844, both catalog dialogs retained 322-pixel search fields, bounded one-column cards, and zero page-level or dialog-level horizontal overflow.
 - Search queries cleared after page navigation, created no search-related local-storage key, and were absent from request URLs.
+- Before and After displayed the exact selected step, line, and source above one full-width vertical card per visible name. Advancing playback added, retained, updated, and removed cards according to the recorded scopes rather than showing only one line's changes.
+- Step Table kept exactly one visible `Current step` label and `aria-current` row synchronized with Previous and Next movement. Operation Journey retained its existing selected-operation behavior.
 
 ## Documentation completion test
 

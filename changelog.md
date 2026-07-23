@@ -61,6 +61,18 @@ Search queries remain temporary in-memory page state. They are not persisted, up
 
 The correction was tested in light and dark themes at desktop and 390 by 844. The real Copy commented code action completed successfully, and the DSA foundation validator now checks all three detail boundaries. No program, curriculum total, execution limit, dependency, storage key, analytics behavior, or network request changed.
 
+### DSA trace-state reading correction
+
+- Before and After now identifies the selected step, executed line number, and exact recorded source before presenting values.
+- The view renders the complete visible state as one full-width vertical variable card per name, rather than showing only names changed by the current instruction.
+- Each card places Before above After with explicit text labels and a downward direction cue.
+- Cards appear, disappear, remain, or update as playback changes the recorded scope state.
+- Created, changed, removed, and unchanged are written as text so color is never the only meaning.
+- Step Table now marks the selected trace row with visible **Current step** text, `aria-current="true"`, and supporting visual emphasis.
+- Operation Journey keeps its existing current-operation behavior.
+
+This correction changes presentation only. It adds no curriculum programs, trace events, dependencies, storage keys, analytics, network requests, or execution limits. Desktop and 390 by 844 browser checks cover light and dark themes, playback movement, variable-card growth, selected-row movement, and page overflow.
+
 ## v8, 2026-07-23
 
 v8 corrects the DSA workspace interface before the next curriculum chunk. It does not add programs, views, dependencies, storage, analytics, or new network behavior.
