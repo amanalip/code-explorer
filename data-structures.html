@@ -20,10 +20,11 @@
     <title>Data Structures and Algorithms | Code Explorer</title>
     <!-- The shared terminal icon preserves project identity. -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <!-- CodeMirror is the only external Chunk 0 interface dependency. -->
+    <!-- CodeMirror loads through esm.sh and the local worker loads pinned Pyodide from jsDelivr. -->
     <link rel="preconnect" href="https://esm.sh" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <!-- The synchronized version query prevents stale cross-workspace styling. -->
-    <link rel="stylesheet" href="styles.css?v=20260723-1" />
+    <link rel="stylesheet" href="styles.css?v=20260723-2" />
   </head>
   <body>
     <!-- The shared decorative layer never enters the accessibility tree. -->
@@ -73,23 +74,23 @@
         <div class="workspace-heading">
           <div>
             <a class="back-button" href="index.html">← Home</a>
-            <div class="dsa-heading-label">Chunk 0 foundation preview</div>
+            <div class="dsa-heading-label">Chunk 1 core sequence curriculum</div>
             <h1>Data structures and algorithms workspace</h1>
             <p class="dsa-heading-copy">
-              Prepare Python source and inspect the approved learning-view map. Execution,
-              curriculum programs, and DSA results begin in later verified chunks.
+              Run and replay reviewed foundations, containers, array techniques, searching,
+              and sorting programs. Pasted Python remains welcome with honest evidence limits.
             </p>
           </div>
-          <!-- Disabled actions name future capabilities without pretending they currently work. -->
+          <!-- Catalog, study comments, and tracing are enabled only by their verified state. -->
           <div class="workspace-actions">
-            <button class="text-button" type="button" disabled title="The DSA program catalog begins in Chunk 1">
-              Examples in Chunk 1
+            <button class="text-button" id="dsaExamplesButton" type="button">
+              Examples
             </button>
-            <button class="text-button learning-comments-button" type="button" disabled>
-              Learning comments unavailable
+            <button class="text-button learning-comments-button" id="dsaLearningCommentsButton" type="button" disabled>
+              Learning comments
             </button>
-            <button class="primary-button compact" type="button" disabled title="Python tracing is not implemented in Chunk 0">
-              Run trace unavailable
+            <button class="primary-button compact" id="dsaRunButton" type="button">
+              Run trace
             </button>
           </div>
         </div>
@@ -112,9 +113,9 @@
                   type="button"
                   aria-pressed="false"
                   disabled
-                  title="Automatic comments require a verified DSA trace"
+                  title="Automatic comments require a completed trace"
                 >
-                  Automatic comments unavailable
+                  Automatic comments off
                 </button>
                 <label class="editor-font-control" for="dsaFontSizeSelect">
                   <span>Font</span>
@@ -136,11 +137,13 @@
             <!-- The reusable controller mounts CodeMirror or a native fallback here. -->
             <div class="editor-shell" id="dsaEditorShell">
               <div id="dsaEditor" aria-label="DSA Python code editor"></div>
+              <!-- The read-only teaching copy replaces only the editor surface, never the source document. -->
+              <pre class="dsa-automatic-preview hidden" id="dsaAutomaticPreview" aria-label="Read-only automatically commented Python"></pre>
             </div>
             <!-- Statistics always describe original source, never future presentation overlays. -->
             <div class="editor-footer">
               <span id="dsaCodeStats">0 lines</span>
-              <span>Python 3 · source only</span>
+              <span>Python 3 · local browser trace</span>
             </div>
           </section>
 
@@ -151,30 +154,64 @@
             <!-- Tabs change with the active area and remain horizontally bounded by wrapping. -->
             <div class="panel-header tabs-header">
               <div class="panel-tabs dsa-view-tabs" id="dsaViewTabs" role="tablist" aria-label="DSA learning view"></div>
-              <span class="step-count">FOUNDATION</span>
+              <span class="step-count" id="dsaStepCount">STEP 00 / 00</span>
             </div>
             <!-- Contract previews use static reviewed text and never interpret learner source. -->
             <div class="dsa-view-stage" id="dsaViewStage" role="tabpanel"></div>
           </section>
 
-          <!-- This status panel separates implemented foundation facts from roadmap promises. -->
+          <!-- Playback controls navigate the completed recording without rerunning Python. -->
+          <section class="panel dsa-playback-panel" aria-label="DSA trace playback">
+            <div class="playback-buttons">
+              <button id="dsaPreviousButton" type="button" disabled aria-label="Previous DSA trace step">←</button>
+              <button id="dsaPlayButton" class="play-button" type="button" disabled aria-label="Play DSA trace">▶</button>
+              <button id="dsaNextButton" type="button" disabled aria-label="Next DSA trace step">→</button>
+              <button id="dsaRestartButton" type="button" disabled aria-label="Restart DSA trace">↺</button>
+            </div>
+            <div class="timeline-wrap">
+              <input id="dsaTimeline" type="range" min="0" max="0" value="0" disabled aria-label="DSA execution step" />
+              <div class="timeline-labels"><span>START</span><span id="dsaProgressLabel">0%</span><span>END</span></div>
+            </div>
+            <label class="speed-control" for="dsaSpeedSelect">
+              <span>SPEED</span>
+              <select id="dsaSpeedSelect">
+                <option value="900">0.5x</option>
+                <option value="520" selected>1x</option>
+                <option value="260">2x</option>
+              </select>
+            </label>
+          </section>
+
+          <!-- Console output is reconstructed from the selected recorded step. -->
+          <section class="panel dsa-console-panel" aria-labelledby="dsaConsoleTitle">
+            <div class="panel-header">
+              <div>
+                <span class="panel-index">02</span>
+                <span class="panel-title" id="dsaConsoleTitle">CONSOLE OUTPUT</span>
+              </div>
+              <button class="clear-output" id="dsaClearOutputButton" type="button">Clear view</button>
+            </div>
+            <pre id="dsaConsoleOutput">// Output will appear here</pre>
+          </section>
+
+          <!-- This status panel separates implemented Chunk 1 facts from the full Tier A roadmap. -->
           <section class="panel dsa-foundation-panel" aria-labelledby="foundationStatusTitle">
             <div class="panel-header">
               <div>
                 <span class="panel-index">02</span>
-                <span class="panel-title" id="foundationStatusTitle">FOUNDATION STATUS</span>
+                <span class="panel-title" id="foundationStatusTitle">CHUNK STATUS</span>
               </div>
-              <span class="foundation-status-badge">CHUNK 0</span>
+              <span class="foundation-status-badge">CHUNK 1</span>
             </div>
             <div class="dsa-foundation-grid">
-              <div><strong id="dsaViewCount">0</strong><span>approved view contracts</span></div>
-              <div><strong id="dsaEventCount">0</strong><span>normalized event names</span></div>
-              <div><strong id="dsaStructureCount">0</strong><span>representation names</span></div>
-              <div><strong id="dsaCatalogTarget">0</strong><span>planned Tier A programs</span></div>
+              <div><strong id="dsaImplementedCount">0</strong><span>implemented programs</span></div>
+              <div><strong id="dsaSectionCount">0</strong><span>implemented sections</span></div>
+              <div><strong id="dsaStructureCount">0</strong><span>approved representations</span></div>
+              <div><strong id="dsaCatalogTarget">0</strong><span>complete Tier A target</span></div>
             </div>
             <p class="dsa-foundation-note">
-              These counts describe validated contracts and the approved curriculum target.
-              They do not claim that tracing, visualizations, comparisons, or 535 programs are implemented.
+              Chunk 1 implements the first 131 reviewed programs. Later structures, algorithms,
+              investigations, guided challenges, and the remaining 404 programs are not yet available.
             </p>
           </section>
         </div>
@@ -186,10 +223,56 @@
       <small>&copy; 2026 Aman Ali Pogaku</small>
     </footer>
 
+    <!-- The DSA catalog uses vertical section navigation and independently scrolling cards. -->
+    <dialog class="examples-dialog dsa-examples-dialog" id="dsaExamplesDialog">
+      <div class="dialog-header">
+        <div>
+          <span class="eyebrow"><span></span> DSA curriculum</span>
+          <h2>Explore 131 reviewed programs</h2>
+          <p class="dialog-intro">Follow the section order or open any implemented program directly.</p>
+        </div>
+        <button class="dialog-close" id="dsaCloseExamplesButton" type="button" aria-label="Close DSA examples">×</button>
+      </div>
+      <div class="example-browser-body">
+        <aside class="example-browser-toolbar" aria-label="DSA curriculum sections">
+          <span class="example-curriculum-label">Chunk 1 order</span>
+          <div class="example-filters" id="dsaExampleFilters" role="group" aria-label="Filter DSA programs"></div>
+          <span class="example-count" id="dsaExampleCount"></span>
+        </aside>
+        <div class="example-grid dsa-example-grid" id="dsaExampleGrid"></div>
+      </div>
+    </dialog>
+
+    <!-- The study-copy dialog keeps generated comments separate from editable source. -->
+    <dialog class="learning-comments-dialog dsa-comments-dialog" id="dsaCommentsDialog">
+      <div class="dialog-header">
+        <div>
+          <span class="eyebrow"><span></span> Trace-powered study copy</span>
+          <h2>DSA Learning Comments</h2>
+          <p class="dialog-intro">Observed Python notes and reviewed curriculum context remain visibly distinct.</p>
+        </div>
+        <button class="dialog-close" id="dsaCloseCommentsButton" type="button" aria-label="Close DSA learning comments">×</button>
+      </div>
+      <div class="dsa-comment-preview-shell">
+        <div class="dsa-comment-preview-bar">
+          <span>main.commented.py</span>
+          <span>READ ONLY</span>
+        </div>
+        <pre id="dsaCommentPreview"></pre>
+      </div>
+      <div class="learning-comments-footer">
+        <p><strong>Your original stays unchanged.</strong> Replacing the editor requires confirmation.</p>
+        <div>
+          <button class="secondary-button" id="dsaCopyCommentsButton" type="button">Copy commented code</button>
+          <button class="primary-button compact" id="dsaReplaceCommentsButton" type="button">Replace editor</button>
+        </div>
+      </div>
+    </dialog>
+
     <!-- Clipboard and fallback-editor messages use a polite non-modal status region. -->
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- One version keeps this page aligned with its contracts and shared modules. -->
-    <script type="module" src="dsa-app.js?v=20260723-1"></script>
+    <script type="module" src="dsa-app.js?v=20260723-2"></script>
   </body>
 </html>

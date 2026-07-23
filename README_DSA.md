@@ -1,559 +1,596 @@
 # Code Explorer: Python Data Structures and Algorithms
 
-> Prepare the structure. Follow the operation. Question the evidence.
+Code Explorer DSA is a separate, browser-based learning workspace for studying how Python data structures and algorithms behave one recorded step at a time. It combines editable Python, a reviewed curriculum, trace playback, structure views, algorithm context, comparisons, input experiments, and conservative explanations.
 
-This is the beginner guide for the separate Code Explorer Data Structures and Algorithms workspace.
+Everything runs on the learner's device. Code Explorer does not collect learner source, input, output, traces, clipboard text, preferences, or interaction analytics.
 
 ## Current release status
 
-The DSA workspace is currently at **Chunk 0: foundation preview**.
+The DSA workspace is at **Chunk 1: core sequences**.
 
-Chunk 0 provides:
+Chunk 1 implements:
 
-- A dedicated `data-structures.html` page.
-- A separate Python editor that does not overwrite the original Python workspace.
-- Automatic same-origin saving of DSA source.
-- Editor text wrapping.
-- Editor font sizes from 12 px through 22 px.
-- Complete-document Copy and Paste actions.
-- Light and dark themes.
-- Responsive navigation for the final 18 approved learning views.
-- Clear **Unavailable** messages wherever runtime evidence does not yet exist.
-- A validated target of 535 future Tier A curriculum programs.
+- 131 reviewed and executable curriculum programs.
+- 6 ordered curriculum sections.
+- A vertical example browser with section counts, difficulty, line count, objective, complexity, and recommended views.
+- Local Python execution through the same isolated Pyodide worker used by the Python workspace.
+- A 3,000-step trace limit and a 30-second outer timeout.
+- Playback controls and 18 working learning views under Trace, Data, Flow, and Labs.
+- Observed, Curriculum context, Unavailable, and Shortened evidence labels.
+- Automatic comments, Learning comments, wrapping, font sizing, Copy, Paste, prepared input, source persistence, and theme persistence.
+- 20 approved structure representation names and 31 stable DSA event names.
 
-Chunk 0 does not provide:
-
-- Python execution in the DSA workspace.
-- DSA traces or playback.
-- Structure visualizations.
-- Runtime operation events.
-- Algorithm comparisons.
-- Automatic or exported learning comments.
-- A DSA example catalog.
-- Any of the planned 535 curriculum programs.
-
-The disabled controls and foundation cards state these boundaries directly. They are not loading indicators and do not become active after waiting.
-
-```text
-CHUNK 0
-|
-+-- real editor and local persistence
-+-- real theme and clipboard controls
-+-- real 18-view navigation
-+-- validated names and curriculum target
-|
-+-- no execution evidence yet
-+-- no algorithm result yet
-+-- no implemented DSA curriculum yet
-```
+Chunk 1 does **not** implement all of Tier A. The approved Tier A target is 535 programs, so 404 programs and their later structure families remain unimplemented. A planned program, structure, view extension, or algorithm in `Tier.md` is not an implemented claim.
 
 ## Contents
 
 - [Start here](#start-here)
 - [Choose the correct workspace](#choose-the-correct-workspace)
 - [Workspace map](#workspace-map)
-- [The DSA editor](#the-dsa-editor)
-- [The 18-view learning map](#the-18-view-learning-map)
-- [Honest evidence labels](#honest-evidence-labels)
-- [Foundation status counts](#foundation-status-counts)
-- [What is saved](#what-is-saved)
-- [Current limits](#current-limits)
+- [The 131-program curriculum](#the-131-program-curriculum)
+- [Your first guided run](#your-first-guided-run)
+- [Editor controls](#editor-controls)
+- [Trace playback](#trace-playback)
+- [Evidence labels and honesty](#evidence-labels-and-honesty)
+- [The 18 learning views](#the-18-learning-views)
+- [Automatic and exported learning comments](#automatic-and-exported-learning-comments)
+- [Pasted-code boundary](#pasted-code-boundary)
+- [Limits and bounded presentation](#limits-and-bounded-presentation)
+- [Persistence](#persistence)
 - [Privacy and network requests](#privacy-and-network-requests)
-- [Accessibility and responsive behavior](#accessibility-and-responsive-behavior)
 - [Troubleshooting](#troubleshooting)
-- [What comes after Chunk 0](#what-comes-after-chunk-0)
+- [What comes next](#what-comes-next)
 
 ## Start here
 
-1. Open the Code Explorer landing page.
-2. Select **Python Data Structures and Algorithms**.
-3. Read the **Chunk 0 foundation preview** message.
-4. Edit the starter search program or paste your own Python source.
-5. Try **Wrap on**, the font selector, **Copy**, and **Paste**.
-6. Open **Trace**, **Data**, **Flow**, and **Labs**.
-7. Select different views and read the question each future view will answer.
+Use this route if data structures and algorithms are your main question:
 
-Do not expect **Run trace** to activate in Chunk 0. The current purpose is to establish a safe separate workspace and a stable learning map before runtime features and hundreds of reviewed programs are added.
-
-### The editable starter source
-
-The initial DSA source is a small linear search:
-
-```python
-values = [7, 3, 9, 1, 5]
-target = 9
-found_index = -1
-
-for index, value in enumerate(values):
-    if value == target:
-        found_index = index
-        break
-
-print("Found index:", found_index)
+```text
+Landing page
+    |
+    +-- Start exploring Python Data Structures and Algorithms
+            |
+            +-- Examples
+            |      |
+            |      +-- choose a section
+            |      +-- read the objective
+            |      +-- inspect complexity and best views
+            |      +-- open one program
+            |
+            +-- Run trace
+                   |
+                   +-- replay steps
+                   +-- inspect structure state
+                   +-- compare evidence with curriculum context
 ```
 
-In Chunk 0 this code is editable source only. The DSA workspace does not execute it yet. The program is not counted as one of the planned 535 reviewed curriculum programs.
+The shortest useful workflow is:
+
+1. Open **Examples**.
+2. Choose **Algorithm and complexity foundations**.
+3. Open **Average by accumulation**.
+4. Predict its output.
+5. Select **Run trace**.
+6. Use the timeline or arrow controls to move through the run.
+7. Compare **Algorithm Story**, **Variables**, **Step Table**, and **Complexity Lab**.
+8. Change one input value in the editor.
+9. Run again and compare what changed.
+
+Code Explorer does not record which lessons you studied or which suggestions you tried. The section order is a recommendation, not a completion tracker.
 
 ## Choose the correct workspace
 
-The landing page now provides two equally visible paths:
-
 ```text
-Code Explorer
+What are you trying to understand?
 |
-+-- Start exploring Python
++-- Python statements, variables, loops, functions, classes, or errors
 |      |
-|      +-- workspace.html
-|      +-- 134 implemented Python programs
-|      +-- implemented Python tracing views
-|      +-- Tool Guide -> README.md
+|      +-- Start exploring Python
+|             Guide: README.md
 |
-+-- Python Data Structures and Algorithms
++-- data structure operations, algorithm behavior, invariants, or complexity
        |
-       +-- data-structures.html
-       +-- Chunk 0 foundation preview
-       +-- Tool Guide -> README_DSA.md
+       +-- Start exploring Python Data Structures and Algorithms
+              Guide: README_DSA.md
 ```
 
-The shared landing page has no Tool Guide button because one link would be ambiguous. Each workspace links to the guide that describes its own implemented behavior.
+Both workspaces execute Python locally, but they organize learning differently. The Python workspace starts from language behavior. The DSA workspace starts from reviewed algorithm questions and structure operations.
 
 ## Workspace map
 
 ```text
 DATA STRUCTURES AND ALGORITHMS WORKSPACE
 |
-+-- Header
-|      +-- DSA foundation status
-|      +-- Light mode or Dark mode
-|      +-- DSA Tool Guide
-|      +-- GitHub repository
++-- SOURCE
+|   +-- editable main.py
+|   +-- Wrap on or off
+|   +-- Automatic comments on or off
+|   +-- font size
+|   +-- Copy
+|   +-- Paste
 |
-+-- Workspace heading
-|      +-- Home
-|      +-- Chunk 0 boundary
-|      +-- disabled future actions
++-- CURRICULUM
+|   +-- 131 reviewed programs
+|   +-- 6 vertical section filters
+|   +-- objective and description
+|   +-- difficulty and line count
+|   +-- reviewed time and space context
+|   +-- recommended views
 |
-+-- DSA Python source
-|      +-- Wrap on or Wrap off
-|      +-- Automatic comments unavailable
-|      +-- Font size
-|      +-- Copy
-|      +-- Paste
-|      +-- main.py
-|      +-- source line and character count
++-- TRACE
+|   +-- Algorithm Story
+|   +-- Before and After
+|   +-- Decisions
+|   +-- Calls and Recursion
+|   +-- Error Coach
 |
-+-- Learning-view foundation
-|      +-- Trace
-|      +-- Data
-|      +-- Flow
-|      +-- Labs
++-- DATA
+|   +-- Variables
+|   +-- Watches
+|   +-- Structure Canvas
+|   +-- References
+|   +-- Mutation Explorer
+|   +-- Invariant Checker
 |
-+-- Foundation status
-       +-- 18 approved view contracts
-       +-- 31 normalized event names
-       +-- 19 representation names
-       +-- 535 planned Tier A programs
++-- FLOW
+|   +-- Operation Journey
+|   +-- Algorithm Path
+|   +-- Step Table
+|   +-- Complexity Lab
+|
++-- LABS
+|   +-- Input Playground
+|   +-- Compare Algorithms
+|   +-- Edge Case Lab
+|
++-- PLAYBACK
+|   +-- previous, play, next, restart
+|   +-- step slider
+|   +-- 0.5x, 1x, or 2x speed
+|
++-- OUTPUT
+    +-- console text available up to the selected step
+    +-- clear visual output without changing the program
 ```
 
-## The DSA editor
+## The 131-program curriculum
 
-### Separate source
+### Exact implemented counts
 
-The DSA workspace and original Python workspace use different local source keys.
+| Order | Section | Programs | Main learning purpose |
+| --- | --- | ---: | --- |
+| 01 | Algorithm and complexity foundations | 24 | Inputs, outputs, preconditions, postconditions, invariants, operation counts, growth, and space reasoning |
+| 02 | Abstract data types and representations | 12 | Separate an interface promise from one concrete representation |
+| 03 | Python-native containers | 42 | Lists, tuples, dictionaries, sets, deque, Counter, defaultdict, ChainMap, namedtuple, and OrderedDict |
+| 04 | Arrays and sequence techniques | 20 | Traversal, two pointers, sliding windows, prefix sums, partitioning, intervals, selection, and matrices |
+| 05 | Searching | 9 | Linear search, binary search, boundaries, insertion points, and repeated queries |
+| 06 | Sorting and sorting properties | 24 | Elementary sorts, divide-and-conquer sorts, non-comparison sorts, stability, adaptiveness, and input shape |
+| **Total** | **Chunk 1** | **131** | **Reviewed core sequence curriculum** |
+
+Every catalog program has:
+
+- A unique stable identifier from `DSA-001` through `DSA-131`.
+- A distinct title and teaching objective.
+- A section and difficulty.
+- Reviewed source code and prepared input.
+- An expected result used by automated validation.
+- Structure and event metadata.
+- A named algorithm only when the reviewed example supports that name.
+- Phases, invariants, edge cases, comparison groups, and complexity context when applicable.
+- Recommended views selected for that program.
+
+The catalog validator rejects missing metadata, duplicate identifiers, duplicate titles, duplicate source, weak source depth, unsupported structure names, unsupported event names, and suspiciously similar examples. A separate Python validator compiles and executes every program and checks its expected result.
+
+### Difficulty labels
+
+- **Beginner** focuses on one central idea with limited moving parts.
+- **Developing** combines operations, state, or reasoning steps.
+- **Guided Challenge** asks the learner to compare, justify, or integrate several ideas.
+
+Difficulty is editorial guidance. It is not a score, test result, or claim about the learner.
+
+### Longer programs
+
+Short examples remain useful for atomic ideas, but Chunk 1 also includes 28 programs with at least 15 meaningful source lines. Longer examples are used where setup, transformation, checks, and results need room to form one coherent lesson.
+
+## Your first guided run
+
+Try this reviewed bubble-sort lesson:
+
+```python
+values = [5, 1, 4, 2, 8]
+comparisons = 0
+swaps = 0
+
+for end in range(len(values) - 1, 0, -1):
+    for index in range(end):
+        comparisons += 1
+        if values[index] > values[index + 1]:
+            values[index], values[index + 1] = values[index + 1], values[index]
+            swaps += 1
+
+print("Sorted:", values)
+print("Counts:", comparisons, swaps)
+print("Result:", values == sorted(values))
+```
+
+Expected behavior:
 
 ```text
-workspace.html source
+Source is unchanged
         |
-        +-- remains unchanged when DSA source is edited
-
-data-structures.html source
-        |
-        +-- remains unchanged when Python workspace source is edited
+        +-- Run trace
+                |
+                +-- Python executes in the local worker
+                +-- 53 steps are recorded for this exact input
+                +-- Algorithm Story shows observed line behavior
+                +-- curriculum context names Bubble sort
+                +-- Structure Canvas shows the current list
+                +-- Step Table shows bounded recorded rows
+                +-- Complexity Lab separates counts from Big O
 ```
 
-Reloading `data-structures.html` restores the latest DSA source when same-origin browser storage is available.
+The exact step count belongs to this program and input. It is not the same as Big O. Big O describes how resource growth behaves as input size changes.
+
+## Editor controls
 
 ### Wrap
 
-**Wrap on** keeps a long source line inside the editor width.
-
-**Wrap off** preserves one visual row per source line and allows the editor's own horizontal scrolling.
-
-Changing wrapping affects presentation only. It does not insert or remove Python characters.
+**Wrap on** keeps long lines inside the visible editor width. **Wrap off** preserves horizontal source layout. This is a visual preference and never inserts line breaks into Python.
 
 ### Font size
 
-The implemented choices are:
-
-```text
-12 px
-14 px
-16 px
-18 px
-20 px
-22 px
-```
-
-The selected size is saved locally for the DSA editor. It does not change the original Python workspace font setting.
+Choose 12, 14, 16, 18, 20, or 22 pixels. The preference is stored locally and shared with the project editor presentation rules.
 
 ### Copy
 
-**Copy** requests permission to place the complete DSA source document on the system clipboard. It copies the complete document, not only a selection.
-
-If modern clipboard writing is unavailable, Code Explorer attempts a native selection-based fallback. If both approaches are blocked, the workspace tells the learner to focus the editor and use the operating system copy shortcut.
+**Copy** copies the complete original editor document. If Automatic comments are visible, normal Copy still copies original Python rather than the read-only teaching layer.
 
 ### Paste
 
-**Paste** requests plain text from the system clipboard and replaces the complete DSA editor document.
+**Paste** asks the browser clipboard API for text and replaces the complete editor document because the learner explicitly selected a whole-document paste action. If permission is blocked, Code Explorer displays a clear permission message. Pasting invalidates the old trace immediately because it no longer describes the visible source.
 
-Pressing the dedicated Paste control is the learner's explicit request for complete-document replacement. An empty clipboard does not erase the current source.
+### Source editing
 
-If clipboard reading is blocked, a visible alert explains that permission was blocked and suggests focusing the editor and using the operating system paste shortcut.
+Editing any character invalidates the recorded run. Re-run the program before trusting step-specific views. The source is stored under a DSA-specific same-origin browser key, so it does not overwrite the Python workspace source.
 
-### Enhanced editor fallback
+## Trace playback
 
-CodeMirror supplies the enhanced editor when its pinned modules load successfully. If those modules cannot load, Code Explorer creates a basic textarea containing the same source.
+The playback bar contains:
 
-The fallback still supports:
+- **Previous**: move back one recorded step.
+- **Play**: advance automatically.
+- **Next**: move forward one recorded step.
+- **Restart**: return to the first step.
+- **Timeline**: jump directly to a step.
+- **Speed**: use 0.5x, 1x, or 2x playback.
 
-- Editing.
-- Local source saving.
-- Wrapping.
-- Font sizing.
-- Copy.
-- Paste.
-- Line and character statistics.
+The code editor highlights the selected source line. Output is shown only when the selected step has reached that output. Changing views does not change the selected step.
 
-The fallback message does not claim that a network failure changed or deleted source.
+Playback is a review of recorded evidence. It does not re-execute Python at every slider position.
 
-## The 18-view learning map
+## Evidence labels and honesty
 
-Chunk 0 implements the navigation and reviewed purpose of each view. It does not implement runtime results for these views.
+Every important explanation uses a text label as well as color:
 
-### Trace
-
-| View | Question it will answer | Chunk 0 result |
-| --- | --- | --- |
-| Algorithm Story | How does the selected Python step relate to a reviewed algorithm action? | Unavailable |
-| Before and After | What changed between adjacent recorded states? | Unavailable |
-| Decisions | What comparison occurred and which path was selected? | Unavailable |
-| Calls and Recursion | Which calls, frames, base cases, depths, and returns were observed? | Unavailable |
-| Error Coach | What recorded failure occurred and what evidence should be inspected first? | Unavailable |
-
-### Data
-
-| View | Question it will answer | Chunk 0 result |
-| --- | --- | --- |
-| Variables | Which names, values, types, scopes, and histories exist? | Unavailable |
-| Watches | How do selected boundaries, counters, indices, pointers, or accumulators change? | Unavailable |
-| Structure Canvas | What supported structure exists and how is it connected or ordered? | Unavailable |
-| References | Which names, nodes, and objects conceptually reference each other? | Unavailable |
-| Mutation Explorer | Did an object change in place, or was a name reassigned? | Unavailable |
-| Invariant Checker | Does recorded evidence satisfy a reviewed structure or algorithm rule? | Unavailable |
-
-### Flow
-
-| View | Question it will answer | Chunk 0 result |
-| --- | --- | --- |
-| Operation Journey | Where does the current event belong inside the complete operation? | Unavailable |
-| Algorithm Path | Which indices, nodes, edges, states, or subproblems were visited? | Unavailable |
-| Step Table | How do values and structure actions compare across steps or phases? | Unavailable |
-| Complexity Lab | What work was observed, and what theory is supplied by reviewed curriculum context? | Unavailable |
-
-### Labs
-
-| View | Question it will answer | Chunk 0 result |
-| --- | --- | --- |
-| Input Playground | What changes when controlled input values change? | Unavailable |
-| Compare Algorithms | How do compatible reviewed programs or runs differ on equivalent inputs? | Unavailable |
-| Edge Case Lab | How does a reviewed algorithm behave on meaningful boundaries? | Unavailable |
-
-### Why unavailable views are selectable
-
-The view shell is intentionally testable before runtime work begins. Selecting a view confirms:
-
-- Its approved name.
-- Its learning area.
-- Its beginner-facing purpose.
-- Its responsive tab behavior.
-- Its saved local selection.
-- Its honest no-evidence state.
-
-It does not confirm that its future visualization or explanation is implemented.
-
-## Honest evidence labels
-
-Future DSA results will use four evidence labels. Chunk 0 already uses **Unavailable** so the interface begins with the correct honesty rule.
+| Label | Meaning |
+| --- | --- |
+| **Observed** | Derived from this local execution trace |
+| **Curriculum context** | Reviewed metadata attached to the exact unchanged catalog source |
+| **Unavailable** | Evidence is missing, ambiguous, or unsupported |
+| **Shortened** | More evidence exists, but the display stopped at a documented presentation limit |
 
 ```text
-Observed
--> directly supported by the recorded execution
-
-Curriculum context
--> reviewed knowledge attached to a catalog program
-
-Unavailable
--> cannot be concluded from current evidence
-
-Shortened
--> evidence exists, but a documented presentation limit was reached
+Can the tool support this statement?
+|
++-- recorded by this run
+|      +-- label it Observed
+|
++-- reviewed for this exact unchanged catalog program
+|      +-- label it Curriculum context
+|
++-- neither source is sufficient
+       +-- label it Unavailable
 ```
 
-Examples:
+Code Explorer never upgrades a likely guess into a named algorithm claim.
+
+## The 18 learning views
+
+### Trace area
+
+#### Algorithm Story
+
+Shows the executed line, a conservative event cue, recorded name changes, and reviewed algorithm context when the source exactly matches a catalog program. It does not assign a named phase to an arbitrary pasted line.
+
+#### Before and After
+
+Compares variables before and after the selected step. Created, changed, and unchanged states use text, not color alone.
+
+#### Decisions
+
+Shows reached conditions and an observed outcome when the trace provides enough evidence. If the selected prefix has not reached a condition, it says so.
+
+#### Calls and Recursion
+
+Shows the recorded call stack and visible frame variables. Stack depth is observed. A recursion label is used only when the evidence supports it.
+
+#### Error Coach
+
+Shows a syntax or runtime error, the closest learner line, available recent values, and a reasonable first inspection. It does not invent a repair. A trace-limit failure clearly states the 3,000-step boundary.
+
+### Data area
+
+#### Variables
+
+Shows bounded serialized names, values, and Python types at the selected step.
+
+#### Watches
+
+Suggests up to 12 currently visible names. These are local suggestions, not saved learner progress, and not a claim that every name controls the algorithm.
+
+#### Structure Canvas
+
+Shows one visible container using a representation appropriate to its serialized shape. A display contains at most 30 cells or entries. Additional content is marked Shortened.
+
+#### References
+
+Groups names by conceptual object token. This is a name-to-object teaching map, not a physical RAM address and not a memory profiler.
+
+#### Mutation Explorer
+
+Separates a name referencing a different object from an observed in-place value change when tokens and serialized evidence permit that distinction.
+
+#### Invariant Checker
+
+Shows reviewed invariant questions for an exact catalog program. It currently presents rules to test rather than claiming a formal proof.
+
+### Flow area
+
+#### Operation Journey
+
+Lists up to 30 observed event cues in order. It is a bounded learning summary, not the complete internal worker event stream.
+
+#### Algorithm Path
+
+Shows up to 80 executed source-line transitions and visit counts.
+
+#### Step Table
+
+Shows up to 120 recorded rows with step, line, event cue, and changed names.
+
+#### Complexity Lab
+
+Separates observed counts from reviewed asymptotic context:
 
 ```text
-Observed:
-The program compared target with values[middle].
+Observed in this run                  Reviewed curriculum context
+--------------------                  ---------------------------
+recorded steps                        time complexity
+reached source lines                  space complexity
+event cue counts                      comparison notes
+```
 
-Curriculum context:
-This reviewed binary-search lesson removes one half after the comparison.
+One run cannot prove a complexity class. The Big O card appears only for an unchanged reviewed program.
+
+### Labs area
+
+#### Input Playground
+
+Accepts one prepared `input()` response per line. Values stay in the browser. A run consumes them in order.
+
+#### Compare Algorithms
+
+Keeps at most two in-session run summaries and suggests related reviewed programs from the same comparison group. Comparisons use compatible catalog contracts and observed counts. The tool does not claim that unlike inputs form a fair benchmark.
+
+#### Edge Case Lab
+
+Shows reviewed boundary questions for the exact catalog program. It asks the learner to predict and run changes. Code Explorer does not track whether a suggestion was completed.
+
+## Automatic and exported learning comments
+
+### Automatic comments
+
+After a useful run, select **Automatic comments** to replace only the visible editor surface with a read-only commented study copy.
+
+```text
+Original editable source
+        |
+        +-- Automatic comments on
+        |       +-- read-only teaching copy is visible
+        |       +-- original source remains stored and copied
+        |
+        +-- Automatic comments off
+                +-- original editor returns unchanged
+```
+
+### Learning comments
+
+**Learning comments** opens an IDE-style read-only preview. It can:
+
+- Copy the complete commented document.
+- Replace the editor only after explicit confirmation.
+- Preserve indentation, blank lines, and learner comments.
+- Remove older Code Explorer DSA comment lines before creating a fresh copy.
+
+Generated comments use observed trace evidence plus reviewed context when available. Unsupported statements receive no invented explanation.
+
+## Pasted-code boundary
+
+Pasted or newly written Python is fully welcome. It can receive:
+
+- Local execution.
+- Step playback.
+- Variable and value changes.
+- Condition evidence.
+- Stack frames.
+- Structure snapshots.
+- References and mutations supported by serialization.
+- Executed paths, step tables, errors, input, and observed counts.
+
+It does not automatically receive:
+
+- A reviewed algorithm name.
+- Reviewed phases.
+- Reviewed invariants.
+- Reviewed Big O.
+- Reviewed edge cases.
+- A curriculum comparison group.
+
+Example:
+
+```text
+numbers = [3, 1, 2]
+numbers.sort()
+
+Observed:
+  numbers changed from [3, 1, 2] to [1, 2, 3]
 
 Unavailable:
-Code Explorer cannot reliably identify the intended algorithm in this pasted program.
+  a reviewed named algorithm and phase
 
-Shortened:
-The graph contains more nodes than this view displays. The trace and source remain preserved.
+Reason:
+  Python's sort call is observable, but this pasted source is not an exact
+  reviewed curriculum record. Code Explorer does not guess hidden runtime
+  internals or attach catalog claims to similar-looking text.
 ```
 
-Chunk 0 produces no observed DSA events, curriculum explanations, or shortened DSA diagrams.
+## Limits and bounded presentation
 
-## Foundation status counts
+Limits protect the browser and keep explanations readable. An execution limit stops a run. A presentation limit shortens only one view while preserving the recorded trace.
 
-The bottom status panel displays:
+| Boundary | Current value | What happens at the boundary |
+| --- | ---: | --- |
+| Recorded trace steps | 3,000 | Execution stops with a clear learner-facing RuntimeError |
+| Outer execution time | 30 seconds | The worker is terminated and the learner receives a timeout message |
+| Serialization depth | 4 nested levels | Deeper content is represented by a bounded marker |
+| Serialized items per container | 30 | Additional items are omitted from the serialized snapshot |
+| Serialized representation text | 120 characters | Longer representations are shortened |
+| Structure Canvas entries | 30 | The view is labeled Shortened |
+| Suggested watches | 12 names | Additional visible names are not shown in Watches |
+| Operation Journey | 30 events | The view is labeled Shortened |
+| Algorithm Path | 80 transitions | The view is labeled Shortened |
+| Step Table | 120 rows | The view is labeled Shortened |
+| Compare Algorithms history | 2 run summaries | The oldest in-session summary is replaced |
+| Prepared-input text | 20,000 characters | Additional text is ignored when loaded into the local input field |
+| Active learning views | 18 | Custom learner-defined views are not supported |
+| Implemented curriculum | 131 programs | The remaining 404 Tier A programs are not selectable |
+| Approved structure names | 20 | Unknown structures receive generic bounded presentation |
+| Stable event names | 31 | Runtime cues remain conservative when an exact DSA event is unavailable |
 
-| Count | Meaning | Implementation claim? |
-| ---: | --- | --- |
-| 18 | Approved and rendered view contracts | Navigation only |
-| 31 | Stable normalized event names for later chunks | No events emitted yet |
-| 19 | Stable structure representation names | No DSA renderer implemented yet |
-| 535 | Approved Tier A curriculum target | No DSA programs implemented yet |
+### Trace limit example
 
-These values prevent later chunks from silently changing foundational names or losing curriculum coverage. They must not be read as completed-feature totals.
+```python
+total = 0
+for number in range(4000):
+    total += number
+print(total)
+```
 
-## What is saved
-
-Chunk 0 may save these values in same-origin browser storage:
-
-| Local value | Purpose | Lifetime |
-| --- | --- | --- |
-| DSA source | Restore `main.py` after reload | Until site data is cleared or replaced |
-| DSA wrapping | Restore visual wrapping | Until site data is cleared or changed |
-| DSA font size | Restore editor text size | Until site data is cleared or changed |
-| Active DSA view | Return to the selected view | Until site data is cleared or another view is selected |
-| Shared theme | Keep light or dark mode consistent | Until site data is cleared or theme changes |
-
-Chunk 0 does not save:
-
-- Traces.
-- Console output.
-- Algorithm events.
-- Comparisons.
-- Edge-case results.
-- Watches.
-- Bookmarks.
-- Curriculum completion.
-- Learner identity.
-- Analytics events.
-
-If browser storage is blocked or full, the workspace remains usable for the current page session. Reload persistence may be unavailable. Code Explorer does not upload the values as a fallback.
-
-## Current limits
-
-This section describes every limit that applies to the implemented Chunk 0 workspace.
-
-### Execution limit
-
-The DSA workspace does not execute Python in Chunk 0.
-
-Therefore:
-
-- No DSA trace-step limit is active.
-- No DSA execution timeout is active.
-- No recursion limit is set by the DSA workspace.
-- No DSA console-output limit is active.
-- **Run trace** remains disabled.
-
-The original Python workspace still has its own documented 3,000-step and 30-second limits. Those existing limits must not be mistaken for an active DSA runtime.
-
-### Source-document limit
-
-Chunk 0 does not impose a fixed character or line-count cap on the editor. Browser memory and editor performance still have practical limits.
-
-The workspace is intended for beginner programs and small DSA experiments, not very large repositories or production files. The footer reports exact source lines and characters so the learner can see document size.
-
-If a very large document feels slow:
-
-1. Copy the source to a safe local file.
-2. Reduce the program to the structure or algorithm currently being studied.
-3. Reload the workspace if necessary.
-4. Paste the smaller focused program.
-
-### Font-size limit
-
-Only the six documented values from 12 px through 22 px are accepted. Modified storage values outside this list return to 14 px.
-
-### Learning-view limit
-
-Chunk 0 contains exactly 18 approved views across four areas. It does not accept custom view definitions from learner source or browser storage.
-
-Unknown or modified saved view ids return to **Algorithm Story** instead of creating a blank panel.
-
-### Event and representation limits
-
-The status panel contains 31 event names and 19 representation names. These are contracts only.
-
-Chunk 0 emits:
+This program reaches the 3,000-step boundary before completing. Error Coach reports:
 
 ```text
-0 DSA runtime events
-0 structure diagrams
-0 invariant results
-0 complexity measurements
-0 comparisons
+Trace limit reached: Code Explorer recorded the maximum of 3,000 steps.
+Shorten the program or reduce the number of loop iterations.
 ```
 
-There is no hidden partial event stream.
+The partial trace remains inspectable. The missing final output must not be treated as successful program output.
 
-### Catalog limit
+### No fixed source-size promise
 
-The number 535 is the approved Tier A target, not a current catalog size.
+The editor does not impose a documented line or character cap. Browser memory, CodeMirror, parsing, tracing, and rendering still have practical limits. The workspace is designed for study programs, not production repositories or competitive-programming stress tests.
 
-Chunk 0 provides:
+## Persistence
 
-```text
-0 reviewed DSA curriculum programs
-```
+The browser stores these same-origin values locally:
 
-The editable starter source is not included in the 535 target.
+- DSA editor source.
+- Prepared input.
+- Active DSA view.
+- Theme.
+- Editor wrap and font presentation preferences.
 
-### Clipboard limit
+Reloading `data-structures.html` restores source and preferences. It does not restore a trusted completed trace. Run again so the evidence describes the current page state.
 
-Copy and Paste handle plain text only. Clipboard access depends on:
-
-- Browser support.
-- Secure-context rules.
-- User permission.
-- A direct learner action.
-
-Code Explorer does not read the clipboard automatically and does not retain clipboard text outside the editor replacement requested by the learner.
-
-### Local-storage limit
-
-Storage capacity is controlled by the browser and may differ by browser mode, device, site settings, or available space. Chunk 0 does not claim a universal number.
-
-If saving fails:
-
-- The current editor remains usable.
-- The source is not uploaded.
-- A later reload may return to an older saved value or the starter source.
-
-### Display limit
-
-Chunk 0 renders static contract prose instead of graphs or tables. No DSA visualization can currently be shortened because no DSA visualization is implemented.
-
-Later chunks must document verified node, edge, cell, bucket, depth, label, history, and comparison limits here before those features are described as available.
-
-### Desktop and mobile boundary
-
-The same source, settings, and view contracts are available at desktop and narrow widths.
-
-Presentation changes include:
-
-- Two primary workspace columns stack into one.
-- Editor controls wrap into additional rows.
-- Learning tabs wrap inside their panel.
-- Four foundation metrics become a two-column phone grid.
-- The landing destinations stack on narrow screens.
-
-Mobile presentation does not reduce the current contract counts.
+The browser can clear local storage in private mode, through site-data controls, or under storage pressure. Copy important work into a normal file.
 
 ## Privacy and network requests
 
-Code Explorer does not collect learner data for analytics, telemetry, advertising, profiling, or engagement measurement.
+Code Explorer has no analytics, advertising, tracking pixels, session replay, heatmaps, fingerprinting, remote crash logging, cookies for recognition, or learner identifiers.
 
-Chunk 0 does not upload:
+The application does not upload:
 
-- DSA source.
-- Clipboard text.
-- Selected views.
-- Theme.
-- Editor preferences.
-- Any learner identifier.
+- Source or commented source.
+- Prepared input.
+- Trace steps or event counts.
+- Console output or errors.
+- Clipboard contents.
+- Watches, comparisons, or edge-case experiments.
+- Local-storage values.
+- Button clicks, time spent, or learning progress.
 
-The DSA page requests pinned CodeMirror modules from `esm.sh` when the enhanced editor loads. GitHub Pages serves the site, and external Tool Guide or GitHub links navigate only after the learner selects them.
+Browser execution still makes ordinary asset requests:
 
-Those providers can receive ordinary request metadata such as an IP address and browser headers under their own policies. Code Explorer does not attach learner source, clipboard content, stored settings, project-generated identifiers, or workspace actions to those requests. Project maintainers cannot use Code Explorer to view provider-side IP addresses, raw browser headers, or raw request logs.
+- GitHub Pages serves the static site.
+- jsDelivr serves pinned browser libraries.
+- Google Fonts may serve the configured fonts.
+- Explicit external links navigate only when selected.
 
-GitHub may expose aggregate repository traffic to people with repository access. For example, it may report that a repository page received a number of visits during a recent period. That does not reveal the Python source a learner typed, which view they opened, their clipboard, their local settings, or what happened in their workspace. It is GitHub platform traffic, not Code Explorer application analytics.
+Those providers can receive ordinary request metadata such as an IP address and browser headers under their own policies. Code Explorer does not attach learner content or project-generated identifiers to those requests. The project maintainers cannot inspect provider-side raw IP addresses or browser headers through Code Explorer.
 
-External links use `rel="noreferrer"`.
-
-## Accessibility and responsive behavior
-
-Chunk 0 includes:
-
-- Semantic header, main, workspace, navigation, tab list, tab panel, and footer regions.
-- Visible text for theme actions.
-- Accessible names for the GitHub link and guide destination.
-- Text-based runtime status in addition to a status dot.
-- Text-based **Unavailable** evidence state in addition to color.
-- `aria-pressed` on wrapping and area navigation.
-- `aria-selected` on view tabs.
-- Visible keyboard focus from the shared interface theme.
-- Reduced-motion support from the shared stylesheet.
-- No required horizontal category scrolling.
-
-Disabled actions remain keyboard-unavailable because they have no implemented result.
+GitHub may show maintainers aggregate repository Insights such as recent page views, clones, referring sites, or popular content. Example: GitHub might report that a repository page received 20 views during a recent period. That does not reveal which Python program a learner typed, which example they ran, what appeared in output, or what was stored locally. These platform summaries are separate from the application and are never joined to learner workspace data.
 
 ## Troubleshooting
 
-### Run trace is disabled
+### Run trace stops at 3,000 steps
 
-This is expected in Chunk 0. Waiting or reloading will not activate it.
+This is the documented safety limit. Inspect the partial trace, reduce the loop range or input size, and run again.
 
-### Examples are disabled
+### The run times out
 
-The DSA curriculum begins in Chunk 1. The original 134 Python programs remain available inside `workspace.html`.
+The worker exceeded 30 seconds. Reduce input size, remove unbounded work, or choose a smaller reviewed example.
 
-### A view says Unavailable
+### A named algorithm says Unavailable
 
-This is the correct foundation state. It means the view has no recorded DSA evidence and will not guess.
+Your source differs from the exact reviewed catalog source. Observed runtime views still work. Reopen the catalog version if you want its reviewed phases, invariants, edge cases, and complexity context.
 
-### My DSA code returned after reload
+### Automatic comments are disabled
 
-This is expected local persistence. It does not mean the code was uploaded or associated with an account.
+Run a supported program first. Syntax errors and runs without useful trace evidence do not enable generated learning comments.
 
-### My DSA code did not return after reload
+### Paste is blocked
 
-Browser storage may be blocked, full, cleared, or unavailable in the current mode. Code Explorer keeps working in the current session but does not upload source as a backup.
+Allow clipboard access for the page, or paste directly into the focused editor with the operating system shortcut. Code Explorer displays a message rather than silently failing.
 
-### The enhanced editor did not load
+### Output has not appeared at the selected step
 
-The browser may be offline, `esm.sh` may be unavailable, or a network policy may block the module request. Use the basic editor fallback. Your visible source remains editable.
+Move the timeline later. Console Output follows recorded time and does not reveal future output.
 
-### Paste shows a permission alert
+### A structure is shortened
 
-Allow clipboard access for the page, or focus the editor and use the operating system paste shortcut.
+The underlying serialized evidence exceeded a presentation or serialization boundary. Use a smaller input or inspect Variables and Step Table. Shortened is not the same as an execution failure.
 
-### The selected view changed to Algorithm Story
+### Source disappeared after browser cleanup
 
-A saved view id was missing, invalid, or no longer recognized. The workspace returned to its safe first view rather than showing an empty panel.
+Local persistence depends on browser site storage. If site data was cleared, Code Explorer cannot recover it. Keep important source in a normal local file or repository.
 
-## What comes after Chunk 0
-
-The approved implementation sequence is:
+## What comes next
 
 ```text
-Chunk 0  Shared architecture and DSA workspace foundation
-Chunk 1  Foundations, containers, arrays, searching, and sorting
-Chunk 2  Stacks, queues, linked structures, and hashing
-Chunk 3  Trees, BSTs, heaps, tries, and Union-Find
-Chunk 4  Graphs, traversal, shortest paths, and spanning trees
-Chunk 5  Recursion, backtracking, and divide and conquer
-Chunk 6  Greedy algorithms, dynamic programming, bits, and mathematics
-Chunk 7  Investigations, guided challenges, comparisons, and final audit
+Chunk 0  Separate route, contracts, navigation, editor foundation
+   |
+   v
+Chunk 1  131 programs, local runtime, 18 working views
+   |
+   v
+Chunk 2  Next reviewed structure families from Tier A
+   |
+   v
+Later chunks
+   |
+   +-- complete the remaining 404 Tier A programs
+   +-- preserve the same evidence labels and limits
+   +-- extend validators before making implementation claims
 ```
 
-This sequence is a roadmap, not an implemented-feature claim. Each later chunk must update this guide with only the behavior, programs, views, limits, and failure states that passed its release checks.
-
-The final Tier A target remains 535 high-quality programs. Development in chunks protects that quality. It does not reduce the final subject coverage.
+See `Tier.md` for the complete approved curriculum plan. A later chunk ships only when its programs, runtime behavior, documentation, limits, accessibility, privacy, and browser tests all pass together.

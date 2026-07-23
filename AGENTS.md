@@ -24,6 +24,9 @@ Never claim that Code Explorer supports behavior that has not been implemented a
 - Cytoscape provides the reference and execution-path graphs.
 - Learner source is a single Python file named `main.py` in the interface.
 - The tool is intended for beginner programs, demonstrations, and small exercises. It is not a general replacement for a Python IDE or production debugger.
+- The Python workspace contains 134 reviewed language-learning programs.
+- DSA Chunk 1 contains 131 reviewed programs across 6 sections. The full Tier A target is 535, so 404 later programs remain unimplemented.
+- DSA reviewed context requires an exact unchanged catalog-source match. Pasted or edited code receives only the observed evidence its local trace supports.
 - The trace limit is 3,000 steps.
 - The outer execution timeout is 30 seconds.
 - A trace limit or timeout must produce a clear learner-facing message.
@@ -72,26 +75,30 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 
 - `index.html`: landing page, two learning-path actions, shared header, and footer.
 - `workspace.html`: persistent execution workspace and all dynamic mounting points.
-- `data-structures.html`: separate Chunk 0 DSA editor and 18-view foundation shell.
+- `data-structures.html`: separate Chunk 1 DSA workspace, editor, dialogs, playback, status, and 18-view mounting points.
 - `styles.css`: complete light theme, dark theme, responsive layout, editor presentation, graphs, panels, and controls.
 - `app.js`: application state, editor setup, the original reviewed example set, playback, learning views, graph rendering, persistence, and UI events.
 - `landing.js`: lightweight landing-page theme controller after example selection moved inside workspaces.
-- `dsa-app.js`: DSA foundation source persistence, editor controls, clipboard actions, and view navigation.
+- `dsa-app.js`: DSA state, curriculum browser, worker lifecycle, playback, comments, persistence, and 18 view renderers.
 - `dsa-contracts.js`: approved DSA areas, views, evidence labels, event names, representation names, metadata fields, and Tier A totals.
+- `dsa-curriculum.js`: 131 reviewed Chunk 1 program records and six ordered section definitions.
+- `dsa-runtime.js`: pure observed-evidence classification, value comparison, condition helpers, structure selection, and DSA comment generation.
 - `shared-ui.js`: theme and guarded local-storage helpers shared by new page controllers.
 - `shared-editor.js`: reusable Python CodeMirror foundation with a native textarea fallback.
 - `curriculum.js`: the additional curriculum examples that blend with the reviewed base set to form the 134-program library.
 - `py-worker.js`: isolated Pyodide runtime, Python tracing harness, safe serialization, input handling, and execution limits.
 - `scripts/validate-curriculum.mjs`: structural curriculum validator and detached-example exporter.
 - `scripts/validate_curriculum.py`: Python compile-and-run validator for all detached examples and their documented intentional errors.
-- `scripts/validate-dsa-foundation.mjs`: structural validator for Chunk 0 DSA contracts, routing, ids, and the 535-program target.
+- `scripts/validate-dsa-foundation.mjs`: structural validator for shared DSA contracts, routing, ids, 18 views, 20 structures, and the 535-program target.
+- `scripts/validate-dsa-curriculum.mjs`: Chunk 1 schema, count, uniqueness, depth, metadata, and near-duplicate validator with detached export.
+- `scripts/validate_dsa_curriculum.py`: compile, execute, and expected-result validator for all 131 detached DSA programs.
 - `favicon.svg`: code-themed browser-tab icon shared by both pages.
 - `README.md`: public beginner guide for using Code Explorer and understanding its features.
-- `README_DSA.md`: public guide for implemented DSA workspace behavior, unavailable boundaries, limits, privacy, and later verified chunks.
+- `README_DSA.md`: public guide for the 131-program DSA workspace, evidence boundaries, all active limits, privacy, and later verified chunks.
 - `SKILLS.md`: internal project knowledge, capability ledger, recurring implementation recipes, and verification guidance.
 - `lessons_learned.md`: living post-mortem containing reusable product and engineering lessons from the user and Codex perspectives.
 - `changelog.md`: dated learner-visible release history, verification notes, compatibility boundaries, and upgrade guidance.
-- `Tier.md`: planning reference for the separate Data Structures workspace, including the implemented Chunk 0 boundary and unimplemented Tier A, B, and C curriculum scope.
+- `Tier.md`: planning and status reference for implemented Chunk 1 coverage and the remaining Tier A, B, and C curriculum scope.
 - `LICENSE`: GPL license text. Do not modify it while adding explanatory material.
 
 ## Required workflow for every change
@@ -183,7 +190,7 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 
 - Serve the repository through a local HTTP server rather than relying only on `file://` behavior.
 - Test the landing page and the dedicated workspace page.
-- Test the separate DSA workspace and confirm unavailable Chunk 0 actions remain honest.
+- Test the separate DSA workspace with reviewed and pasted source, and confirm evidence labels remain honest.
 - Check light mode and dark mode.
 - Check a desktop viewport and a narrow mobile viewport.
 - Confirm there are no browser console errors.
@@ -191,17 +198,28 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm source survives a workspace reload.
 - Confirm Python and DSA source keys do not overwrite each other.
 
-### DSA foundation checks
+### DSA Chunk 1 checks
 
 - Run `node scripts/validate-dsa-foundation.mjs`.
+- Run `node scripts/validate-dsa-curriculum.mjs --export /tmp/code-explorer-dsa-chunk1.json`.
+- Run `python3 scripts/validate_dsa_curriculum.py /tmp/code-explorer-dsa-chunk1.json`.
+- Remove the temporary detached DSA export after validation.
 - Confirm the landing page has two matching primary learning-path buttons and no Tool Guide.
 - Confirm `workspace.html` links to `README.md` and `data-structures.html` links to `README_DSA.md`.
 - Confirm the DSA editor supports wrapping, six validated font sizes, Copy, Paste, fallback editing, source statistics, and separate local persistence.
 - Confirm all 18 approved views appear under Trace, Data, Flow, and Labs.
-- Confirm every DSA view displays **Unavailable** until runtime evidence is implemented.
-- Confirm Run trace, examples, Automatic comments, and Learning comments remain visibly disabled in Chunk 0.
+- Confirm all 131 programs execute and produce their documented expected-result marker.
+- Confirm section counts are 24 foundations, 12 abstract data types, 42 Python-native containers, 20 array and sequence techniques, 9 searching, and 24 sorting.
+- Confirm at least 25 programs retain 15 or more meaningful source lines. The current reviewed count is 28.
+- Confirm the catalog shows accurate section, difficulty, line, complexity, and recommended-view metadata.
+- Confirm Observed appears only for trace-derived facts and Curriculum context only for exact unchanged catalog source.
+- Edit a catalog example and confirm algorithm name, phases, invariants, edge cases, comparison group, and Big O become Unavailable while observed views continue to work.
+- Confirm all 18 views render without an exception after a reviewed trace.
+- Confirm 3,000 trace steps produce the explicit limit message and retain an inspectable partial trace.
+- Confirm Automatic comments never change original editor source and Learning comments replacement requires confirmation.
+- Confirm Structure Canvas stops at 30 entries, Watches at 12 names, Operation Journey at 30 events, Algorithm Path at 80 transitions, Step Table at 120 rows, and Compare Algorithms at 2 summaries.
 - Confirm light and dark themes, desktop and mobile layouts, visible focus, tab semantics, and no horizontal page overflow.
-- Confirm the status panel describes 18 view contracts, 31 event names, 19 representation names, and 535 planned programs without claiming those runtime capabilities or programs are implemented.
+- Confirm the status panel states 131 implemented programs, 6 implemented sections, 20 representations, the 535 target, and the honest remaining count of 404.
 
 ### Trace checks
 

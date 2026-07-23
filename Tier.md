@@ -1,15 +1,16 @@
 # Code Explorer Data Structures and Algorithms tiers
 
-This document preserves the curriculum boundary for the separate Python Data Structures and Algorithms workspace. Chunk 0 implements the workspace foundation and contracts. Tier listings remain a planning reference, not a claim that their programs or runtime results are implemented.
+This document preserves the curriculum boundary and implementation status for the separate Python Data Structures and Algorithms workspace. Chunk 1 implements the first 131 reviewed programs and the reusable runtime. Later listings remain a planning reference, not a claim that their programs are available.
 
 ```text
 CURRENT STATUS
 
-Tier A  -> Chunk 0 foundation implemented; 535-program catalog target approved
+Tier A  -> Chunk 1 implements 131 of 535 approved programs
 Tier B  -> recorded for later evaluation
 Tier C  -> recorded as an optional specialist catalog
 
-No DSA execution, visualization, comparison, or curriculum program is implemented yet.
+Local DSA execution, playback, comparisons, comments, and 18 learning views work.
+The remaining 404 Tier A programs are not implemented yet.
 ```
 
 ## Why the work is divided into tiers
@@ -48,10 +49,11 @@ Code Explorer landing page
 |      +-- existing workspace.html
 |      +-- existing Python curriculum and trace views
 |
-+-- Python Data Structures and Algorithms
-       +-- implemented data-structures.html foundation
-       +-- planned structure and algorithm curriculum
-       +-- planned specialized visualizations
++-- Start exploring Python Data Structures and Algorithms
+       +-- implemented data-structures.html workspace
+       +-- 131-program Chunk 1 curriculum
+       +-- implemented 18-view runtime
+       +-- later reviewed curriculum chunks
 ```
 
 The two workspaces may reuse the editor, theme, Pyodide worker foundation, trace playback, serialization, dialogs, accessibility helpers, and safe local persistence. They must not become two copied applications that drift apart.
@@ -71,7 +73,7 @@ index.html
 |   workspace.html
 |      +-- Tool Guide -> README.md
 |
-+-- Python Data Structures and Algorithms
++-- Start exploring Python Data Structures and Algorithms
        |
        v
    data-structures.html
@@ -80,15 +82,15 @@ index.html
 
 The existing `README.md` remains the public beginner guide for the Python execution workspace and its 134-program curriculum. It should be linked from `workspace.html`, not from the shared landing page or the Data Structures workspace.
 
-`README_DSA.md` is the public beginner guide for the Data Structures workspace, its implemented foundation, unavailable boundaries, verified limits, and later completed curriculum chunks. It is linked from `data-structures.html`, not from the existing Python workspace.
+`README_DSA.md` is the public beginner guide for the Data Structures workspace, its implemented 131-program curriculum, evidence boundaries, verified limits, and later completed curriculum chunks. It is linked from `data-structures.html`, not from the existing Python workspace.
 
 `README_DSA.md` must not become a catalogue of unimplemented promises. Update it after each verified Tier A chunk. `Tier.md` remains the planning catalogue; `README_DSA.md` describes only learner-visible behavior that actually exists and explicitly marks unavailable behavior.
 
 Both workspace links should use the same accessible Tool Guide label and visual treatment. Their targets differ by workspace context. External GitHub links must preserve the existing privacy and `noreferrer` rules.
 
-### Implemented Chunk 0 view contract
+### Implemented Chunk 1 view contract
 
-Chunk 0 renders the final eighteen names and purposes under four bounded areas:
+Chunk 1 renders working results through the final eighteen names under four bounded areas:
 
 ```text
 TRACE
@@ -118,7 +120,7 @@ LABS
 +-- Edge Case Lab
 ```
 
-The navigation contract is implemented. Runtime results are not. Every Chunk 0 view displays **Unavailable** and explains that recorded DSA evidence will arrive only through later verified chunks.
+All 18 renderers work with recorded evidence. Views use **Unavailable** when the current run cannot support a conclusion, **Curriculum context** only for an exact unchanged reviewed program, **Observed** for local trace facts, and **Shortened** at a presentation boundary.
 
 ### Complete limits documentation contract
 
@@ -197,6 +199,28 @@ Tier A establishes the reusable event model, playback system, visualization lang
 ```
 
 Every direct lesson needs its own primary learning objective and runnable Python program. Investigation programs cover relevant boundaries and deliberate failures. Guided challenges combine earlier concepts into meaningful applications.
+
+### Chunk 1 implemented slice
+
+The first six direct-teaching sections are implemented and validated:
+
+| Implemented section | Programs | Status |
+| --- | ---: | --- |
+| Algorithm and complexity foundations | 24 | Implemented in Chunk 1 |
+| Abstract data types and representations | 12 | Implemented in Chunk 1 |
+| Python-native containers | 42 | Implemented in Chunk 1 |
+| Arrays and sequence techniques | 20 | Implemented in Chunk 1 |
+| Searching | 9 | Implemented in Chunk 1 |
+| Sorting and sorting properties | 24 | Implemented in Chunk 1 |
+| **Chunk 1 total** | **131** | **Executable and validated** |
+
+```text
+535 approved Tier A programs
+- 131 implemented Chunk 1 programs
+= 404 programs remaining
+```
+
+The next row in the approved catalog, Stacks, queues, and deques, is not partly implemented by the existence of `list` or `deque` examples in the Python-native container section. Chunk 1 teaches those container operations. A later chunk must still provide the dedicated abstract-data-type curriculum, representations, comparisons, invariants, edge cases, and validators promised by that row.
 
 ### Program quality contract
 

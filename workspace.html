@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  The execution workspace has its own document so learners can bookmark it,
+  The Python programming workspace has its own document so learners can bookmark it,
   reload it, and return to their saved source without revisiting the landing page.
 -->
 <html lang="en">
@@ -17,7 +17,7 @@
     <!-- This tells native browser controls that the page supports both color themes. -->
     <meta name="color-scheme" content="dark light" />
     <!-- The page-specific title distinguishes the workspace in tabs and bookmarks. -->
-    <title>Execution Workspace | Code Explorer</title>
+    <title>Python Programming Workspace | Code Explorer</title>
     <!-- The shared terminal mark identifies the project in the browser tab. -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <!-- These early connections reduce the wait for the editor and Python runtime. -->
@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260723-1" />
+    <link rel="stylesheet" href="styles.css?v=20260723-2" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -77,12 +77,17 @@
     <main>
       <!-- This screen is visible immediately because it is now a dedicated page. -->
       <section class="workspace" id="workspace" aria-label="Python visualizer workspace">
-        <!-- This heading supplies navigation plus the three top-level workspace actions. -->
+        <!-- This heading names the Python learning path, explains its purpose, and supplies the top-level actions. -->
         <div class="workspace-heading">
           <div>
             <!-- A real link preserves expected browser behavior and works without JavaScript. -->
             <a class="back-button" id="backButton" href="index.html">← Home</a>
-            <h1>Execution workspace</h1>
+            <h1>Python Programming workspace</h1>
+            <!-- The short description helps a first-time learner understand the workspace before selecting an action. -->
+            <p class="workspace-heading-copy">
+              Write, run, and replay Python programs while following variables, decisions,
+              loops, functions, objects, and output step by step.
+            </p>
           </div>
           <!-- Run and Stop are swapped by JavaScript while Python is executing. -->
           <div class="workspace-actions">
@@ -667,6 +672,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260723-1"></script>
+    <script type="module" src="app.js?v=20260723-2"></script>
   </body>
 </html>

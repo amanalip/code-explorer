@@ -1348,7 +1348,7 @@ Shared landing page      -> no ambiguous guide
 
 This preserves separation of concerns in the documentation as well as the code. A learner who is studying Python execution should not be sent into a large DSA guide, and a learner studying data structures should not have to search the Python guide for workspace-specific instructions.
 
-The landing-page action is named **Python Data Structures and Algorithms**. Including algorithms in the label sets the correct expectation because the workspace teaches both structures and the operations and algorithms that use them. Removing the repeated instruction phrase also makes the two-path landing page easier to scan.
+At that stage, the landing-page action was named **Python Data Structures and Algorithms**. Including algorithms in the label set the correct subject expectation. After Chunk 1, lesson 62 records the user's further improvement to the parallel invitation **Start exploring Python Data Structures and Algorithms**.
 
 Status: Approved as a navigation and documentation plan. No HTML or new guide has been created yet.
 
@@ -1683,7 +1683,7 @@ Completion requires testing the real user journey, not only inspecting functions
 
 ## 21. Asset cache versions are part of static-site correctness
 
-Both HTML pages use query versions for shared CSS and JavaScript. When one page receives a new version and the other does not, the landing page and workspace can run different generations of the application.
+All HTML pages use query versions for shared CSS and JavaScript. When one page or one imported module receives a new version and another does not, the landing page and workspaces can run different generations of the application.
 
 Future shared asset changes must update matching query versions in `index.html` and `workspace.html` together.
 
@@ -2227,7 +2227,7 @@ Implemented  -> built, verified, and documented
 
 The permanent Codex lesson is to preserve ambitious ideas without converting them into hidden commitments. A future contributor should be able to recover the complete discussion while still knowing exactly what exists today.
 
-Status: Implemented as a documentation and planning rule. Chunk 0 is now implemented; later Tier A programs and runtime features remain unimplemented until their verified chunks ship.
+Status: Implemented as a documentation and planning rule. Chunk 1 now implements 131 Tier A programs and its runtime. The remaining 404 programs stay unimplemented until their verified chunks ship.
 
 ## 55. Feasible and easy are different engineering claims
 
@@ -2396,10 +2396,10 @@ Reusable discovery, mistake, decision, or success occurred?
 | Read and write highlighting | Explored for later |
 | Learning autocomplete | Explored for later |
 | Smart fold summaries | Explored for later |
-| Data-structure learning expansion | Chunk 0 separate workspace foundation is implemented; the 535-program Tier A curriculum and DSA runtime results remain unimplemented |
-| Data Structures tier reference | `Tier.md` preserves Tier A, B, and C and records the implemented Chunk 0 boundary |
+| Data-structure learning expansion | Chunk 1 implements 131 reviewed programs, local execution, playback, and 18 DSA views; 404 Tier A programs remain |
+| Data Structures tier reference | `Tier.md` preserves Tier A, B, and C and records the implemented Chunk 1 slice |
 | Workspace tool guides | Shared landing-page guide removed; Python workspace links `README.md`; DSA workspace links `README_DSA.md`; both landing actions use matching primary styling |
-| Classical algorithm visualizations | Contracts and honest unavailable states exist in Chunk 0; renderers remain unimplemented |
+| Classical algorithm visualizations | Chunk 1 provides bounded evidence renderers for foundations, containers, arrays, searching, and sorting; later specialized families remain |
 | Trace-store redesign | Deferred |
 | Other programming languages | Explored, no build approved |
 | DevOps learning tools | Explored as separate or future tools |
@@ -2407,6 +2407,136 @@ Reusable discovery, mistake, decision, or success occurred?
 | Maximum trace | 3,000 steps |
 | Execution timeout | 30 seconds |
 | Hosting model | Static GitHub Pages, client-side execution |
+
+# Chunk 1 lessons learned by the user
+
+## 51. Large curriculum goals become reliable when releases stop at explicit chunks
+
+The user approved the 535-program Tier A destination but required development to stop after Chunk 0, wait for a commit, and then stop again after Chunk 1. This was not administrative delay. It created a recoverable checkpoint and prevented later curriculum pressure from hiding defects in the shared runtime.
+
+Credit belongs to the user for enforcing the commit boundary after Chunk 0. The important correction was that quality and a large final catalog are compatible when the work is divided into verifiable slices. The correct question is not whether a large catalog is worthwhile. It is whether each shipped slice is independently accurate, executable, documented, and reviewable.
+
+Reusable rule:
+
+```text
+Large approved destination
+        |
+        +-- define one coherent slice
+        +-- implement code and curriculum together
+        +-- validate every program
+        +-- test the learner journey
+        +-- update all guides
+        +-- stop for a commit
+```
+
+## 52. A catalog card should teach before the learner opens the source
+
+The user asked for larger tiles with correct information because a serious learner will often use a laptop and browse deliberately. Chunk 1 cards therefore show the program identifier, title, difficulty, line count, objective, description, reviewed time and space context, and useful views.
+
+The result is not merely a file picker. It is a learning decision surface. A beginner can ask, "What will I study, how large is it, and where should I inspect it?" before loading code.
+
+## 53. Complete subject coverage and current implementation status must remain separate
+
+The user consistently defended the educational value of a complete 535-program route. That long-term goal remains valid. Honesty requires a second statement beside it: Chunk 1 implements 131 and 404 remain.
+
+Neither statement weakens the other:
+
+```text
+535 tells the learner the approved destination.
+131 tells the learner what works today.
+404 tells the maintainer what must not be implied.
+```
+
+## 54. The same 18 views remain valuable for learner-authored source
+
+The user correctly challenged the idea that 18 views were justified only by predefined examples. Learners can paste or write their own code, so observed variables, references, mutations, paths, steps, errors, input, and counts remain useful outside the catalog.
+
+The correction is important: reviewed metadata and runtime evidence are different products inside one workspace. Pasted code can receive rich observed evidence without receiving an invented algorithm identity.
+
+## 55. Long examples should appear where the concept needs a full journey
+
+The user repeatedly rejected shallow examples created only to satisfy a count. Chunk 1 retains short programs for genuinely atomic ideas and includes 28 programs with at least 15 meaningful lines for comparisons, integrated techniques, and algorithms needing setup through result verification.
+
+Line count is not quality by itself. It becomes useful when every line supports a coherent progression.
+
+# Chunk 1 lessons learned by Codex
+
+## 56. Curriculum generation is not complete until Python executes every record
+
+JavaScript schema validation can prove counts, metadata, identifiers, uniqueness, and supported vocabulary. It cannot prove that Python source compiles, finishes, and produces the promised result.
+
+Chunk 1 therefore uses two validators:
+
+```text
+JavaScript curriculum validator
+    +-- schema
+    +-- exact section arithmetic
+    +-- source depth
+    +-- duplicate and similarity checks
+    +-- detached export
+
+Python execution validator
+    +-- compile
+    +-- isolated execution
+    +-- unexpected exception rejection
+    +-- expected-result check
+```
+
+Codex must not defend a curriculum by citing only the first layer.
+
+## 57. Exact source identity is the safest curriculum boundary
+
+Similar-looking code is not enough to inherit reviewed claims. A learner can alter one comparison, input, or loop boundary and change correctness or complexity behavior. Chunk 1 attaches algorithm phases, invariants, edge cases, comparison groups, and Big O only when editor source exactly matches a reviewed catalog record.
+
+This is intentionally conservative. Observed trace facts continue after editing, while curriculum context becomes Unavailable.
+
+## 58. Evidence labels are part of the data model, not decoration
+
+Observed, Curriculum context, Unavailable, and Shortened determine what a renderer may claim. They also help a beginner distinguish Python behavior from editorial guidance and a presentation limit from missing execution.
+
+Future views should decide the evidence label before composing explanatory prose.
+
+## 59. A presentation limit must not masquerade as an execution limit
+
+The worker stops at 3,000 steps or 30 seconds. Structure Canvas, Watches, Operation Journey, Algorithm Path, Step Table, and Compare Algorithms have smaller presentation bounds. These view limits preserve the trace and mark the display Shortened where relevant.
+
+Documentation must say which boundary stopped execution and which merely shortened one view.
+
+## 60. Real-browser checks reveal contracts that static validation cannot
+
+Chunk 1 static checks proved the files and curriculum. Browser checks additionally proved that:
+
+- All 18 tabs create visible content after a trace.
+- The catalog filters vertically and accurately.
+- Automatic comments hide only the editor surface and preserve source.
+- Pasted source gets observed facts plus an honest unavailable named algorithm.
+- The 3,000-step error remains inspectable.
+- The mobile page has no horizontal overflow.
+- Source persists through a same-page reload while the trace resets.
+
+The correct completion claim needs both forms of evidence.
+
+## 61. Avoid testing editor integration by changing only rendered DOM
+
+CodeMirror 6 owns an editor state separate from its visible nodes. A browser test must produce a genuine editor transaction or an equivalent user edit so the controller receives `onChange`, saves source, and invalidates the trace. Reading changed DOM text alone is insufficient evidence.
+
+The successful test waited for CodeMirror's update listener, confirmed the DSA storage key, reloaded the same page context, and verified restored source with a reset trace.
+
+## 62. Parallel learning paths should use parallel invitations and specific destinations
+
+After Chunk 1 was complete, the user noticed that the landing actions still used different grammatical structures. **Start exploring Python** was an invitation, while **Python Data Structures and Algorithms** was only a subject label. The user requested **Start exploring Python Data Structures and Algorithms**, which keeps the invitation parallel without hiding the complete subject.
+
+The user also noticed that **Execution workspace** described a mechanism rather than the learning path. Renaming it **Python Programming workspace** and adding one sentence of purpose makes the page easier to understand before a beginner presses Run trace.
+
+Reusable rule:
+
+```text
+Landing action -> invite the learner into a clearly named subject
+Page heading   -> confirm which workspace opened
+Description    -> explain what the learner can do there
+```
+
+Credit belongs to the user for catching both wording gaps after comparing the two pages as one product rather than reviewing either page in isolation.
 
 # Future update template
 

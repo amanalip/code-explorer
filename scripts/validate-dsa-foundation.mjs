@@ -1,10 +1,9 @@
 /**
- * Structural validator for the Chunk 0 DSA foundation.
+ * Structural validator for shared DSA contracts, routing, and mount points.
  *
- * This script does not pretend to validate future algorithms or programs. It
- * checks the contracts and navigation that Chunk 0 actually ships so a renamed
- * view, missing mount point, stale guide route, or incorrect catalog total
- * blocks the chunk before browser testing.
+ * Curriculum behavior has its own validators. This script protects the stable
+ * page routes, view contracts, and DOM ids that both implemented and later
+ * chunks depend on.
  */
 
 import { readFile } from "node:fs/promises";
@@ -39,7 +38,7 @@ function expectUnique(values, label) {
   expect(new Set(values).size === values.length, `${label} contains a duplicate value.`);
 }
 
-// Chunk 0 has exactly four bounded areas and the final eighteen approved views.
+// Every DSA chunk keeps four bounded areas and the final eighteen approved views.
 expect(DSA_AREAS.length === 4, `Expected 4 DSA areas, received ${DSA_AREAS.length}.`);
 expect(DSA_VIEWS.length === 18, `Expected 18 DSA views, received ${DSA_VIEWS.length}.`);
 expectUnique(DSA_AREAS.map((area) => area.id), "DSA area ids");
@@ -107,8 +106,13 @@ const requiredDsaIds = [
   "runtimeStatus", "runtimeLabel", "themeButton", "themeLabel", "dsaEditor",
   "dsaEditorShell", "dsaWrapButton", "dsaAutomaticCommentsButton",
   "dsaFontSizeSelect", "dsaCopyButton", "dsaPasteButton", "dsaCodeStats",
-  "dsaAreaNav", "dsaViewTabs", "dsaViewStage", "dsaViewCount", "dsaEventCount",
-  "dsaStructureCount", "dsaCatalogTarget", "toast",
+  "dsaAreaNav", "dsaViewTabs", "dsaViewStage", "dsaStepCount",
+  "dsaImplementedCount", "dsaSectionCount", "dsaStructureCount", "dsaCatalogTarget",
+  "dsaExamplesButton", "dsaLearningCommentsButton", "dsaRunButton",
+  "dsaPreviousButton", "dsaPlayButton", "dsaNextButton", "dsaRestartButton",
+  "dsaTimeline", "dsaProgressLabel", "dsaSpeedSelect", "dsaConsoleOutput",
+  "dsaExamplesDialog", "dsaExampleFilters", "dsaExampleCount", "dsaExampleGrid",
+  "dsaCommentsDialog", "dsaCommentPreview", "dsaAutomaticPreview", "toast",
 ];
 for (const id of requiredDsaIds) {
   expect(dsaHtml.includes(`id="${id}"`), `data-structures.html is missing #${id}.`);

@@ -1,10 +1,10 @@
 /**
- * Data Structures and Algorithms foundation contracts.
+ * Data Structures and Algorithms shared contracts.
  *
- * Chunk 0 defines stable names and relationships only. A listed event,
- * structure, view, or catalog section is not an implementation claim. Later
- * chunks must connect each contract to verified runtime evidence before the
- * learner interface can present a result.
+ * Chunk 0 defined stable names and relationships. Chunk 1 connects the first
+ * six curriculum sections to bounded execution and evidence-aware views.
+ * Remaining catalog sections are still planning contracts, not implementation
+ * claims.
  */
 
 /** Four bounded navigation areas keep eighteen views approachable. */
@@ -18,8 +18,9 @@ export const DSA_AREAS = Object.freeze([
 /**
  * Final approved DSA view inventory.
  *
- * Purpose text describes the intended learner question. Chunk 0 renders these
- * descriptions as honest previews while all runtime results remain unavailable.
+ * Purpose text describes the intended learner question. Chunk 1 renderers use
+ * observed trace evidence, reviewed curriculum context, or an explicit
+ * unavailable state according to the source and selected view.
  */
 export const DSA_VIEWS = Object.freeze([
   { id: "algorithm-story", area: "trace", label: "Algorithm Story", purpose: "Connect the selected Python step to a reviewed algorithm action when evidence supports it." },
@@ -51,9 +52,9 @@ export const DSA_EVIDENCE_LABELS = Object.freeze({
 });
 
 /**
- * Normalized runtime vocabulary approved for later DSA instrumentation.
- * Events remain neutral facts; renderers and explanations add meaning only
- * after checking trace evidence and reviewed curriculum metadata.
+ * Normalized runtime vocabulary used by Chunk 1 cues and reserved for later
+ * structure-specific instrumentation. Events remain neutral facts; renderers
+ * add meaning only after checking trace evidence and curriculum metadata.
  */
 export const DSA_EVENT_TYPES = Object.freeze([
   "COMPARE", "READ", "WRITE", "SWAP", "VISIT_INDEX", "VISIT_NODE", "VISIT_EDGE",
@@ -63,9 +64,9 @@ export const DSA_EVENT_TYPES = Object.freeze([
   "CHOOSE", "REJECT", "BACKTRACK", "CHECK_INVARIANT", "RETURN_RESULT",
 ]);
 
-/** Supported representation names guide later bounded renderer contracts. */
+/** Supported representation names guide current and later bounded renderers. */
 export const DSA_STRUCTURE_TYPES = Object.freeze([
-  "python-list", "array", "stack", "queue", "deque", "singly-linked-list",
+  "python-list", "array", "stack", "queue", "deque", "priority-queue", "singly-linked-list",
   "doubly-linked-list", "circular-linked-list", "hash-table", "set", "tree",
   "binary-tree", "binary-search-tree", "heap", "trie", "graph", "union-find",
   "dynamic-programming-table", "bit-set",
@@ -100,7 +101,7 @@ export const DSA_CATALOG_SECTIONS = Object.freeze([
   ["Integrated guided challenges", 36],
 ]);
 
-/** Required program metadata fields for the future curriculum validator. */
+/** Required metadata fields enforced by the current DSA curriculum validator. */
 export const DSA_PROGRAM_REQUIRED_FIELDS = Object.freeze([
   "id", "title", "section", "difficulty", "objective", "prerequisites", "code",
   "preparedInputs", "expectedResult", "structureTypes", "algorithm", "phases",

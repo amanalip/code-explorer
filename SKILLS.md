@@ -22,11 +22,11 @@ Recorded execution
 
 The tool records a bounded execution first and then replays it. Playback breakpoints and timeline controls navigate the recorded trace. They do not pause the original Python interpreter.
 
-`Tier.md` records the Tier A, B, and C curriculum for the separate Data Structures workspace. Chunk 0 implements only the workspace foundation, shared contracts, editor controls, and honest 18-view navigation. The 535-program Tier A catalog remains an approved target with zero DSA curriculum programs shipped in Chunk 0. Do not treat a listed structure, algorithm, event, renderer, or view result as implemented unless code, verification, and learner-visible documentation prove it.
+`Tier.md` records the Tier A, B, and C curriculum for the separate Data Structures workspace. Chunk 1 implements the first 131 reviewed programs across six sections, local execution, playback, and all 18 DSA learning views. The complete Tier A target remains 535, so 404 programs remain unimplemented. Do not treat a later listed structure, algorithm, renderer extension, or program as implemented unless code, verification, and learner-visible documentation prove it.
 
 Documentation routing is implemented: `index.html` has no ambiguous Tool Guide control, its two matching primary actions open the Python and DSA paths, `workspace.html` links to `README.md`, and `data-structures.html` links to `README_DSA.md`.
 
-The DSA guide now documents every implemented Chunk 0 limit and explicitly states which execution and visualization limits are not active because those features do not exist yet. For every later execution, serialization, display, visualization, history, comparison, explanation, complexity, persistence, platform, and curriculum boundary, `README_DSA.md` must state the verified value, what is counted, why it exists, threshold behavior, whether execution stopped or presentation was shortened, what evidence remains safe, and what the learner can try next.
+The DSA guide documents every active Chunk 1 execution, serialization, display, history, comparison, explanation, complexity, persistence, platform, and curriculum boundary. It states the verified value, what is counted, why it exists, threshold behavior, whether execution stopped or presentation was shortened, what evidence remains safe, and what the learner can try next.
 
 The approved 535-program target has a curriculum quality contract. Counts alone never establish completion. Each section must progress from focused foundations through standard operations, meaningful variations, applied programs, and comparisons. Reject constant-only or name-only variations, filler lines, incoherent scripts, weak metadata, and examples whose recommended views have nothing useful to show. Validation must report line-count distributions and near-duplicate candidates, while human review must judge correctness, teaching depth, readability, coherent progression, and whether longer concepts received enough space. Short programs remain valid when the concept is genuinely atomic.
 
@@ -36,24 +36,49 @@ The approved 535-program target has a curriculum quality contract. Counts alone 
 
 - Dedicated landing page at `index.html`.
 - Dedicated, reloadable workspace at `workspace.html`.
-- Dedicated DSA foundation at `data-structures.html`.
-- Two matching primary learning-path actions on the landing page.
+- Dedicated, executable DSA workspace at `data-structures.html`.
+- Two matching primary landing actions named **Start exploring Python** and **Start exploring Python Data Structures and Algorithms**.
+- Python heading copy names the **Python Programming workspace** and briefly explains writing, running, replaying, and inspecting code.
 - The Python starter-program picker lives only inside `workspace.html`.
 - Contextual Tool Guide links live inside their matching workspaces.
 - GitHub icon link to the repository.
 - Explicit Dark mode and Light mode control.
 - Copyright attribution for Aman Ali Pogaku.
 
-### DSA Chunk 0 foundation
+### DSA Chunk 1 core sequences
 
-- Separate DSA `main.py` source and editor-preference storage.
-- CodeMirror Python editing with a native textarea fallback.
-- Wrapping, six font sizes, complete-document Copy and Paste, and source statistics.
-- Final 18-view navigation grouped under Trace, Data, Flow, and Labs.
-- Static reviewed purpose text and an explicit **Unavailable** evidence state for every view.
-- Disabled Run trace, examples, Automatic comments, and Learning comments until later chunks implement their evidence.
-- Stable contracts for 31 event names, 19 structure representation names, required program metadata, and the 535-program Tier A arithmetic.
+- Separate DSA `main.py` source, prepared input, active-view state, and editor preferences.
+- 131 reviewed programs: 24 foundations, 12 abstract data types, 42 Python-native containers, 20 array and sequence techniques, 9 searches, and 24 sorting lessons.
+- CodeMirror Python editing with a native textarea fallback, wrapping, six font sizes, whole-document Copy and Paste, and local source statistics.
+- Existing `py-worker.js` local execution with a 3,000-step trace limit and a 30-second outer worker timeout.
+- Working playback and 18 views grouped under Trace, Data, Flow, and Labs.
+- Visible Observed, Curriculum context, Unavailable, and Shortened evidence states.
+- Exact-source matching before reviewed algorithm, phase, invariant, edge-case, comparison, or Big O context can appear.
+- Automatic comments as a read-only editor replacement layer, plus confirmation-gated Learning comments export.
+- Stable contracts for 31 event names, 20 structure representation names, required program metadata, and the 535-program Tier A arithmetic.
+- Bounded DSA presentation: 12 watches, 30 structure entries, 30 journey events, 80 path transitions, 120 table rows, and 2 comparison summaries.
 - `scripts/validate-dsa-foundation.mjs` checks contracts, routes, guide targets, and required HTML ids.
+- `scripts/validate-dsa-curriculum.mjs` validates exact counts, schema, uniqueness, source depth, metadata, and near-duplicate candidates.
+- `scripts/validate_dsa_curriculum.py` compiles, executes, and checks the expected result for all 131 detached programs.
+
+### DSA evidence flow
+
+```text
+Editor source
+    |
+    +-- exact match with one reviewed program?
+    |       |
+    |       +-- Yes -> attach curriculum context
+    |       +-- No  -> keep named context unavailable
+    |
+    +-- execute in local worker
+            |
+            +-- recorded frames and values -> Observed views
+            +-- bounded serializers -> Structure and reference views
+            +-- completed result -> comments and comparison summary
+```
+
+The runtime may classify conservative cues such as a write, condition, call, return, visit, or likely swap from trace evidence. These cues do not permit the controller to invent a named algorithm.
 
 ### Source editor
 
@@ -212,6 +237,35 @@ app.js
 
 All remote modules are loaded at runtime. The editor keeps a native fallback, but Python execution and graph features require their browser dependencies to load successfully.
 
+```text
+data-structures.html
+     |
+     v
+dsa-app.js
+     |
+     +-- dsa-contracts.js
+     |      +-- 4 areas and 18 views
+     |      +-- 31 event names
+     |      +-- 20 structure names
+     |      +-- 535-program target arithmetic
+     |
+     +-- dsa-curriculum.js
+     |      +-- 6 Chunk 1 sections
+     |      +-- 131 reviewed records
+     |
+     +-- dsa-runtime.js
+     |      +-- pure observed-evidence helpers
+     |      +-- bounded comment generation
+     |
+     +-- shared-ui.js and shared-editor.js
+     |      +-- theme, storage, CodeMirror, fallback
+     |
+     +-- py-worker.js
+            +-- same local execution and serialization limits
+```
+
+The DSA controller intentionally does not import the Python curriculum. The workspaces share infrastructure while keeping source, examples, view meaning, and documentation separate.
+
 ### Pinned browser dependencies
 
 | Dependency | Current version | Role |
@@ -225,7 +279,7 @@ All remote modules are loaded at runtime. The editor keeps a native fallback, bu
 | Lezer highlight | 1.2.3 | Stable syntax token classes |
 | Cytoscape | 3.31.0 | Reference and execution-path graphs |
 
-Code Explorer does not use Vue, React, a package installation step, or a bundler. Both HTML pages load the same `app.js` and `styles.css` files directly. Their matching query versions are intentional cache busters for GitHub Pages and must be changed together when either shared asset changes.
+Code Explorer does not use Vue, React, a package installation step, or a bundler. The three HTML pages load shared assets and their page-specific controllers directly. Matching query versions are intentional cache busters for GitHub Pages and must be synchronized whenever a shared asset changes.
 
 ### Privacy and network boundary
 
@@ -324,16 +378,33 @@ The `learningComments` result contains JSON-compatible records with `line`, `lev
 - `renderAutomaticComments()` owns button text, disabled state, pressed state, CodeMirror widgets, and fallback preview cleanup. Call it after any change to visibility, evidence, editor availability, or comment detail.
 - `buildLearningCommentedSource()` removes only older lines beginning with the exact generated prefix, preserves learner comments, and inserts current notes above their related source lines.
 
+### DSA controller relationships
+
+- `state.code` is separate from Python-workspace source and is saved under `code-explorer-dsa-source`.
+- `state.program` is non-null only when normalized editor source exactly matches one reviewed `DSA_CHUNK_ONE_PROGRAMS` record.
+- `state.trace`, `state.error`, `state.loops`, `state.conditions`, and `state.inputLog` come from the local worker result.
+- `state.comparisonRuns` keeps at most two in-session summaries. It is not persistent learner progress.
+- `state.preparedInputs` is local browser text and is capped at 20,000 characters when loaded.
+- `state.activeView` selects one of the 18 contracted renderers and is locally restored.
+- `state.automaticCommentsVisible` changes only presentation. Original editor source remains the source of truth.
+- Editing source immediately clears the old trace, error, comments, comparison eligibility, and exact reviewed-program identity.
+- Reviewed phases, invariants, edge cases, complexity, and comparison groups must read from `state.program`, never from source-text heuristics.
+- Observed views must read from worker evidence and remain useful when `state.program` is null.
+
 ## Persistence inventory
 
 | Data | Storage behavior |
 | --- | --- |
 | Current Python source | Saved in local storage and restored on reload |
+| Current DSA source | Saved under a separate local key and restored on DSA reload |
 | Theme | Saved in local storage |
 | Editor wrap and font size | Saved in local storage |
 | Graph zoom | Saved in local storage |
 | Watched variable names | Saved in local storage, with at most 12 valid names |
 | Prepared input text | Saved in local storage |
+| DSA prepared input text | Saved under a separate local key, limited to 20,000 characters |
+| Active DSA view | Saved as one validated 18-view identifier |
+| DSA comparison summaries | Current DSA page session only, at most two |
 | Current trace | Recreated by running code |
 | Playback position | Session state only |
 | Trace bookmarks | Current trace only |

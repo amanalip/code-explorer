@@ -15,6 +15,80 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v6, 2026-07-23
+
+v6 ships **Chunk 1: core sequences** for the separate Python Data Structures and Algorithms workspace. It implements 131 reviewed programs and the reusable local DSA learning runtime. The complete Tier A target remains 535, so 404 later programs are explicitly unavailable.
+
+### Reviewed 131-program curriculum
+
+The implemented catalog contains:
+
+| Section | Programs |
+| --- | ---: |
+| Algorithm and complexity foundations | 24 |
+| Abstract data types and representations | 12 |
+| Python-native containers | 42 |
+| Arrays and sequence techniques | 20 |
+| Searching | 9 |
+| Sorting and sorting properties | 24 |
+| **Chunk 1 total** | **131** |
+
+Each record includes source, an objective, prerequisites, difficulty, prepared input, expected result, structures, algorithm context, phases, invariants, edge cases, comparison relationships, complexity context, recommended views, events, and an intentional-error contract.
+
+### Clearer learning-path labels
+
+The second landing action now says **Start exploring Python Data Structures and Algorithms**. The invitation matches **Start exploring Python**, while the complete subject remains explicit.
+
+The original Python page now says **Python Programming workspace** instead of the generic **Execution workspace**. A short description explains that learners can write, run, replay, and inspect variables, decisions, loops, functions, objects, and output.
+
+The example dialog uses independent vertical section and card scrolling. Cards show enough information to choose a lesson before loading it, and mobile uses a stacked vertical layout without horizontal category scrolling.
+
+### Local execution and playback
+
+The DSA workspace now runs Python through the existing isolated Pyodide worker. It provides previous, play, next, restart, timeline, speed, and time-aware Console Output controls.
+
+The execution boundaries remain:
+
+- 3,000 recorded trace steps.
+- 30-second outer timeout.
+- A clear learner-facing message when either execution boundary stops the run.
+
+### All 18 DSA views
+
+Trace now provides Algorithm Story, Before and After, Decisions, Calls and Recursion, and Error Coach.
+
+Data now provides Variables, Watches, Structure Canvas, References, Mutation Explorer, and Invariant Checker.
+
+Flow now provides Operation Journey, Algorithm Path, Step Table, and Complexity Lab.
+
+Labs now provides Input Playground, Compare Algorithms, and Edge Case Lab.
+
+Observed runtime facts are separate from reviewed curriculum context. Pasted or edited code continues to receive observed views, but named algorithms, phases, invariants, edge cases, comparison groups, and Big O remain Unavailable unless source exactly matches a reviewed program.
+
+### Learning comments
+
+Automatic comments replace only the visible editor surface with a read-only teaching copy. Original source remains the editor data and normal Copy target. Turning the feature off restores the unchanged editor.
+
+Learning comments provides a separate read-only preview, complete commented-code copy, and a confirmation-gated editor replacement.
+
+### Bounded presentation
+
+Chunk 1 adds documented display limits for watches, structure entries, operation journeys, paths, step tables, comparison history, prepared input, and serialization. A shortened view preserves source and trace evidence and uses a visible Shortened label. It is not described as an execution failure.
+
+### Verification evidence
+
+- JavaScript syntax checks passed for the DSA controller, contracts, curriculum, and runtime helpers.
+- The DSA foundation validator confirmed 18 views, 31 events, 20 structures, and the 535-program target.
+- The curriculum validator confirmed exact section counts, complete metadata, unique source, source-depth rules, and near-duplicate boundaries.
+- The Python validator compiled, executed, and checked the expected result for all 131 programs.
+- Twenty-eight programs contain at least 15 meaningful source lines.
+- Browser checks exercised all 18 views, reviewed and pasted code, automatic comments, the 3,000-step error, source persistence, light and dark themes, desktop and mobile layout, and vertical catalog scrolling.
+- Python-workspace curriculum validators remained part of the regression suite.
+
+### Known boundary
+
+Chunk 1 does not ship the remaining 404 Tier A programs. Dedicated stacks and queues, linked structures, hash-table internals, trees, heaps, tries, Union-Find, graphs, recursion, backtracking, greedy algorithms, dynamic programming, bit manipulation, mathematical algorithms, investigations, and integrated challenges remain later reviewed chunks unless already taught only as a Python-native container operation.
+
 ## v5, 2026-07-23
 
 v5 begins the separate Python Data Structures and Algorithms learning path with a deliberately bounded Chunk 0 foundation. It does not claim that DSA execution or the 535-program curriculum is complete.

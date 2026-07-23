@@ -2,9 +2,9 @@
  * Reusable Python editor foundation for Code Explorer workspaces.
  *
  * The existing execution workspace has trace-specific CodeMirror extensions.
- * This smaller controller supplies the common source, wrapping, sizing, and
- * fallback behavior needed by the DSA foundation without pretending that
- * execution decorations or automatic comments already exist there.
+ * This smaller controller supplies common source, wrapping, sizing, and
+ * fallback behavior to the DSA workspace. Trace playback and read-only learning
+ * comments remain owned by the DSA controller rather than the editor document.
  */
 
 /** Pinned CodeMirror dependency URLs audited and already used by Code Explorer. */
