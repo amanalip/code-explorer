@@ -5138,6 +5138,225 @@ How to verify:
 - Move playback and confirm only observed prefix metrics change.
 - Add a harmless comment, rerun, and confirm reviewed formulas disappear.
 
+## 2026-07-28: Experiment interfaces must separate preparation from evidence
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented and browser verified in DSA LAB UI redesign Chunk 4
+
+What happened:
+
+The original Input Playground had a multiline box and a Run button. It worked,
+but a beginner had to infer that each line was a queue item and could not
+connect those items to the prompts Python actually consumed. The redesign
+initially preserved JavaScript's raw `split("\n")` result, which treats an
+empty string as one blank item. Real-browser inspection exposed how confusing
+that looked: the visible empty box claimed to contain one prepared response.
+
+What the user learned:
+
+- A working input box is not yet a teaching interface.
+- Order should be visible before execution, especially when several
+  `input()` calls occur on different branches.
+- Evidence from an older run must not silently change meaning when the learner
+  edits the prepared queue.
+- A blank response is useful and must remain possible, but an entirely empty
+  document should not pretend that a response was prepared.
+
+What Codex learned:
+
+- Preserving behavior mechanically is not always the same as preserving the
+  intended learner contract.
+- An asynchronous run needs an immutable snapshot of the prepared text. The
+  currently visible textarea can change before the worker returns.
+- Prompt evidence must come only from the worker's recorded input log. Future
+  calls and failed calls cannot be inferred.
+- Bounds need two layers: a document bound for browser safety and a smaller
+  visual bound for scanability.
+
+What changed:
+
+- Input Playground now has Prepare, Order, and Observe regions.
+- An empty document means zero responses.
+- Blank lines inside a nonempty document remain ordered blank responses.
+- The exact prepared document is copied at run start.
+- Changing the visible text after a run produces a stale evidence warning.
+- The document stops at 20,000 characters and the preview at 30 rows.
+
+What to do next time:
+
+When an interface mixes editable preparation with recorded results, name and
+store both moments separately. Never let current editable state relabel
+historical evidence.
+
+How to verify:
+
+- Prepare two responses and run two input calls.
+- Confirm prompts and responses map in order.
+- Change the queue without rerunning.
+- Confirm the warning appears and the older prompt map is not relabelled.
+- Clear the document and confirm it reports zero responses.
+
+## 2026-07-28: A comparison catalog label does not guarantee a valid pair
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented and browser verified in DSA LAB UI redesign Chunk 4
+
+What happened:
+
+Compare Algorithms uses curriculum `comparisonGroup` metadata. During browser
+testing, DSA-015 had a comparison group containing only one implemented
+program. The source was exact and reviewed, but there was no second compatible
+program to load. A controller that checked only for the presence of a group
+would promise a comparison it could not provide.
+
+What the user learned:
+
+- Rich metadata improves discovery, but the interface still needs to validate
+  the complete condition required by a feature.
+- An unavailable explanation is better than an empty comparison slot that
+  looks broken.
+- Related program cards help a beginner move from theory to an actual runnable
+  comparison.
+
+What Codex learned:
+
+- Availability requires both an exact reviewed source match and group
+  cardinality of at least two.
+- Runtime validation must test data relationships, not only whether a property
+  exists.
+- Comparison history should be filtered by the current group, bounded to two
+  summaries, and cleared on reload.
+
+What changed:
+
+- Singleton groups now receive a designed unavailable state and catalog action.
+- Valid groups show stable IDs, titles, and reviewed complexity before
+  loading.
+- Run A and Run B keep only the latest two compatible session summaries.
+
+What to do next time:
+
+For every metadata-driven feature, write its full availability predicate in
+plain language and test a record that almost qualifies.
+
+How to verify:
+
+- Open a singleton group and confirm no false comparison promise appears.
+- Open a group with at least two programs.
+- Run both and confirm only those compatible summaries fill the slots.
+
+## 2026-07-28: Trace-step differences are useful evidence, not speed results
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented and browser verified in DSA LAB UI redesign Chunk 4
+
+What happened:
+
+The user wanted richer comparisons for curriculum programs. Showing two
+recorded step counts is helpful, but a polished side-by-side layout can make
+those numbers look like a benchmark. Equal prepared input text also does not
+prove equal source constants, equal work, or equal input sizes encoded inside
+the programs.
+
+What the user learned:
+
+- A useful comparison can remain honest without avoiding numbers.
+- Input equality is one fairness check, not a complete proof of experimental
+  equivalence.
+- Reviewed Big O and one observed trace answer different questions.
+
+What Codex learned:
+
+- Never label trace steps as time.
+- Never call the smaller count faster.
+- Place the limitation beside the difference so the visual hierarchy cannot
+  hide it.
+- Bounded output previews prevent one noisy program from overwhelming the
+  comparison.
+
+What changed:
+
+- Compare Algorithms reports whether exact prepared response text matches.
+- It states what that check cannot prove.
+- It labels the trace-step difference as a recording comparison.
+- It retains at most two summaries and 800 output characters per summary.
+
+What to do next time:
+
+Any comparison number needs a unit, a scope, and a sentence saying what it
+cannot establish.
+
+How to verify:
+
+- Run two related reviewed programs.
+- Confirm both counts and the fairness message are visible together.
+- Confirm no nearby text calls either program faster.
+
+## 2026-07-28: Edge-case guidance should encourage prediction without tracking
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented and browser verified in DSA LAB UI redesign Chunk 4
+
+What happened:
+
+The original Edge Case Lab displayed reviewed boundary text as a bullet list.
+It was accurate but passive. The redesign needed to make the prompts actionable
+without checkboxes, hidden scoring, analytics, or unsupported Pass and Fail
+claims.
+
+What the user learned:
+
+- A learning workflow can guide the next action without recording completion.
+- Predicting before running makes a boundary experiment more meaningful.
+- Changing one thing at a time makes a changed trace easier to explain.
+
+What Codex learned:
+
+- The right interaction was a method, not a progress system.
+- Recommended evidence views can guide inspection without claiming that they
+  contain an answer.
+- Reviewed prompts must disappear on the first source edit because they were
+  written for the unchanged program.
+
+What changed:
+
+- Edge Case Lab now presents Predict, Change, Run, and Inspect.
+- Reviewed boundaries appear as numbered prediction cards.
+- The view names useful evidence views and can return focus to the editor.
+- It explicitly says that attempts, completion, and correctness are not
+  tracked.
+
+What to do next time:
+
+Prefer experiment scaffolding over gamified completion when the application
+has no verified answer contract and intentionally collects no learner data.
+
+How to verify:
+
+- Open an exact reviewed program and read its prediction cards.
+- Add one harmless source comment.
+- Confirm the reviewed cards disappear immediately.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

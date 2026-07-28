@@ -107,7 +107,7 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 - `changelog.md`: dated learner-visible release history, verification notes, compatibility boundaries, and upgrade guidance.
 - `bug_report.md`: detailed reliability incident record for the non-finite-float worker transport defect, correction, audit evidence, privacy impact, and prevention rules.
 - `Tier.md`: planning and status reference for complete Tier A coverage and the unimplemented Tier B and Tier C scope.
-- `current state of LAB UI.md`: timestamped baseline and living current-state audit for the five Trace, six Data, and four Flow views already redesigned plus the three Labs views still pending.
+- `current state of LAB UI.md`: timestamped baseline and living current-state audit for all eighteen redesigned Trace, Data, Flow, and Labs views, with the final cross-view audit still pending.
 - `Improvements in LAB UI.md`: five-chunk technical redesign ledger that must distinguish planned work from implemented, corrected, and verified work.
 - `LICENSE`: GPL license text. Do not modify it while adding explanatory material.
 
@@ -224,7 +224,7 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm investigation programs print named actual-versus-expected observations and do not disguise an accidental failure as a lesson.
 - Confirm every guided workflow appears in baseline, boundary-review, and invariant-audit forms while each card retains honest exact-source curriculum context.
 - Confirm section counts are 24 foundations, 12 abstract data types, 42 Python-native containers, 20 array and sequence techniques, 9 searching, 24 sorting, 22 stacks, queues, and deques, 20 linked structures, 24 hash tables and set algorithms, 30 trees and BSTs, 18 heaps and priority queues, 24 tries and string algorithms, 10 Union-Find, 24 graph structures and vocabulary, 20 graph traversal and connectivity, 14 shortest paths and spanning trees, 18 recursion, 16 backtracking, 10 divide and conquer, 16 greedy algorithms, 24 dynamic programming, 16 bit manipulation, and 14 elementary mathematical algorithms.
-- Confirm at least 218 programs retain 15 or more meaningful source lines. The current reviewed count is 220.
+- Confirm at least 218 programs retain 15 or more meaningful source lines. The current reviewed count is 304.
 - Confirm the catalog shows accurate section, difficulty, line, complexity, and recommended-view metadata.
 - Confirm DSA search matches stable ids, titles, source, edge cases, phases, invariants, complexity, structures, events, expected results, and recommended views.
 - Confirm DSA search and section filters compose as an intersection, update every section badge, announce the result count, and provide a keyboard-focusable Clear search action.
@@ -264,6 +264,19 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm the DSA learning-comment modal retains its header, toolbar, flexible preview, and visible Copy and Replace footer at desktop and 390-pixel mobile width in both themes.
 - Confirm visual gutters, syntax spans, file chrome, badges, and status text never enter copied or adopted Python.
 - Confirm Structure Canvas stops at 30 entries, Watches at 12 names, Operation Journey at 30 events, Algorithm Path at 80 transitions, Step Table at 120 rows, and Compare Algorithms at 2 summaries.
+- Confirm Input Playground treats an empty document as zero responses, keeps
+  intentional blank lines inside a nonempty queue, stops the document at
+  20,000 characters, and stops its visual preview at 30 rows.
+- Confirm changing prepared input after a run produces a stale evidence
+  warning and never relabels the older recorded prompt map.
+- Confirm Compare Algorithms requires an exact reviewed group with at least two
+  members, keeps only two session summaries, clips each output preview at 800
+  characters, and clears both summaries after reload.
+- Confirm the comparison fairness check reports whether exact prepared input
+  text matches while refusing to call trace-step differences timing evidence.
+- Confirm Edge Case Lab presents Predict, Change, Run, and Inspect as an
+  experiment method, removes reviewed prompts after any source edit, and never
+  records attempts, completion, or correctness.
 - Confirm Algorithm Path always retains its ordered transition list, groups
   repeated edges only in the optional graph, suspends graph construction
   during playback, and rebuilds once after playback stops.

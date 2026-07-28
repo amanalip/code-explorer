@@ -8,42 +8,42 @@
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-25";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-25";
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-25";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-26";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-26";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-26";
 import {
   DSA_AREAS,
   DSA_EVIDENCE_LABELS,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260728-25";
+} from "./dsa-contracts.js?v=20260728-26";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260728-25";
+} from "./dsa-curriculum.js?v=20260728-26";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260728-25";
+} from "./dsa-curriculum-chunk2.js?v=20260728-26";
 import {
   DSA_CHUNK_THREE_PROGRAMS,
   DSA_CHUNK_THREE_SECTIONS,
-} from "./dsa-curriculum-chunk3.js?v=20260728-25";
+} from "./dsa-curriculum-chunk3.js?v=20260728-26";
 import {
   DSA_CHUNK_FOUR_PROGRAMS,
   DSA_CHUNK_FOUR_SECTIONS,
-} from "./dsa-curriculum-chunk4.js?v=20260728-25";
+} from "./dsa-curriculum-chunk4.js?v=20260728-26";
 import {
   DSA_CHUNK_FIVE_PROGRAMS,
   DSA_CHUNK_FIVE_SECTIONS,
-} from "./dsa-curriculum-chunk5.js?v=20260728-25";
+} from "./dsa-curriculum-chunk5.js?v=20260728-26";
 import {
   DSA_CHUNK_SIX_PROGRAMS,
   DSA_CHUNK_SIX_SECTIONS,
-} from "./dsa-curriculum-chunk6.js?v=20260728-25";
+} from "./dsa-curriculum-chunk6.js?v=20260728-26";
 import {
   DSA_CHUNK_SEVEN_PROGRAMS,
   DSA_CHUNK_SEVEN_SECTIONS,
-} from "./dsa-curriculum-chunk7.js?v=20260728-25";
+} from "./dsa-curriculum-chunk7.js?v=20260728-26";
 import {
   DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
@@ -55,7 +55,7 @@ import {
   variableChanges,
   variableComparisons,
   variablesForStep,
-} from "./dsa-runtime.js?v=20260728-25";
+} from "./dsa-runtime.js?v=20260728-26";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
@@ -108,7 +108,10 @@ const LIMITS = Object.freeze({
   operationJourneyRows: 30,
   algorithmPathSteps: 80,
   stepTableRows: 120,
+  preparedInputCharacters: 20_000,
+  preparedInputPreviewRows: 30,
   comparisonRuns: 2,
+  comparisonOutputCharacters: 800,
   playbackMinimumMs: 100,
 });
 
@@ -168,6 +171,8 @@ const state = {
   playbackTimer: null,
   automaticCommentsVisible: false,
   comparisonRuns: [],
+  // The exact queue sent to the current worker run supports honest run comparison.
+  activeRunInputs: "",
   toastTimer: null,
   suppressEditorInvalidation: false,
   // The optional Data reference graph exists only while its view is mounted.
@@ -222,7 +227,7 @@ function loadActiveView() {
  * @returns {string} Locally saved input lines.
  */
 function loadPreparedInputs() {
-  return (readLocalText(STORAGE_KEYS.preparedInputs) || "").slice(0, 20_000);
+  return (readLocalText(STORAGE_KEYS.preparedInputs) || "").slice(0, LIMITS.preparedInputCharacters);
 }
 
 /**
@@ -2915,81 +2920,526 @@ function renderComplexityLab() {
   els.dsaViewStage.replaceChildren(article);
 }
 
-/** Renders locally prepared input and a contextual run action. */
+/**
+ * Builds the common experiment-notebook header for the three Labs views.
+ *
+ * Labs help a learner change one controlled condition and inspect the next
+ * run. Their orientation therefore names the experiment and its local state
+ * without pretending that configuration data is observed runtime evidence.
+ *
+ * @param {object} options Labs-view presentation options.
+ * @param {string} options.viewId Stable view id used by scoped CSS.
+ * @param {string} options.title Learner-facing view title.
+ * @param {string} options.question Plain-language experiment question.
+ * @param {string} options.description Short explanation of the workflow.
+ * @param {Array<string>} [options.evidenceKeys] Honest evidence badges.
+ * @param {Array<Array<string>>} [options.facts] Bounded context facts.
+ * @returns {{article: HTMLElement, body: HTMLElement}} Shell and content mount.
+ */
+function createLabsViewShell({
+  viewId,
+  title,
+  question,
+  description,
+  evidenceKeys = [],
+  facts = [],
+}) {
+  const article = makeElement("article", `dsa-runtime-view dsa-labs-view dsa-labs-${viewId}`);
+  const hero = makeElement("header", "dsa-labs-hero");
+  const identity = makeElement("div", "dsa-labs-identity");
+  const eyebrow = makeElement("div", "dsa-labs-eyebrow");
+  evidenceKeys.forEach((key) => eyebrow.append(evidenceBadge(key)));
+  eyebrow.append(makeElement("span", "", `LABS / ${title.toUpperCase()}`));
+  identity.append(eyebrow);
+  identity.append(makeElement("h2", "", title));
+  identity.append(makeElement("p", "dsa-labs-question", question));
+  identity.append(makeElement("p", "dsa-labs-description", description));
+  hero.append(identity);
+
+  const context = makeElement("section", "dsa-labs-context");
+  [["Program", traceProgramLabel()], ...facts].forEach(([label, value]) => {
+    const fact = makeElement("div", "dsa-labs-context-fact");
+    fact.append(makeElement("span", "", label));
+    fact.append(makeElement("strong", "", value));
+    context.append(fact);
+  });
+  hero.append(context);
+
+  const body = makeElement("div", "dsa-labs-body");
+  article.append(hero, body);
+  return { article, body };
+}
+
+/**
+ * Renders a designed Labs state when reviewed or observed evidence is absent.
+ *
+ * @param {object} options Empty-state content.
+ * @param {string} options.viewId Stable view id.
+ * @param {string} options.glyph Compact visual mark hidden from screen readers.
+ * @param {string} options.title Learner-facing view title.
+ * @param {string} options.question Question the view normally answers.
+ * @param {string} options.description Brief view purpose.
+ * @param {string} options.reason Honest reason the experiment cannot continue.
+ * @param {Array<string>} options.steps Safe next actions.
+ * @param {{label: string, action: Function}|null} [options.action] Optional contextual action.
+ */
+function renderLabsUnavailable({
+  viewId,
+  glyph,
+  title,
+  question,
+  description,
+  reason,
+  steps,
+  action = null,
+}) {
+  const { article, body } = createLabsViewShell({
+    viewId,
+    title,
+    question,
+    description,
+    evidenceKeys: ["unavailable"],
+  });
+  const empty = makeElement("section", "dsa-labs-empty-state");
+  const mark = makeElement("span", "dsa-labs-empty-glyph", glyph);
+  mark.setAttribute("aria-hidden", "true");
+  empty.append(mark);
+  empty.append(makeElement("h3", "", reason));
+  const list = makeElement("ol", "dsa-labs-next-steps");
+  steps.forEach((step) => list.append(makeElement("li", "", step)));
+  empty.append(list);
+  if (action) {
+    const button = makeElement("button", "secondary-button compact", action.label);
+    button.type = "button";
+    button.addEventListener("click", action.action);
+    empty.append(button);
+  }
+  body.append(empty);
+  els.dsaViewStage.replaceChildren(article);
+}
+
+/**
+ * Converts the stored prepared-input document into its exact response queue.
+ *
+ * An entirely empty document means that no responses are prepared. Blank lines
+ * inside a nonempty document remain real blank responses, so their exact queue
+ * positions still reach Python without being filtered or reordered.
+ *
+ * @param {string} text Complete prepared-input document.
+ * @returns {string[]} Exact ordered responses sent to the worker.
+ */
+function preparedInputQueue(text) {
+  const documentText = String(text);
+  return documentText === "" ? [] : documentText.split("\n");
+}
+
+/**
+ * Renders the bounded visual queue without changing the underlying textarea.
+ *
+ * @param {HTMLElement} mount Queue destination.
+ * @param {HTMLElement} summary Live queue summary.
+ * @param {string} text Complete prepared-input document.
+ */
+function renderPreparedInputQueue(mount, summary, text) {
+  const values = preparedInputQueue(text);
+  const displayed = values.slice(0, LIMITS.preparedInputPreviewRows);
+  const list = makeElement("ol", "dsa-input-queue");
+  displayed.forEach((value, index) => {
+    const item = makeElement("li", "dsa-input-queue-item");
+    item.append(makeElement("span", "dsa-input-queue-number", String(index + 1).padStart(2, "0")));
+    const copy = makeElement("span", "dsa-input-queue-copy");
+    copy.append(makeElement("strong", "", `Response ${index + 1}`));
+    copy.append(makeElement("code", "", value || "(blank response)"));
+    item.append(copy);
+    list.append(item);
+  });
+  mount.replaceChildren(list);
+  if (values.length > displayed.length) {
+    mount.append(makeElement(
+      "p",
+      "dsa-labs-boundary",
+      `The queue preview shows the first ${LIMITS.preparedInputPreviewRows} of ${values.length} responses. The complete local queue is still sent to Python in order.`,
+    ));
+  }
+  summary.textContent = `${values.length} ${values.length === 1 ? "response" : "responses"} · ${text.length.toLocaleString()} of ${LIMITS.preparedInputCharacters.toLocaleString()} characters`;
+}
+
+/** Renders an ordered local response queue and maps observed input calls to it. */
 function renderInputPlayground() {
-  const article = makeElement("article", "dsa-runtime-view");
-  article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", "Prepared input"));
-  article.append(makeElement("p", "", "Enter one response per line. Values stay in this browser and are returned to Python input() calls in order."));
+  const consumed = state.inputLog.length;
+  const queueLength = preparedInputQueue(state.preparedInputs).length;
+  const evidenceKeys = consumed ? ["observed"] : ["unavailable"];
+  const { article, body } = createLabsViewShell({
+    viewId: "input",
+    title: "Input Playground",
+    question: "What will each input() call receive, and in what order?",
+    description: "Prepare one response per line, run locally, then compare the queue with prompts Python actually recorded.",
+    evidenceKeys,
+    facts: [
+      ["Prepared queue", `${queueLength} ${queueLength === 1 ? "response" : "responses"}`],
+      ["Consumed this run", consumed ? `${consumed} recorded` : "Not recorded yet"],
+      ["Persistence", "This browser only"],
+    ],
+  });
+
+  const workspace = makeElement("div", "dsa-input-workspace");
+  const composer = makeElement("section", "dsa-input-composer");
+  const composerHeading = makeElement("div", "dsa-labs-section-heading");
+  composerHeading.append(makeElement("span", "", "01 / PREPARE"));
+  composerHeading.append(makeElement("h3", "", "Write the response queue"));
+  composerHeading.append(makeElement("p", "", "Line 1 is returned to the first input() call, line 2 to the second, and so on."));
+  composer.append(composerHeading);
+
+  const textareaLabel = makeElement("label", "dsa-input-label");
+  textareaLabel.append(makeElement("span", "", "One response per line"));
   const textarea = document.createElement("textarea");
   textarea.className = "dsa-input-textarea";
   textarea.value = state.preparedInputs;
   textarea.placeholder = "first response\nsecond response";
-  textarea.setAttribute("aria-label", "Prepared DSA input values");
-  textarea.addEventListener("input", () => {
-    state.preparedInputs = textarea.value.slice(0, 20_000);
-    writeLocalText(STORAGE_KEYS.preparedInputs, state.preparedInputs);
-  });
-  const run = makeElement("button", "primary-button compact", "Run with these inputs");
+  textarea.maxLength = LIMITS.preparedInputCharacters;
+  textarea.setAttribute("aria-describedby", "dsaInputQueueSummary");
+  textareaLabel.append(textarea);
+  composer.append(textareaLabel);
+  const queueSummary = makeElement("p", "dsa-input-queue-summary");
+  queueSummary.id = "dsaInputQueueSummary";
+  queueSummary.setAttribute("aria-live", "polite");
+  composer.append(queueSummary);
+  const run = makeElement("button", "primary-button compact", "Run with this exact queue");
   run.type = "button";
+  run.disabled = state.running;
   run.addEventListener("click", runCode);
-  article.append(textarea, run);
+  composer.append(run);
+  composer.append(makeElement(
+    "p",
+    "dsa-labs-privacy-note",
+    "Prepared responses are saved only in this browser. They are sent to the local Python worker, not to Code Explorer or an analytics service.",
+  ));
+
+  const queuePanel = makeElement("section", "dsa-input-preview-panel");
+  const queueHeading = makeElement("div", "dsa-labs-section-heading");
+  queueHeading.append(makeElement("span", "", "02 / ORDER"));
+  queueHeading.append(makeElement("h3", "", "Response queue"));
+  queueHeading.append(makeElement("p", "", "This numbered preview shows the exact order without adding numbers to the values Python receives."));
+  queuePanel.append(queueHeading);
+  const queueMount = makeElement("div", "dsa-input-queue-mount");
+  queuePanel.append(queueMount);
+  renderPreparedInputQueue(queueMount, queueSummary, state.preparedInputs);
+  const runQueueStatus = makeElement("p", "dsa-input-run-queue-status");
+  const updateRunQueueStatus = () => {
+    if (!state.trace.length && !state.error) {
+      runQueueStatus.textContent = "No latest run exists to compare with this queue.";
+      runQueueStatus.className = "dsa-input-run-queue-status unavailable";
+    } else if (state.activeRunInputs === state.preparedInputs) {
+      runQueueStatus.textContent = "This prepared queue matches the queue sent to the latest run.";
+      runQueueStatus.className = "dsa-input-run-queue-status matching";
+    } else {
+      runQueueStatus.textContent = "The prepared queue changed after the latest run. Run again before treating the prompt map as evidence for these values.";
+      runQueueStatus.className = "dsa-input-run-queue-status changed";
+    }
+  };
+  updateRunQueueStatus();
+  queuePanel.append(runQueueStatus);
+
+  textarea.addEventListener("input", () => {
+    const bounded = textarea.value.slice(0, LIMITS.preparedInputCharacters);
+    if (textarea.value !== bounded) textarea.value = bounded;
+    state.preparedInputs = bounded;
+    writeLocalText(STORAGE_KEYS.preparedInputs, state.preparedInputs);
+    renderPreparedInputQueue(queueMount, queueSummary, state.preparedInputs);
+    updateRunQueueStatus();
+  });
+  workspace.append(composer, queuePanel);
+  body.append(workspace);
+
+  const observed = makeElement("section", "dsa-input-observed");
+  const observedHeading = makeElement("div", "dsa-labs-section-heading");
+  observedHeading.append(makeElement("span", "", "03 / OBSERVE"));
+  observedHeading.append(makeElement("h3", "", "Prompts consumed in the latest run"));
+  observed.append(observedHeading);
   if (state.inputLog.length) {
-    const log = makeElement("div", "dsa-input-log");
-    state.inputLog.forEach((entry, index) => log.append(makeElement("p", "", `${index + 1}. ${entry.prompt || "input"} → ${entry.value}`)));
-    article.append(log);
+    const log = makeElement("ol", "dsa-input-consumption-list");
+    state.inputLog.forEach((entry, index) => {
+      const item = makeElement("li", "dsa-input-consumption");
+      item.append(makeElement("span", "dsa-input-consumption-number", String(index + 1).padStart(2, "0")));
+      const prompt = makeElement("div", "dsa-input-consumption-copy");
+      prompt.append(makeElement("span", "", "PYTHON PROMPT"));
+      prompt.append(makeElement("strong", "", entry.prompt || "(input() used no prompt text)"));
+      prompt.append(makeElement("span", "", "RETURNED RESPONSE"));
+      prompt.append(makeElement("code", "", entry.value || "(blank response)"));
+      item.append(prompt);
+      log.append(item);
+    });
+    observed.append(log);
+  } else {
+    observed.append(makeElement(
+      "p",
+      "dsa-labs-empty-inline",
+      state.trace.length || state.error
+        ? "The latest run recorded no successful input() consumption. A missing response can still appear as EOFError in Error Coach."
+        : "No run evidence exists yet. Run a program that calls input() to connect its prompts to this queue.",
+    ));
   }
+  observed.append(makeElement(
+    "p",
+    "dsa-labs-boundary",
+    "Only successful input() calls appear here. Code Explorer does not infer future prompts, and changing the queue does not rewrite the Python source.",
+  ));
+  body.append(observed);
   els.dsaViewStage.replaceChildren(article);
 }
 
-/** Renders bounded same-session summaries and related reviewed programs. */
+/**
+ * Creates a bounded slot for one session-only compatible run summary.
+ *
+ * @param {object|null} run Captured compatible run or null placeholder.
+ * @param {number} index Zero-based comparison slot.
+ * @returns {HTMLElement} Run card.
+ */
+function comparisonRunCard(run, index) {
+  const card = makeElement("section", `dsa-comparison-slot ${run ? "filled" : "empty"}`);
+  const heading = makeElement("div", "dsa-comparison-slot-heading");
+  heading.append(makeElement("span", "", `RUN ${index === 0 ? "A" : "B"}`));
+  heading.append(makeElement("strong", "", run?.title || "Waiting for a compatible run"));
+  card.append(heading);
+  if (!run) {
+    card.append(makeElement("p", "", "Load a related reviewed program and run its unchanged source. This slot stays only until the page reloads."));
+    return card;
+  }
+  const metrics = makeElement("div", "dsa-comparison-metrics");
+  [
+    [String(run.steps), "recorded steps"],
+    [String(run.reachedLines), "reached lines"],
+    [String(run.consumedInputs), "consumed inputs"],
+  ].forEach(([value, label]) => {
+    const metric = makeElement("div", "");
+    metric.append(makeElement("strong", "", value));
+    metric.append(makeElement("span", "", label));
+    metrics.append(metric);
+  });
+  card.append(metrics);
+  const details = makeElement("dl", "dsa-comparison-details");
+  [
+    ["Algorithm", run.algorithm],
+    ["Result", run.error || "Completed without a recorded error"],
+    ["Prepared queue", `${run.preparedResponses} ${run.preparedResponses === 1 ? "response" : "responses"}`],
+  ].forEach(([label, value]) => {
+    details.append(makeElement("dt", "", label));
+    details.append(makeElement("dd", "", value));
+  });
+  card.append(details);
+  const output = makeElement("div", "dsa-comparison-output");
+  output.append(makeElement("span", "", "OBSERVED OUTPUT PREVIEW"));
+  output.append(makeElement("pre", "", run.output || "(no output recorded)"));
+  card.append(output);
+  return card;
+}
+
+/** Renders a two-slot comparison desk for exact reviewed compatible programs. */
 function renderCompareAlgorithms() {
-  const article = makeElement("article", "dsa-runtime-view");
-  article.append(evidenceBadge("curriculum"));
-  article.append(makeElement("h2", "", "Compare compatible programs"));
   if (!state.activeProgram?.comparisonGroup) {
-    article.append(makeElement("p", "dsa-honesty-note", "This source has no reviewed comparison group. Choose a catalog program with a named comparison relationship."));
-    els.dsaViewStage.replaceChildren(article);
+    renderLabsUnavailable({
+      viewId: "compare",
+      glyph: "A:B",
+      title: "Compare Algorithms",
+      question: "What changes when two compatible reviewed programs run?",
+      description: "Keep two local run summaries side by side without turning one trace count into a universal speed claim.",
+      reason: "The current source has no exact reviewed comparison group.",
+      steps: [
+        "Open the reviewed DSA catalog.",
+        "Choose a program whose card recommends Compare Algorithms.",
+        "Run two related programs one at a time.",
+      ],
+      action: { label: "Browse reviewed programs", action: openCatalog },
+    });
     return;
   }
-  const related = DSA_IMPLEMENTED_PROGRAMS.filter((program) => program.comparisonGroup === state.activeProgram.comparisonGroup);
-  article.append(makeElement("p", "", `Reviewed group: ${state.activeProgram.comparisonGroup}. Run related programs one at a time with equivalent inputs.`));
-  const programs = makeElement("div", "dsa-related-programs");
+
+  const group = state.activeProgram.comparisonGroup;
+  const related = DSA_IMPLEMENTED_PROGRAMS.filter((program) => program.comparisonGroup === group);
+  if (related.length < 2) {
+    renderLabsUnavailable({
+      viewId: "compare",
+      glyph: "A:B",
+      title: "Compare Algorithms",
+      question: "What changes when two compatible reviewed programs run?",
+      description: "Keep two local run summaries side by side without turning one trace count into a universal speed claim.",
+      reason: "This reviewed group currently contains only one program, so a compatible pair is unavailable.",
+      steps: [
+        "Open the reviewed DSA catalog.",
+        "Search for Compare Algorithms.",
+        "Choose a program from a reviewed group with at least two members.",
+      ],
+      action: { label: "Browse comparison programs", action: openCatalog },
+    });
+    return;
+  }
+  const compatibleRuns = state.comparisonRuns.filter((run) => run.group === group);
+  const { article, body } = createLabsViewShell({
+    viewId: "compare",
+    title: "Compare Algorithms",
+    question: "What changes when two compatible reviewed programs run?",
+    description: "Run related reviewed programs, compare their local evidence, and keep theoretical claims separate from one-session observations.",
+    evidenceKeys: ["curriculum", ...(compatibleRuns.length ? ["observed"] : ["unavailable"])],
+    facts: [
+      ["Reviewed group", group],
+      ["Related programs", String(related.length)],
+      ["Session slots", `${compatibleRuns.length} of ${LIMITS.comparisonRuns}`],
+    ],
+  });
+
+  const route = makeElement("section", "dsa-comparison-route");
+  const routeHeading = makeElement("div", "dsa-labs-section-heading");
+  routeHeading.append(makeElement("span", "", "01 / CHOOSE"));
+  routeHeading.append(makeElement("h3", "", "Compatible reviewed programs"));
+  routeHeading.append(makeElement("p", "", "Loading a program replaces the complete editor with that reviewed source after your deliberate click."));
+  route.append(routeHeading);
+  const programs = makeElement("div", "dsa-related-programs dsa-comparison-programs");
   related.forEach((program) => {
-    const button = makeElement("button", program.id === state.activeProgram.id ? "active" : "", program.title);
+    const button = makeElement("button", program.id === state.activeProgram.id ? "active" : "");
     button.type = "button";
+    const label = makeElement("span", "");
+    label.append(makeElement("small", "", program.id.toUpperCase()));
+    label.append(makeElement("strong", "", program.title));
+    label.append(makeElement("span", "", `${program.complexity.time} time · ${program.complexity.space} space`));
+    button.append(label);
+    if (program.id === state.activeProgram.id) {
+      button.append(makeElement("em", "", "CURRENT SOURCE"));
+    } else {
+      button.append(makeElement("em", "", "LOAD PROGRAM"));
+    }
     button.addEventListener("click", () => loadProgram(program));
     programs.append(button);
   });
-  article.append(programs);
+  route.append(programs);
+  body.append(route);
 
-  const compatibleRuns = state.comparisonRuns.filter((run) => run.group === state.activeProgram.comparisonGroup);
-  if (compatibleRuns.length) {
-    const table = makeElement("div", "dsa-comparison-run-list");
-    compatibleRuns.forEach((run) => table.append(makeElement("p", "", `${run.title}: ${run.steps} recorded steps, result evidence ${run.error ? run.error : "completed"}`)));
-    article.append(table);
+  const desk = makeElement("section", "dsa-comparison-desk");
+  const deskHeading = makeElement("div", "dsa-labs-section-heading");
+  deskHeading.append(makeElement("span", "", "02 / COMPARE"));
+  deskHeading.append(makeElement("h3", "", "Two session-only run slots"));
+  deskHeading.append(makeElement("p", "", "The newest two compatible runs appear here. Reloading the page clears them."));
+  desk.append(deskHeading);
+  const slots = makeElement("div", "dsa-comparison-slots");
+  [0, 1].forEach((index) => slots.append(comparisonRunCard(compatibleRuns[index] || null, index)));
+  desk.append(slots);
+
+  if (compatibleRuns.length === LIMITS.comparisonRuns) {
+    const [runA, runB] = compatibleRuns;
+    const assessment = makeElement("div", "dsa-comparison-assessment");
+    assessment.append(makeElement("span", "", "FAIRNESS CHECK"));
+    assessment.append(makeElement(
+      "strong",
+      "",
+      runA.preparedInputText === runB.preparedInputText
+        ? "Prepared response text matches"
+        : "Prepared response text differs",
+    ));
+    assessment.append(makeElement(
+      "p",
+      "",
+      runA.preparedInputText === runB.preparedInputText
+        ? "The prepared queue matches, but either program may still define different data directly in its source."
+        : "Different prepared queues make the observed step totals unsuitable for a like-for-like comparison.",
+    ));
+    const difference = Math.abs(runA.steps - runB.steps);
+    assessment.append(makeElement("p", "", `Observed trace-step difference: ${difference}. This is a recording comparison, not elapsed time and not proof that one algorithm is universally faster.`));
+    desk.append(assessment);
+  } else {
+    desk.append(makeElement("p", "dsa-labs-empty-inline", "Run the current exact reviewed source, then load and run a related program to fill both slots."));
   }
-  article.append(makeElement("p", "dsa-honesty-note", "Recorded step totals depend on tracing details and input. They are observations, not formal proof that one algorithm is universally faster."));
+  desk.append(makeElement(
+    "p",
+    "dsa-labs-boundary",
+    `Only ${LIMITS.comparisonRuns} summaries are retained in memory. They are not written to local storage, uploaded, or treated as learner progress.`,
+  ));
+  body.append(desk);
   els.dsaViewStage.replaceChildren(article);
 }
 
-/** Renders reviewed boundary cases as experiments to try, not tracked tasks. */
+/** Renders reviewed edge cases as prediction-first experiments, never tasks. */
 function renderEdgeCaseLab() {
   if (!state.activeProgram) {
-    renderUnavailable("Reviewed edge cases unavailable", "Select an unchanged catalog program to see its reviewed boundary questions.");
+    renderLabsUnavailable({
+      viewId: "edge",
+      glyph: "±",
+      title: "Edge Case Lab",
+      question: "What boundary could challenge this reviewed program?",
+      description: "Predict first, change one condition, run again, and inspect evidence without recorded completion tracking.",
+      reason: "Reviewed edge-case context is unavailable for edited or pasted source.",
+      steps: [
+        "Open the reviewed DSA catalog.",
+        "Choose the original program you want to investigate.",
+        "Read its boundary questions before changing the source.",
+      ],
+      action: { label: "Browse reviewed programs", action: openCatalog },
+    });
     return;
   }
-  const article = makeElement("article", "dsa-runtime-view");
-  article.append(evidenceBadge("curriculum"));
-  article.append(makeElement("h2", "", "Edge cases to investigate"));
-  if (!state.activeProgram.edgeCases.length) {
-    article.append(makeElement("p", "", "This focused lesson has no separate edge-case note. Try a smaller input and predict the result before running."));
-  } else {
-    const list = makeElement("ul", "dsa-edge-list");
-    state.activeProgram.edgeCases.forEach((edgeCase) => list.append(makeElement("li", "", edgeCase)));
-    article.append(list);
-  }
-  article.append(makeElement("p", "dsa-honesty-note", "Code Explorer does not record which suggestions you tried. Edit a copy, run it, and use observed views to inspect the result."));
+
+  const cases = state.activeProgram.edgeCases.length
+    ? state.activeProgram.edgeCases
+    : ["Use the smallest meaningful input and predict whether the documented result still holds."];
+  const { article, body } = createLabsViewShell({
+    viewId: "edge",
+    title: "Edge Case Lab",
+    question: "What boundary could challenge this reviewed program?",
+    description: "Use reviewed questions as experiment prompts. Code Explorer supplies a method, not a hidden answer or progress score.",
+    evidenceKeys: ["curriculum"],
+    facts: [
+      ["Reviewed cases", String(cases.length)],
+      ["Recommended views", state.activeProgram.bestViews.slice(0, 3).join(", ")],
+      ["Attempt tracking", "None"],
+    ],
+  });
+
+  const method = makeElement("section", "dsa-edge-method");
+  const methodHeading = makeElement("div", "dsa-labs-section-heading");
+  methodHeading.append(makeElement("span", "", "EXPERIMENT METHOD"));
+  methodHeading.append(makeElement("h3", "", "Change one thing at a time"));
+  methodHeading.append(makeElement("p", "", "A small controlled change makes the cause of a different trace easier to understand."));
+  method.append(methodHeading);
+  const methodSteps = makeElement("ol", "dsa-edge-method-steps");
+  [
+    ["Predict", "Say what output, path, or invariant you expect before editing."],
+    ["Change", "Modify the smallest input value or source constant related to the case."],
+    ["Run", "Record a fresh trace. The earlier trace is invalid once source changes."],
+    ["Inspect", `Start with ${state.activeProgram.bestViews.slice(0, 3).join(", ")}.`],
+  ].forEach(([label, text]) => {
+    const item = makeElement("li", "");
+    item.append(makeElement("strong", "", label));
+    item.append(makeElement("span", "", text));
+    methodSteps.append(item);
+  });
+  method.append(methodSteps);
+  const focus = makeElement("button", "secondary-button compact", "Focus the source editor");
+  focus.type = "button";
+  focus.addEventListener("click", () => state.editor.focus());
+  method.append(focus);
+  body.append(method);
+
+  const experiments = makeElement("section", "dsa-edge-experiments");
+  const experimentsHeading = makeElement("div", "dsa-labs-section-heading");
+  experimentsHeading.append(makeElement("span", "", "REVIEWED QUESTIONS"));
+  experimentsHeading.append(makeElement("h3", "", "Choose one boundary to investigate"));
+  experiments.append(experimentsHeading);
+  const cards = makeElement("ol", "dsa-edge-card-list");
+  cases.forEach((edgeCase, index) => {
+    const item = makeElement("li", "dsa-edge-experiment-card");
+    const number = makeElement("span", "dsa-edge-experiment-number", String(index + 1).padStart(2, "0"));
+    const copy = makeElement("div", "dsa-edge-experiment-copy");
+    copy.append(makeElement("span", "", "PREDICT BEFORE RUNNING"));
+    copy.append(makeElement("strong", "", edgeCase));
+    copy.append(makeElement("p", "", "Write your prediction somewhere you control, then make one focused change in the editor."));
+    item.append(number, copy);
+    cards.append(item);
+  });
+  experiments.append(cards);
+  experiments.append(makeElement(
+    "p",
+    "dsa-labs-boundary",
+    "These are reviewed investigation prompts, not automatic tests. Code Explorer does not record which prompt you attempted, whether you finished it, or whether your prediction was correct.",
+  ));
+  body.append(experiments);
   els.dsaViewStage.replaceChildren(article);
 }
 
@@ -3416,7 +3866,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260728-25", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260728-26", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;
@@ -3494,6 +3944,12 @@ async function runCode() {
   state.running = true;
   state.runId += 1;
   state.activeProgram = matchingProgram(source);
+  /*
+   * Capture the exact prepared-input document before asynchronous worker work
+   * begins. A learner may edit the Input Playground while Python is running;
+   * the later comparison summary must describe the queue actually sent.
+   */
+  state.activeRunInputs = state.preparedInputs;
   state.automaticCommentsVisible = false;
   renderAutomaticComments();
   els.dsaRunButton.disabled = true;
@@ -3520,7 +3976,7 @@ async function runCode() {
     type: "run",
     runId: currentRunId,
     source,
-    inputs: state.preparedInputs.split("\n"),
+    inputs: preparedInputQueue(state.activeRunInputs),
   });
 }
 
@@ -3538,10 +3994,21 @@ function loadRunResult(result) {
   setRuntimeStatus("Python ready", "ready");
 
   if (state.activeProgram?.comparisonGroup) {
+    /*
+     * Comparison records are bounded, same-session observations. Output is
+     * clipped for display safety, and only the exact queue sent to this run is
+     * retained so the fairness note can distinguish matching prepared text.
+     */
     state.comparisonRuns.push({
       group: state.activeProgram.comparisonGroup,
       title: state.activeProgram.title,
+      algorithm: state.activeProgram.algorithm,
       steps: state.trace.length,
+      reachedLines: new Set(state.trace.map((step) => step.line)).size,
+      consumedInputs: state.inputLog.length,
+      preparedResponses: preparedInputQueue(state.activeRunInputs).length,
+      preparedInputText: state.activeRunInputs,
+      output: state.output.slice(0, LIMITS.comparisonOutputCharacters),
       error: state.error?.type || "",
     });
     state.comparisonRuns = state.comparisonRuns.slice(-LIMITS.comparisonRuns);

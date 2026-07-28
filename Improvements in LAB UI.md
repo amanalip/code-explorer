@@ -494,7 +494,7 @@ How:
 
 #### Operation Journey
 
-Status: Planned
+Status: Implemented and browser verified in Chunk 3
 
 Change:
 
@@ -509,7 +509,7 @@ How:
 
 #### Algorithm Path
 
-Status: Planned
+Status: Implemented and browser verified in Chunk 3
 
 Change:
 
@@ -525,7 +525,7 @@ How:
 
 #### Step Table
 
-Status: Planned
+Status: Implemented and browser verified in Chunk 3
 
 Change:
 
@@ -540,7 +540,7 @@ How:
 
 #### Complexity Lab
 
-Status: Planned
+Status: Implemented and browser verified in Chunk 3
 
 Change:
 
@@ -559,7 +559,7 @@ How:
 
 #### Input Playground
 
-Status: Planned
+Status: Implemented and browser verified in Chunk 4
 
 Change:
 
@@ -569,13 +569,16 @@ Change:
 How:
 
 - Preserve the existing local multiline string as the storage contract.
-- Present it through numbered response controls.
+- Present it through a dedicated Prepare column and numbered Order preview.
 - Show prompts only after they are observed.
-- Show consumed and unused responses after execution.
+- Warn when visible prepared text changes after the latest run.
+- Bound the document at 20,000 characters and the visual preview at 30 rows.
+- Treat an empty document as zero responses while preserving intentional blank
+  lines inside a nonempty queue.
 
 #### Compare Algorithms
 
-Status: Planned
+Status: Implemented and browser verified in Chunk 4
 
 Change:
 
@@ -585,13 +588,17 @@ How:
 
 - Keep at most two same-session summaries.
 - Show input context, observed steps, outcome, and error state.
-- Present reviewed complexity separately from observed metrics.
+- Show reviewed time and space only on related exact-source program cards.
+- Compare exact prepared response text and explain the remaining fairness gap.
+- Bound each output preview at 800 characters.
 - Offer compatible reviewed programs without claiming that one run proves
   universal superiority.
+- Refuse a comparison when the reviewed group contains fewer than two
+  programs.
 
 #### Edge Case Lab
 
-Status: Planned
+Status: Implemented and browser verified in Chunk 4
 
 Change:
 
@@ -601,14 +608,15 @@ How:
 
 - Number each reviewed suggestion.
 - Identify useful evidence views.
-- State that suggestions are not tracked completion.
+- Present Predict, Change, Run, and Inspect as one controlled method.
+- State that suggestions are not tracked as attempts or completion.
 - Do not display Pass or Fail unless an actual reviewed case and observed
   result contract supports it.
 - Keep reviewed suggestions unavailable for edited or pasted source.
 
 ## Optional visualization dependencies
 
-Status: Planned and subject to privacy and fallback audit
+Status: Cytoscape reuse implemented and verified; no plotting dependency added
 
 ### Cytoscape
 
@@ -647,7 +655,7 @@ created.
 
 ## Visualization lifecycle and memory safety
 
-Status: Planned
+Status: Implemented for current Cytoscape views; final cross-view audit remains
 
 An optional visualization cannot be treated like ordinary static markup.
 
@@ -666,7 +674,7 @@ visualization. Hidden views must not continue performing layout work.
 
 ## Responsive design contract
 
-Status: Planned
+Status: Implemented per chunk; final cross-view audit remains
 
 ### Desktop
 
@@ -694,7 +702,7 @@ Status: Planned
 
 ## Visual accessibility contract
 
-Status: Planned
+Status: Implemented per chunk; final cross-view audit remains
 
 - Every interactive graph needs a meaningful region label.
 - Every graph needs a nonvisual node-and-edge summary.
@@ -709,7 +717,7 @@ Status: Planned
 
 ## Privacy and dependency review contract
 
-Status: Planned
+Status: Active project contract, audited in every shipped chunk
 
 Before a dependency is introduced or reused in a new DSA view, the
 implementation record must answer:
@@ -1068,17 +1076,77 @@ Verification:
 
 Remaining:
 
-- Chunk 4 redesign of all three Labs views.
 - Chunk 5 cross-view accessibility, fallback, documentation, and complete
   regression audit.
 
 ### Chunk 4
 
-Status: Not started
+Status: Implemented and browser verified
 
-Actual changes: None
+Actual changes:
 
-Verification: Not run
+- Added `createLabsViewShell()` so all three Labs views begin with evidence,
+  one experiment question, current program, and purpose-specific facts.
+- Added `renderLabsUnavailable()` with a visible reason, ordered next steps,
+  and a relevant action instead of an empty generic card.
+- Rebuilt Input Playground into Prepare, Order, and Observe regions.
+- Added a 20,000-character prepared-input limit and a 30-row visual queue
+  preview while preserving the complete allowed queue sent to the worker.
+- Corrected the empty-input contract so an entirely empty document means zero
+  responses. Blank lines inside nonempty documents remain real responses.
+- Snapshotted the exact prepared document at run start. Changing the visible
+  queue later now produces a stale evidence warning instead of relabelling old
+  prompt evidence.
+- Mapped only worker-recorded successful input calls to prompts and returned
+  responses.
+- Rebuilt Compare Algorithms around reviewed compatible program cards and two
+  session-only run slots.
+- Added bounded observed metrics, algorithm and result details, an
+  800-character output preview, and exact prepared-text fairness status.
+- Added an explicit statement that trace-step differences are not elapsed time
+  and cannot prove universal speed.
+- Added an honest unavailable state for reviewed comparison groups containing
+  fewer than two programs.
+- Rebuilt Edge Case Lab around Predict, Change, Run, and Inspect.
+- Converted reviewed edge cases into numbered experiment prompts and linked
+  them to recommended evidence views without storing progress.
+- Added Labs-specific responsive styling in both themes without adding a
+  dependency.
+- Extended the DSA foundation validator with Labs shells, bounds, state
+  snapshots, comparison fairness, and no-tracking contracts.
+
+Verification:
+
+- `node --check dsa-app.js`
+- `git diff --check`
+- `node scripts/validate-dsa-foundation.mjs`
+- Real-browser execution of a two-prompt program with `Ada` and `37` prepared
+  in order.
+- Edited the prepared queue to `Grace` and `42` after the run and observed the
+  stale evidence warning.
+- Reloaded with an empty input document and confirmed zero responses and zero
+  rendered queue rows.
+- Ran reviewed DSA-269 and DSA-263 in the `substring-search` group and observed
+  two summaries with 217 and 99 trace steps plus the not-timing warning.
+- Reloaded and confirmed both comparison summaries cleared.
+- Opened a singleton comparison group and confirmed a designed unavailable
+  state.
+- Opened reviewed DSA-263 in Edge Case Lab and observed its reviewed boundary
+  prompt.
+- Added one harmless learner comment and confirmed reviewed edge-case context
+  disappeared immediately.
+- At 390 by 844 in dark mode, measured a 448-pixel stage with 1,598 pixels of
+  scrollable Input Playground content and no page-level horizontal overflow.
+- `node scripts/validate-dsa-curriculum.mjs --export
+  /tmp/code-explorer-dsa-curriculum.json`
+- `python3 scripts/validate_dsa_curriculum.py
+  /tmp/code-explorer-dsa-curriculum.json`, validating all 535 programs and
+  their documented expected-result markers.
+- `node scripts/validate-curriculum.mjs --export
+  /tmp/code-explorer-curriculum.json`
+- `python3 scripts/validate_curriculum.py
+  /tmp/code-explorer-curriculum.json`, validating all 134 Python-language
+  programs and three documented intentional errors.
 
 ### Chunk 5
 

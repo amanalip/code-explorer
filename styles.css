@@ -6470,6 +6470,755 @@ main {
   line-height: 1.5;
 }
 
+/*
+  Chunk 4 gives the three Labs views a shared experiment-notebook frame while
+  preserving a distinct visual grammar for input, comparison, and edge cases.
+*/
+.dsa-labs-view {
+  padding: 0;
+  background: var(--panel-solid);
+}
+
+/*
+  A ruled notebook background suggests deliberate experimentation without
+  using animation or moving the complete learning panel.
+*/
+.dsa-labs-hero {
+  display: grid;
+  gap: 18px;
+  padding: clamp(20px, 3vw, 30px);
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(color-mix(in srgb, var(--line) 24%, transparent) 1px, transparent 1px) 0 14px / 100% 26px,
+    radial-gradient(circle at 92% 4%, color-mix(in srgb, var(--purple) 9%, transparent), transparent 38%),
+    var(--panel-solid);
+}
+
+/* The identity block keeps the experiment name and question together. */
+.dsa-labs-identity {
+  min-width: 0;
+}
+
+/* Evidence badges and the Labs label remain readable without relying on color. */
+.dsa-labs-eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-items: center;
+  color: var(--text-dim);
+  font: 700 0.56rem/1 var(--mono);
+  letter-spacing: 0.09em;
+}
+
+/* Labs titles match the hierarchy of the redesigned Trace, Data, and Flow areas. */
+.dsa-labs-identity h2 {
+  margin: 12px 0 7px;
+  color: var(--text);
+  font-size: clamp(1.45rem, 2.8vw, 2.15rem);
+  letter-spacing: -0.025em;
+}
+
+/* The question states the learning goal before configuration controls appear. */
+.dsa-labs-question {
+  max-width: 800px;
+  margin: 0;
+  color: var(--text) !important;
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.5 !important;
+}
+
+/* Supporting copy explains the experiment workflow in ordinary language. */
+.dsa-labs-description {
+  max-width: 800px;
+  margin: 7px 0 0;
+  color: var(--text-soft) !important;
+  font-size: 0.8rem;
+  line-height: 1.55 !important;
+}
+
+/* Labs context facts adapt without creating horizontal page overflow. */
+.dsa-labs-context {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--line);
+}
+
+/* One context fact preserves its label and wrapping value. */
+.dsa-labs-context-fact {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  padding: 11px 13px;
+  background: color-mix(in srgb, var(--bg-raised) 97%, transparent);
+}
+
+/* Compact fact labels identify local state without dominating the view. */
+.dsa-labs-context-fact span {
+  color: var(--text-dim);
+  font: 700 0.52rem/1 var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* Long program or comparison-group names wrap inside their own fact. */
+.dsa-labs-context-fact strong {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font: 650 0.68rem/1.35 var(--mono);
+}
+
+/* Purpose-specific experiment components share measured internal spacing. */
+.dsa-labs-body {
+  display: grid;
+  gap: 20px;
+  padding: clamp(18px, 3vw, 30px);
+}
+
+/* Empty Labs states retain a deliberate notebook-like presentation. */
+.dsa-labs-empty-state {
+  display: grid;
+  width: min(650px, 100%);
+  min-height: 340px;
+  place-self: center;
+  align-content: center;
+  gap: 15px;
+  padding: clamp(24px, 5vw, 48px);
+  border: 1px solid var(--line-bright);
+  border-radius: 16px;
+  background:
+    linear-gradient(color-mix(in srgb, var(--line) 22%, transparent) 1px, transparent 1px) 0 16px / 100% 27px,
+    linear-gradient(145deg, color-mix(in srgb, var(--purple) 7%, transparent), transparent 55%),
+    var(--bg-raised);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.12);
+}
+
+/* The empty-state mark supports orientation while the written reason stays primary. */
+.dsa-labs-empty-glyph {
+  display: grid;
+  width: 62px;
+  height: 62px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--purple) 55%, var(--line));
+  border-radius: 50%;
+  color: var(--purple);
+  background: color-mix(in srgb, var(--purple) 8%, var(--panel-soft));
+  font: 800 0.78rem/1 var(--mono);
+}
+
+/* Missing-evidence reasons remain smaller than the view's main title. */
+.dsa-labs-empty-state h3 {
+  margin: 3px 0 0;
+  color: var(--text);
+  font-size: 1.18rem;
+}
+
+/* Numbered next actions show the shortest safe route into the experiment. */
+.dsa-labs-next-steps {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  counter-reset: labs-empty-step;
+  list-style: none;
+}
+
+/* Each next action reserves a stable number column and wrapping text. */
+.dsa-labs-next-steps li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  counter-increment: labs-empty-step;
+}
+
+/* Generated numbers communicate order without extra decorative markup. */
+.dsa-labs-next-steps li::before {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--purple);
+  background: color-mix(in srgb, var(--purple) 9%, var(--panel-soft));
+  content: counter(labs-empty-step);
+  font: 700 0.58rem/1 var(--mono);
+}
+
+/* Repeated section headings create a visible prepare, observe, compare rhythm. */
+.dsa-labs-section-heading {
+  display: grid;
+  gap: 7px;
+}
+
+/* Technical labels make experiment order visible without relying on position. */
+.dsa-labs-section-heading > span {
+  color: var(--purple);
+  font: 750 0.54rem/1 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+/* Section titles are secondary to the active Labs view name. */
+.dsa-labs-section-heading h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+/* Section guidance remains readable, compact, and naturally wrapping. */
+.dsa-labs-section-heading p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+/* Evidence limits and honesty notes use one stable Labs treatment. */
+.dsa-labs-boundary {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--purple);
+  color: var(--text-soft) !important;
+  background: color-mix(in srgb, var(--purple) 6%, var(--panel-soft));
+  font-size: 0.74rem;
+  line-height: 1.55 !important;
+}
+
+/* Small unavailable states fill a component without resembling a broken panel. */
+.dsa-labs-empty-inline {
+  margin: 0;
+  padding: 18px;
+  border: 1px dashed var(--line-bright);
+  border-radius: 10px;
+  color: var(--text-soft) !important;
+  background: var(--panel-soft);
+  font-size: 0.78rem;
+  line-height: 1.55 !important;
+}
+
+/* The explicit privacy note belongs beside the input action it qualifies. */
+.dsa-labs-privacy-note {
+  margin: 0;
+  color: var(--text-dim) !important;
+  font: 600 0.58rem/1.55 var(--mono);
+}
+
+/* Input preparation and numbered order appear side by side on wider screens. */
+.dsa-input-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+  gap: 16px;
+  align-items: start;
+}
+
+/* Composer and queue use independent cards so their roles are obvious. */
+.dsa-input-composer,
+.dsa-input-preview-panel,
+.dsa-input-observed,
+.dsa-comparison-route,
+.dsa-comparison-desk,
+.dsa-edge-method,
+.dsa-edge-experiments {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-raised);
+}
+
+/* The composer uses mint to identify editable local configuration. */
+.dsa-input-composer {
+  border-top: 4px solid var(--mint);
+}
+
+/* The queue uses purple to identify ordered experiment setup. */
+.dsa-input-preview-panel {
+  border-top: 4px solid var(--purple);
+}
+
+/* The input label keeps its instruction attached to the textarea. */
+.dsa-input-label {
+  display: grid;
+  gap: 8px;
+}
+
+/* The visible label prevents the textarea from depending on placeholder text. */
+.dsa-input-label > span {
+  color: var(--text-dim);
+  font: 700 0.56rem/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* The prepared-input editor remains comfortable for deterministic multiline data. */
+.dsa-input-textarea {
+  width: 100%;
+  min-height: 190px;
+  margin: 0;
+  padding: 14px;
+  resize: vertical;
+  border: 1px solid var(--line-bright);
+  border-radius: 9px;
+  outline: 0;
+  color: var(--text);
+  background: var(--code-bg);
+  font: 600 0.78rem/1.6 var(--mono);
+}
+
+/* Keyboard focus is visible in light and dark themes. */
+.dsa-input-textarea:focus {
+  border-color: var(--mint);
+  box-shadow: 0 0 0 3px var(--mint-soft);
+}
+
+/* Queue length and character bounds update without moving the run action. */
+.dsa-input-queue-summary {
+  margin: -3px 0 0;
+  color: var(--text-dim) !important;
+  font: 600 0.56rem/1.4 var(--mono);
+}
+
+/* The response queue follows the exact top-to-bottom worker consumption order. */
+.dsa-input-queue,
+.dsa-input-consumption-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each prepared response separates its visual number from the unchanged value. */
+.dsa-input-queue-item {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 11px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel-soft);
+}
+
+/* Queue numbers are presentation only and never enter the worker value. */
+.dsa-input-queue-number,
+.dsa-input-consumption-number {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid var(--line-bright);
+  border-radius: 8px;
+  color: var(--purple);
+  background: var(--panel-solid);
+  font: 750 0.58rem/1 var(--mono);
+}
+
+/* Each queue value follows its response label in a predictable order. */
+.dsa-input-queue-copy {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.dsa-input-queue-copy strong {
+  color: var(--text-dim);
+  font: 700 0.54rem/1 var(--mono);
+}
+
+.dsa-input-queue-copy code {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font: 650 0.7rem/1.4 var(--mono);
+}
+
+/* The queue-to-run status prevents stale observed prompts from looking current. */
+.dsa-input-run-queue-status {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font: 650 0.58rem/1.45 var(--mono);
+}
+
+/* Matching and changed states include explicit text in addition to color. */
+.dsa-input-run-queue-status.matching {
+  color: var(--mint);
+  background: var(--mint-soft);
+}
+
+.dsa-input-run-queue-status.changed {
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 8%, var(--panel-soft));
+}
+
+.dsa-input-run-queue-status.unavailable {
+  color: var(--text-dim);
+  background: var(--panel-soft);
+}
+
+/* Observed input exchanges form a separate evidence section below preparation. */
+.dsa-input-observed {
+  border-top: 4px solid var(--cyan);
+}
+
+/* Each consumed prompt points to the returned response in one stable card. */
+.dsa-input-consumption {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--cyan) 35%, var(--line));
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--cyan) 4%, var(--panel-soft));
+}
+
+/* Prompt and response labels prevent values from becoming an ambiguous log line. */
+.dsa-input-consumption-copy {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.dsa-input-consumption-copy > span {
+  color: var(--text-dim);
+  font: 700 0.5rem/1 var(--mono);
+  letter-spacing: 0.06em;
+}
+
+.dsa-input-consumption-copy strong,
+.dsa-input-consumption-copy code {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font: 650 0.7rem/1.45 var(--mono);
+}
+
+.dsa-input-consumption-copy code {
+  color: var(--mint);
+}
+
+/* Reviewed program choices occupy a vertical route that supports longer titles. */
+.dsa-comparison-programs {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Program choice buttons contain metadata and one explicit action state. */
+.dsa-comparison-programs button {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 86px;
+  padding: 13px;
+}
+
+/* Program identity and complexity form a compact readable stack. */
+.dsa-comparison-programs button > span {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.dsa-comparison-programs small {
+  color: var(--purple);
+  font: 750 0.52rem/1 var(--mono);
+  letter-spacing: 0.06em;
+}
+
+.dsa-comparison-programs strong {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 0.78rem;
+}
+
+.dsa-comparison-programs button > span > span {
+  color: var(--text-dim);
+  font: 600 0.54rem/1.35 var(--mono);
+}
+
+/* Written current and load actions make button state independent from color. */
+.dsa-comparison-programs em {
+  color: var(--text-dim);
+  font: 700 0.5rem/1 var(--mono);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.dsa-comparison-programs button.active em {
+  color: var(--mint);
+}
+
+/* Two run slots support direct visual comparison without an unbounded history. */
+.dsa-comparison-slots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* Every slot reserves equal structure before and after a run exists. */
+.dsa-comparison-slot {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 14px;
+  min-height: 280px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--panel-soft);
+}
+
+/* Filled run cards use a stronger edge while keeping written evidence primary. */
+.dsa-comparison-slot.filled {
+  border-top: 4px solid var(--mint);
+}
+
+/* Empty slots use a dashed boundary so absence is visible without color. */
+.dsa-comparison-slot.empty {
+  place-content: center;
+  border-style: dashed;
+}
+
+.dsa-comparison-slot.empty p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+/* Run letter and program title remain together at the top of each slot. */
+.dsa-comparison-slot-heading {
+  display: grid;
+  gap: 7px;
+}
+
+.dsa-comparison-slot-heading span {
+  color: var(--purple);
+  font: 750 0.54rem/1 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.dsa-comparison-slot-heading strong {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+/* Three observed counts remain scannable without resembling a benchmark chart. */
+.dsa-comparison-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.dsa-comparison-metrics > div {
+  display: grid;
+  gap: 5px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-raised);
+}
+
+.dsa-comparison-metrics strong {
+  color: var(--mint);
+  font: 800 1rem/1 var(--mono);
+}
+
+.dsa-comparison-metrics span {
+  color: var(--text-dim);
+  font: 650 0.5rem/1.3 var(--mono);
+}
+
+/* Definition-list semantics keep run labels associated with their values. */
+.dsa-comparison-details {
+  display: grid;
+  grid-template-columns: minmax(92px, auto) minmax(0, 1fr);
+  gap: 7px 10px;
+  margin: 0;
+}
+
+.dsa-comparison-details dt {
+  color: var(--text-dim);
+  font: 700 0.52rem/1.4 var(--mono);
+}
+
+.dsa-comparison-details dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--text-soft);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+/* Output previews remain bounded inside their run slot. */
+.dsa-comparison-output {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+
+.dsa-comparison-output span {
+  color: var(--text-dim);
+  font: 700 0.5rem/1 var(--mono);
+  letter-spacing: 0.06em;
+}
+
+.dsa-comparison-output pre {
+  max-height: 140px;
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--code-bg);
+  font: 600 0.62rem/1.5 var(--mono);
+  white-space: pre-wrap;
+}
+
+/* The fairness check explicitly separates comparable setup from general proof. */
+.dsa-comparison-assessment {
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--amber) 42%, var(--line));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--amber) 6%, var(--panel-soft));
+}
+
+.dsa-comparison-assessment > span {
+  color: var(--amber);
+  font: 750 0.52rem/1 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.dsa-comparison-assessment strong {
+  color: var(--text);
+  font-size: 0.84rem;
+}
+
+.dsa-comparison-assessment p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+/* The edge-case method and reviewed questions use complementary visual roles. */
+.dsa-edge-method {
+  border-top: 4px solid var(--mint);
+}
+
+.dsa-edge-experiments {
+  border-top: 4px solid var(--purple);
+}
+
+/* Four method steps create a visible predict, change, run, inspect cycle. */
+.dsa-edge-method-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dsa-edge-method-steps li {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 7px;
+  min-height: 120px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel-soft);
+}
+
+.dsa-edge-method-steps strong {
+  color: var(--mint);
+  font: 750 0.64rem/1 var(--mono);
+}
+
+.dsa-edge-method-steps span {
+  color: var(--text-soft);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+/* Reviewed prompts are ordered questions, not checkboxes or completion tasks. */
+.dsa-edge-card-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dsa-edge-experiment-card {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--purple) 5%, transparent), transparent 60%),
+    var(--panel-soft);
+}
+
+/* Prompt numbers establish reading order without suggesting completion status. */
+.dsa-edge-experiment-number {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid var(--purple);
+  border-radius: 50%;
+  color: var(--purple);
+  background: var(--panel-solid);
+  font: 750 0.58rem/1 var(--mono);
+}
+
+/* Prediction label, reviewed question, and method hint form one readable card. */
+.dsa-edge-experiment-copy {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+
+.dsa-edge-experiment-copy > span {
+  color: var(--purple);
+  font: 750 0.5rem/1 var(--mono);
+  letter-spacing: 0.06em;
+}
+
+.dsa-edge-experiment-copy strong {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.dsa-edge-experiment-copy p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
 /* Operation history uses source snippets below each normalized event label. */
 .dsa-operation-list {
   display: grid;
@@ -6580,20 +7329,6 @@ main {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   white-space: nowrap;
-}
-
-/* Prepared input provides enough room for several deterministic input() responses. */
-.dsa-input-textarea {
-  width: 100%;
-  min-height: 150px;
-  margin: 14px 0;
-  padding: 13px;
-  resize: vertical;
-  border: 1px solid var(--line-bright);
-  border-radius: 8px;
-  color: var(--text);
-  background: var(--code-bg);
-  font: 600 0.76rem/1.55 var(--mono);
 }
 
 /* Related programs remain explicit buttons that load source only after a click. */
@@ -8204,6 +8939,36 @@ main {
     grid-column: auto;
   }
 
+  /* Labs context uses two columns before collapsing further on small phones. */
+  .dsa-labs-context {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Input preparation appears before its ordered queue on a narrow screen. */
+  .dsa-input-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  /* Related program choices retain complete metadata in one readable column. */
+  .dsa-comparison-programs {
+    grid-template-columns: 1fr;
+  }
+
+  /* Run A appears before Run B for a natural phone reading order. */
+  .dsa-comparison-slots {
+    grid-template-columns: 1fr;
+  }
+
+  /* Edge-case method steps form a compact two-column sequence on phones. */
+  .dsa-edge-method-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Reviewed questions use the full phone width for prediction text. */
+  .dsa-edge-card-list {
+    grid-template-columns: 1fr;
+  }
+
   /* Runtime cards use one readable column on a phone. */
   .dsa-change-grid,
   .dsa-variable-grid,
@@ -8326,6 +9091,32 @@ main {
   .dsa-flow-event-track {
     grid-column: 1 / -1;
     grid-row: 2;
+  }
+
+  /* Very narrow screens give every Labs context fact a complete row. */
+  .dsa-labs-context {
+    grid-template-columns: 1fr;
+  }
+
+  /* Compact Labs padding protects input values and experiment questions. */
+  .dsa-labs-hero,
+  .dsa-labs-body {
+    padding: 16px;
+  }
+
+  /* Comparison choices stack metadata above their explicit load state. */
+  .dsa-comparison-programs button {
+    grid-template-columns: 1fr;
+  }
+
+  /* Run metrics retain readable labels instead of becoming three thin columns. */
+  .dsa-comparison-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  /* The full edge-case method becomes one top-to-bottom beginner workflow. */
+  .dsa-edge-method-steps {
+    grid-template-columns: 1fr;
   }
 
   /* Watch ranks become a smaller stable column beside long learner names. */

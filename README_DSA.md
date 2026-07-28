@@ -1422,15 +1422,82 @@ explicit Unavailable explanation.
 
 #### Input Playground
 
-Accepts one prepared `input()` response per line. Values stay in the browser. A run consumes them in order.
+Input Playground answers: **What will each `input()` call receive, and in what
+order?**
+
+The Prepare column stores one local response per line. The Order column shows
+the exact numbered queue without adding those numbers to the values Python
+receives. An entirely empty box means zero prepared responses. Blank lines
+inside a nonempty queue remain intentional blank responses.
+
+```text
+prepared line 1 -> first successful input() call
+prepared line 2 -> second successful input() call
+prepared line 3 -> third successful input() call
+```
+
+After a run, Observe maps each recorded Python prompt to the response that was
+actually returned. Future prompts are never guessed. If the learner changes
+the prepared queue after running, a visible warning explains that the older
+prompt map describes the older queue and that a fresh run is required.
+
+The complete prepared-input document is limited to 20,000 characters. Its
+visual queue preview shows at most 30 rows, but a longer allowed queue is still
+sent to the local worker in full and in order. Prepared responses remain in
+same-origin browser storage. They are not uploaded, analyzed, or treated as
+progress.
 
 #### Compare Algorithms
 
-Keeps at most two in-session run summaries and suggests related reviewed programs from the same comparison group. Comparisons use compatible catalog contracts and observed counts. The tool does not claim that unlike inputs form a fair benchmark.
+Compare Algorithms answers: **What changes when two compatible reviewed
+programs run?**
+
+The view is available only when the exact unchanged reviewed program belongs
+to a comparison group containing at least two programs. It provides:
+
+- reviewed related-program cards with stable ID, title, time, and space;
+- a deliberate Load Program action that replaces the complete editor with the
+  selected reviewed source;
+- Run A and Run B cards for the newest two compatible results in the current
+  page session;
+- recorded trace-step, reached-line, and consumed-input counts;
+- algorithm name, run result, prepared-queue size, and a bounded output
+  preview; and
+- a fairness check that reports whether the exact prepared response documents
+  matched.
+
+The view retains only two summaries. Output preview text stops at 800
+characters. Reloading clears both summaries because they are never written to
+local storage. A comparison group containing only one reviewed program
+receives an honest unavailable state instead of an empty second slot.
+
+Trace steps are recording events, not elapsed time. Matching prepared input
+also does not prove that two programs define the same source constants or
+perform equivalent work. The view therefore never calls a smaller trace count
+faster and never presents one local run as proof of universal algorithmic
+superiority.
 
 #### Edge Case Lab
 
-Shows reviewed boundary questions for the exact catalog program. It asks the learner to predict and run changes. Code Explorer does not track whether a suggestion was completed.
+Edge Case Lab answers: **What boundary could challenge this reviewed
+program?**
+
+Exact unchanged catalog source receives a four-part experiment method:
+
+```text
+Predict -> Change one thing -> Run a fresh trace -> Inspect useful views
+```
+
+Each reviewed edge case becomes a numbered prediction card. The view suggests
+the program's most useful learning views and provides a control that returns
+focus to the source editor. Editing or pasting source immediately removes
+reviewed edge-case context because those questions were reviewed for the
+original catalog program, not the modified document.
+
+The cards are prompts, not tests. Code Explorer does not record which card was
+attempted, whether the learner finished it, or whether a prediction was
+correct. It does not display Pass or Fail without a dedicated verified
+contract.
 
 ## Automatic and exported learning comments
 

@@ -405,6 +405,47 @@ expect(
     && stylesSource.includes(".dsa-flow-complexity-formulas"),
   "Complexity Lab is missing measured bars, evidence honesty, or reviewed formula separation.",
 );
+/*
+ * Chunk 4 turns all three Labs views into explicit local experiments. These
+ * checks protect exact input order, session-only comparison bounds, reviewed
+ * edge-case honesty, and the shared beginner orientation before browser tests.
+ */
+expect(
+  dsaAppSource.includes("createLabsViewShell")
+    && dsaAppSource.includes("renderLabsUnavailable")
+    && stylesSource.includes(".dsa-labs-hero")
+    && stylesSource.includes(".dsa-labs-body"),
+  "The shared Labs experiment shell or designed unavailable state is incomplete.",
+);
+expect(
+  dsaAppSource.includes("preparedInputQueue")
+    && dsaAppSource.includes("LIMITS.preparedInputCharacters")
+    && dsaAppSource.includes("LIMITS.preparedInputPreviewRows")
+    && dsaAppSource.includes('"dsa-input-consumption-list"')
+    && dsaAppSource.includes("The prepared queue changed after the latest run."),
+  "Input Playground is missing exact queue order, display bounds, observed prompt mapping, or stale-run guidance.",
+);
+expect(
+  dsaAppSource.includes("comparisonRunCard")
+    && dsaAppSource.includes("LIMITS.comparisonRuns")
+    && dsaAppSource.includes("state.activeRunInputs")
+    && dsaAppSource.includes('"dsa-comparison-assessment"')
+    && dsaAppSource.includes("not proof that one algorithm is universally faster"),
+  "Compare Algorithms is missing two bounded slots, exact run inputs, its fairness check, or evidence honesty.",
+);
+expect(
+  dsaAppSource.includes('"dsa-edge-method-steps"')
+    && dsaAppSource.includes('"dsa-edge-card-list"')
+    && dsaAppSource.includes("Code Explorer does not record which prompt you attempted")
+    && !dsaAppSource.includes("edgeCaseCompleted"),
+  "Edge Case Lab is missing its prediction workflow or contains a learner-progress contract.",
+);
+expect(
+  stylesSource.includes(".dsa-input-workspace")
+    && stylesSource.includes(".dsa-comparison-slots")
+    && stylesSource.includes(".dsa-edge-experiment-card"),
+  "The three Labs views are missing purpose-specific visual systems.",
+);
 
 if (failures.length) {
   console.error(`DSA foundation validation failed with ${failures.length} issue(s):`);

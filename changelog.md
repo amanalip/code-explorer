@@ -15,6 +15,83 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v19, 2026-07-28
+
+v19 ships **DSA LAB UI redesign Chunk 4**. Input Playground, Compare
+Algorithms, and Edge Case Lab now use separate beginner-oriented experiment
+workflows. All eighteen DSA learning views have purpose-specific layouts.
+Chunk 5 remains the final cross-view accessibility, fallback, responsive, and
+complete regression audit.
+
+### Three redesigned Labs views
+
+| View | Learner-visible change |
+| --- | --- |
+| Input Playground | Separates preparing responses, checking exact order, and observing recorded prompt-to-response evidence |
+| Compare Algorithms | Adds compatible reviewed program cards, two session-only run slots, bounded results, and a fairness check |
+| Edge Case Lab | Adds a Predict, Change, Run, Inspect method and numbered reviewed experiment prompts |
+
+### Input order and stale evidence
+
+- One prepared line remains one ordered response.
+- An entirely empty input document now correctly means zero prepared
+  responses.
+- Blank lines inside a nonempty document remain intentional blank responses.
+- The document stops at 20,000 characters and the visual queue stops at 30
+  rows.
+- The exact document is snapshotted when Run begins.
+- Changing the visible queue after a run produces a warning that the older
+  prompt map belongs to the older queue.
+- Only successful worker-recorded `input()` calls appear in the observed
+  prompt map.
+
+### Honest algorithm comparison
+
+- Compare Algorithms appears only for exact reviewed source in a comparison
+  group with at least two programs.
+- Each related program card names its stable ID, title, reviewed time, and
+  reviewed space.
+- The newest two compatible run summaries remain in page memory only.
+- Each slot shows recorded steps, reached lines, consumed inputs, algorithm,
+  result, prepared response count, and an output preview capped at 800
+  characters.
+- The fairness check compares exact prepared response text.
+- Matching prepared responses still do not prove equivalent source constants
+  or work.
+- Trace-step differences are explicitly described as recording differences,
+  not elapsed time or proof that one algorithm is universally faster.
+- Reloading clears both summaries.
+
+### Edge-case experiment honesty
+
+- Reviewed edge cases now appear as numbered prediction prompts.
+- The method asks the learner to predict, make one focused change, run a fresh
+  trace, and inspect recommended evidence views.
+- Editing or pasting source immediately removes reviewed edge-case context.
+- Code Explorer does not record attempts, completion, or prediction
+  correctness and does not invent Pass or Fail.
+
+### Verification
+
+- The DSA foundation validator now protects all three Labs shells and their
+  bounds, queue snapshot, comparison fairness, and no-tracking behavior.
+- A two-prompt browser run mapped `Ada` and `37` to the recorded prompts in
+  order.
+- Editing the queue after that run produced the stale evidence warning.
+- Empty input after reload reported zero responses.
+- Reviewed DSA-269 and DSA-263 filled Run A and Run B with 217 and 99 recorded
+  steps while preserving the explicit not-timing warning.
+- A singleton comparison group produced a designed unavailable state.
+- Reloading cleared both session summaries.
+- Editing reviewed KMP source removed its reviewed Edge Case Lab prompt.
+- At 390 by 844 in dark mode, Input Playground remained inside a 448-pixel
+  stage, scrolled through 1,598 pixels of content, and created no horizontal
+  page overflow.
+- All 535 DSA programs passed structural, compile, execution, and documented
+  expected-result validation.
+- All 134 Python-language programs passed their independent regression suite,
+  including the three documented intentional-error lessons.
+
 ## v18, 2026-07-28
 
 v18 ships **DSA LAB UI redesign Chunk 3**. All four Flow views now use a

@@ -394,9 +394,28 @@ The runtime may classify conservative cues such as a write, condition, call, ret
 
 ### Labs area
 
-- Input Playground supplies prepared responses for `input()`.
-- Compare Runs stores two trace summaries for comparison.
-- Trace Bookmarks saves important playback moments during the current session.
+- Input Playground turns the locally stored multiline document into an exact
+  ordered response queue. An empty document means zero responses, while blank
+  lines inside a nonempty document remain intentional blank responses.
+- Input Playground maps only worker-recorded successful `input()` calls to
+  prompts and returned values. Changing the queue after a run produces a stale
+  evidence warning rather than silently relabelling the old input log.
+- The prepared document stops at 20,000 characters and its visual preview
+  stops at 30 rows. The complete allowed queue still reaches the worker.
+- Compare Algorithms is restricted to exact reviewed source and comparison
+  groups containing at least two programs. It keeps the newest two compatible
+  summaries in page memory only.
+- Each comparison summary stores exact prepared-input text, trace-step count,
+  reached-line count, consumed-input count, algorithm name, result, and an
+  800-character output preview. The fairness check compares prepared text but
+  states that matching input does not prove equivalent source data.
+- Trace-step differences are recording comparisons, never timings or inferred
+  Big O.
+- Edge Case Lab converts reviewed edge-case text into prediction-first
+  experiment cards. It recommends relevant views but never records attempts,
+  completion, or correctness.
+- Edited or pasted source removes comparison and edge-case curriculum context
+  while the local editor and observed trace remain usable.
 
 ### Playback and visualization
 
@@ -1141,7 +1160,7 @@ The redesign is divided into five commit-sized chunks:
    2026-07-28.
 2. Six Data views. Implemented and verified on 2026-07-28.
 3. Four Flow views. Implemented and verified on 2026-07-28.
-4. Three Labs views.
+4. Three Labs views. Implemented and verified on 2026-07-28.
 5. Cross-view accessibility, responsive behavior, fallbacks, documentation,
    and the complete regression audit.
 
@@ -1149,6 +1168,52 @@ Technical checks must continue to prove stability and conservative evidence.
 Visual acceptance must additionally prove that each view has a purpose-specific
 layout, a designed empty state, a clear primary focus, and readable behavior in
 both themes at desktop and 390-pixel widths.
+
+### Implemented Labs visual system
+
+The three Labs renderers use `createLabsViewShell()` for orientation and
+`renderLabsUnavailable()` for honest next-step states. Labs intentionally
+differs from playback views because its primary job is to guide an experiment,
+not to describe one selected trace line.
+
+```text
+Input Playground
+    prepare exact queue -> preview exact order -> run -> map observed prompts
+
+Compare Algorithms
+    choose reviewed group -> run A -> run B -> inspect bounded evidence
+
+Edge Case Lab
+    predict -> change one condition -> run -> inspect recommended evidence
+```
+
+`state.activeRunInputs` snapshots the exact prepared-input document at run
+start. This matters because the textarea remains editable while asynchronous
+Python work is running. A later comparison summary and Input Playground status
+must describe the sent queue, not whatever text happens to be visible after
+the run.
+
+`state.comparisonRuns` is intentionally session-only. It is never written to
+storage, uploaded, or interpreted as learner progress. Filtering it by the
+current exact reviewed comparison group prevents unrelated algorithms from
+occupying the two visible slots.
+
+Labs regression checks:
+
+1. Confirm an empty prepared document reports zero responses.
+2. Confirm a nonempty document preserves blank internal response lines.
+3. Run two `input()` calls and compare the numbered queue with the observed
+   prompt-to-response map.
+4. Change the queue without rerunning and confirm the stale evidence warning.
+5. Run two exact reviewed programs from one comparison group and confirm Run A,
+   Run B, and the fairness statement.
+6. Reload and confirm comparison summaries disappear while prepared input
+   remains local.
+7. Open a singleton comparison group and confirm a designed unavailable state.
+8. Edit exact reviewed source and confirm Edge Case Lab removes its reviewed
+   prompts immediately.
+9. At 390 pixels in both themes, confirm the stage scrolls internally and the
+   page has no horizontal overflow.
 
 ### Implemented Data visual system
 

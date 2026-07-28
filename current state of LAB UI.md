@@ -2,11 +2,11 @@
 
 Baseline recorded: 2026-07-28 14:32:14 EDT (-0400)
 
-Document status: Living current-state audit, Trace, Data, and Flow redesign Chunks 1 through 3 shipped
+Document status: Living current-state audit, Trace, Data, Flow, and Labs redesign Chunks 1 through 4 shipped
 
 Scope: All 18 learning views in the Data Structures and Algorithms workspace
 
-Last documentation audit: 2026-07-28 16:25:20 EDT (-0400)
+Last documentation audit: 2026-07-28 19:04:26 EDT (-0400)
 
 ## Why this document exists
 
@@ -28,10 +28,11 @@ The current interface is functionally complete:
 - Light mode, dark mode, desktop, and narrow layouts work without page-level
   horizontal overflow.
 
-The interface redesign is now partially complete. All five Trace views, all
-six Data views, and all four Flow views use the new beginner-oriented visual
-system. The remaining three Labs views still use the earlier generic
-treatments and remain the next redesign chunk.
+The interface redesign is now functionally complete at the individual-view
+level. All five Trace views, all six Data views, all four Flow views, and all
+three Labs views use the new beginner-oriented visual system. Chunk 5 remains
+for the complete cross-view accessibility, fallback, responsive, and
+regression audit.
 
 ## Current state after Trace redesign Chunk 1
 
@@ -309,6 +310,103 @@ Real-browser verification covered:
 - A 448-pixel learning stage scrolling through 1,856 to 2,353 pixels of Flow
   content depending on the selected view.
 
+## Current state after Labs redesign Chunk 4
+
+Recorded: 2026-07-28 19:04:26 EDT (-0400)
+
+Chunk 4 changed the presentation and local experiment state of the three Labs
+views. It did not change learner source, the worker trace schema, the
+3,000-step or 30-second execution limits, curriculum records, network
+behavior, or the rule that edited source loses reviewed curriculum context.
+
+Labs now follows a different orientation from playback views:
+
+```text
+evidence badge and Labs view name
+        |
+        v
+one experiment question
+        |
+        v
+program and experiment facts
+        |
+        v
+prepare, compare, or predict workflow
+        |
+        v
+observed result or honest unavailable state
+        |
+        v
+local lifetime and interpretation boundary
+```
+
+| Labs view | Current visual form | Beginner benefit | Honesty boundary |
+| --- | --- | --- | --- |
+| Input Playground | Prepare form, numbered queue, run-queue status, and observed prompt map | Makes response order visible before running and connects only recorded prompts afterward | Empty means zero responses, preview stops at 30 rows, document stops at 20,000 characters, and edited queue text cannot relabel an older run |
+| Compare Algorithms | Compatible reviewed route cards and two side-by-side session slots | Makes two local runs scannable without asking the learner to remember the first result | Exact reviewed groups only, two summaries, 800 output characters, no timing or universal speed claim |
+| Edge Case Lab | Four-step experiment method and numbered reviewed prediction cards | Turns a boundary into one controlled learning action | No automatic verdict, no attempt or completion tracking, and no reviewed cards after source editing |
+
+### Input evidence lifecycle
+
+The exact prepared document is copied into `state.activeRunInputs` before the
+asynchronous worker starts:
+
+```text
+visible prepared document
+        |
+        +-- Run clicked -> immutable run snapshot -> local worker
+        |
+        +-- learner edits visible queue during run
+                 |
+                 +-- visible warning: latest run used older text
+```
+
+This distinction prevents a changed queue from making old prompt evidence look
+current. Intentional blank lines inside a nonempty queue retain their position,
+while a completely empty document produces no prepared responses.
+
+### Comparison evidence lifecycle
+
+Compare Algorithms filters session summaries by the current exact reviewed
+comparison group. Loading a compatible program invalidates the old trace but
+does not erase an earlier compatible summary. Running the second program fills
+the second slot.
+
+```text
+reviewed program A -> local run summary A
+reviewed program B -> local run summary B
+                           |
+                           v
+prepared-text fairness check
+                           |
+                           v
+trace-step difference with explicit not-timing warning
+```
+
+Reloading clears these summaries. They are not saved, uploaded, or treated as
+evidence that a learner attempted or completed a lesson.
+
+### Labs browser evidence
+
+Real-browser verification covered:
+
+- Two prepared responses mapping to two recorded `input()` prompts.
+- A queue edit after running producing a stale evidence warning.
+- Empty prepared text reporting zero responses after reload.
+- Two exact substring-search programs filling Run A and Run B with 217 and 99
+  recorded steps while the interface refused to call the difference timing.
+- A singleton reviewed comparison group producing a designed unavailable
+  state.
+- Reload clearing the two comparison slots.
+- Exact reviewed KMP source receiving one reviewed edge-case prediction.
+- One harmless source comment immediately removing that reviewed prediction.
+- Dark mode at 390 by 844 pixels with no page-level horizontal overflow.
+- A 448-pixel stage scrolling through 1,598 pixels of Input Playground content.
+- All 535 DSA programs passing structural, compile, execution, and expected
+  result validation after the interface change.
+- All 134 Python-language programs passing their independent regression suite,
+  including the three documented intentional errors.
+
 ## Current interface map
 
 ```text
@@ -343,8 +441,8 @@ DSA LEARNING PANEL
 
 ## Current rendering architecture
 
-All views are created dynamically by `dsa-app.js`. Trace, Data, and Flow now
-use separate teaching shells. Labs still uses the earlier generic article.
+All views are created dynamically by `dsa-app.js`. Trace, Data, Flow, and Labs
+use separate teaching shells appropriate to their different learning jobs.
 
 ```text
 selected view ID
@@ -365,7 +463,9 @@ renderActiveView()
       |                +-- optional path graph enhancement
       |                +-- complete ordered HTML fallback
       |
-      +-- Labs -> earlier generic renderer
+      +-- Labs  -> createLabsViewShell()
+                       +-- purpose-specific experiment body
+                       +-- exact local state and lifetime boundary
       |
       v
 bounded dsaViewStage.replaceChildren(...)
@@ -555,13 +655,13 @@ measured without teaching clarity.
 
 ### Trace views
 
-| View | Current presentation | Current strength | Main presentation gap |
+| View | Current presentation | Current strength | Current boundary |
 | --- | --- | --- | --- |
-| Algorithm Story | Heading, prose, and step facts | Uses selected trace evidence | Does not feel like a chronological story |
-| Before and After | Vertical comparison cards | Correct adjacent state and source context | Needs stronger change hierarchy and scanability |
-| Decisions | Condition-oriented cards and text | Preserves observed branch evidence | Operands, result, and chosen path do not form one clear visual |
-| Calls and Recursion | Frame information in generic cards | Uses real recorded frames | Depth, entry, active frame, and return movement are not immediately visible |
-| Error Coach | Error facts and explanatory text | Avoids unsupported diagnosis | Does not yet resemble a focused IDE diagnostic journey |
+| Algorithm Story | Selected-step explanation, bounded timeline, and separate phase map | Makes chronology selectable while protecting exact source evidence | A reviewed phase is never assigned to one selected line without dedicated evidence |
+| Before and After | Full-width vertical variable cards with Before above After | Makes adjacent state appear, disappear, remain, or change with playback | Shows only recorded serialized scope evidence |
+| Decisions | One condition-to-result-to-next-line route | Keeps the actual observed branch together | Visible scope values are context, not proven operands |
+| Calls and Recursion | Depth rail with Active and Waiting frames | Makes changing call depth and bounded locals visible | Edited source retains frames but loses reviewed journey context |
+| Error Coach | IDE-style location, meaning, and next-experiment journey | Explains the recorded error without inventing a repair | A guaranteed fix is explicitly unavailable |
 
 ### Data views
 
@@ -585,11 +685,11 @@ measured without teaching clarity.
 
 ### Labs views
 
-| View | Current presentation | Current strength | Main presentation gap |
+| View | Current presentation | Current strength | Current boundary |
 | --- | --- | --- | --- |
-| Input Playground | One multiline textarea and one Run button | Preserves response order and local-only storage | Inputs are anonymous and disconnected from observed prompts |
-| Compare Algorithms | Related buttons and textual run summaries | Restricts comparisons to reviewed compatible groups | Does not provide a genuine side-by-side comparison |
-| Edge Case Lab | Reviewed bullet list | Does not invent completion tracking or test results | Suggestions do not feel like guided experiments |
+| Input Playground | Prepare, numbered Order, and observed prompt mapping | Preserves exact response order and warns when visible input is newer than run evidence | Document stops at 20,000 characters and preview stops at 30 rows |
+| Compare Algorithms | Reviewed route cards, Run A and Run B, bounded metrics, output, and fairness check | Keeps only compatible exact-source results and refuses timing claims | Two session summaries, 800 output characters per summary, no benchmark claim |
+| Edge Case Lab | Predict, Change, Run, Inspect method with numbered experiment cards | Makes reviewed boundaries actionable without collecting progress | Reviewed cards disappear after source editing and no automatic verdict is produced |
 
 ## Why the Python workspace feels more polished
 
@@ -598,15 +698,19 @@ components for many learning experiences. It has purpose-specific empty
 states, scenario cards, call-stack frames, comparison grids, loop timelines,
 coverage rows, editor-like diagnostics, and carefully styled controls.
 
-The DSA workspace reused the runtime, editor, storage, evidence, and playback
-foundations. It did not reuse the same level of view-specific presentation.
+The DSA workspace originally reused the runtime, editor, storage, evidence,
+and playback foundations without the same level of view-specific
+presentation. Chunks 1 through 4 corrected that gap.
 
 ```text
 Python workspace
     feature -> dedicated markup -> dedicated CSS -> visual iteration
 
-DSA workspace
+DSA workspace before the redesign
     view contract -> generic renderer -> generic CSS -> functional output
+
+DSA workspace after Chunks 1 through 4
+    view question -> evidence model -> purpose-specific visual -> bounded state
 ```
 
 ## How this state developed
@@ -682,17 +786,18 @@ learner data to a request.
 | Evidence honesty | Strong | Reviewed and observed claims remain separated |
 | Browser stability | Strong | Bounded views and numerical limits are established |
 | Accessibility foundation | Moderate | Navigation and scrolling work, but richer visuals need explicit alternatives |
-| Visual differentiation | Strong with one remaining area | Trace, Data, and Flow views are purpose-specific; three Labs views still need redesign |
-| Beginner scanability | Strong with one remaining area | Fifteen views begin with an evidence-aware learner question; Labs retains generic layouts |
-| Empty-state quality | Strong with one remaining area | Trace, Data, and Flow states provide actions; Labs still needs the same treatment |
-| Concept visualization | Strong with bounded limits | History, state, relationships, transitions, debugger rows, and complexity evidence are visual; Labs remains |
+| Visual differentiation | Strong pending final audit | All eighteen views now use purpose-specific teaching layouts |
+| Beginner scanability | Strong pending final audit | Every view begins with an evidence-aware question and a concept-specific reading path |
+| Empty-state quality | Strong pending final audit | Missing trace, curriculum, comparison, and optional graph states explain why and offer a safe next step |
+| Concept visualization | Strong with bounded limits | History, state, relationships, transitions, debugger rows, complexity evidence, input order, comparisons, and experiments are visible |
 
 ## Baseline conclusion
 
 The current DSA LAB UI is technically dependable and now has complete
-beginner-oriented Trace, Data, and Flow areas. It remains visually unfinished
-as a complete 18-view system because the three Labs views and the final
-cross-view audit have not shipped.
+beginner-oriented Trace, Data, Flow, and Labs areas. Every individual view has
+its intended teaching form. The redesign is not declared fully complete until
+Chunk 5 finishes the cross-view accessibility, fallback, responsive, and
+complete curriculum regression audit.
 
 The redesign must preserve the proven runtime and evidence foundation while
 giving every view a visual form appropriate to the concept it teaches.
