@@ -15,7 +15,8 @@
 | Learner data exposure | None |
 | Analytics or telemetry involved | None |
 | Network upload involved | None |
-| Final catalog audit | 397 of 397 DSA programs passed through the real browser worker |
+| Original resolution audit | 397 of 397 DSA programs passed through the real browser worker |
+| Latest regression audit | 451 of 451 DSA programs passed on 2026-07-28 |
 
 ## Executive summary
 
@@ -558,3 +559,147 @@ The worker now produces strict JSON-safe teaching data, the final encoder
 rejects future raw non-finite leaks, focused positive and negative infinity
 examples pass, and all 397 exact DSA catalog programs pass through the real
 browser worker with their documented expected results.
+
+## Post-resolution Chunk 6 regression audit
+
+| Field | Value |
+| --- | --- |
+| Audit timestamp | 2026-07-28 12:47:30 EDT, UTC-04:00 |
+| Release under review | DSA Chunk 6 |
+| Cumulative catalog size | 451 programs |
+| New programs | 54 |
+| New sections | Dynamic programming, Bit manipulation, Elementary mathematical algorithms |
+| Exact browser passes | 451 of 451 |
+| Expected-result matches | 451 of 451 |
+| Transport failures | 0 |
+| Privacy impact | None |
+
+### Why this follow-up was required
+
+The original correction passed the 397-program Chunk 5 catalog, but a
+regression record must remain active when new curriculum uses the same risky
+value boundary. Dynamic programming commonly uses:
+
+```python
+float("inf")
+```
+
+as an initial answer meaning that no finite minimum has been found yet. A
+maximum-value recurrence can similarly use:
+
+```python
+float("-inf")
+```
+
+to represent an impossible state. These values are mathematically useful and
+valid in Python, so forbidding them would hide an important algorithmic
+pattern rather than fix the browser transport.
+
+Aman explicitly asked that the infinity error not return when Chunk 6 shipped.
+That requirement correctly turned the prior incident into a release
+regression, not a one-time historical check.
+
+### Focused Chunk 6 boundary programs
+
+`DSA-403` uses positive infinity while finding a minimum number of coins:
+
+```text
+unreachable state -> positive infinity
+candidate found   -> finite count
+final result      -> minimum count
+```
+
+Verified learner-visible behavior:
+
+- The exact reviewed card was selected.
+- The program ran through the actual Pyodide worker.
+- Runtime status reached `Trace ready`.
+- The completed trace contained 100 recorded steps.
+- Final Console Output contained the record's own `Result: True` marker.
+
+`DSA-406` uses negative infinity while maximizing an exact-capacity
+unbounded-knapsack value:
+
+```text
+impossible state -> negative infinity
+valid transition -> finite value
+final result     -> maximum reachable value
+```
+
+Verified learner-visible behavior:
+
+- The exact reviewed card was selected.
+- The program ran through the actual Pyodide worker.
+- Runtime status reached `Trace ready`.
+- The completed trace contained 157 recorded steps.
+- Final Console Output contained the record's own `Result: True` marker.
+
+The two tests cover opposite signs and opposite optimization meanings. They
+prove that the browser does not confuse an unsolved minimum with an impossible
+maximum while transporting their detached teaching values.
+
+### Complete 451-program browser audit
+
+Focused boundary tests are necessary but cannot prove that the rest of a
+growing catalog still works. The corrected exact-ID harness therefore repeated
+the full learner path for every record:
+
+```text
+wait for Chunk 6 readiness
+        |
+search for the requested stable ID
+        |
+select the exact visible ID
+        |
+run through the real worker
+        |
+require Trace ready
+        |
+move playback to the final step
+        |
+compare visible output with that record's expected marker
+```
+
+Final result:
+
+```text
+Expected records: 451
+Completed browser runs: 451
+Programs reaching Trace ready: 451
+Programs displaying their documented expected result: 451
+Failures: 0
+```
+
+The audit also included focused checks for `DSA-422`, a finite bit-mask
+lesson, and `DSA-451`, the final coprime-congruence lesson. This ensured the
+newest section boundary and final stable ID were both selectable and
+executable.
+
+### What did not change
+
+The Chunk 6 release did not weaken or replace the original protection:
+
+- `math.isfinite` still intercepts every non-finite Python float before the
+  normal primitive transport path.
+- The detached teaching value still keeps type `float`, readable display text,
+  stable string data, and `nonFinite: true`.
+- Final Python JSON encoding still uses `allow_nan=False`.
+- JavaScript still receives strict JSON rather than permissive Python tokens.
+- No learner source, trace, input, output, or error was uploaded.
+- No analytics, telemetry, cookie, identifier, network logger, or remote crash
+  reporter was added.
+
+### Updated prevention rule
+
+Every later DSA chunk must run the focused non-finite matrix when its programs
+use infinity or NaN. A cumulative exact-ID browser audit remains required
+before claiming complete-catalog reliability. The detached Python validator is
+valuable and must continue, but it cannot replace strict serializer and
+consumer evidence.
+
+### Updated resolution statement
+
+The original defect remains resolved. The 397-program resolution audit and the
+451-program Chunk 6 regression audit both passed. Positive infinity, negative
+infinity, and NaN remain valid learner values, and the worker transports them
+as strict JSON-safe teaching evidence without changing live Python behavior.

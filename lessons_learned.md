@@ -3917,6 +3917,314 @@ What to repeat:
 - Keep detached execution because it is fast, but pair it with a real
   transport audit when serializer or worker behavior changes.
 
+# Chunk 6 lessons learned
+
+## 106. A smaller release chunk can protect quality better than a faster combined release
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented
+
+What happened:
+
+The user considered completing the remaining work in one chunk and a half, then
+decided against the larger batch because reliability mattered more than saving
+one commit cycle. Chunk 6 therefore remained a bounded 54-program release.
+
+What the user learned:
+
+- A larger batch is possible in terms of file generation, but possible does
+  not mean equally reviewable.
+- A clean commit boundary makes it easier to identify which curriculum group
+  introduced a count, metadata, runtime, or documentation regression.
+- Stopping after one verified chunk is not wasted time. It creates a known
+  good recovery point.
+
+What Codex learned:
+
+- When the user asks whether a larger batch is reliable, the answer must
+  account for review surface, not only coding capacity.
+- Repeating an already approved plan is less useful than stating the concrete
+  risk that changes under the proposed batch size.
+- A smaller chunk deserves the same complete validation as a final release.
+
+What changed:
+
+- Chunk 6 contains exactly 54 reviewed programs.
+- Chunk 7 remains separate and unimplemented.
+- The repository stops at 451 verified programs so the user can inspect and
+  commit a coherent milestone.
+
+What to do next time:
+
+- Keep generation, review, browser proof, documentation, and commit boundaries
+  aligned.
+- Combine chunks only when their contracts and failure modes are genuinely
+  inseparable.
+
+## 107. Dynamic programming needs a state contract, not merely a table
+
+Perspective:
+- Codex
+- Shared
+
+Status:
+- Implemented
+
+What happened:
+
+The new curriculum covers familiar tables such as coin change, LCS, edit
+distance, grids, and knapsack. A shallow catalog could have labeled any nested
+loop over a list as dynamic programming.
+
+What we learned:
+
+A reliable dynamic-programming explanation answers five questions:
+
+```text
+What does one state mean?
+        |
+What are the base states?
+        |
+Which solved states feed the transition?
+        |
+Why are those dependencies ready in this order?
+        |
+Can an answer be reconstructed, or only measured?
+```
+
+Space optimization is a separate decision. Keeping one row or a few scalar
+values may reduce storage, but it can also remove the history needed to
+reconstruct a chosen sequence.
+
+What changed:
+
+- All 24 dynamic-programming records carry reviewed phases, invariants,
+  edge cases, comparison context, and complexity.
+- The route includes full-table, rolling-state, reconstruction, memoization,
+  tabulation, and optimization-boundary lessons.
+- The public glossary defines state, base state, transition, evaluation order,
+  reconstruction, memoization, tabulation, and space optimization.
+
+What to do next time:
+
+- Reject a dynamic-programming record whose state cannot be explained in one
+  precise sentence.
+- Inspect Before and After for updates and Step Table for dependency order.
+- Never infer a recurrence for pasted or edited source.
+
+## 108. Bit tricks are only honest when their domain is explicit
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented
+
+What happened:
+
+Bit operations often look impressive in a short example, but the same
+expression can become misleading when negative values, unlimited Python
+integers, or an unstated fixed width are involved.
+
+What the user learned:
+
+- A mask identifies positions, but its meaning depends on the contract around
+  those positions.
+- XOR cancellation works only when the input multiplicities match the stated
+  pairing rule.
+- Python integers do not silently overflow like a fixed eight-bit or
+  thirty-two-bit machine integer.
+
+What Codex learned:
+
+- A clever one-line result is not a complete teaching program.
+- Width, signedness, and nonnegative-input assumptions belong in edge cases
+  and visible checks.
+- Binary and decimal output should appear together so a beginner can connect
+  representation with value.
+
+What changed:
+
+- Sixteen reviewed programs cover basic operators, masks, counting, subset
+  masks, packed fields, permissions, set representation, Hamming distance,
+  Gray code, and explicitly bounded addition.
+- Fixed-width behavior is introduced only with a visible width and mask.
+
+What to do next time:
+
+- State the input domain before presenting a bit identity.
+- Include a counterexample or boundary where a convenient rule would stop
+  being valid.
+
+## 109. Mathematical algorithms teach best through executable invariants
+
+Perspective:
+- Codex
+- Shared
+
+Status:
+- Implemented
+
+What happened:
+
+Number-theory examples can become formula demonstrations that print an answer
+without revealing why the algorithm is correct. Chunk 6 instead keeps a
+changing remainder, factor, interval, exponent, digit sequence, or
+congruence condition visible.
+
+What we learned:
+
+- Euclid is easier to understand when consecutive remainder pairs are visible.
+- Extended Euclid should verify `a*x + b*y == gcd(a, b)`.
+- A modular inverse needs a coprimality precondition.
+- A sieve should show what is marked and why marking starts at a square.
+- Integer square root needs a bounded interval and a final inequality check.
+
+What changed:
+
+- Fourteen mathematical programs progress from GCD through congruence
+  combination.
+- Expected-result markers verify both the answer and its defining property
+  where practical.
+- The guide defines important vocabulary near examples and suggests a safe
+  next experiment.
+
+What to do next time:
+
+- Prefer a result plus a property check over a result alone.
+- Explain why the loop state shrinks or approaches termination.
+- Keep theorem-like claims exact-source only.
+
+## 110. The infinity incident must remain a living regression, not a closed story
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented and reverified
+
+What happened:
+
+During Chunk 5, Aman reported that a valid program using infinity failed in the
+browser. The worker correction was verified then, but Aman explicitly asked
+that the error not return in Chunk 6. The new curriculum naturally introduced
+both positive infinity for an unsolved minimum and negative infinity for an
+impossible maximum.
+
+Credit and correction:
+
+- Aman deserves credit for treating the original screenshot as a production
+  reliability issue rather than accepting direct Python validation.
+- Aman also correctly required the regression to be checked during later
+  curriculum growth.
+- Codex's earlier assumption that successful Python execution proved complete
+  application behavior was incomplete.
+
+What changed:
+
+- `DSA-403` exercises positive infinity through the real browser trace path.
+- `DSA-406` exercises negative infinity through the same path.
+- Both reached `Trace ready` with their documented expected results.
+- The definitive exact-ID browser audit expanded from 397 to all 451 catalog
+  programs with zero failures.
+- `bug_report.md` now records the post-fix Chunk 6 regression evidence.
+
+What to do next time:
+
+- Keep `math.isfinite`, the explicit `nonFinite` marker, and
+  `allow_nan=False`.
+- Treat any new optimization curriculum using infinity as a serializer
+  regression test.
+- Test the final learner-visible output, not only the Python calculation.
+
+## 111. Validation thresholds must report evidence, not an aspirational number
+
+Perspective:
+- Codex
+
+Status:
+- Corrected during generation
+
+What happened:
+
+An initial long-program threshold was set before the final source-depth
+distribution was measured. The actual reviewed curriculum contains 220
+programs with at least 15 meaningful lines. The validator threshold was
+corrected to a conservative floor of 218 rather than pretending an unmeasured
+higher count existed.
+
+What we learned:
+
+- A threshold is a regression floor, not a marketing total.
+- Section minima, medians, and maxima reveal more than one cumulative count.
+- An atomic lesson can be high quality at ten lines. Adding filler to cross a
+  line threshold would reduce quality.
+
+What changed:
+
+- The validator reports the distribution for every section.
+- Chunk 6 minima are documented as 10, 10, and 12 meaningful lines.
+- The observed cumulative count of 220 is recorded separately from the
+  protected minimum of 218.
+
+What to do next time:
+
+- Generate and review first, then choose a floor slightly below observed
+  evidence.
+- Fail unexpectedly shallow sections, but inspect focused programs before
+  raising a minimum.
+- Never pad source to satisfy a dashboard number.
+
+## 112. Complete-catalog browser audits are expensive but decisive at shared boundaries
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented
+
+What happened:
+
+Chunk 6 did not change the worker serializer, but it expanded the values and
+algorithms crossing that shared boundary. Detached validation passed all 451
+programs. The earlier incident showed that this alone was not enough.
+
+What we learned:
+
+- A focused test quickly checks a known boundary.
+- A complete exact-ID audit checks unexpected combinations across the whole
+  learner catalog.
+- The audit must wait for controller readiness, select an exact stable ID,
+  advance playback to the final step, and compare the correct program's own
+  expected marker.
+
+Final evidence:
+
+```text
+Expected records: 451
+Completed browser runs: 451
+Exact expected-result matches: 451
+Failures: 0
+```
+
+What to do next time:
+
+- Run the complete audit when shared execution or transport risk is material.
+- Do not describe a partial representative sample as complete-catalog proof.
+- Preserve focused positive-infinity, negative-infinity, and NaN probes even
+  when the full catalog passes.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

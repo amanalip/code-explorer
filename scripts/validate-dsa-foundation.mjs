@@ -169,14 +169,14 @@ expect(
   "DSA view stage is missing its focusable keyboard-scrolling contract.",
 );
 expect(
-  dsaHtml.includes("Chunk 5 implements the first 397 reviewed programs")
-    && dsaHtml.includes("remaining 138 programs"),
-  "DSA status copy does not match the verified Chunk 5 arithmetic.",
+  dsaHtml.includes("Chunk 6 implements the first 451 reviewed programs")
+    && dsaHtml.includes("remaining 84 programs"),
+  "DSA status copy does not match the verified Chunk 6 arithmetic.",
 );
 expect(
-  dsaAppSource.includes("DSA_CHUNK_FIVE_PROGRAMS")
-    && dsaAppSource.includes("DSA_CHUNK_FIVE_SECTIONS"),
-  "DSA controller is not integrating both Chunk 5 program and section contracts.",
+  dsaAppSource.includes("DSA_CHUNK_SIX_PROGRAMS")
+    && dsaAppSource.includes("DSA_CHUNK_SIX_SECTIONS"),
+  "DSA controller is not integrating both Chunk 6 program and section contracts.",
 );
 expect(
   dsaAppSource.includes("reviewedStructureCandidate(selectedStep(), reviewedStructureRole())")

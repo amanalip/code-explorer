@@ -1,16 +1,16 @@
 # Code Explorer Data Structures and Algorithms tiers
 
-This document preserves the curriculum boundary and implementation status for the separate Python Data Structures and Algorithms workspace. Chunk 5 implements the first 397 reviewed programs and the reusable runtime. Later listings remain a planning reference, not a claim that their programs are available.
+This document preserves the curriculum boundary and implementation status for the separate Python Data Structures and Algorithms workspace. Chunk 6 implements the first 451 reviewed programs and the reusable runtime. Later listings remain a planning reference, not a claim that their programs are available.
 
 ```text
 CURRENT STATUS
 
-Tier A  -> Chunk 5 implements 397 of 535 approved programs
+Tier A  -> Chunk 6 implements 451 of 535 approved programs
 Tier B  -> recorded for later evaluation
 Tier C  -> recorded as an optional specialist catalog
 
 Local DSA execution, playback, comparisons, comments, and 18 learning views work.
-The remaining 138 Tier A programs are not implemented yet.
+The remaining 84 Tier A programs are not implemented yet.
 ```
 
 ## Why the work is divided into tiers
@@ -51,7 +51,7 @@ Code Explorer landing page
 |
 +-- Start exploring Python Data Structures and Algorithms
        +-- implemented data-structures.html workspace
-       +-- 397-program Chunk 5 curriculum
+       +-- 451-program Chunk 6 curriculum
        +-- implemented 18-view runtime
        +-- later reviewed curriculum chunks
 ```
@@ -82,15 +82,15 @@ index.html
 
 The existing `README.md` remains the public beginner guide for the Python execution workspace and its 134-program curriculum. It should be linked from `workspace.html`, not from the shared landing page or the Data Structures workspace.
 
-`README_DSA.md` is the public beginner guide for the Data Structures workspace, its implemented 397-program curriculum, evidence boundaries, verified limits, and later completed curriculum chunks. It is linked from `data-structures.html`, not from the existing Python workspace.
+`README_DSA.md` is the public beginner guide for the Data Structures workspace, its implemented 451-program curriculum, evidence boundaries, verified limits, and later completed curriculum chunks. It is linked from `data-structures.html`, not from the existing Python workspace.
 
 `README_DSA.md` must not become a catalogue of unimplemented promises. Update it after each verified Tier A chunk. `Tier.md` remains the planning catalogue; `README_DSA.md` describes only learner-visible behavior that actually exists and explicitly marks unavailable behavior.
 
 Both workspace links should use the same accessible Tool Guide label and visual treatment. Their targets differ by workspace context. External GitHub links must preserve the existing privacy and `noreferrer` rules.
 
-### Implemented Chunk 5 view contract
+### Implemented Chunk 6 view contract
 
-Chunk 5 continues to render working results through the final eighteen names under four bounded areas:
+Chunk 6 continues to render working results through the final eighteen names under four bounded areas:
 
 ```text
 TRACE
@@ -202,7 +202,7 @@ Every direct lesson needs its own primary learning objective and runnable Python
 
 ### Implemented curriculum slices
 
-The first twenty direct-teaching sections are implemented and validated:
+The first twenty-three direct-teaching sections are implemented and validated:
 
 | Implemented section | Programs | Status |
 | --- | ---: | --- |
@@ -226,22 +226,25 @@ The first twenty direct-teaching sections are implemented and validated:
 | Backtracking | 16 | Implemented in Chunk 5 |
 | Divide and conquer | 10 | Implemented in Chunk 5 |
 | Greedy algorithms | 16 | Implemented in Chunk 5 |
-| **Implemented total** | **397** | **Executable and validated** |
+| Dynamic programming | 24 | Implemented in Chunk 6 |
+| Bit manipulation | 16 | Implemented in Chunk 6 |
+| Elementary mathematical algorithms | 14 | Implemented in Chunk 6 |
+| **Implemented total** | **451** | **Executable and validated** |
 
 ```text
 535 approved Tier A programs
-- 397 implemented programs
-= 138 programs remaining
+- 451 implemented programs
+= 84 programs remaining
 ```
 
-The next row in the approved catalog is Dynamic programming. Chunk 5 now provides reviewed recursion, backtracking, divide-and-conquer, and greedy lessons with comparisons, exact metadata, conservative evidence, and validators. Dynamic programming and later sections remain unavailable until their own programs and browser evidence are complete.
+The direct-teaching rows through elementary mathematical algorithms are now implemented. Chunk 6 adds reviewed dynamic-programming, bit-manipulation, and mathematical lessons with exact metadata, conservative evidence, comparisons, and validators. The next approved work is the investigation and integrated guided-challenge curriculum. Those later programs remain unavailable until their own source, metadata, detached validation, and browser evidence are complete.
 
-Chunk 5 release verification also ran all 397 exact catalog programs through
+Chunk 6 release verification also ran all 451 exact catalog programs through
 the real browser worker. Each run reached `Trace ready`, playback advanced to
 the final recorded step, and the visible output matched that record's own
 expected-result marker. This cumulative audit includes the corrected positive
 and negative infinity transport path. It does not change the remaining
-138-program curriculum boundary.
+84-program curriculum boundary.
 
 ### Program quality contract
 

@@ -34,6 +34,10 @@ import {
   DSA_CHUNK_FIVE_PROGRAMS,
   DSA_CHUNK_FIVE_SECTIONS,
 } from "../dsa-curriculum-chunk5.js";
+import {
+  DSA_CHUNK_SIX_PROGRAMS,
+  DSA_CHUNK_SIX_SECTIONS,
+} from "../dsa-curriculum-chunk6.js";
 import { catalogSearchText, matchesCatalogSearch } from "../catalog-search.js";
 
 /** The release validator treats committed chunks as one ordered catalog. */
@@ -43,6 +47,7 @@ const IMPLEMENTED_PROGRAMS = [
   ...DSA_CHUNK_THREE_PROGRAMS,
   ...DSA_CHUNK_FOUR_PROGRAMS,
   ...DSA_CHUNK_FIVE_PROGRAMS,
+  ...DSA_CHUNK_SIX_PROGRAMS,
 ];
 const IMPLEMENTED_SECTIONS = [
   ...DSA_CHUNK_ONE_SECTIONS,
@@ -50,6 +55,7 @@ const IMPLEMENTED_SECTIONS = [
   ...DSA_CHUNK_THREE_SECTIONS,
   ...DSA_CHUNK_FOUR_SECTIONS,
   ...DSA_CHUNK_FIVE_SECTIONS,
+  ...DSA_CHUNK_SIX_SECTIONS,
 ];
 
 /** Throws a readable release-blocking error when one contract is false. */
@@ -87,7 +93,8 @@ expect(DSA_CHUNK_TWO_PROGRAMS.length === 66, `Chunk 2 has ${DSA_CHUNK_TWO_PROGRA
 expect(DSA_CHUNK_THREE_PROGRAMS.length === 72, `Chunk 3 has ${DSA_CHUNK_THREE_PROGRAMS.length} programs, not 72.`);
 expect(DSA_CHUNK_FOUR_PROGRAMS.length === 68, `Chunk 4 has ${DSA_CHUNK_FOUR_PROGRAMS.length} programs, not 68.`);
 expect(DSA_CHUNK_FIVE_PROGRAMS.length === 60, `Chunk 5 has ${DSA_CHUNK_FIVE_PROGRAMS.length} programs, not 60.`);
-expect(IMPLEMENTED_PROGRAMS.length === 397, `Implemented catalog has ${IMPLEMENTED_PROGRAMS.length} programs, not 397.`);
+expect(DSA_CHUNK_SIX_PROGRAMS.length === 54, `Chunk 6 has ${DSA_CHUNK_SIX_PROGRAMS.length} programs, not 54.`);
+expect(IMPLEMENTED_PROGRAMS.length === 451, `Implemented catalog has ${IMPLEMENTED_PROGRAMS.length} programs, not 451.`);
 
 const uniqueIds = new Set();
 const uniqueTitles = new Set();
@@ -149,9 +156,9 @@ const searchPrograms = (query) => indexedPrograms
   .filter(({ searchText }) => matchesCatalogSearch(searchText, query))
   .map(({ program }) => program);
 expect(
-  searchPrograms("DSA-397 minimum refueling stops").length === 1
-    && searchPrograms("DSA-397 minimum refueling stops")[0].id === "dsa-397",
-  "DSA search should find the final Chunk 5 greedy lesson through its stable id and algorithm metadata.",
+  searchPrograms("DSA-451 coprime congruences").length === 1
+    && searchPrograms("DSA-451 coprime congruences")[0].id === "dsa-451",
+  "DSA search should find the final Chunk 6 mathematical lesson through its stable id and algorithm metadata.",
 );
 expect(
   searchPrograms("empty list division").length === 1
@@ -189,19 +196,22 @@ expect(nearDuplicates.length === 0, `Near-duplicate sources found: ${JSON.string
 
 const lineCounts = IMPLEMENTED_PROGRAMS.map(sourceLines).sort((left, right) => left - right);
 const longPrograms = lineCounts.filter((count) => count >= 15).length;
-// At least one hundred ninety longer lessons protect substantial workflows while allowing
+// At least two hundred eighteen longer lessons protect substantial workflows while allowing
 // focused operations to remain concise when the concept is genuinely atomic.
-expect(longPrograms >= 190, `Only ${longPrograms} implemented programs have at least 15 meaningful lines.`);
+expect(longPrograms >= 218, `Only ${longPrograms} implemented programs have at least 15 meaningful lines.`);
 
 /*
- * Chunk 5 requires substantial source where choices, recursion, restoration,
- * and comparison would become misleading if compressed into tiny snippets.
+ * Chunks 5 and 6 require substantial source where recursive choices, state
+ * transitions, bounded masks, and mathematical invariants need visible steps.
  */
 for (const [section, minimumLines] of [
   ["Recursion", 10],
   ["Backtracking", 14],
   ["Divide and conquer", 14],
   ["Greedy algorithms", 11],
+  ["Dynamic programming", 10],
+  ["Bit manipulation", 10],
+  ["Elementary mathematical algorithms", 12],
 ]) {
   const shallowest = Math.min(...IMPLEMENTED_PROGRAMS
     .filter((program) => program.section === section)

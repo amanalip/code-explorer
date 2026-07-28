@@ -15,6 +15,100 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v13, 2026-07-28
+
+v13 ships **Chunk 6: dynamic programming, bit manipulation, and elementary
+mathematical algorithms** for the Python Data Structures and Algorithms
+workspace. It adds 54 reviewed programs to the 397 programs from Chunks 1
+through 5. The implemented catalog now contains 451 programs across
+twenty-three ordered sections.
+
+### Fifty-four new reviewed programs
+
+| Chunk 6 section | Programs | Main learning journey |
+| --- | ---: | --- |
+| Dynamic programming | 24 | State meaning, base cases, transitions, safe evaluation order, one- and two-dimensional tables, reconstruction, memoization, tabulation, and space compression |
+| Bit manipulation | 16 | AND, OR, XOR, masks, shifts, bit counts, cancellation contracts, subset masks, packed fields, finite-width behavior, and bounded addition |
+| Elementary mathematical algorithms | 14 | GCD, extended GCD, LCM, primes, sieves, factors, modular arithmetic, Pascal rows, trailing zeros, integer square roots, bases, fractions, and congruences |
+| **Chunk 6 addition** | **54** | **Reviewed optimization, binary-representation, and integer-algorithm curriculum** |
+
+The exact release arithmetic is:
+
+```text
+397 previously implemented programs
+ 54 Chunk 6 programs
+--------------------
+451 implemented programs
+
+535 approved Tier A destination
+-451 implemented programs
+--------------------
+ 84 programs still unavailable
+```
+
+Stable identifiers now continue through `DSA-451`. Every new record includes
+executable source, a distinct objective, difficulty, expected result,
+structures and events supported by the existing 18 views, phases, invariants,
+edge cases, comparison metadata, reviewed complexity, and recommended views.
+
+### Teaching depth and honest context
+
+- Dynamic-programming lessons explicitly name the state, base states,
+  transition, dependency-safe evaluation order, and any reconstruction or
+  storage-compression tradeoff.
+- Bit-manipulation lessons state the nonnegative-input or finite-width
+  contract behind each mask, shift, cancellation rule, or bounded operation.
+- Mathematical lessons expose their shrinking invariant and required
+  precondition, including coprimality for modular inverses and congruence
+  combinations.
+- Named recurrences, bit-width claims, number-theory conditions, comparisons,
+  proofs, and Big O remain exact-source curriculum context. Edited or pasted
+  source continues to receive only observed local evidence.
+- Two hundred twenty cumulative programs contain at least 15 meaningful
+  source lines. Focused atomic lessons stay concise when extra lines would add
+  noise rather than understanding.
+
+### Non-finite float regression protection
+
+Chunk 6 intentionally exercises both corrected transport boundaries:
+
+- `DSA-403` stores positive infinity as an unsolved minimum-coin state.
+- `DSA-406` stores negative infinity as an impossible maximum-value state.
+- Both programs reached `Trace ready` and displayed their documented results
+  through the real browser worker.
+- The worker still converts non-finite teaching values to strict JSON-safe
+  text with an explicit marker and keeps `allow_nan=False` at final encoding.
+
+This turns the earlier incident into a recurring curriculum regression. A
+future change cannot claim that direct Python execution is sufficient proof of
+browser transport.
+
+### Verification evidence
+
+- Structural validation confirmed 451 unique cumulative records and exact
+  Chunk 6 section counts of 24, 16, and 14.
+- Section source-depth distributions were checked, not only totals. Chunk 6
+  minima are 10 dynamic-programming lines, 10 bit-manipulation lines, and 12
+  mathematical-algorithm lines.
+- The detached Python validator compiled and executed all 451 programs and
+  matched every documented expected-result marker.
+- Catalog search finds the final lesson through `DSA-451 coprime
+  congruences`.
+- Focused browser checks covered positive infinity, negative infinity, bit
+  masks, and the final congruence lesson.
+- A definitive exact-ID browser audit ran all 451 catalog programs through the
+  actual Pyodide worker, advanced every trace to its final recorded step, and
+  matched every program's own expected-result marker. All 451 passed.
+- No dependency, analytics, telemetry, remote logging, learner-data request,
+  storage key, execution limit, timeout, or network behavior was added.
+
+### Known boundary
+
+Chunk 6 completes the direct-teaching sections through elementary
+mathematical algorithms. It does not yet implement the 84 investigation and
+integrated guided-challenge programs. Those records remain planning contracts
+in `Tier.md`, not selectable curriculum.
+
 ## v12, 2026-07-27
 
 v12 ships **Chunk 5: recursion, backtracking, divide and conquer, and greedy

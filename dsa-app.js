@@ -1,43 +1,47 @@
 /**
  * Code Explorer Data Structures and Algorithms workspace controller.
  *
- * Chunk 5 connects the separate editor to 397 reviewed programs, the shared
+ * Chunk 6 connects the separate editor to 451 reviewed programs, the shared
  * bounded Python worker, trace playback, eighteen evidence-aware learning
  * views, prepared input, and non-destructive study comments. All persistence is
  * same-origin browser storage. No learner source or derived trace leaves the
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260727-18";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260727-18";
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260727-18";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-19";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-19";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-19";
 import {
   DSA_AREAS,
   DSA_CATALOG_TARGET,
   DSA_EVIDENCE_LABELS,
   DSA_STRUCTURE_TYPES,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260727-18";
+} from "./dsa-contracts.js?v=20260728-19";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260727-18";
+} from "./dsa-curriculum.js?v=20260728-19";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260727-18";
+} from "./dsa-curriculum-chunk2.js?v=20260728-19";
 import {
   DSA_CHUNK_THREE_PROGRAMS,
   DSA_CHUNK_THREE_SECTIONS,
-} from "./dsa-curriculum-chunk3.js?v=20260727-18";
+} from "./dsa-curriculum-chunk3.js?v=20260728-19";
 import {
   DSA_CHUNK_FOUR_PROGRAMS,
   DSA_CHUNK_FOUR_SECTIONS,
-} from "./dsa-curriculum-chunk4.js?v=20260727-18";
+} from "./dsa-curriculum-chunk4.js?v=20260728-19";
 import {
   DSA_CHUNK_FIVE_PROGRAMS,
   DSA_CHUNK_FIVE_SECTIONS,
-} from "./dsa-curriculum-chunk5.js?v=20260727-18";
+} from "./dsa-curriculum-chunk5.js?v=20260728-19";
+import {
+  DSA_CHUNK_SIX_PROGRAMS,
+  DSA_CHUNK_SIX_SECTIONS,
+} from "./dsa-curriculum-chunk6.js?v=20260728-19";
 import {
   DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
@@ -49,7 +53,7 @@ import {
   variableChanges,
   variableComparisons,
   variablesForStep,
-} from "./dsa-runtime.js?v=20260727-18";
+} from "./dsa-runtime.js?v=20260728-19";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
@@ -58,6 +62,7 @@ const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
   ...DSA_CHUNK_THREE_SECTIONS,
   ...DSA_CHUNK_FOUR_SECTIONS,
   ...DSA_CHUNK_FIVE_SECTIONS,
+  ...DSA_CHUNK_SIX_SECTIONS,
 ]);
 
 /** One immutable catalog supports matching, filtering, comparison, and counts. */
@@ -67,10 +72,11 @@ const DSA_IMPLEMENTED_PROGRAMS = Object.freeze([
   ...DSA_CHUNK_THREE_PROGRAMS,
   ...DSA_CHUNK_FOUR_PROGRAMS,
   ...DSA_CHUNK_FIVE_PROGRAMS,
+  ...DSA_CHUNK_SIX_PROGRAMS,
 ]);
 
 /**
- * Prepared text indexes every reviewed field once instead of flattening 397
+ * Prepared text indexes every reviewed field once instead of flattening 451
  * complete records after every keystroke. The index and query stay in memory.
  */
 const DSA_PROGRAM_SEARCH_INDEX = new Map(
@@ -1509,7 +1515,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260727-18", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260728-19", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;
@@ -1741,7 +1747,7 @@ async function initialize() {
   els.dsaSectionCount.textContent = String(DSA_IMPLEMENTED_SECTIONS.length);
   els.dsaStructureCount.textContent = String(DSA_STRUCTURE_TYPES.length);
   els.dsaCatalogTarget.textContent = String(DSA_CATALOG_TARGET);
-  setRuntimeStatus("Chunk 5 ready", "ready");
+  setRuntimeStatus("Chunk 6 ready", "ready");
 }
 
 initialize();

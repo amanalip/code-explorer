@@ -6,12 +6,12 @@ Everything runs on the learner's device. Code Explorer does not collect learner 
 
 ## Current release status
 
-The DSA workspace is at **Chunk 5: recursion, backtracking, divide and conquer, and greedy algorithms**.
+The DSA workspace is at **Chunk 6: dynamic programming, bit manipulation, and elementary mathematical algorithms**.
 
-Chunks 1 through 5 implement:
+Chunks 1 through 6 implement:
 
-- 397 reviewed and executable curriculum programs.
-- 20 ordered curriculum sections.
+- 451 reviewed and executable curriculum programs.
+- 23 ordered direct-teaching curriculum sections.
 - A vertical example browser with local metadata search, section counts, difficulty, line count, objective, complexity, and recommended views.
 - Local Python execution through the same isolated Pyodide worker used by the Python workspace.
 - A 3,000-step trace limit and a 30-second outer timeout.
@@ -20,14 +20,14 @@ Chunks 1 through 5 implement:
 - Automatic comments, Learning comments, wrapping, font sizing, Copy, Paste, prepared input, source persistence, and theme persistence.
 - 20 approved structure representation names and 31 stable DSA event names.
 
-Chunk 5 does **not** implement all of Tier A. The approved Tier A target is 535 programs, so 138 programs and their later algorithm families remain unimplemented. A planned program, structure, view extension, or algorithm in `Tier.md` is not an implemented claim.
+Chunk 6 completes the 451 approved direct-teaching lessons, but it does **not** implement all of Tier A. The approved Tier A target is 535 programs, so 84 edge-case investigations, debugging investigations, and integrated guided challenges remain unimplemented. A planned program, investigation, challenge, view extension, or algorithm in `Tier.md` is not an implemented claim.
 
 ## Contents
 
 - [Start here](#start-here)
 - [Choose the correct workspace](#choose-the-correct-workspace)
 - [Workspace map](#workspace-map)
-- [The 397-program curriculum](#the-397-program-curriculum)
+- [The 451-program curriculum](#the-451-program-curriculum)
 - [Your first guided run](#your-first-guided-run)
 - [Editor controls](#editor-controls)
 - [Trace playback](#trace-playback)
@@ -110,9 +110,9 @@ DATA STRUCTURES AND ALGORITHMS WORKSPACE
 |   +-- Paste
 |
 +-- CURRICULUM
-|   +-- 397 reviewed programs
+|   +-- 451 reviewed programs
 |   +-- local search across complete reviewed records
-|   +-- 20 vertical section filters
+|   +-- 23 vertical section filters
 |   +-- objective and description
 |   +-- difficulty and line count
 |   +-- reviewed time and space context
@@ -203,7 +203,7 @@ Playback, Console Output, and Chunk Status keep their positions below the bounde
 
 The learning result uses a stable scrollbar gutter, so its readable width does not jump when a short view becomes long enough to scroll. Short results remain inside the same stable region without needing vertical movement. On a phone, the panel uses a shorter but still bounded height. The view-label strip can scroll horizontally, while the selected learning result scrolls vertically.
 
-## The 397-program curriculum
+## The 451-program curriculum
 
 ### Exact implemented counts
 
@@ -229,7 +229,46 @@ The learning result uses a stable scrollbar gutter, so its readable width does n
 | 18 | Backtracking | 16 | Choice trees, restoration, pruning, subsets, permutations, combinations, grids, N-Queens, Sudoku, graph coloring, partitions, and duplicate-aware enumeration |
 | 19 | Divide and conquer | 10 | Balanced reductions, merge sort, quicksort, lower bounds, inversion counting, range optimization, majority candidates, Karatsuba multiplication, and quickselect |
 | 20 | Greedy algorithms | 16 | Scheduling, room allocation, fractional choice, coin boundaries, cash change, reachability, intervals, prefix coding, job sequencing, ropes, and refueling |
-| **Total** | **Chunks 1 through 5** | **397** | **Reviewed structure, graph, recursive, backtracking, divide-and-conquer, and greedy curriculum** |
+| 21 | Dynamic programming | 24 | State design, base states, transitions, tabulation, memoization, reconstruction, space optimization, sequence alignment, grid paths, interval state, and state machines |
+| 22 | Bit manipulation | 16 | AND, OR, XOR, masks, shifts, bit fields, population counts, one-bit properties, cancellation, subsets, flags, bit sets, Hamming distance, Gray code, and bounded bitwise addition |
+| 23 | Elementary mathematical algorithms | 14 | GCD, extended Euclid, LCM, primality, sieves, factorization, modular arithmetic, binomial coefficients, factorial properties, integer roots, base conversion, fractions, and congruences |
+| **Total** | **Chunks 1 through 6** | **451** | **All approved direct-teaching Tier A programs, with investigations and guided challenges still pending** |
+
+### Chunk 6 learning routes
+
+The 54 new programs finish the direct-teaching portion of Tier A through three
+connected routes:
+
+```text
+DYNAMIC PROGRAMMING, 24 PROGRAMS
+|
++-- identify the state and its meaning
++-- write base states before transitions
++-- choose a dependency-safe evaluation order
++-- compare take, skip, split, match, and predecessor transitions
++-- reconstruct an answer from parent or choice information
++-- compress storage only after identifying which earlier states are needed
++-- compare memoization with tabulation without claiming one form is universal
+
+BIT MANIPULATION, 16 PROGRAMS
+|
++-- read AND, OR, XOR, shifts, masks, and one-bit operations
++-- count, isolate, set, clear, toggle, and test bits
++-- use XOR only when the pairing or range contract is satisfied
++-- encode subsets, permissions, bounded membership, and Gray codes
++-- state Python's unbounded-integer behavior and any chosen teaching width
+
+ELEMENTARY MATHEMATICAL ALGORITHMS, 14 PROGRAMS
+|
++-- preserve divisibility through Euclidean remainders
++-- verify Bezout coefficients and modular inverses
++-- distinguish primality testing, sieving, and factorization
++-- use exact integer methods for modular powers, roots, and base conversion
++-- state preconditions for fractions and congruence construction
+```
+
+These routes are recommendations, not tracked progress. Code Explorer does not
+record whether a learner opened or completed any route.
 
 ### Chunk 5 learning routes
 
@@ -381,7 +420,31 @@ My question is about...
        +-- Compare Algorithms, Complexity Lab
 ```
 
-Chunk 5 adds these useful questions:
+Chunk 6 adds these useful questions:
+
+```text
+My question is about...
+|
++-- what one dynamic-programming state means
+|      +-- Algorithm Story, Variables, Invariant Checker
+|
++-- why a table cell changed
+|      +-- Before and After, Decisions, Step Table
+|
++-- how an answer is reconstructed
+|      +-- References, Algorithm Path, Structure Canvas
+|
++-- which bits a mask includes
+|      +-- Variables, Before and After, Step Table
+|
++-- whether a bit trick needs a fixed width or pairing contract
+|      +-- Edge Case Lab, Invariant Checker, Algorithm Story
+|
++-- why a number-theory identity remains true
+       +-- Invariant Checker, Watches, Operation Journey
+```
+
+Earlier Chunk 5 topics add these useful questions:
 
 ```text
 My question is about...
@@ -433,7 +496,7 @@ reveal private interpreter storage.
 
 Every catalog program has:
 
-- A unique stable identifier from `DSA-001` through `DSA-397`.
+- A unique stable identifier from `DSA-001` through `DSA-451`.
 - A distinct title and teaching objective.
 - A section and difficulty.
 - Reviewed source code and prepared input.
@@ -466,6 +529,7 @@ This makes metadata that is not printed in full on every card discoverable. For 
 
 - `DSA-337 Kruskal Prim comparison` finds the final Chunk 4 comparison through its stable ID and algorithm metadata.
 - `DSA-397 minimum refueling stops` finds the final Chunk 5 lesson through its stable ID, title, phases, and greedy metadata.
+- `DSA-451 coprime congruences` finds the final Chunk 6 lesson through its stable ID, modular phases, preconditions, and mathematical metadata.
 - `empty list division` finds **Name an algorithm's input and output** through its reviewed edge-case metadata.
 - `O(log n) guided challenge` requires complexity and difficulty terms to match the same program.
 - A class, function, variable, or operation name can match the reviewed source.
@@ -549,6 +613,83 @@ tie policies, top-k selection, trie prefix applications, and substring-search
 strategies. Compare Algorithms suggests related reviewed programs directly.
 Selecting one loads its complete reviewed source into the editor so a comparison
 run is based on that source, not on a hidden implementation.
+
+### What Chunk 6 adds
+
+```text
+DYNAMIC PROGRAMMING
+state meaning
+   +
+base states
+   +
+transition from already solved states
+   +
+dependency-safe evaluation order
+   |
+   +-- optional parent or choice data for reconstruction
+   +-- optional storage compression after dependencies are understood
+
+BIT MANIPULATION
+finite teaching mask
+   |
+   +-- AND keeps shared one bits
+   +-- OR keeps any one bit
+   +-- XOR keeps differing bits
+   +-- shifts move positional meaning
+   +-- an explicit width defines bounded overflow or signed interpretation
+
+MATHEMATICAL ALGORITHMS
+input contract
+   |
+   +-- exact integer invariant
+   +-- shrinking remainder, factor, interval, exponent, or digit state
+   +-- verified result and boundary condition
+```
+
+Chunk 6 comparisons cover full-table and rolling Fibonacci, staircase cost and
+counting states, zero-one and unbounded knapsack, minimum and counting coin
+change, subset-family problems, LCS length and reconstruction, memoization and
+tabulation, population-count methods, XOR uniqueness contracts, set
+representations, GCD applications, primality approaches, and modular
+arithmetic.
+
+The catalog deliberately uses positive infinity for unsolved minimum states and
+negative infinity for impossible maximum states. These are valid Python floats.
+The strict worker serializer preserves their type and readable spelling while
+transporting JSON-safe trace evidence. Focused DSA-403 and DSA-406 browser
+checks plus the complete 451-program audit protect the correction documented in
+`bug_report.md`.
+
+### Chunk 6 beginner vocabulary
+
+| Term | Beginner meaning | First evidence to inspect | A useful next experiment |
+| --- | --- | --- | --- |
+| **Dynamic programming** | A method that solves overlapping subproblems once and combines stored answers according to a defined state and transition. | Open Algorithm Story and identify what one table index or cell means. | Write the state meaning in one sentence before changing the input. |
+| **State** | The smallest information needed to name one subproblem, such as an index, capacity, prefix pair, grid cell, or transaction count. | Inspect Variables and the table indices at the selected step. | Ask whether removing one state component would make two different subproblems look identical. |
+| **Base state** | A subproblem whose answer is known without reading another dynamic-programming state. | Inspect the table before the main filling loop. | Change an empty-input or zero-capacity boundary and predict the initialized value. |
+| **Transition** | The rule that computes one state from already solved states. | Use Before and After on a cell update. | List every predecessor state used by the transition. |
+| **Evaluation order** | The order in which states are solved so every dependency is ready before it is read. | Follow Step Table from the earliest state to the target. | Reverse a copied loop only when dependencies still point to completed states. |
+| **Memoization** | Top-down storage that solves states when recursion first requests them and reuses cached answers later. | Watch the memo dictionary and Calls and Recursion. | Compare the observed calls with the paired tabulation lesson. |
+| **Tabulation** | Bottom-up storage that fills states in an explicit dependency-safe order. | Inspect the dynamic-programming table across several steps. | Predict which row or index is filled next. |
+| **Reconstruction** | Following stored parents, choices, or table relationships to recover an actual sequence or plan, not only its score. | Open References or Algorithm Path for LCS, LIS, or rod cutting. | Change a tie and see whether a different but equally valid answer appears. |
+| **Space optimization** | Keeping only the earlier states required by the next transition instead of retaining a complete table. | Compare full-table and rolling Fibonacci. | Explain what information is lost, especially whether reconstruction remains possible. |
+| **Bit** | One binary position whose value is zero or one. Position zero is the least significant bit. | Inspect formatted binary output beside the integer value. | Toggle one position and compare the decimal change. |
+| **Mask** | An integer whose selected one bits identify positions an operation should test, keep, add, remove, or toggle. | Watch `mask` and the value before and after a bit operation. | Build a mask containing two positions instead of one. |
+| **XOR** | A bitwise operation that produces one where input bits differ. Equal values cancel because `x ^ x` is zero. | Follow the XOR accumulator in the single-number lesson. | Break the pairing precondition and observe why the remaining value no longer has the promised meaning. |
+| **Population count** | The number of one bits in a nonnegative integer's binary representation. | Compare shifting with clearing the lowest set bit. | Use a value with many zero bits and compare observed iteration counts. |
+| **Bit field** | Several small bounded values or flags packed into different bit positions of one integer. | Inspect the packed binary value and decoded fields. | Try a field value larger than its reserved mask and inspect the overlap. |
+| **Fixed width** | An explicit number of bit positions used to define masking, overflow, or signed interpretation. Python integers do not silently use one small fixed width. | Open the bounded bitwise-addition lesson and inspect its eight-bit mask. | Increase the teaching width and verify the same non-overflowing sum. |
+| **Greatest common divisor** | The largest positive integer dividing both inputs without a remainder. | Follow Euclidean remainder pairs. | Swap the inputs and verify the final GCD is unchanged. |
+| **Bezout identity** | An equation `a*x + b*y = gcd(a, b)` produced by extended Euclid. | Inspect the final coefficients and verification expression. | Change the inputs and verify the new coefficients, not only the GCD. |
+| **Modular inverse** | A value that multiplies another value to leave remainder one under a modulus. It exists only when the value and modulus are coprime. | Inspect the GCD precondition and final modular check. | Choose noncoprime inputs and confirm the inverse becomes unavailable. |
+| **Prime number** | An integer greater than one with no positive divisors except one and itself. | Compare trial division with the sieve. | Test zero, one, two, a square, and a larger prime. |
+| **Sieve** | A table method that marks composite multiples so unmarked candidates are prime. | Use Mutation Explorer on the boolean table. | Lower the limit and predict which crossing steps disappear. |
+| **Congruence** | A statement that two integers have the same remainder under a modulus. | Inspect both remainder checks in the final Chunk 6 lesson. | Change one remainder and recompute the smallest shared solution. |
+
+The honesty boundary remains unchanged. Edited or pasted code can show
+observed table mutations, masks, loops, comparisons, calls, and output. Code
+Explorer does not invent its state definition, recurrence, bit-width contract,
+number-theory precondition, proof, or Big O claim.
 
 ### What Chunk 5 adds
 
@@ -1032,7 +1173,7 @@ Limits protect the browser and keep explanations readable. An execution limit st
 | Compare Algorithms history | 2 run summaries | The oldest in-session summary is replaced |
 | Prepared-input text | 20,000 characters | Additional text is ignored when loaded into the local input field |
 | Active learning views | 18 | Custom learner-defined views are not supported |
-| Implemented curriculum | 397 programs | The remaining 138 Tier A programs are not selectable |
+| Implemented curriculum | 451 programs | The remaining 84 Tier A programs are not selectable |
 | Approved structure names | 20 | Unknown structures receive generic bounded presentation |
 | Stable event names | 31 | Runtime cues remain conservative when an exact DSA event is unavailable |
 
@@ -1170,9 +1311,12 @@ Chunk 4  68 Union-Find, graph representation, traversal, path, and MST programs
 Chunk 5  60 recursion, backtracking, divide-and-conquer, and greedy programs
    |
    v
+Chunk 6  54 dynamic-programming, bit-manipulation, and mathematics programs
+   |
+   v
 Later chunks
    |
-   +-- complete the remaining 138 Tier A programs
+   +-- complete the remaining 84 Tier A programs
    +-- preserve the same evidence labels and limits
    +-- extend validators before making implementation claims
 ```
