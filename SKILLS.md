@@ -719,11 +719,24 @@ The `learningComments` result contains JSON-compatible records with `line`, `lev
 - `state.activeView` selects one of the 18 contracted renderers and is locally restored.
 - `state.selectedProgramId` stores only the stable origin of the reviewed DSA question. It survives edits so the learner keeps the prompt, but Paste and complete-source transformations clear it.
 - `state.automaticCommentsVisible` changes only presentation. Original editor source remains the source of truth.
+- `state.referenceGraphLibrary` caches only the optional Cytoscape module for
+  the current page. `state.referenceGraph` owns the live References instance,
+  and `state.referenceGraphRenderId` rejects stale asynchronous completions.
 - Editing source immediately clears the old trace, error, comments, comparison eligibility, and exact reviewed-program identity.
 - Reviewed phases, invariants, edge cases, complexity, and comparison groups must read from `state.program`, never from source-text heuristics.
 - Observed views must read from worker evidence and remain useful when `state.program` is null.
-- Structure Canvas may use `state.program.structures` to orient observed cells as a stack, queue, deque, linked structure, hash table, or set only after that exact reviewed match succeeds.
+- Structure Canvas may use exact reviewed structure metadata to orient observed cells as a stack, queue, deque, linked structure, hash table, set, tree, heap, priority queue, trie, Union-Find, or graph only after that exact reviewed match succeeds.
+- `reviewedStructureCandidate()` must select a compatible semantically named
+  container before falling back to the generic largest-container helper. This
+  prevents an input list from receiving stack, tree, trie, or graph labels.
 - The role label never changes the serialized value or claims a physical memory layout. Learner-authored or modified source receives the generic observed structure layout.
+- `dataScopeGroups()` keeps globals and real function locals separate but
+  removes the duplicate module-local namespace.
+- `groupedObjectChanges()` converts name-level alias reports into one object
+  mutation event with multiple affected names.
+- Invariant Checker currently has no general proof engine. Exact reviewed
+  rules are questions paired with observed lines, and every automatic
+  satisfied or violated verdict must remain Unavailable.
 
 ## Persistence inventory
 
@@ -766,6 +779,9 @@ None of these values is an analytics event. There is no synchronization, account
 - Default Python object representations are normalized to stable teaching labels such as `<Pet instance>` so the interface does not display process-specific hexadecimal addresses as meaningful memory locations.
 - Only frames belonging to the learner's virtual file enter the educational call stack.
 - Graphs are conceptual views and must not claim to show physical RAM addresses.
+- The DSA References graph contains at most 90 combined nodes and edges. The
+  complete semantic text map must remain available when the graph is
+  shortened, loading, unavailable, or deliberately suspended during playback.
 - Learner strings rendered as markup must be escaped.
 - Learner source, prepared input, trace snapshots, console output, clipboard contents, watches, bookmarks, and preferences must never be transmitted to analytics, telemetry, tracking, profiling, advertising, or remote logging services.
 - Console warnings may explain local browser failures, but must not be forwarded automatically to a remote collector.
@@ -867,11 +883,20 @@ Category changes must set the card region's `scrollTop` to zero. Every mobile ca
 ### Add or change a graph
 
 1. Reuse the shared Cytoscape loader and palette.
-2. Build stable element ids from stable program concepts.
-3. Avoid rerunning layout on every selected trace step when selection styling is enough.
-4. Connect the shared fit and zoom behavior.
-5. Check label legibility in both themes and at several zoom levels.
-6. Check that switching tabs does not produce shaking or repeated resizing.
+2. Render complete semantic HTML before starting the optional import. The
+   graph must enhance essential facts rather than own them.
+3. Build stable element ids from stable program concepts.
+4. Bound the DSA References graph to 90 combined nodes and edges.
+5. Avoid rerunning layout on every selected trace step when selection styling
+   is enough. DSA References destroys its graph when automatic playback starts
+   and rebuilds once after playback pauses or completes.
+6. Use a render generation number when a tab, theme, or trace can change while
+   an asynchronous import or layout is still pending.
+7. Connect Fit and the 50 to 160 percent zoom range.
+8. Check label legibility in both themes and at several zoom levels.
+9. Intercept or block the optional library request and prove that the text
+   fallback remains complete.
+10. Check that switching tabs does not produce shaking or repeated resizing.
 
 ### Change a DSA study preview
 
@@ -1061,6 +1086,22 @@ Verify all three detail levels, inline on and off, unchanged source statistics, 
 - Editing the exact trie source produced Observed line evidence and the explicit `Named algorithm unavailable` boundary.
 - All 18 registered DSA views rendered after a completed Chunk 3 trace without an exception.
 - At 390 by 844 in dark mode, the DSA learning panel remained 590 pixels high, the stage scrolled from 0 to 120, and document width remained exactly 390 pixels.
+- Data redesign testing on 2026-07-28 rendered all six Data views after a
+  reviewed trace and found no ordinary-run console errors or page errors.
+- Variables removed the duplicate module-local namespace while retaining a
+  separate `f()` local scope during two recorded function steps.
+- Reviewed `DSA-132` selected the semantically compatible `stack` list instead
+  of the longer `operations` input and displayed BASE and TOP.
+- An edited `items` and `alias` program produced one shared References object
+  group and one append mutation with two affected names.
+- The References graph produced Fit, a 50 to 160 percent zoom slider, labelled
+  scope, name, and object nodes, and three Cytoscape canvases. During playback
+  it produced zero canvases and an explicit pause message, then rebuilt after
+  pause.
+- Intercepting the exact Cytoscape request produced the explicit graph
+  unavailable state while the complete semantic text map remained readable.
+- At 390 by 844 in dark mode, References retained zero page-level horizontal
+  overflow and a 448-pixel stage scrolled through 1,562 pixels of content.
 
 ## Documentation completion test
 
@@ -1094,7 +1135,7 @@ The redesign is divided into five commit-sized chunks:
 
 1. Shared visual system and five Trace views. Implemented and verified on
    2026-07-28.
-2. Six Data views.
+2. Six Data views. Implemented and verified on 2026-07-28.
 3. Four Flow views.
 4. Three Labs views.
 5. Cross-view accessibility, responsive behavior, fallbacks, documentation,
@@ -1104,6 +1145,48 @@ Technical checks must continue to prove stability and conservative evidence.
 Visual acceptance must additionally prove that each view has a purpose-specific
 layout, a designed empty state, a clear primary focus, and readable behavior in
 both themes at desktop and 390-pixel widths.
+
+### Implemented Data visual system
+
+The six Data renderers use `createDataViewShell()` for orientation and
+`renderDataUnavailable()` for purposeful empty states. The shared shell owns
+only evidence, question, program, selected step, source line, exact source, and
+bounded facts. Each renderer owns its own learning visual.
+
+```text
+createDataViewShell()
+        |
+        +-- evidence and Data view identity
+        +-- one beginner question
+        +-- program, step, and source line
+        +-- escaped executed source
+        |
+        v
+purpose-specific body mount
+        |
+        +-- Variables scope dashboard
+        +-- Watches suggestion dashboard
+        +-- Structure Canvas reading guide and cells
+        +-- References graph enhancement and text map
+        +-- Mutation Explorer object journey
+        +-- Invariant Checker reviewed checklist
+```
+
+The important evidence boundaries are:
+
+- Module globals and locals are one displayed namespace.
+- A separate local scope appears only for a real active function.
+- Watch suggestions are not user tracking or proof of control flow.
+- Reviewed structure orientation disappears after any source edit.
+- Flattened serialized values never justify invented edges.
+- Reference object tokens are conceptual and session-local.
+- One changed object shared by aliases is one mutation event.
+- Invariants receive no automatic verdict without a dedicated verified check.
+
+The References enhancement lazily imports the already pinned Cytoscape 3.31.0
+module from `esm.sh`. No learner source, prepared input, trace, object token,
+or identifier is attached to that asset request. The complete HTML map is the
+accessible fallback and remains present after success.
 
 ### Implemented Trace visual system
 

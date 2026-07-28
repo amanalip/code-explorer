@@ -1118,27 +1118,184 @@ knows the intended program. A trace-limit failure still clearly states the
 
 #### Variables
 
-Shows bounded serialized names, values, and Python types at the selected step.
+Answers: **Which names and values are visible at this recorded step?**
+
+Variables divides recorded state into Global scope and, while a function is
+active, that function's local scope. Module-level globals and locals are one
+Python namespace, so the view does not display them twice. This prevents a
+single name from looking like two separate variables.
+
+Every visible-name card shows:
+
+- The Python name.
+- Created, changed, removed, or unchanged state.
+- The current bounded value.
+- The recorded Python type.
+- The scope that owns the name.
+- The previous value when an adjacent snapshot provides a useful comparison.
+
+```text
+GLOBAL SCOPE
+|
++-- total
+|     current: 82
+|     type: int
+|     state: changed
+|
++-- temperatures
+      current: [18, 21, 19, 24]
+      type: list
+      state: unchanged
+
+f() LOCAL SCOPE
+|
++-- x
++-- y
+```
+
+Values are serialized snapshots. They are deliberately bounded and are not a
+live object inspector or physical memory display.
 
 #### Watches
 
-Suggests up to 12 currently visible names. These are local suggestions, not saved learner progress, and not a claim that every name controls the algorithm.
+Answers: **Which changing names may help me follow this algorithm?**
+
+Watches suggests up to 12 names from the current recorded scope. Names that
+look like common control variables, such as `low`, `right`, `count`, `total`,
+or `current`, are ranked ahead of other visible names. Every row states whether
+the suggestion was a control-name match or simply a visible name, then shows
+its value and current change state.
+
+The ranking is a local reading aid. It is not a semantic proof that the name
+controls the algorithm. It is not saved as learner progress, sent to a server,
+or used for analytics. Use Variables when more than 12 names are visible.
 
 #### Structure Canvas
 
-Shows one visible container using a representation appropriate to its serialized shape. For an exact catalog program, reviewed labels can orient the same observed cells as stack TOP and BASE, queue FRONT and REAR, linked HEAD and TAIL, hash entries, set members, tree root fields, heap roots and nodes, or trie character edges. Pasted code receives generic observed cells because its abstract role is not reviewed. A display contains at most 30 cells or entries. Additional content is marked Shortened.
+Answers: **How is one visible container organized at this step?**
+
+Structure Canvas chooses one compatible observed container. For an exact
+unchanged catalog program, it also uses reviewed metadata to prefer the
+semantically relevant name. A stack lesson containing both `operations` and
+`stack`, for example, selects `stack` even when `operations` is longer.
+
+Reviewed orientation can label:
+
+- Stack BASE and TOP.
+- Queue or deque FRONT and REAR.
+- Linked HEAD and TAIL positions.
+- Hash entries and set members.
+- Tree root fields.
+- Heap or priority-queue ROOT, NODE, and LEAF positions.
+- Trie character-edge fields.
+- Union-Find representative or parent entries.
+- Graph adjacency or graph entries.
+
+```text
+Reviewed list-backed stack
+
+BASE                      TOP
+ +-----------+-----------+
+ | 'draft'   | 'review'  |
+ +-----------+-----------+
+```
+
+The Canvas remains conservative. A flattened serialized tree, linked list,
+trie, Union-Find forest, or graph does not contain enough structured edge
+evidence for the renderer to invent a node diagram. In those cases the view
+shows bounded cells and states the limitation. Edited or pasted source loses
+the reviewed role and keeps generic observed cells.
+
+At most 30 cells or entries are shown. If the recorded value is larger, the
+view says Shortened while the rest of the trace remains inspectable.
 
 #### References
 
-Groups names by conceptual object token. This is a name-to-object teaching map, not a physical RAM address and not a memory profiler.
+Answers: **Which names point to the same conceptual Python object?**
+
+References groups names by temporary object tokens recorded by the local
+worker. It preserves scope labels, so a real local name can be distinguished
+from a global name. The module namespace is shown only once.
+
+The essential representation is always semantic HTML:
+
+```text
+Global scope
+  items ──┐
+          ├──> list [1, 2, 3]
+  alias ──┘
+```
+
+When the optional pinned Cytoscape library loads, the same bounded evidence is
+enhanced with:
+
+- Scope, name, and object nodes.
+- Labelled `contains` and `references` edges.
+- Fit.
+- A 50 to 160 percent zoom slider.
+- Pan and node selection.
+- Theme-aware high-contrast labels.
+
+The graph contains at most 90 combined nodes and edges. The complete text map
+remains below it, including when the graph is shortened or cannot load.
+
+References deliberately stops rebuilding the optional graph during automatic
+playback. The text map continues to follow the selected step, and one graph is
+built after playback pauses or finishes. This prevents shaking and repeated
+layout work.
+
+Object tokens are temporary conceptual evidence for one local run. They are
+not physical RAM addresses, persistent identifiers, learner identifiers, or a
+memory profiler.
 
 #### Mutation Explorer
 
-Separates a name referencing a different object from an observed in-place value change when tokens and serialized evidence permit that distinction.
+Answers: **Did an object change in place, or did a name point somewhere new?**
+
+Mutation Explorer compares adjacent snapshots and separates:
+
+- **Same object changed**, where the temporary object token stayed the same
+  while its bounded value changed.
+- **Name reassigned**, where a name was created, removed, or now refers to a
+  different conceptual object token.
+
+Each object event is shown as:
+
+```text
+BEFORE                EXECUTED                 AFTER
+[1, 2]       ->       items.append(3)    ->    [1, 2, 3]
+
+Affected names sharing this object:
+items, alias
+```
+
+The worker reports snapshot changes by visible name. If `items` and `alias`
+both refer to the same changed list, the view groups those reports into one
+object mutation and lists both affected names. It does not pretend that one
+list mutated twice.
+
+Primitive-only changes may not appear here because this view focuses on
+object identity. Use Variables for all visible name changes.
 
 #### Invariant Checker
 
-Shows reviewed invariant questions for an exact catalog program. It currently presents rules to test rather than claiming a formal proof.
+Answers: **Which reviewed rule should remain true, and what evidence can I
+inspect?**
+
+An invariant is a rule expected to remain true at defined points in an
+algorithm. Exact unchanged reviewed programs supply invariant statements. The
+view places the selected observed source line beside each rule so a learner
+can ask whether that line preserves the rule.
+
+Code Explorer does not currently implement a dedicated mathematical checker
+for each curriculum invariant. Every automatic satisfied or violated verdict
+therefore says **Unavailable**. This is intentional honesty, not a missing
+green success icon.
+
+A reviewed program's final `Result: True` marker checks its documented output.
+It does not prove that every invariant held after every intermediate step.
+Edited or pasted source loses reviewed invariant statements while the other
+observed Data views continue to work.
 
 ### Flow area
 
@@ -1317,6 +1474,7 @@ Limits protect the browser and keep explanations readable. An execution limit st
 | Non-finite floats | `inf`, `-inf`, and `nan` | Python keeps the live float while the trace transports its type and readable spelling through strict JSON-safe text |
 | Structure Canvas entries | 30 | The view is labeled Shortened |
 | Suggested watches | 12 names | Additional visible names are not shown in Watches |
+| References graph | 90 combined nodes and edges | The graph is shortened while the complete text map remains available |
 | Operation Journey | 30 events | The view is labeled Shortened |
 | Algorithm Path | 80 transitions | The view is labeled Shortened |
 | Step Table | 120 rows | The view is labeled Shortened |
@@ -1382,9 +1540,16 @@ The application does not upload:
 Browser execution still makes ordinary asset requests:
 
 - GitHub Pages serves the static site.
-- jsDelivr serves pinned browser libraries.
+- `esm.sh` serves pinned CodeMirror modules and, when References has useful
+  evidence, pinned Cytoscape 3.31.0.
+- jsDelivr serves pinned Pyodide files.
 - Google Fonts may serve the configured fonts.
 - Explicit external links navigate only when selected.
+
+The References request uses the fixed Cytoscape library URL. Code Explorer
+does not append source, trace content, object tokens, selected names, program
+IDs, catalog searches, local-storage values, or learner identifiers. If the
+request fails, the complete local semantic text map remains usable.
 
 Those providers can receive ordinary request metadata such as an IP address and browser headers under their own policies. Code Explorer does not attach learner content or project-generated identifiers to those requests. The project maintainers cannot inspect provider-side raw IP addresses or browser headers through Code Explorer.
 

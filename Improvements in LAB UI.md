@@ -2,13 +2,13 @@
 
 Ledger created: 2026-07-28 14:32:14 EDT (-0400)
 
-Document status: Living implementation ledger, Trace redesign Chunk 1 verified
+Document status: Living implementation ledger, Trace and Data redesign Chunks 1 and 2 verified
 
 Scope: Visual and interaction redesign of all 18 DSA learning views
 
 Companion baseline: `current state of LAB UI.md`
 
-Last implementation audit: 2026-07-28 14:59:56 EDT (-0400)
+Last implementation audit: 2026-07-28 15:37:06 EDT (-0400)
 
 ## How to read this document
 
@@ -111,10 +111,11 @@ The redesign must not change:
 
 ## Shared visual system
 
-Status: Partially implemented and verified for the five Trace views
+Status: Implemented and verified for the five Trace and six Data views
 
-The five Trace views now use the shared orientation and unavailable-state
-components while retaining their own layouts. Data, Flow, and Labs adoption
+The five Trace views use one shared Trace shell. The six Data views use a
+parallel Data shell with scope, structure, identity, and mutation vocabulary.
+Every view retains its own purpose-specific layout. Flow and Labs adoption
 remains planned.
 
 ### Program and step context strip
@@ -376,7 +377,7 @@ How:
 
 #### Variables
 
-Status: Planned
+Status: Implemented and verified in Chunk 2
 
 Change:
 
@@ -387,10 +388,15 @@ How:
 - Use variable cards with name, type, scope, current value, previous value,
   and change state.
 - Keep large or nested values bounded.
+- Preserve Global scope and a real active function scope as separate sections.
+- Omit the duplicate module-local namespace because Python module globals and
+  locals describe the same names.
+- Show previous values only when the adjacent recorded snapshot makes that
+  comparison meaningful.
 
 #### Watches
 
-Status: Planned
+Status: Implemented and verified in Chunk 2
 
 Change:
 
@@ -401,10 +407,13 @@ How:
 - Distinguish changed, unchanged, newly created, removed, and unavailable
   values using text and shape.
 - Retain the twelve-name display limit.
+- Explain why a name was suggested.
+- State that suggestions are local, unsaved, and neither analytics nor proof
+  of algorithmic control.
 
 #### Structure Canvas
 
-Status: Planned
+Status: Implemented and verified in Chunk 2
 
 Change:
 
@@ -418,10 +427,16 @@ How:
 - Use a graph canvas only for relationships that genuinely need nodes and
   edges, such as linked structures, trees, tries, Union-Find, and graphs.
 - Retain the thirty-entry display limit.
+- Prefer a compatible semantically named value for exact reviewed source. For
+  example, a stack lesson selects `stack` instead of a larger input list named
+  `operations`.
+- Keep edited and pasted source on generic observed cells.
+- Do not parse flattened serialized text into invented linked, tree, trie,
+  Union-Find, or graph edges.
 
 #### References
 
-Status: Planned
+Status: Implemented and verified in Chunk 2
 
 Change:
 
@@ -435,10 +450,15 @@ How:
 - Provide Fit, zoom, pan, selection, labels, and a readable HTML fallback.
 - Continue stating that the map is conceptual and not a physical RAM-address
   view.
+- Render the complete semantic text map before attempting the optional graph.
+- Limit the graph to 90 combined nodes and edges.
+- Suspend Cytoscape rebuilding during automatic playback and rebuild once
+  after pause or completion.
+- Destroy the graph before leaving References or changing its theme.
 
 #### Mutation Explorer
 
-Status: Planned
+Status: Implemented and verified in Chunk 2
 
 Change:
 
@@ -449,10 +469,13 @@ How:
 
 - Build a vertical mutation timeline from existing bounded mutation evidence.
 - Visually link aliases only when serialized reference evidence supports it.
+- Group alias-level reports of the same object-token change into one object
+  event.
+- Present Before, Executed source, and After as one vertical learning journey.
 
 #### Invariant Checker
 
-Status: Planned
+Status: Implemented and verified in Chunk 2
 
 Change:
 
@@ -460,9 +483,11 @@ Change:
 
 How:
 
-- Show the invariant statement, current evidence, and one of satisfied,
-  violated, or unavailable.
+- Show the invariant statement, current observed line, and an explicit
+  Unavailable automatic verdict.
 - Never turn lack of evidence into a success.
+- Explain that a correct final Result marker does not prove that every
+  invariant held after every recorded step.
 
 ### FLOW
 
@@ -895,7 +920,6 @@ Verification:
 
 Remaining:
 
-- Chunk 2 Data views.
 - Chunk 3 Flow views.
 - Chunk 4 Labs views.
 - Chunk 5 cross-view accessibility, fallback, documentation, and complete
@@ -903,11 +927,61 @@ Remaining:
 
 ### Chunk 2
 
-Status: Not started
+Status: Implemented and verified
 
-Actual changes: None
+Actual changes:
 
-Verification: Not run
+- Added one shared Data orientation shell and one designed unavailable state.
+- Rebuilt Variables as a scope-aware dashboard with type, state, current
+  value, and meaningful previous value.
+- Rebuilt Watches as a bounded twelve-name suggestion dashboard with visible
+  reasons and privacy language.
+- Rebuilt Structure Canvas with reviewed role selection, 30-cell limits, and
+  conservative reading guides across all approved structure families.
+- Added an optional pinned Cytoscape 3.31.0 References map with Fit, zoom, pan,
+  node selection, labels, light and dark palettes, and a 90-element limit.
+- Kept a complete semantic References text map permanently available.
+- Prevented graph recreation on every playback tick by suspending the graph
+  during playback and rebuilding once after pause.
+- Rebuilt Mutation Explorer as one Before to Executed to After journey per
+  unique conceptual object event.
+- Rebuilt Invariant Checker as a reviewed question checklist without invented
+  satisfied or violated verdicts.
+- Extended the DSA foundation validator with source contracts for every Data
+  view and its important safety boundary.
+
+Corrections made during browser verification:
+
+1. The first scope implementation showed module globals and module locals as
+   two scopes. Browser evidence revealed the duplicated `temperatures` name.
+   The final implementation removes that duplicate while preserving actual
+   function-local frames.
+2. The first Mutation Explorer counted one aliased list mutation twice. The
+   final implementation groups equivalent object-token changes and names both
+   affected aliases.
+3. The generic largest-container rule selected `operations` instead of
+   `stack` in reviewed `DSA-132`. The final reviewed selector ranks compatible
+   semantically named values and renders the correct BASE and TOP orientation.
+
+Verification:
+
+- `node --check dsa-app.js`
+- `node scripts/validate-dsa-foundation.mjs`
+- All six Data views rendered after a reviewed trace.
+- Variables retained one Global scope at module level and added a separate
+  `f()` local scope during a function call.
+- Reviewed `DSA-132` selected `stack` and showed BASE and TOP.
+- Edited alias source grouped `items` and `alias` into one reference group.
+- The matching append produced one in-place mutation with two affected names.
+- The References map reported ready with three Cytoscape canvases, Fit, and a
+  working zoom slider.
+- Playback removed the graph while its selected step changed and rebuilt one
+  graph after pause.
+- An intercepted Cytoscape request produced the explicit unavailable message
+  while the complete text map remained.
+- At 390 by 844 in dark mode the document had no horizontal overflow and the
+  448-pixel stage scrolled through 1,562 pixels of References content.
+- An ordinary six-tab Data sweep reported no console errors or page errors.
 
 ### Chunk 3
 

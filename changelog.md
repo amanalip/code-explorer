@@ -15,6 +15,72 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v17, 2026-07-28
+
+v17 ships **DSA LAB UI redesign Chunk 2**. All six Data views now use a
+beginner-oriented visual system. The four Flow and three Labs views remain
+later redesign chunks.
+
+### Six redesigned Data views
+
+| View | Learner-visible change |
+| --- | --- |
+| Variables | Groups names by real scope and shows current value, type, change state, and meaningful previous value |
+| Watches | Suggests up to 12 local names with a visible reason and change state |
+| Structure Canvas | Selects a compatible observed container and adds conservative reviewed orientation for every approved structure family |
+| References | Adds an optional interactive Cytoscape map while permanently retaining a complete text map |
+| Mutation Explorer | Connects Before, Executed source, After, and affected aliases in one object-level journey |
+| Invariant Checker | Places reviewed rules beside the selected observed line and explicitly withholds unverified verdicts |
+
+Every Data view begins with its evidence, one beginner question, program,
+selected step, source line, and exact source. Pre-run and unavailable states
+explain why evidence is missing and what the learner can try next.
+
+### Corrected mental models
+
+Browser testing found three important teaching defects before release:
+
+1. Module-level globals and locals described one Python namespace but appeared
+   as two scope boxes. They now appear once, while real function locals remain
+   separate.
+2. One list referenced by `items` and `alias` produced two name-level change
+   reports. Mutation Explorer now presents one changed object with two affected
+   names.
+3. A reviewed stack lesson selected the longer `operations` input list.
+   Reviewed Structure Canvas selection now prefers the compatible `stack`
+   value and shows BASE and TOP.
+
+### Stable optional reference graph
+
+- References lazily reuses pinned Cytoscape 3.31.0 from `esm.sh`.
+- Fit, 50 to 160 percent zoom, pan, selection, labelled nodes, and theme-aware
+  colors are available after the module loads.
+- The graph stops at 90 combined nodes and edges.
+- The complete semantic text map remains available after success, shortening,
+  or loading failure.
+- Automatic playback suspends the graph instead of rebuilding its layout on
+  every tick. One graph returns after pause or completion.
+- The asset request carries no learner source, prepared input, trace, object
+  token, local preference, or identifier.
+
+### Verification
+
+- The DSA foundation validator protects the shared Data shell and all six
+  purpose-specific evidence contracts.
+- All six Data views rendered after a reviewed trace.
+- A real function call produced a separate `f()` local scope.
+- Reviewed `DSA-132` selected `stack` and displayed BASE and TOP.
+- Edited alias source produced one shared reference group and one mutation
+  event with two affected names.
+- References produced three Cytoscape canvases, suspended them during
+  playback, and rebuilt them after pause.
+- Deliberately blocking the exact Cytoscape request left the complete text map
+  usable with an explicit unavailable message.
+- A 390 by 844 dark-mode check found no page-level horizontal overflow and
+  confirmed bounded internal scrolling.
+- Ordinary-run console and page-error listeners reported no errors while all
+  six tabs were opened.
+
 ## v16, 2026-07-28
 
 v16 ships **DSA LAB UI redesign Chunk 1**. LAB UI means the complete learning

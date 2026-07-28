@@ -8,42 +8,42 @@
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-22";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-22";
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-22";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-24";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-24";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-24";
 import {
   DSA_AREAS,
   DSA_EVIDENCE_LABELS,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260728-22";
+} from "./dsa-contracts.js?v=20260728-24";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260728-22";
+} from "./dsa-curriculum.js?v=20260728-24";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260728-22";
+} from "./dsa-curriculum-chunk2.js?v=20260728-24";
 import {
   DSA_CHUNK_THREE_PROGRAMS,
   DSA_CHUNK_THREE_SECTIONS,
-} from "./dsa-curriculum-chunk3.js?v=20260728-22";
+} from "./dsa-curriculum-chunk3.js?v=20260728-24";
 import {
   DSA_CHUNK_FOUR_PROGRAMS,
   DSA_CHUNK_FOUR_SECTIONS,
-} from "./dsa-curriculum-chunk4.js?v=20260728-22";
+} from "./dsa-curriculum-chunk4.js?v=20260728-24";
 import {
   DSA_CHUNK_FIVE_PROGRAMS,
   DSA_CHUNK_FIVE_SECTIONS,
-} from "./dsa-curriculum-chunk5.js?v=20260728-22";
+} from "./dsa-curriculum-chunk5.js?v=20260728-24";
 import {
   DSA_CHUNK_SIX_PROGRAMS,
   DSA_CHUNK_SIX_SECTIONS,
-} from "./dsa-curriculum-chunk6.js?v=20260728-22";
+} from "./dsa-curriculum-chunk6.js?v=20260728-24";
 import {
   DSA_CHUNK_SEVEN_PROGRAMS,
   DSA_CHUNK_SEVEN_SECTIONS,
-} from "./dsa-curriculum-chunk7.js?v=20260728-22";
+} from "./dsa-curriculum-chunk7.js?v=20260728-24";
 import {
   DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
@@ -55,7 +55,7 @@ import {
   variableChanges,
   variableComparisons,
   variablesForStep,
-} from "./dsa-runtime.js?v=20260728-22";
+} from "./dsa-runtime.js?v=20260728-24";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
@@ -103,6 +103,8 @@ const STORAGE_KEYS = Object.freeze({
 const LIMITS = Object.freeze({
   executionTimeoutMs: 30_000,
   structureCells: 30,
+  watches: 12,
+  referenceGraphElements: 90,
   operationJourneyRows: 30,
   algorithmPathSteps: 80,
   stepTableRows: 120,
@@ -168,6 +170,10 @@ const state = {
   comparisonRuns: [],
   toastTimer: null,
   suppressEditorInvalidation: false,
+  // The optional Data reference graph exists only while its view is mounted.
+  referenceGraphLibrary: null,
+  referenceGraph: null,
+  referenceGraphRenderId: 0,
   // A reviewed origin identifies the learner's selected question, not progress.
   selectedProgramId: readLocalText(STORAGE_KEYS.selectedProgram) || "",
 };
@@ -392,17 +398,31 @@ async function pasteCompleteEditor() {
   }
 }
 
-/** Stops playback without changing the selected trace step. */
-function stopPlayback() {
+/**
+ * Stops playback without changing the selected trace step.
+ *
+ * Reference graphs intentionally remain still during automatic playback. A
+ * deliberate pause or natural completion refreshes that graph once, while
+ * source invalidation and new runs suppress the unnecessary refresh.
+ *
+ * @param {boolean} [refreshReferenceView] Whether a paused reference view should rebuild.
+ */
+function stopPlayback(refreshReferenceView = true) {
+  const wasPlaying = Boolean(state.playbackTimer);
   if (state.playbackTimer) window.clearInterval(state.playbackTimer);
   state.playbackTimer = null;
   els.dsaPlayButton.textContent = "▶";
   els.dsaPlayButton.setAttribute("aria-label", "Play DSA trace");
+  if (wasPlaying && refreshReferenceView && state.activeView === "references" && state.trace.length) {
+    window.requestAnimationFrame(() => {
+      if (!state.playbackTimer && state.activeView === "references" && state.trace.length) renderActiveView();
+    });
+  }
 }
 
 /** Clears trace evidence whenever visible source no longer matches the recording. */
 function invalidateTrace() {
-  stopPlayback();
+  stopPlayback(false);
   state.trace = [];
   state.loops = [];
   state.conditions = [];
@@ -1137,51 +1157,304 @@ function renderErrorCoach() {
   els.dsaViewStage.replaceChildren(article);
 }
 
-/** Renders all bounded serialized names in the selected scope. */
-function renderVariables() {
-  const step = selectedStep();
-  if (!step) {
-    renderUnavailable("No variables recorded", "Run a program to inspect serialized names and values.");
-    return;
+/**
+ * Builds the shared orientation header for all six Data views.
+ *
+ * Data views answer what exists at one recorded moment. The header therefore
+ * establishes the learner question, evidence source, program, step, and source
+ * line before any value, structure, or relationship detail appears.
+ *
+ * @param {object} options Data-view presentation options.
+ * @param {string} options.viewId Stable view identifier used by scoped CSS.
+ * @param {string} options.title Learner-facing view title.
+ * @param {string} options.question One plain-language question answered by the view.
+ * @param {object|null} [options.step] Recorded snapshot represented by the view.
+ * @param {Array<string>} [options.evidenceKeys] Evidence badges shown in order.
+ * @param {Array<Array<string>>} [options.extraFacts] Additional label and value pairs.
+ * @returns {{article: HTMLElement, body: HTMLElement}} View shell and empty content mount.
+ */
+function createDataViewShell({
+  viewId,
+  title,
+  question,
+  step = selectedStep(),
+  evidenceKeys = ["observed"],
+  extraFacts = [],
+}) {
+  const article = makeElement("article", `dsa-runtime-view dsa-data-view dsa-data-${viewId}`);
+  const hero = makeElement("header", "dsa-data-hero");
+  const identity = makeElement("div", "dsa-data-identity");
+  const eyebrow = makeElement("div", "dsa-data-eyebrow");
+  evidenceKeys.forEach((key) => eyebrow.append(evidenceBadge(key)));
+  eyebrow.append(makeElement("span", "", `DATA / ${title.toUpperCase()}`));
+  identity.append(eyebrow);
+  identity.append(makeElement("h2", "", title));
+  identity.append(makeElement("p", "", question));
+  hero.append(identity);
+
+  const context = makeElement("section", "dsa-data-context");
+  const facts = [["Program", traceProgramLabel()]];
+  if (step) {
+    facts.push(
+      ["Recorded step", `${state.currentStep + 1} of ${state.trace.length}`],
+      ["Source line", String(step.line)],
+    );
   }
-  const variables = variablesForStep(step);
-  const article = makeElement("article", "dsa-runtime-view");
-  article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", "Variables at this step"));
-  const grid = makeElement("div", "dsa-variable-grid");
-  Object.entries(variables).sort(([left], [right]) => left.localeCompare(right)).forEach(([name, value]) => {
-    const card = makeElement("section", "dsa-variable-card");
-    card.append(makeElement("strong", "", name));
-    card.append(makeElement("span", "", value.type || "unknown type"));
-    card.append(makeElement("code", "", serializedLabel(value)));
-    grid.append(card);
+  facts.push(...extraFacts);
+  facts.forEach(([label, value]) => {
+    const fact = makeElement("div", "dsa-data-context-fact");
+    fact.append(makeElement("span", "", label));
+    fact.append(makeElement("strong", "", value));
+    context.append(fact);
   });
-  article.append(grid);
+  hero.append(context);
+  if (step) hero.append(makeElement("code", "dsa-data-source", step.source.trim()));
+
+  const body = makeElement("div", "dsa-data-body");
+  article.append(hero, body);
+  return { article, body };
+}
+
+/**
+ * Renders a purposeful Data-view state when recorded evidence is not available.
+ *
+ * @param {object} options Empty-state content.
+ * @param {string} options.viewId Stable view identifier.
+ * @param {string} options.glyph Compact visual marker hidden from assistive technology.
+ * @param {string} options.title View title.
+ * @param {string} options.question Question the view will answer.
+ * @param {string} options.reason Honest reason evidence is unavailable.
+ * @param {Array<string>} options.steps Three useful learner actions.
+ */
+function renderDataUnavailable({ viewId, glyph, title, question, reason, steps }) {
+  const { article, body } = createDataViewShell({
+    viewId,
+    title,
+    question,
+    step: null,
+    evidenceKeys: ["unavailable"],
+  });
+  const empty = makeElement("section", "dsa-data-empty-state");
+  const mark = makeElement("span", "dsa-data-empty-glyph", glyph);
+  mark.setAttribute("aria-hidden", "true");
+  empty.append(mark);
+  empty.append(makeElement("h3", "", reason));
+  const list = makeElement("ol", "dsa-data-next-steps");
+  steps.forEach((step) => list.append(makeElement("li", "", step)));
+  empty.append(list);
+  body.append(empty);
   els.dsaViewStage.replaceChildren(article);
 }
 
-/** Renders likely algorithm-control names without pretending they were user-selected. */
+/**
+ * Classifies one scope value against the adjacent snapshot.
+ *
+ * @param {object|undefined} before Earlier serialized value.
+ * @param {object|undefined} after Current serialized value.
+ * @returns {"created"|"changed"|"removed"|"unchanged"} Recorded change class.
+ */
+function dataValueChangeKind(before, after) {
+  if (!before && after) return "created";
+  if (before && !after) return "removed";
+  return JSON.stringify(before) === JSON.stringify(after) ? "unchanged" : "changed";
+}
+
+/**
+ * Returns global and active-local scope records without merging shadowed names.
+ *
+ * @param {object} step Current recorded snapshot.
+ * @param {object|null} previousStep Adjacent earlier snapshot.
+ * @returns {Array<object>} Scope groups with bounded serialized records.
+ */
+function dataScopeGroups(step, previousStep) {
+  const activeFrame = step.frames?.at(-1);
+  const scopes = [{
+    id: "global",
+    label: "Global scope",
+    description: "Names available to the program module.",
+    current: step.globals || {},
+    previous: previousStep?.globals || {},
+  }];
+
+  // At module level, Python reports the same namespace through both globals
+  // and locals. Showing both would falsely suggest that one name exists in two
+  // distinct scopes. A separate local group is therefore added only while an
+  // actual function frame is active.
+  const globalsAndLocalsMatch = JSON.stringify(step.globals || {}) === JSON.stringify(step.locals || {});
+  if (activeFrame?.name && activeFrame.name !== "<module>" && !globalsAndLocalsMatch) {
+    scopes.push({
+      id: "local",
+      label: `${activeFrame.name}() local scope`,
+      description: "Names closest to the currently executing function line.",
+      current: step.locals || {},
+      previous: previousStep?.locals || {},
+    });
+  }
+
+  return scopes.map((scope) => ({
+    ...scope,
+    records: [...new Set([...Object.keys(scope.previous), ...Object.keys(scope.current)])]
+      .sort((left, right) => left.localeCompare(right))
+      .map((name) => ({
+        name,
+        before: scope.previous[name],
+        value: scope.current[name],
+        kind: dataValueChangeKind(scope.previous[name], scope.current[name]),
+      })),
+  }));
+}
+
+/** Renders every current global and active-local value as a scope-aware dashboard. */
+function renderVariables() {
+  const step = selectedStep();
+  if (!step) {
+    renderDataUnavailable({
+      viewId: "variables",
+      glyph: "x=",
+      title: "Variables",
+      question: "Which names and values are visible at this recorded step?",
+      reason: "Run a program to reveal its recorded variable scopes.",
+      steps: [
+        "Run a program that creates at least one variable.",
+        "Move playback to the line you want to inspect.",
+        "Compare Global scope with the active function scope.",
+      ],
+    });
+    return;
+  }
+
+  const previous = state.trace[state.currentStep - 1] || null;
+  const groups = dataScopeGroups(step, previous);
+  const currentRecords = groups.flatMap((group) => group.records).filter((record) => record.value);
+  const changedCount = currentRecords.filter((record) => record.kind !== "unchanged").length;
+  const { article, body } = createDataViewShell({
+    viewId: "variables",
+    title: "Variables",
+    question: "Which names and values are visible at this recorded step?",
+    extraFacts: [
+      ["Visible names", String(currentRecords.length)],
+      ["Changed now", String(changedCount)],
+    ],
+  });
+
+  const overview = makeElement("section", "dsa-data-overview");
+  overview.append(makeElement("strong", "", `${currentRecords.length} visible name${currentRecords.length === 1 ? "" : "s"}`));
+  overview.append(makeElement("p", "", changedCount
+    ? `${changedCount} visible name${changedCount === 1 ? "" : "s"} changed at this step.`
+    : "No currently visible name changed at this step."));
+  body.append(overview);
+
+  groups.forEach((group) => {
+    const visible = group.records.filter((record) => record.value);
+    if (!visible.length) return;
+    const section = makeElement("section", "dsa-variable-scope");
+    const heading = makeElement("div", "dsa-data-section-heading");
+    const headingCopy = makeElement("div", "");
+    headingCopy.append(makeElement("span", "", group.label));
+    headingCopy.append(makeElement("p", "", group.description));
+    heading.append(headingCopy);
+    heading.append(makeElement("strong", "", `${visible.length} visible`));
+    section.append(heading);
+
+    const grid = makeElement("div", "dsa-variable-dashboard");
+    visible.forEach((record) => {
+      const card = makeElement("section", `dsa-variable-tile ${record.kind}`);
+      const cardHeading = makeElement("div", "dsa-variable-tile-heading");
+      cardHeading.append(makeElement("strong", "", record.name));
+      cardHeading.append(makeElement("span", "", record.kind));
+      card.append(cardHeading);
+      card.append(makeElement("code", "dsa-variable-current", serializedLabel(record.value)));
+      const metadata = makeElement("div", "dsa-variable-meta");
+      metadata.append(makeElement("span", "", record.value.type || "unknown type"));
+      metadata.append(makeElement("span", "", group.label));
+      card.append(metadata);
+      if (record.kind === "changed") {
+        const previousValue = makeElement("div", "dsa-variable-previous");
+        previousValue.append(makeElement("span", "", "Previous"));
+        previousValue.append(makeElement("code", "", serializedLabel(record.before)));
+        card.append(previousValue);
+      }
+      grid.append(card);
+    });
+    section.append(grid);
+    body.append(section);
+  });
+
+  if (!currentRecords.length) {
+    body.append(makeElement("p", "dsa-data-inline-empty", "The line executed, but no bounded learner variable is visible in the recorded scopes."));
+  }
+  els.dsaViewStage.replaceChildren(article);
+}
+
+/** Renders likely control names as a bounded live dashboard with honest suggestion labels. */
 function renderWatches() {
   const step = selectedStep();
   if (!step) {
-    renderUnavailable("No watch values", "Run a program to see likely indices, boundaries, counters, and accumulators.");
+    renderDataUnavailable({
+      viewId: "watches",
+      glyph: "◎",
+      title: "Watches",
+      question: "Which changing names may help me follow this algorithm?",
+      reason: "Run a program to generate local watch suggestions.",
+      steps: [
+        "Run a loop, search, or accumulator example.",
+        "Look for indices, boundaries, counters, and totals.",
+        "Advance one step and compare each watch state.",
+      ],
+    });
     return;
   }
+
+  const previous = state.trace[state.currentStep - 1] || null;
+  const comparisons = new Map(
+    variableComparisons(previous, step).map((record) => [record.name, record]),
+  );
   const variables = variablesForStep(step);
   const preferred = /(index|left|right|low|high|middle|count|total|sum|size|front|rear|pivot|boundary|write|read|target)/i;
-  const names = Object.keys(variables).sort((left, right) => Number(preferred.test(right)) - Number(preferred.test(left))).slice(0, 12);
-  const article = makeElement("article", "dsa-runtime-view");
-  article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", "Suggested watches"));
-  article.append(makeElement("p", "dsa-honesty-note", "Code Explorer suggests up to 12 visible names. It does not record progress or claim that every suggested name controls the algorithm."));
-  const list = makeElement("div", "dsa-watch-list");
-  names.forEach((name) => {
-    const row = makeElement("div", "dsa-watch-row");
-    row.append(makeElement("strong", "", name));
-    row.append(makeElement("code", "", serializedLabel(variables[name])));
-    list.append(row);
+  const names = Object.keys(variables)
+    .sort((left, right) => Number(preferred.test(right)) - Number(preferred.test(left)) || left.localeCompare(right))
+    .slice(0, LIMITS.watches);
+  const changedCount = names.filter((name) => comparisons.get(name)?.kind !== "unchanged").length;
+  const { article, body } = createDataViewShell({
+    viewId: "watches",
+    title: "Watches",
+    question: "Which changing names may help me follow this algorithm?",
+    extraFacts: [
+      ["Suggested", String(names.length)],
+      ["Changed now", String(changedCount)],
+    ],
   });
-  article.append(list);
+
+  const explanation = makeElement("section", "dsa-watch-explanation");
+  explanation.append(makeElement("strong", "", "Local suggestions, not learner tracking"));
+  explanation.append(makeElement("p", "", "Names are ranked from the current recorded scope. Code Explorer does not save watch choices, record progress, or claim that every suggestion controls the algorithm."));
+  body.append(explanation);
+
+  if (!names.length) {
+    body.append(makeElement("p", "dsa-data-inline-empty", "No serialized learner name is available to suggest at this step."));
+  } else {
+    const dashboard = makeElement("div", "dsa-watch-dashboard");
+    names.forEach((name, index) => {
+      const comparison = comparisons.get(name);
+      const kind = comparison?.kind || "unchanged";
+      const card = makeElement("section", `dsa-watch-tile ${kind}`);
+      const order = makeElement("span", "dsa-watch-order", String(index + 1).padStart(2, "0"));
+      const copy = makeElement("div", "dsa-watch-copy");
+      const heading = makeElement("div", "");
+      heading.append(makeElement("strong", "", name));
+      heading.append(makeElement("span", "", preferred.test(name) ? "control-name match" : "visible name"));
+      copy.append(heading);
+      copy.append(makeElement("code", "", serializedLabel(variables[name])));
+      const stateLabel = makeElement("span", `dsa-watch-state ${kind}`, kind);
+      card.append(order, copy, stateLabel);
+      dashboard.append(card);
+    });
+    body.append(dashboard);
+  }
+
+  if (Object.keys(variables).length > LIMITS.watches) {
+    body.append(makeElement("p", "dsa-data-boundary", `Watches shows at most ${LIMITS.watches} names. Additional variables remain available in Variables.`));
+  }
   els.dsaViewStage.replaceChildren(article);
 }
 
@@ -1244,6 +1517,14 @@ function reviewedStructureCandidate(step, role) {
   const variables = variablesForStep(step);
   const entries = Object.entries(variables);
   const rolePreferences = {
+    stack: { names: /(?:stack|history|undo|operand|operator)/i, shape: (value) => Array.isArray(value?.items) },
+    queue: { names: /(?:queue|frontier|waiting|buffer|line)/i, shape: (value) => Array.isArray(value?.items) },
+    deque: { names: /(?:deque|queue|frontier|window)/i, shape: (value) => Array.isArray(value?.items) },
+    "singly-linked-list": { names: /(?:head|tail|node|linked|chain)/i, shape: (value) => Array.isArray(value?.entries) || Array.isArray(value?.items) },
+    "doubly-linked-list": { names: /(?:head|tail|node|linked|chain)/i, shape: (value) => Array.isArray(value?.entries) || Array.isArray(value?.items) },
+    "circular-linked-list": { names: /(?:head|tail|node|linked|cycle|ring)/i, shape: (value) => Array.isArray(value?.entries) || Array.isArray(value?.items) },
+    "hash-table": { names: /(?:table|map|lookup|index|bucket|count|frequency)/i, shape: (value) => Array.isArray(value?.entries) },
+    set: { names: /(?:set|seen|visited|member|unique)/i, shape: (value) => Array.isArray(value?.entries) || Array.isArray(value?.items) },
     tree: { names: /(?:tree|root|node)/i, shape: (value) => Array.isArray(value?.entries) },
     "binary-tree": { names: /(?:tree|root|node)/i, shape: (value) => Array.isArray(value?.entries) },
     "binary-search-tree": { names: /(?:tree|root|node)/i, shape: (value) => Array.isArray(value?.entries) },
@@ -1264,93 +1545,639 @@ function reviewedStructureCandidate(step, role) {
   return candidate ? { ...candidate, reviewedRole: "" } : null;
 }
 
-/** Renders one bounded container using observed values and optional reviewed orientation. */
+/**
+ * Explains how to read one reviewed structure without implying hidden edges.
+ *
+ * @param {string} role Exact reviewed role or an empty string.
+ * @param {string} type Recorded Python type.
+ * @returns {string} Short orientation guide.
+ */
+function structureReadingGuide(role, type) {
+  const guides = {
+    stack: "Read from BASE upward to TOP. Push and pop affect the TOP end.",
+    queue: "Read from FRONT toward REAR. Removal begins at FRONT and insertion ends at REAR.",
+    deque: "A deque can add or remove values at both FRONT and REAR.",
+    "singly-linked-list": "HEAD begins the reviewed chain. Arrows are conceptual links, not RAM addresses.",
+    "doubly-linked-list": "HEAD and TAIL bound a reviewed chain with conceptual movement in both directions.",
+    "circular-linked-list": "The final reviewed position conceptually returns toward HEAD.",
+    "hash-table": "Each card is one observed key and value entry. Python's hidden bucket array is not exposed.",
+    set: "Every pill is an observed member. Position does not imply a meaningful index.",
+    tree: "The root-oriented labels come from reviewed curriculum context. Flattened cells do not invent child edges.",
+    "binary-tree": "The root-oriented labels come from reviewed curriculum context. Flattened cells do not invent child edges.",
+    "binary-search-tree": "The root-oriented labels come from reviewed curriculum context. Flattened cells do not prove ordering by themselves.",
+    heap: "ROOT marks the first serialized heap position. Parent and child meaning follows the reviewed representation.",
+    "priority-queue": "ROOT is the next priority candidate in the reviewed representation, not necessarily the smallest displayed text.",
+    trie: "Each observed entry is presented as a reviewed character-edge field. Missing nested edges are not guessed.",
+    "union-find": "Entries orient parent or representative data. The display does not claim a complete forest edge unless recorded.",
+    graph: "Each card is an observed adjacency or graph entry. Structure Canvas does not parse display text into invented edges.",
+  };
+  return guides[role] || `Read the bounded ${type || "container"} values in their recorded serialized order.`;
+}
+
+/** Renders one bounded container with a representation guide and optional reviewed orientation. */
 function renderStructureCanvas() {
   const candidate = reviewedStructureCandidate(selectedStep(), reviewedStructureRole());
   if (!candidate) {
-    renderUnavailable("No supported structure visible", "Run a step that exposes a serialized list, tuple, set, deque, or dictionary.");
+    renderDataUnavailable({
+      viewId: "structure",
+      glyph: "[]",
+      title: "Structure Canvas",
+      question: "How is one visible container organized at this step?",
+      reason: "No supported serialized structure is visible at this step.",
+      steps: [
+        "Run a program that creates a list, tuple, set, deque, or dictionary.",
+        "Advance to a step after the structure is created.",
+        "Return here to inspect its bounded representation.",
+      ],
+    });
     return;
   }
   const { name, value, reviewedRole: role } = candidate;
-  const article = makeElement("article", "dsa-runtime-view");
-  article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", `${name} · ${value.type}`));
-  if (role) {
-    article.append(evidenceBadge("curriculum"));
-    article.append(makeElement("p", "dsa-honesty-note", `Reviewed representation: ${role}. The cells below are observed serialized Python values, not physical memory slots.`));
-  }
-  const cells = makeElement("div", `dsa-structure-cells ${role ? `role-${role}` : ""}`.trim());
   const entries = Array.isArray(value.entries)
     ? value.entries.map((entry) => `${serializedLabel(entry.key)}: ${serializedLabel(entry.value)}`)
     : (value.items || []).map(serializedLabel);
+  const recordedLength = Number.isInteger(value.length) ? value.length : entries.length;
+  const shortened = recordedLength > entries.length || entries.length > LIMITS.structureCells;
+  const evidenceKeys = ["observed"];
+  if (role) evidenceKeys.push("curriculum");
+  if (shortened) evidenceKeys.push("shortened");
+  const { article, body } = createDataViewShell({
+    viewId: "structure",
+    title: "Structure Canvas",
+    question: "How is one visible container organized at this step?",
+    evidenceKeys,
+    extraFacts: [
+      ["Selected name", name],
+      ["Recorded type", value.type || "unknown"],
+      ["Recorded length", String(recordedLength)],
+    ],
+  });
+
+  const orientation = makeElement("section", "dsa-structure-orientation");
+  const orientationCopy = makeElement("div", "");
+  orientationCopy.append(makeElement("span", "", role ? "REVIEWED READING GUIDE" : "OBSERVED READING GUIDE"));
+  orientationCopy.append(makeElement("strong", "", role ? role.replaceAll("-", " ") : `${value.type || "container"} values`));
+  orientationCopy.append(makeElement("p", "", structureReadingGuide(role, value.type)));
+  orientation.append(orientationCopy);
+  const size = makeElement("div", "dsa-structure-size");
+  size.append(makeElement("strong", "", String(Math.min(entries.length, LIMITS.structureCells))));
+  size.append(makeElement("span", "", `of ${recordedLength} shown`));
+  orientation.append(size);
+  body.append(orientation);
+
+  const cells = makeElement("div", `dsa-structure-cells ${role ? `role-${role}` : ""}`.trim());
   entries.slice(0, LIMITS.structureCells).forEach((label, index) => {
     const cell = makeElement("div", "dsa-structure-cell");
     cell.append(makeElement("span", "", structurePositionLabel(role, index, Math.min(entries.length, LIMITS.structureCells))));
     cell.append(makeElement("code", "", label));
     cells.append(cell);
   });
-  article.append(cells);
-  if ((value.length || entries.length) > entries.length || entries.length > LIMITS.structureCells) {
-    article.prepend(evidenceBadge("shortened"));
-    article.append(makeElement("p", "dsa-honesty-note", `The display is bounded to ${LIMITS.structureCells} cells. The recorded length remains ${value.length}.`));
+  body.append(cells);
+  if (shortened) {
+    body.append(makeElement("p", "dsa-data-boundary", `Structure Canvas shows at most ${LIMITS.structureCells} entries. The recorded length remains ${recordedLength}, and the trace is still available.`));
+  }
+  if (["tree", "binary-tree", "binary-search-tree", "trie", "union-find", "graph"].includes(role)) {
+    body.append(makeElement("p", "dsa-data-boundary", "This snapshot does not expose enough structured edge evidence for a trustworthy node-and-edge diagram. Code Explorer keeps the observed cells instead of parsing display text and guessing relationships."));
   }
   els.dsaViewStage.replaceChildren(article);
 }
 
-/** Renders conceptual alias groups from worker identity tokens. */
-function renderReferences() {
-  const variables = variablesForStep(selectedStep());
+/**
+ * Destroys the optional reference graph and invalidates any pending import.
+ *
+ * The semantic HTML map is owned by ordinary DOM replacement. Cytoscape owns a
+ * canvas and listeners, so it needs an explicit lifecycle.
+ */
+function disposeReferenceGraph() {
+  state.referenceGraphRenderId += 1;
+  state.referenceGraph?.destroy();
+  state.referenceGraph = null;
+}
+
+/**
+ * Loads the same pinned Cytoscape version already approved by Code Explorer.
+ *
+ * The import sends no learner source, values, trace, or identifiers. If the
+ * asset host is unavailable, the complete semantic HTML map remains visible.
+ *
+ * @returns {Promise<Function|null>} Cytoscape constructor or null.
+ */
+async function loadDsaReferenceGraphLibrary() {
+  if (state.referenceGraphLibrary) return state.referenceGraphLibrary;
+  try {
+    const module = await import("https://esm.sh/cytoscape@3.31.0");
+    state.referenceGraphLibrary = module.default;
+    return state.referenceGraphLibrary;
+  } catch (error) {
+    console.warn("Code Explorer could not load the optional DSA reference graph.", error);
+    return null;
+  }
+}
+
+/**
+ * Resolves current theme tokens for the optional Cytoscape canvas.
+ *
+ * @returns {Record<string, string>} Named graph colors and font.
+ */
+function dsaReferenceGraphPalette() {
+  const style = getComputedStyle(document.documentElement);
+  const token = (name) => style.getPropertyValue(name).trim();
+  return {
+    text: token("--text"),
+    soft: token("--text-soft"),
+    panel: token("--bg-raised"),
+    line: token("--line-bright"),
+    mint: token("--mint"),
+    purple: token("--purple"),
+    cyan: token("--cyan"),
+    mono: token("--mono"),
+  };
+}
+
+/**
+ * Groups names by worker-issued object token while retaining their scope.
+ *
+ * @param {object|null} step Recorded snapshot.
+ * @returns {Array<object>} Conceptual object groups.
+ */
+function referenceGroupsForStep(step) {
+  if (!step) return [];
   const groups = new Map();
-  Object.entries(variables).forEach(([name, value]) => {
-    if (!value?.objectId) return;
-    if (!groups.has(value.objectId)) groups.set(value.objectId, []);
-    groups.get(value.objectId).push({ name, value });
+  dataScopeGroups(step, null).forEach((scope) => {
+    scope.records.filter((record) => record.value?.objectId).forEach((record) => {
+      const token = record.value.objectId;
+      if (!groups.has(token)) groups.set(token, { value: record.value, names: [] });
+      groups.get(token).names.push({
+        name: record.name,
+        scopeId: scope.id,
+        scopeLabel: scope.label,
+      });
+    });
   });
-  if (!groups.size) {
-    renderUnavailable("No conceptual references visible", "The selected step exposes no serialized non-primitive objects with identity tokens.");
+  return [...groups.values()];
+}
+
+/**
+ * Converts conceptual groups into a bounded scope-to-name-to-object graph.
+ *
+ * @param {Array<object>} groups Conceptual reference groups.
+ * @returns {{elements: Array<object>, shortened: boolean}} Safe graph data.
+ */
+function dsaReferenceGraphElements(groups) {
+  const elements = [];
+  const scopeIds = new Set();
+  let shortened = false;
+
+  groups.forEach((group, groupIndex) => {
+    if (shortened) return;
+    const neededScopes = [...new Map(
+      group.names
+        .filter((item) => !scopeIds.has(item.scopeId))
+        .map((item) => [item.scopeId, item]),
+    ).values()];
+    const required = neededScopes.length + 1 + (group.names.length * 3);
+    if (elements.length + required > LIMITS.referenceGraphElements) {
+      shortened = true;
+      return;
+    }
+    neededScopes.forEach((item) => {
+      scopeIds.add(item.scopeId);
+      elements.push({
+        data: { id: `scope-${item.scopeId}`, label: item.scopeLabel.toUpperCase(), kind: "scope" },
+      });
+    });
+    const objectId = `object-${groupIndex}`;
+    elements.push({
+      data: {
+        id: objectId,
+        label: `${group.value.type || "object"}\n${serializedLabel(group.value)}`,
+        kind: "object",
+      },
+    });
+    group.names.forEach((item, nameIndex) => {
+      const nameId = `name-${groupIndex}-${nameIndex}`;
+      elements.push({ data: { id: nameId, label: item.name, kind: "name" } });
+      elements.push({
+        data: {
+          id: `scope-edge-${groupIndex}-${nameIndex}`,
+          source: `scope-${item.scopeId}`,
+          target: nameId,
+          label: "contains",
+        },
+      });
+      elements.push({
+        data: {
+          id: `reference-edge-${groupIndex}-${nameIndex}`,
+          source: nameId,
+          target: objectId,
+          label: "references",
+        },
+      });
+    });
+  });
+  return { elements, shortened };
+}
+
+/**
+ * Enhances the already-visible HTML reference map with a pannable graph.
+ *
+ * @param {HTMLElement} canvas Mounted graph container.
+ * @param {Array<object>} groups Conceptual reference groups.
+ * @param {object} controls Fit, zoom, output, and status elements.
+ * @returns {Promise<void>} Resolves after enhancement or safe fallback.
+ */
+async function enhanceDsaReferenceMap(canvas, groups, controls) {
+  const renderId = ++state.referenceGraphRenderId;
+  controls.status.textContent = "Loading optional interactive map";
+  const cytoscape = await loadDsaReferenceGraphLibrary();
+  if (
+    !cytoscape
+    || renderId !== state.referenceGraphRenderId
+    || state.activeView !== "references"
+    || !canvas.isConnected
+  ) {
+    if (canvas.isConnected && renderId === state.referenceGraphRenderId) {
+      controls.status.textContent = "Interactive map unavailable. The complete text map remains below.";
+      canvas.classList.add("unavailable");
+      canvas.dataset.message = "Interactive map unavailable";
+    }
     return;
   }
-  const article = makeElement("article", "dsa-runtime-view");
-  article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", "Conceptual name-to-object groups"));
-  article.append(makeElement("p", "dsa-honesty-note", "Object tokens group shared references inside this run. They are not physical RAM addresses."));
-  const list = makeElement("div", "dsa-reference-list");
-  [...groups.values()].forEach((group, index) => {
-    const row = makeElement("section", "dsa-reference-row");
-    row.append(makeElement("strong", "", `Object ${index + 1}`));
-    row.append(makeElement("span", "", group.map((item) => item.name).join(", ")));
-    row.append(makeElement("code", "", serializedLabel(group[0].value)));
-    list.append(row);
+
+  const { elements, shortened } = dsaReferenceGraphElements(groups);
+  const colors = dsaReferenceGraphPalette();
+  state.referenceGraph?.destroy();
+  state.referenceGraph = cytoscape({
+    container: canvas,
+    elements,
+    pixelRatio: Math.min(3, Math.max(2, window.devicePixelRatio || 1)),
+    minZoom: 0.5,
+    maxZoom: 1.6,
+    layout: {
+      name: "breadthfirst",
+      directed: true,
+      padding: 26,
+      spacingFactor: 1.15,
+      animate: false,
+    },
+    style: [
+      {
+        selector: "node",
+        style: {
+          label: "data(label)",
+          color: colors.text,
+          "background-color": colors.panel,
+          "border-color": colors.line,
+          "border-width": 1.5,
+          "font-family": colors.mono,
+          "font-size": 12,
+          "font-weight": 600,
+          "text-wrap": "wrap",
+          "text-max-width": 150,
+          "text-valign": "center",
+          "text-halign": "center",
+          shape: "round-rectangle",
+          width: 142,
+          height: 58,
+        },
+      },
+      {
+        selector: 'node[kind = "scope"]',
+        style: {
+          "background-color": colors.purple,
+          color: colors.panel,
+          width: 150,
+          height: 44,
+          "font-weight": 700,
+        },
+      },
+      {
+        selector: 'node[kind = "name"]',
+        style: {
+          "border-color": colors.cyan,
+          "border-width": 2.5,
+          color: colors.cyan,
+          width: 116,
+          height: 42,
+        },
+      },
+      {
+        selector: 'node[kind = "object"]',
+        style: {
+          "border-color": colors.mint,
+          "border-width": 2.5,
+        },
+      },
+      {
+        selector: "node:selected",
+        style: {
+          "border-color": colors.mint,
+          "border-width": 4,
+          "background-color": colors.panel,
+        },
+      },
+      {
+        selector: "edge",
+        style: {
+          label: "data(label)",
+          width: 1.7,
+          "line-color": colors.line,
+          "target-arrow-color": colors.mint,
+          "target-arrow-shape": "triangle",
+          "curve-style": "bezier",
+          color: colors.soft,
+          "font-family": colors.mono,
+          "font-size": 10,
+          "font-weight": 600,
+          "text-background-color": colors.panel,
+          "text-background-opacity": 1,
+          "text-background-padding": 3,
+        },
+      },
+    ],
   });
-  article.append(list);
-  els.dsaViewStage.replaceChildren(article);
+
+  const syncZoom = () => {
+    const percent = Math.round(state.referenceGraph.zoom() * 100);
+    controls.slider.value = String(percent);
+    controls.output.value = `${percent}%`;
+  };
+  const setZoom = (requested) => {
+    const percent = Math.min(160, Math.max(50, Number(requested) || 100));
+    state.referenceGraph.zoom({
+      level: percent / 100,
+      renderedPosition: {
+        x: canvas.clientWidth / 2,
+        y: canvas.clientHeight / 2,
+      },
+    });
+    syncZoom();
+  };
+  controls.slider.disabled = false;
+  controls.fit.disabled = false;
+  controls.slider.addEventListener("input", () => setZoom(controls.slider.value));
+  controls.fit.addEventListener("click", () => {
+    state.referenceGraph.fit(undefined, 26);
+    syncZoom();
+  });
+  state.referenceGraph.on("zoom", syncZoom);
+  state.referenceGraph.fit(undefined, 26);
+  syncZoom();
+  controls.status.textContent = shortened
+    ? `Interactive map ready. It shows the first ${LIMITS.referenceGraphElements} graph elements.`
+    : "Interactive map ready. Select a node, pan, zoom, or use Fit.";
+  canvas.classList.remove("loading", "unavailable");
+  delete canvas.dataset.message;
 }
 
-/** Distinguishes same-object mutation from reassignment using adjacent tokens. */
+/** Renders an observed name-to-object map with a complete semantic fallback. */
+function renderReferences() {
+  disposeReferenceGraph();
+  const step = selectedStep();
+  const groups = referenceGroupsForStep(step);
+  if (!groups.length) {
+    renderDataUnavailable({
+      viewId: "references",
+      glyph: "→",
+      title: "References",
+      question: "Which names point to the same conceptual Python object?",
+      reason: "No serialized non-primitive object reference is visible at this step.",
+      steps: [
+        "Run a program that stores a list, dictionary, set, or object.",
+        "Assign the same object to another name.",
+        "Advance to that line and compare the shared object group.",
+      ],
+    });
+    return;
+  }
+
+  const aliasCount = groups.filter((group) => group.names.length > 1).length;
+  const { article, body } = createDataViewShell({
+    viewId: "references",
+    title: "References",
+    question: "Which names point to the same conceptual Python object?",
+    extraFacts: [
+      ["Object groups", String(groups.length)],
+      ["Shared groups", String(aliasCount)],
+    ],
+  });
+
+  const boundary = makeElement("section", "dsa-reference-boundary");
+  boundary.append(makeElement("strong", "", "Conceptual references, not physical RAM addresses"));
+  boundary.append(makeElement("p", "", "Worker identity tokens group names that reference the same serialized object during this local run. The tokens are temporary teaching evidence and are never displayed as memory addresses."));
+  body.append(boundary);
+
+  const interactive = makeElement("section", "dsa-reference-interactive");
+  const controls = makeElement("div", "dsa-reference-controls");
+  const status = makeElement("p", "dsa-reference-status", state.playbackTimer
+    ? "Playback is running. The interactive map will refresh once playback pauses."
+    : "Preparing optional interactive map");
+  const fit = makeElement("button", "secondary-button", "Fit");
+  fit.type = "button";
+  fit.disabled = true;
+  const zoomLabel = makeElement("label", "dsa-reference-zoom");
+  zoomLabel.append(makeElement("span", "", "Zoom"));
+  const slider = document.createElement("input");
+  slider.type = "range";
+  slider.min = "50";
+  slider.max = "160";
+  slider.step = "5";
+  slider.value = "100";
+  slider.disabled = true;
+  slider.setAttribute("aria-label", "Reference map zoom");
+  const output = document.createElement("output");
+  output.value = "100%";
+  zoomLabel.append(slider, output);
+  controls.append(status, fit, zoomLabel);
+  const canvas = makeElement("div", "dsa-reference-canvas loading");
+  canvas.dataset.message = state.playbackTimer ? "Map waits while playback runs" : "Building the reference map";
+  canvas.setAttribute("aria-label", "Interactive conceptual reference map");
+  interactive.append(controls, canvas);
+  body.append(interactive);
+
+  const fallback = makeElement("section", "dsa-reference-fallback");
+  const fallbackHeading = makeElement("div", "dsa-data-section-heading");
+  const fallbackCopy = makeElement("div", "");
+  fallbackCopy.append(makeElement("span", "", "TEXT MAP"));
+  fallbackCopy.append(makeElement("p", "", "This complete readable map remains available even if the optional graph cannot load."));
+  fallbackHeading.append(fallbackCopy);
+  fallbackHeading.append(makeElement("strong", "", `${groups.length} object group${groups.length === 1 ? "" : "s"}`));
+  fallback.append(fallbackHeading);
+
+  const list = makeElement("div", "dsa-reference-map-list");
+  groups.forEach((group, index) => {
+    const card = makeElement("section", `dsa-reference-group ${group.names.length > 1 ? "shared" : "single"}`);
+    const cardHeader = makeElement("div", "dsa-reference-group-heading");
+    cardHeader.append(makeElement("span", "", `OBJECT ${String(index + 1).padStart(2, "0")}`));
+    cardHeader.append(makeElement("strong", "", group.names.length > 1 ? "Shared reference" : "One visible name"));
+    card.append(cardHeader);
+    const path = makeElement("div", "dsa-reference-path");
+    const names = makeElement("div", "dsa-reference-names");
+    group.names.forEach((item) => {
+      const pill = makeElement("span", "");
+      pill.append(makeElement("small", "", item.scopeLabel));
+      pill.append(makeElement("strong", "", item.name));
+      names.append(pill);
+    });
+    const arrow = makeElement("span", "dsa-reference-arrow", "→");
+    arrow.setAttribute("aria-hidden", "true");
+    const object = makeElement("div", "dsa-reference-object");
+    object.append(makeElement("span", "", group.value.type || "object"));
+    object.append(makeElement("code", "", serializedLabel(group.value)));
+    path.append(names, arrow, object);
+    card.append(path);
+    list.append(card);
+  });
+  fallback.append(list);
+  body.append(fallback);
+  els.dsaViewStage.replaceChildren(article);
+
+  if (!state.playbackTimer) {
+    enhanceDsaReferenceMap(canvas, groups, { fit, slider, output, status });
+  }
+}
+
+/**
+ * Returns current names that share one worker-issued conceptual object token.
+ *
+ * @param {string|undefined} objectId Temporary object token.
+ * @param {object|null} step Recorded snapshot.
+ * @returns {Array<string>} Sorted visible alias names.
+ */
+function aliasesForObject(objectId, step) {
+  if (!objectId || !step) return [];
+  return Object.entries(variablesForStep(step))
+    .filter(([, value]) => value?.objectId === objectId)
+    .map(([name]) => name)
+    .sort((left, right) => left.localeCompare(right));
+}
+
+/**
+ * Collapses alias-level reports of one in-place object mutation into one event.
+ *
+ * The worker records values by visible name, so two aliases of the same list
+ * can both report the same before-to-after mutation. A learner should see one
+ * changed object with two affected names, not two apparently separate object
+ * mutations.
+ *
+ * @param {Array<object>} changes Name-level object changes.
+ * @returns {Array<object>} Unique object events with their affected names.
+ */
+function groupedObjectChanges(changes) {
+  const grouped = new Map();
+  changes.forEach((change) => {
+    const sameObject = change.before?.objectId && change.before.objectId === change.after?.objectId;
+    const key = sameObject
+      ? `mutation:${change.before.objectId}:${serializedLabel(change.before)}:${serializedLabel(change.after)}`
+      : `reference:${change.name}`;
+    if (!grouped.has(key)) {
+      grouped.set(key, { ...change, names: [] });
+    }
+    grouped.get(key).names.push(change.name);
+  });
+  return [...grouped.values()].map((change) => ({
+    ...change,
+    names: [...new Set(change.names)].sort((left, right) => left.localeCompare(right)),
+  }));
+}
+
+/** Distinguishes same-object mutation from reassignment through an operation journey. */
 function renderMutationExplorer() {
   const step = selectedStep();
   if (!step) {
-    renderUnavailable("No mutation evidence", "Run a program and select a step that changes a structure.");
+    renderDataUnavailable({
+      viewId: "mutation",
+      glyph: "Δ",
+      title: "Mutation Explorer",
+      question: "Did an object change in place, or did a name point somewhere new?",
+      reason: "Run a program to compare adjacent object snapshots.",
+      steps: [
+        "Run a program that changes a list, dictionary, set, or object.",
+        "Move playback to an append, update, removal, or assignment.",
+        "Compare the object token and before-to-after values.",
+      ],
+    });
     return;
   }
   const changes = variableChanges(state.trace[state.currentStep - 1] || null, step);
-  const objectChanges = changes.filter((change) => change.before?.objectId || change.after?.objectId);
-  const article = makeElement("article", "dsa-runtime-view");
-  article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", "Mutation and reassignment"));
+  const objectChanges = groupedObjectChanges(
+    changes.filter((change) => change.before?.objectId || change.after?.objectId),
+  );
+  const mutationCount = objectChanges.filter(
+    (change) => change.before?.objectId && change.before.objectId === change.after?.objectId,
+  ).length;
+  const { article, body } = createDataViewShell({
+    viewId: "mutation",
+    title: "Mutation Explorer",
+    question: "Did an object change in place, or did a name point somewhere new?",
+    extraFacts: [
+      ["Object changes", String(objectChanges.length)],
+      ["In-place changes", String(mutationCount)],
+    ],
+  });
+
+  const legend = makeElement("section", "dsa-mutation-legend");
+  const same = makeElement("div", "");
+  same.append(makeElement("strong", "", "Same object changed"));
+  same.append(makeElement("p", "", "The temporary object token stayed the same while its recorded value changed."));
+  const reassigned = makeElement("div", "");
+  reassigned.append(makeElement("strong", "", "Name reassigned"));
+  reassigned.append(makeElement("p", "", "The name was created, removed, or now points to a different conceptual object token."));
+  legend.append(same, reassigned);
+  body.append(legend);
+
   if (!objectChanges.length) {
-    article.append(makeElement("p", "", "No visible non-primitive name changed at this step."));
+    const empty = makeElement("section", "dsa-mutation-empty");
+    empty.append(makeElement("strong", "", "No visible object change at this step"));
+    empty.append(makeElement("p", "", "The line may have read a value, changed only a primitive, or completed without changing a bounded object snapshot."));
+    empty.append(makeElement("p", "dsa-data-boundary", "Move one step forward or backward. Mutation Explorer follows the selected recorded line rather than summarizing the complete run."));
+    body.append(empty);
   } else {
-    const list = makeElement("div", "dsa-mutation-list");
+    const list = makeElement("div", "dsa-mutation-timeline");
     objectChanges.forEach((change) => {
       const sameObject = change.before?.objectId && change.before.objectId === change.after?.objectId;
-      const row = makeElement("section", "dsa-mutation-row");
-      row.append(makeElement("strong", "", change.name));
-      row.append(makeElement("span", "", sameObject ? "same object changed" : "name now references a different object"));
-      row.append(makeElement("code", "", `${serializedLabel(change.before)} → ${serializedLabel(change.after)}`));
-      list.append(row);
+      const card = makeElement("section", `dsa-mutation-card ${sameObject ? "mutated" : "reassigned"}`);
+      const heading = makeElement("div", "dsa-mutation-heading");
+      const headingCopy = makeElement("div", "");
+      headingCopy.append(makeElement("span", "", sameObject ? "IN-PLACE MUTATION" : "REFERENCE CHANGE"));
+      headingCopy.append(makeElement(
+        "strong",
+        "",
+        change.names.length === 1 ? change.names[0] : `${change.names.length} affected names`,
+      ));
+      heading.append(headingCopy);
+      heading.append(makeElement("span", "dsa-mutation-kind", sameObject ? "same object changed" : "name reassigned"));
+      card.append(heading);
+
+      const journey = makeElement("div", "dsa-mutation-journey");
+      const before = makeElement("div", "dsa-mutation-value before");
+      before.append(makeElement("span", "", "BEFORE"));
+      before.append(makeElement("code", "", serializedLabel(change.before)));
+      const operation = makeElement("div", "dsa-mutation-operation");
+      operation.append(makeElement("span", "", "EXECUTED"));
+      operation.append(makeElement("code", "", step.source.trim()));
+      const after = makeElement("div", "dsa-mutation-value after");
+      after.append(makeElement("span", "", "AFTER"));
+      after.append(makeElement("code", "", serializedLabel(change.after)));
+      journey.append(before, operation, after);
+      card.append(journey);
+
+      const aliases = aliasesForObject(change.after?.objectId, step);
+      const aliasRow = makeElement("div", "dsa-mutation-aliases");
+      aliasRow.append(makeElement("span", "", sameObject
+        ? "Affected names sharing this object"
+        : "Names sharing the resulting object"));
+      if (aliases.length) {
+        const pills = makeElement("div", "");
+        aliases.forEach((alias) => pills.append(makeElement("span", "", alias)));
+        aliasRow.append(pills);
+      } else {
+        aliasRow.append(makeElement("strong", "", "No visible alias"));
+      }
+      card.append(aliasRow);
+      list.append(card);
     });
-    article.append(list);
+    body.append(list);
   }
   els.dsaViewStage.replaceChildren(article);
 }
@@ -1358,20 +2185,62 @@ function renderMutationExplorer() {
 /** Shows reviewed invariant statements without pretending they were proven automatically. */
 function renderInvariantChecker() {
   if (!state.activeProgram) {
-    renderUnavailable("Reviewed invariants unavailable", "Observed values still work for pasted code, but invariant statements require an unchanged reviewed catalog program.");
+    renderDataUnavailable({
+      viewId: "invariant",
+      glyph: "✓?",
+      title: "Invariant Checker",
+      question: "Which reviewed rule should remain true, and what evidence can I inspect?",
+      reason: "Reviewed invariant statements require an unchanged catalog program.",
+      steps: [
+        "Choose a reviewed example from the DSA catalog.",
+        "Run it without changing the source.",
+        "Use the listed rule as a question, not an automatic proof.",
+      ],
+    });
     return;
   }
-  const article = makeElement("article", "dsa-runtime-view");
-  article.append(evidenceBadge("curriculum"));
-  article.append(makeElement("h2", "", "Reviewed rules to test"));
+  const step = selectedStep();
+  const { article, body } = createDataViewShell({
+    viewId: "invariant",
+    title: "Invariant Checker",
+    question: "Which reviewed rule should remain true, and what evidence can I inspect?",
+    step,
+    evidenceKeys: ["curriculum"],
+    extraFacts: [["Reviewed rules", String(state.activeProgram.invariants.length)]],
+  });
+
+  const explanation = makeElement("section", "dsa-invariant-explanation");
+  explanation.append(makeElement("strong", "", "An invariant is a rule expected to remain true at defined points in an algorithm."));
+  explanation.append(makeElement("p", "", "The statements below are reviewed curriculum context. Code Explorer does not automatically call a rule satisfied or violated unless the trace contains a dedicated verified check."));
+  body.append(explanation);
+
   if (!state.activeProgram.invariants.length) {
-    article.append(makeElement("p", "", "This focused lesson has no separate invariant statement."));
+    const empty = makeElement("section", "dsa-invariant-empty");
+    empty.append(evidenceBadge("unavailable"));
+    empty.append(makeElement("strong", "", "No separate invariant is documented for this focused lesson"));
+    empty.append(makeElement("p", "", "Use Algorithm Story, Variables, or Before and After for its recorded evidence."));
+    body.append(empty);
   } else {
-    const list = makeElement("ul", "dsa-invariant-list");
-    state.activeProgram.invariants.forEach((invariant) => list.append(makeElement("li", "", invariant)));
-    article.append(list);
+    const list = makeElement("ol", "dsa-invariant-checklist");
+    state.activeProgram.invariants.forEach((invariant, index) => {
+      const item = makeElement("li", "dsa-invariant-card unavailable");
+      const number = makeElement("span", "dsa-invariant-number", String(index + 1).padStart(2, "0"));
+      const copy = makeElement("div", "dsa-invariant-copy");
+      copy.append(makeElement("span", "", "REVIEWED RULE"));
+      copy.append(makeElement("strong", "", invariant));
+      const evidence = makeElement("div", "dsa-invariant-evidence");
+      evidence.append(evidenceBadge("unavailable"));
+      evidence.append(makeElement("p", "", step
+        ? `Current observed line: ${step.source.trim()}`
+        : "Run the program to place this rule beside an observed source line."));
+      evidence.append(makeElement("p", "", "Automatic satisfied or violated verdict unavailable."));
+      copy.append(evidence);
+      item.append(number, copy);
+      list.append(item);
+    });
+    body.append(list);
   }
-  article.append(makeElement("p", "dsa-honesty-note", "Code Explorer presents these rules as reviewed curriculum context. It does not label them passed unless a program explicitly prints or records its own check."));
+  body.append(makeElement("p", "dsa-data-boundary", "A printed Result marker checks the reviewed program's expected output. It does not prove every invariant at every recorded step."));
   els.dsaViewStage.replaceChildren(article);
 }
 
@@ -1594,6 +2463,8 @@ function renderEdgeCaseLab() {
 
 /** Routes the active view id to one bounded renderer. */
 function renderActiveView() {
+  // Cytoscape owns canvas resources, so leaving References releases them before another view mounts.
+  if (state.activeView !== "references" && state.referenceGraph) disposeReferenceGraph();
   const renderers = {
     "algorithm-story": renderAlgorithmStory,
     "before-after": renderBeforeAfter,
@@ -2012,7 +2883,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260728-22", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260728-24", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;
@@ -2086,7 +2957,7 @@ async function runCode() {
     return;
   }
 
-  stopPlayback();
+  stopPlayback(false);
   state.running = true;
   state.runId += 1;
   state.activeProgram = matchingProgram(source);
@@ -2161,7 +3032,11 @@ function loadRunResult(result) {
 /** Binds all implemented DSA controls in one auditable location. */
 function bindEvents() {
   const themeControls = { button: els.themeButton, label: els.themeLabel };
-  els.themeButton.addEventListener("click", () => toggleTheme(themeControls));
+  els.themeButton.addEventListener("click", () => {
+    toggleTheme(themeControls);
+    // A live canvas cannot inherit CSS variables, so rebuild it once with the new resolved theme tokens.
+    if (state.activeView === "references" && !state.playbackTimer) renderReferences();
+  });
   els.dsaExamplesButton.addEventListener("click", openCatalog);
   els.dsaCloseExamplesButton.addEventListener("click", () => els.dsaExamplesDialog.close());
   els.dsaLearningCommentsButton.addEventListener("click", openCommentsDialog);

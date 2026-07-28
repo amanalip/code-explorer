@@ -312,6 +312,58 @@ expect(
   /\.dsa-view-stage\s*\{[\s\S]*?overflow:\s*auto[\s\S]*?overscroll-behavior:\s*contain[\s\S]*?scrollbar-gutter:\s*stable/.test(stylesSource),
   "DSA view stage is missing its bounded internal scrolling contract.",
 );
+/*
+ * Chunk 2 gives all six Data views one scope-aware and evidence-aware teaching
+ * language. Static checks protect the critical contracts that browser tests
+ * then exercise with real traces, themes, scrolling, and graph lifecycle.
+ */
+expect(
+  dsaAppSource.includes("createDataViewShell")
+    && dsaAppSource.includes("renderDataUnavailable")
+    && stylesSource.includes(".dsa-data-hero")
+    && stylesSource.includes(".dsa-data-body"),
+  "The shared Data teaching shell is incomplete.",
+);
+expect(
+  dsaAppSource.includes("dataScopeGroups")
+    && dsaAppSource.includes("globalsAndLocalsMatch")
+    && dsaAppSource.includes('"dsa-variable-current"')
+    && dsaAppSource.includes('"dsa-variable-previous"'),
+  "Variables is missing scope separation, module deduplication, or adjacent values.",
+);
+expect(
+  dsaAppSource.includes("LIMITS.watches")
+    && dsaAppSource.includes("Local suggestions, not learner tracking")
+    && dsaAppSource.includes("dsa-watch-state"),
+  "Watches is missing its bound, privacy boundary, or visible change state.",
+);
+expect(
+  dsaAppSource.includes("reviewedStructureCandidate")
+    && dsaAppSource.includes("structureReadingGuide")
+    && dsaAppSource.includes("Flattened cells do not invent child edges")
+    && dsaAppSource.includes("LIMITS.structureCells"),
+  "Structure Canvas is missing reviewed selection, reading guidance, honesty, or its display bound.",
+);
+expect(
+  dsaAppSource.includes("loadDsaReferenceGraphLibrary")
+    && dsaAppSource.includes("https://esm.sh/cytoscape@3.31.0")
+    && dsaAppSource.includes("Playback is running. The interactive map will refresh once playback pauses.")
+    && dsaAppSource.includes("The complete text map remains below.")
+    && dsaAppSource.includes("LIMITS.referenceGraphElements"),
+  "References is missing its optional graph, playback stability, fallback, or element bound.",
+);
+expect(
+  dsaAppSource.includes("groupedObjectChanges")
+    && dsaAppSource.includes("Affected names sharing this object")
+    && dsaAppSource.includes('"dsa-mutation-journey"'),
+  "Mutation Explorer is missing alias deduplication or its before-operation-after journey.",
+);
+expect(
+  dsaAppSource.includes("Automatic satisfied or violated verdict unavailable.")
+    && dsaAppSource.includes("A printed Result marker checks the reviewed program")
+    && stylesSource.includes(".dsa-invariant-checklist"),
+  "Invariant Checker is missing its conservative verdict boundary or reviewed checklist.",
+);
 
 if (failures.length) {
   console.error(`DSA foundation validation failed with ${failures.length} issue(s):`);

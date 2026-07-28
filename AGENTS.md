@@ -107,8 +107,8 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 - `changelog.md`: dated learner-visible release history, verification notes, compatibility boundaries, and upgrade guidance.
 - `bug_report.md`: detailed reliability incident record for the non-finite-float worker transport defect, correction, audit evidence, privacy impact, and prevention rules.
 - `Tier.md`: planning and status reference for complete Tier A coverage and the unimplemented Tier B and Tier C scope.
-- `current state of LAB UI.md`: timestamped baseline audit of all 18 DSA learning views before their visual redesign.
-- `Improvements in LAB UI.md`: five-chunk technical redesign ledger that must distinguish planned work from implemented and verified work.
+- `current state of LAB UI.md`: timestamped baseline and living current-state audit for the five Trace and six Data views already redesigned plus the seven views still pending.
+- `Improvements in LAB UI.md`: five-chunk technical redesign ledger that must distinguish planned work from implemented, corrected, and verified work.
 - `LICENSE`: GPL license text. Do not modify it while adding explanatory material.
 
 ## Required workflow for every change
@@ -264,6 +264,33 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm the DSA learning-comment modal retains its header, toolbar, flexible preview, and visible Copy and Replace footer at desktop and 390-pixel mobile width in both themes.
 - Confirm visual gutters, syntax spans, file chrome, badges, and status text never enter copied or adopted Python.
 - Confirm Structure Canvas stops at 30 entries, Watches at 12 names, Operation Journey at 30 events, Algorithm Path at 80 transitions, Step Table at 120 rows, and Compare Algorithms at 2 summaries.
+- Confirm Variables displays one module scope, adds a separate scope during a
+  real function call, and shows previous values only when adjacent evidence
+  supports the comparison.
+- Confirm Watches shows at most 12 local suggestions, states why each name was
+  suggested, and never describes suggestions as saved progress or semantic
+  proof.
+- Confirm an exact reviewed stack, queue, deque, linked, hash, set, tree, heap,
+  priority-queue, trie, Union-Find, and graph lesson selects a compatible
+  semantically named structure. Edited or pasted source must remain generic.
+- Confirm Structure Canvas never parses flattened serialized text into
+  invented linked, tree, trie, Union-Find, or graph edges.
+- Confirm References stops at 90 combined graph nodes and edges, permanently
+  retains its complete text map, and calls worker object tokens conceptual
+  evidence rather than physical addresses.
+- Confirm References has Fit, 50 to 160 percent zoom, pan, selectable nodes,
+  readable labels, and theme-aware contrast when Cytoscape loads.
+- Block the exact Cytoscape request and confirm the explicit graph unavailable
+  state leaves the complete semantic text map usable.
+- Start automatic playback while References is active. Confirm the graph is
+  destroyed once, does not rebuild on every tick, and rebuilds once after
+  pause or completion.
+- Confirm Mutation Explorer groups two aliases of one changed object into one
+  mutation event and lists every affected name beside Before, Executed source,
+  and After.
+- Confirm Invariant Checker presents exact reviewed rules as questions and
+  keeps every automatic satisfied or violated verdict Unavailable without a
+  dedicated verified check.
 - Confirm Before and After shows the selected step number, line number, and executed source before its values.
 - Confirm Before and After renders one full-width vertical card for every name visible in either adjacent snapshot. Advance and reverse playback to prove cards appear, disappear, remain unchanged, and update with recorded scope state.
 - Confirm every Before and After card presents Before above After with visible labels and a downward cue. Long serialized values must wrap inside the card.

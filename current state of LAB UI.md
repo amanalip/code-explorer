@@ -2,11 +2,11 @@
 
 Baseline recorded: 2026-07-28 14:32:14 EDT (-0400)
 
-Document status: Living current-state audit, Trace redesign Chunk 1 shipped
+Document status: Living current-state audit, Trace and Data redesign Chunks 1 and 2 shipped
 
 Scope: All 18 learning views in the Data Structures and Algorithms workspace
 
-Last documentation audit: 2026-07-28 14:59:56 EDT (-0400)
+Last documentation audit: 2026-07-28 15:37:06 EDT (-0400)
 
 ## Why this document exists
 
@@ -28,10 +28,10 @@ The current interface is functionally complete:
 - Light mode, dark mode, desktop, and narrow layouts work without page-level
   horizontal overflow.
 
-The interface redesign is now partially complete. All five Trace views use the
-new beginner-oriented visual system. The remaining thirteen Data, Flow, and
-Labs views still largely use the earlier generic treatments and remain future
-redesign chunks.
+The interface redesign is now partially complete. All five Trace views and all
+six Data views use the new beginner-oriented visual system. The remaining
+seven Flow and Labs views still largely use the earlier generic treatments and
+remain future redesign chunks.
 
 ## Current state after Trace redesign Chunk 1
 
@@ -90,6 +90,113 @@ Real-browser verification covered:
 - Internal vertical overflow with no page-level horizontal overflow.
 - No browser console errors or page exceptions during a repeated error run.
 
+## Current state after Data redesign Chunk 2
+
+Recorded: 2026-07-28 15:37:06 EDT (-0400)
+
+Chunk 2 changed the presentation and interaction of the six Data views. It did
+not change learner program source, the 535-program curriculum, trace semantics,
+execution limits, persistence keys, analytics policy, or reviewed-source
+matching.
+
+The six Data views now begin with the same learner orientation:
+
+```text
+evidence badge and Data view name
+        |
+        v
+one beginner question
+        |
+        v
+program, selected step, and source line
+        |
+        v
+exact executed source
+        |
+        v
+scope, structure, reference, mutation, or invariant visual
+        |
+        v
+honest display boundary or suggested next action
+```
+
+| Data view | Current visual form | Beginner benefit | Honesty boundary |
+| --- | --- | --- | --- |
+| Variables | Scope sections with current value, Python type, change state, and previous value when relevant | Separates module names from active function locals and makes one-step changes visible | Module globals and locals are not duplicated as two scopes |
+| Watches | Ranked local suggestions with reason, value, and change state | Gives a compact starting point when many names exist | Suggestions are not saved choices, progress tracking, or proof that a name controls the algorithm |
+| Structure Canvas | Selected observed container, reviewed orientation guide, and bounded role-specific cells | Gives stacks, queues, deques, linked structures, hashes, sets, trees, heaps, tries, Union-Find, and graphs a readable entry point | Reviewed labels require exact unchanged source and flattened text is never converted into invented edges |
+| References | Optional Cytoscape map plus a complete semantic text map | Makes shared object identity visible without requiring graph interaction | Worker object tokens are temporary conceptual evidence, not physical RAM addresses |
+| Mutation Explorer | One event per changed conceptual object with Before, Executed, After, and affected alias names | Distinguishes in-place change from name reassignment | Two aliases of one mutated list are grouped as one object event rather than counted twice |
+| Invariant Checker | Reviewed checklist with the selected observed line beside each curriculum rule | Teaches learners what rule to question while replaying an algorithm | Every automatic satisfied or violated verdict remains Unavailable without a dedicated verified check |
+
+### References graph lifecycle
+
+References is the only Chunk 2 view with an optional graph enhancement.
+Semantic HTML is rendered first and remains below the graph at all times.
+Cytoscape 3.31.0 is loaded lazily only after References has useful object
+evidence.
+
+```text
+References opens
+      |
+      +-- complete text map appears immediately
+      |
+      v
+optional Cytoscape request
+      |
+      +-- succeeds -> Fit, pan, zoom, selection, labelled graph
+      |
+      +-- fails -> explicit unavailable message, text map remains complete
+
+automatic playback starts
+      |
+      +-- destroy the graph once
+      +-- update the text map with each selected step
+      |
+      v
+playback pauses or finishes
+      |
+      +-- build one graph for the final selected step
+```
+
+This lifecycle prevents a heavy graph from being destroyed and rebuilt on
+every playback tick. It directly addresses the earlier shaking interface
+problem.
+
+### Corrections discovered during browser testing
+
+Two issues were found and corrected before Chunk 2 was documented as shipped.
+
+1. Python reports module-level globals and locals as the same namespace. The
+   first Data implementation displayed that one namespace twice. The corrected
+   scope builder omits the duplicate module-local group while retaining a real
+   named function scope.
+2. Worker comparisons report a changed shared list once for each visible alias.
+   The first Mutation Explorer implementation therefore showed two mutations
+   for one list. The corrected renderer groups equal object-token changes into
+   one event and lists both affected names.
+
+These corrections matter because a visually attractive but conceptually
+duplicated diagram would teach the wrong mental model.
+
+Real-browser verification covered:
+
+- All six Data tabs after an unchanged reviewed trace.
+- Variables at the beginning and end of a run, plus a real `f()` local scope.
+- A reviewed list-backed stack selecting `stack`, not the unrelated larger
+  `operations` list, and showing BASE and TOP.
+- Edited source retaining generic observed Structure Canvas cells.
+- One shared list referenced by `items` and `alias`.
+- One in-place append rendered as one object mutation with two affected names.
+- A References graph with Fit, zoom, pan, selection-ready nodes, labels, and
+  the complete text fallback.
+- Deliberately blocked Cytoscape loading with the text map still usable.
+- Graph suspension during playback and one rebuild after pause.
+- Dark mode at 390 by 844 pixels with no page-level horizontal overflow.
+- A 448-pixel visible stage with 1,562 pixels of internally scrollable
+  References content.
+- All six Data views without browser console errors during an ordinary run.
+
 ## Current interface map
 
 ```text
@@ -124,7 +231,9 @@ DSA LEARNING PANEL
 
 ## Current rendering architecture
 
-Most views are created dynamically by `dsa-app.js`.
+All views are created dynamically by `dsa-app.js`. Trace and Data now use
+separate teaching shells. Flow and Labs still mostly use the earlier generic
+article.
 
 ```text
 selected view ID
@@ -132,24 +241,22 @@ selected view ID
       v
 renderActiveView()
       |
-      v
-one view-specific JavaScript function
+      +-- Trace -> createTraceViewShell()
+      |                +-- purpose-specific Trace body
+      |
+      +-- Data  -> createDataViewShell()
+      |                +-- purpose-specific Data body
+      |                +-- optional graph enhancement
+      |                +-- complete HTML fallback
+      |
+      +-- Flow or Labs -> earlier generic renderer
       |
       v
-generic article.dsa-runtime-view
-      |
-      +-- evidence badge
-      +-- heading
-      +-- explanatory paragraph
-      +-- cards, list, or table
-      |
-      v
-dsaViewStage.replaceChildren(...)
+bounded dsaViewStage.replaceChildren(...)
 ```
 
-This architecture helped establish consistent evidence labels and bounded
-rendering. It also encouraged very different concepts to share one visual
-grammar.
+This architecture keeps orientation consistent without forcing unrelated
+concepts into one visual grammar.
 
 ## Current source ownership
 
@@ -228,6 +335,7 @@ choices.
 | Serialized trace | 3,000 recorded steps | Prevent unbounded trace storage and rendering |
 | Complete execution | 30 seconds | Stop browser work that does not complete promptly |
 | Structure Canvas | 30 displayed cells or entries | Keep structures readable and bounded |
+| References graph | 90 nodes and edges | Bound optional layout and rendering work while retaining the complete text map |
 | Operation Journey | 30 displayed events | Prevent an event timeline from overwhelming the view |
 | Algorithm Path | 80 displayed transitions | Bound path layout and interaction cost |
 | Step Table | 120 displayed rows | Keep the debugger table usable |
@@ -274,9 +382,9 @@ The problem is mainly how this information is presented and connected.
 
 ## Shared current-state problems
 
-The following findings preserve the original all-view baseline. Chunk 1 resolves
-them for the five Trace views only. They remain active review questions for the
-thirteen Data, Flow, and Labs views.
+The following findings preserve the original all-view baseline. Chunks 1 and 2
+resolve them for the five Trace and six Data views. They remain active review
+questions for the seven Flow and Labs views.
 
 ### One visual treatment is reused too broadly
 

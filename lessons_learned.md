@@ -4753,6 +4753,199 @@ How to verify:
 - Scroll a long view down, advance playback, and confirm the reading position
   remains stable.
 
+## 2026-07-28: A beginner diagram must remove transport duplication before styling it
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Corrected during DSA LAB UI redesign Chunk 2
+
+What happened:
+
+The first Variables and References redesign used the worker's global and local
+snapshot fields directly. In a function this separation is meaningful. At
+module level, however, Python exposes one namespace through both global and
+local access. The first browser rendering therefore showed `temperatures` in a
+Global scope box and again in an Active local scope box.
+
+The code was faithfully displaying two transport fields, but the teaching
+diagram was wrong. A complete beginner could reasonably conclude that Python
+created two names or that assigning one list automatically created an alias.
+
+Aman's insistence on designing from a beginner's perspective deserves credit
+here. Without that acceptance standard, the duplicated boxes could have passed
+as technically sourced data.
+
+What the user learned:
+
+- Runtime transport shape and learner mental model are not automatically the
+  same thing.
+- A view can be factually sourced yet pedagogically misleading.
+- Visual repetition is a semantic claim. Two scope boxes imply two distinct
+  places unless the interface explains otherwise.
+- Asking "What will a beginner conclude?" can catch a defect that a schema
+  validator cannot.
+
+What Codex learned:
+
+- Data views need a normalization layer before presentation.
+- Module globals and locals should become one displayed scope.
+- A named function frame should still receive its own local scope.
+- Browser inspection with an ordinary one-list program is necessary because a
+  complex test can hide a duplicated namespace among many values.
+
+What changed:
+
+- `dataScopeGroups()` now begins with one Global scope.
+- It adds a local scope only for a real named function whose serialized local
+  state is distinct from the global state.
+- Variables, References, and all helpers using these groups inherit the same
+  corrected scope model.
+- The DSA validator now protects module deduplication.
+
+What to do next time:
+
+1. Write down the runtime transport fields.
+2. Write down the concept the learner should understand.
+3. Normalize duplicate, internal, or implementation-only fields.
+4. Test one module-level program and one function-level program.
+5. Treat every duplicated visual node as a claim that requires justification.
+
+How to verify:
+
+- Run `temperatures = [18, 21]` and confirm one Global scope appears.
+- Run a function with parameter `x` and local `y`.
+- Move playback inside the function and confirm a separate `f()` local scope
+  appears beside Global scope.
+
+## 2026-07-28: Aliases describe one changed object, not several mutations
+
+Perspective:
+- Codex
+- Shared
+
+Status:
+- Corrected during DSA LAB UI redesign Chunk 2
+
+What happened:
+
+The worker compares serialized values by visible name. For this program:
+
+```python
+items = [1, 2]
+alias = items
+items.append(3)
+```
+
+both `items` and `alias` changed from `[1, 2]` to `[1, 2, 3]` while retaining
+the same temporary object token. The first Mutation Explorer renderer created
+one card per changed name. It therefore reported two object changes and two
+in-place mutations even though Python changed one list once.
+
+What we learned:
+
+A name-level change report and an object-level mutation report have different
+units. Counting the former as the latter teaches the wrong identity model.
+
+```text
+worker evidence
+items changed
+alias changed
+        |
+        v
+object-oriented teaching model
+one list changed
+affected names: items, alias
+```
+
+What changed:
+
+- `groupedObjectChanges()` groups equal same-token before and after evidence.
+- Mutation Explorer now shows one object event.
+- The event names both affected aliases.
+- Its metric reports one object change and one in-place change.
+- Reference reassignment remains name-specific because different names can
+  genuinely point somewhere new independently.
+
+What to do next time:
+
+- Define the unit counted by every metric.
+- Group by stable conceptual identity before counting object events.
+- Keep affected names as supporting evidence rather than separate mutations.
+- Include an alias program in every mutation regression pass.
+
+How to verify:
+
+- Run the three-line alias example above.
+- Select the append step.
+- Confirm one mutation card, one object-change count, and both names.
+
+## 2026-07-28: Optional graphs should enhance a complete lesson and pause during playback
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented and verified in DSA LAB UI redesign Chunk 2
+
+What happened:
+
+The user had already reported graph panels shaking badly enough to cause a
+headache. That history changed the References design. Rebuilding a layout-heavy
+graph on every automatic playback tick would reproduce the same failure even
+if the individual graph looked polished.
+
+The References redesign therefore treats Cytoscape as an optional enhancement,
+not the source of truth. A complete semantic text map is rendered first.
+During playback the graph is removed once, the text evidence keeps updating,
+and one graph is rebuilt only after the learner pauses or playback completes.
+
+What the user learned:
+
+- A richer visualization is useful only when it does not destabilize the
+  surrounding interface.
+- A fallback can be the primary accessible lesson while a graph adds spatial
+  exploration.
+- Smoothness is not merely polish when unstable motion causes discomfort.
+
+What Codex learned:
+
+- An optional graph needs an explicit lifecycle, not only a renderer.
+- Asynchronous imports need stale-render protection when themes, tabs, traces,
+  or playback can change.
+- Loading failure must be tested deliberately instead of inferred from source.
+- Asset requests must remain free of learner source, trace, object tokens, and
+  identifiers.
+- A graph-size limit needs an accessible complete representation outside the
+  graph.
+
+What changed:
+
+- References always renders a complete semantic text map.
+- Cytoscape 3.31.0 loads lazily only when useful reference evidence exists.
+- The graph supports Fit, pan, selection, and 50 to 160 percent zoom.
+- Combined graph nodes and edges stop at 90.
+- Playback suspends graph construction and rebuilds once after pause.
+- Leaving References and changing theme destroy the previous instance.
+- Import failure produces an explicit message while leaving the text map
+  usable.
+
+How to verify:
+
+- Open References and confirm the text map exists before and after graph load.
+- Start playback and confirm the graph canvas count becomes zero with a pause
+  message.
+- Pause and confirm one graph returns.
+- Block the exact Cytoscape URL and confirm the unavailable graph message and
+  complete text map.
+- Repeat in both themes and at 390 pixels without page-level horizontal
+  overflow.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.
