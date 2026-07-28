@@ -267,6 +267,9 @@ The editor is where you write, paste, and review the complete Python program.
 ### Source editing
 
 - Python syntax is highlighted when the enhanced editor is available.
+- Selecting an inbuilt example shows its reviewed title and description directly above the editor.
+- The selected question remains visible while you edit that example and after a reload.
+- Pasting or replacing the complete document clears the selected question because Code Explorer must not invent curriculum wording for custom source.
 - The footer reports the current number of lines and characters.
 - Your current source is saved automatically in the browser.
 - Reloading the workspace restores the most recently saved source.
@@ -2999,7 +3002,7 @@ The audited privacy behavior is:
 | Python source | Local browser storage and the page's local Web Worker | No |
 | Prepared `input()` responses | Local browser storage and the local Web Worker | No |
 | Trace snapshots and console output | Memory in the current browser page | No |
-| Theme, editor, graph, watch, and input preferences | Local browser storage for this site | No |
+| Theme, editor, graph, watch, input, and selected-question preferences | Local browser storage for this site | No |
 | Clipboard text | Read or written only after the learner selects Paste or Copy and the browser permits it | No |
 | Automatic comments and bookmarks | Current browser session, unless commented source is deliberately copied or adopted | No |
 | Analytics events | No analytics system exists | No |

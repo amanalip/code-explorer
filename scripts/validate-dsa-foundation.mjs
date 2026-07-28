@@ -128,10 +128,11 @@ expect(
 
 // Read shipped pages and runtime sources as text so routing, visual-state, and
 // strict transport contracts stay dependency-free and fast.
-const [landingHtml, pythonHtml, dsaHtml, dsaAppSource, stylesSource, workerSource] = await Promise.all([
+const [landingHtml, pythonHtml, dsaHtml, pythonAppSource, dsaAppSource, stylesSource, workerSource] = await Promise.all([
   readFile(new URL("../index.html", import.meta.url), "utf8"),
   readFile(new URL("../workspace.html", import.meta.url), "utf8"),
   readFile(new URL("../data-structures.html", import.meta.url), "utf8"),
+  readFile(new URL("../app.js", import.meta.url), "utf8"),
   readFile(new URL("../dsa-app.js", import.meta.url), "utf8"),
   readFile(new URL("../styles.css", import.meta.url), "utf8"),
   readFile(new URL("../py-worker.js", import.meta.url), "utf8"),
@@ -169,9 +170,36 @@ expect(
   "DSA view stage is missing its focusable keyboard-scrolling contract.",
 );
 expect(
-  dsaHtml.includes("Chunk 7 completes all 535 reviewed Tier A programs")
-    && dsaHtml.includes("No Tier A programs remain"),
-  "DSA status copy does not match the verified Chunk 7 arithmetic.",
+  dsaHtml.includes("Explore 535 reviewed programs"),
+  "The DSA catalog heading does not show the complete implemented count.",
+);
+expect(
+  !dsaHtml.includes("CHUNK STATUS")
+    && !dsaHtml.includes("foundation-status-badge")
+    && !dsaHtml.includes("dsa-heading-label"),
+  "Learner-facing release-management labels remain in the DSA interface.",
+);
+expect(
+  dsaHtml.includes('id="dsaSelectedProgramQuestion"')
+    && pythonHtml.includes('id="selectedProgramQuestion"'),
+  "One or both workspaces are missing the selected reviewed question region.",
+);
+expect(
+  pythonAppSource.includes("code-explorer-selected-example")
+    && pythonAppSource.includes("renderSelectedProgramQuestion()")
+    && pythonAppSource.includes("setCode(example.code, example)"),
+  "The Python selected-question origin is not persisted and rendered through the catalog path.",
+);
+expect(
+  dsaAppSource.includes("code-explorer-dsa-selected-program")
+    && dsaAppSource.includes("renderSelectedProgramQuestion()")
+    && dsaAppSource.includes("replaceEditorSource(program.code, program)"),
+  "The DSA selected-question origin is not persisted and rendered through the catalog path.",
+);
+expect(
+  dsaAppSource.includes('setRuntimeStatus("Python ready", "ready")')
+    && !dsaAppSource.includes('setRuntimeStatus("Tier A ready"'),
+  "The DSA header does not use the Python runtime status contract.",
 );
 expect(
   dsaAppSource.includes("DSA_CHUNK_SEVEN_PROGRAMS")
@@ -194,11 +222,12 @@ expect(
 
 // Every id read by the DSA controller must exist in the dedicated document.
 const requiredDsaIds = [
-  "runtimeStatus", "runtimeLabel", "themeButton", "themeLabel", "dsaEditor",
+  "runtimeStatus", "runtimeLabel", "themeButton", "themeLabel", "dsaEditorPanel", "dsaEditor",
   "dsaEditorShell", "dsaWrapButton", "dsaAutomaticCommentsButton",
+  "dsaSelectedProgramQuestion", "dsaSelectedProgramQuestionTitle",
+  "dsaSelectedProgramQuestionDescription",
   "dsaFontSizeSelect", "dsaCopyButton", "dsaPasteButton", "dsaCodeStats",
   "dsaAreaNav", "dsaViewTabs", "dsaViewStage", "dsaStepCount",
-  "dsaImplementedCount", "dsaSectionCount", "dsaStructureCount", "dsaCatalogTarget",
   "dsaExamplesButton", "dsaLearningCommentsButton", "dsaRunButton",
   "dsaPreviousButton", "dsaPlayButton", "dsaNextButton", "dsaRestartButton",
   "dsaTimeline", "dsaProgressLabel", "dsaSpeedSelect", "dsaConsoleOutput",

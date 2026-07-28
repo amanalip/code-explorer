@@ -198,7 +198,7 @@ Move the pointer over the learning result and use a mouse wheel, trackpad gestur
 |                                              v     |
 +----------------------------------------------------+
 
-Playback, Console Output, and Chunk Status keep their positions below the bounded panel.
+Playback and Console Output keep their positions below the bounded panel.
 ```
 
 The learning result uses a stable scrollbar gutter, so its readable width does not jump when a short view becomes long enough to scroll. Short results remain inside the same stable region without needing vertical movement. On a phone, the panel uses a shorter but still bounded height. The view-label strip can scroll horizontally, while the selected learning result scrolls vertically.
@@ -924,6 +924,18 @@ The exact step count belongs to this program and input. It is not the same as Bi
 
 ## Editor controls
 
+### Selected question
+
+Selecting an inbuilt DSA program shows its reviewed title and objective directly
+above the editor. The question remains visible while the learner changes the
+source, which prevents the exercise prompt from disappearing during problem
+solving. Reloading the same workspace restores the locally selected question.
+
+Paste and confirmed complete-source replacement clear the question. Pasted or
+independently written code never receives an invented exercise description.
+The banner is curriculum orientation, not proof of completion and not an
+analytics or progress record.
+
 ### Wrap
 
 **Wrap on** keeps long lines inside the visible editor width. **Wrap off** preserves horizontal source layout. This is a visual preference and never inserts line breaks into Python.
@@ -1278,6 +1290,7 @@ The browser stores these same-origin values locally:
 - Active DSA view.
 - Theme.
 - Editor wrap and font presentation preferences.
+- The stable ID of the selected reviewed question, when one exists.
 
 Reloading `data-structures.html` restores source and preferences. It does not restore a trusted completed trace. Run again so the evidence describes the current page state.
 

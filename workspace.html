@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260728-20" />
+    <link rel="stylesheet" href="styles.css?v=20260728-21" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -107,7 +107,7 @@
         <!-- CSS Grid arranges the editor, story, controls, and console responsively. -->
         <div class="workspace-grid">
           <!-- The editor panel contains CodeMirror or the native textarea fallback. -->
-          <section class="panel editor-panel">
+          <section class="panel editor-panel" id="editorPanel">
             <!-- A numbered panel header makes the interface resemble an instrument console. -->
             <div class="panel-header">
               <div>
@@ -157,6 +157,20 @@
                 <span class="file-label">main.py</span>
               </div>
             </div>
+            <!--
+              A reviewed example selection places its learning question directly
+              above the editor. JavaScript hides this region for pasted or
+              independently created source and always inserts text safely.
+            -->
+            <section
+              class="selected-program-question hidden"
+              id="selectedProgramQuestion"
+              aria-labelledby="selectedProgramQuestionTitle"
+            >
+              <span>Selected question</span>
+              <strong id="selectedProgramQuestionTitle"></strong>
+              <p id="selectedProgramQuestionDescription"></p>
+            </section>
             <!-- CodeMirror mounts itself into this empty element after its modules load. -->
             <div class="editor-shell" id="editorShell">
               <div id="editor" aria-label="Python code editor"></div>
@@ -688,6 +702,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260728-20"></script>
+    <script type="module" src="app.js?v=20260728-21"></script>
   </body>
 </html>

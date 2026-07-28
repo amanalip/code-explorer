@@ -177,6 +177,7 @@ For JavaScript functions, use JSDoc with parameter and return information where 
 - Example selection must save the selected code before navigating to the workspace.
 - Stored data must remain local unless a future feature clearly asks the learner to export or navigate elsewhere.
 - New stored settings need a stable key, safe defaults, validation during loading, and README coverage.
+- Selected reviewed-question origins use local stable titles or IDs. They may survive ordinary edits so the prompt remains useful, but Paste and complete-source transformations must clear them.
 
 ## Verification checklist
 
@@ -261,7 +262,10 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm dynamic-programming records make states, transitions, base cases, evaluation order, reconstruction, and space optimization explicit.
 - Confirm bit-manipulation records state their finite-width or nonnegative-input boundaries instead of implying that Python integers use a fixed hidden width.
 - Confirm mathematical records verify their invariants, including divisibility, Bezout identities, modular preconditions, and exact integer boundaries.
-- Confirm the status panel states 535 implemented programs, 25 implemented sections, 20 representations, the 535 target, and that no Tier A programs remain unavailable.
+- Confirm no learner-facing Chunk Status table, chunk label, or Tier A readiness label appears in the DSA workspace.
+- Confirm the DSA catalog heading reports 535 reviewed programs.
+- Confirm the DSA runtime header moves from Loading Python to Python ready using the real worker state.
+- Confirm both workspaces show the selected inbuilt question above the editor, preserve it across ordinary edits and reloads, and clear it after Paste or complete-source replacement.
 
 ### Trace checks
 

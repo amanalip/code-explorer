@@ -717,6 +717,7 @@ The `learningComments` result contains JSON-compatible records with `line`, `lev
 - `state.comparisonRuns` keeps at most two in-session summaries. It is not persistent learner progress.
 - `state.preparedInputs` is local browser text and is capped at 20,000 characters when loaded.
 - `state.activeView` selects one of the 18 contracted renderers and is locally restored.
+- `state.selectedProgramId` stores only the stable origin of the reviewed DSA question. It survives edits so the learner keeps the prompt, but Paste and complete-source transformations clear it.
 - `state.automaticCommentsVisible` changes only presentation. Original editor source remains the source of truth.
 - Editing source immediately clears the old trace, error, comments, comparison eligibility, and exact reviewed-program identity.
 - Reviewed phases, invariants, edge cases, complexity, and comparison groups must read from `state.program`, never from source-text heuristics.
@@ -730,6 +731,8 @@ The `learningComments` result contains JSON-compatible records with `line`, `lev
 | --- | --- |
 | Current Python source | Saved in local storage and restored on reload |
 | Current DSA source | Saved under a separate local key and restored on DSA reload |
+| Selected Python example question | Stable reviewed title saved locally; cleared by Paste or complete-source replacement |
+| Selected DSA question | Stable reviewed ID saved locally; cleared by Paste or complete-source replacement |
 | Theme | Saved in local storage |
 | Editor wrap and font size | Saved in local storage |
 | Graph zoom | Saved in local storage |

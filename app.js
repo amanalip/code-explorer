@@ -10,9 +10,9 @@
 
 // The expanded curriculum lives in a dedicated data module so application
 // controllers remain readable while the library grows to 134 programs.
-import { ADDITIONAL_EXAMPLES } from "./curriculum.js?v=20260728-20";
+import { ADDITIONAL_EXAMPLES } from "./curriculum.js?v=20260728-21";
 // Both catalogs use one local-only matcher so metadata search behaves consistently.
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-20";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-21";
 
 /**
  * The initial program shown in the editor.
@@ -33,6 +33,12 @@ print("Total:", total)`;
  * A project-specific prefix prevents collisions with unrelated pages on the same origin.
  */
 const SOURCE_STORAGE_KEY = "code-explorer-source";
+
+/**
+ * Stores only the stable title of the reviewed example that originated the
+ * current study document. It never records progress, edits, or trace data.
+ */
+const SELECTED_EXAMPLE_STORAGE_KEY = "code-explorer-selected-example";
 
 /**
  * The browser-storage key for editor-only display preferences.
@@ -1256,6 +1262,65 @@ else:
 const EXAMPLES = Object.freeze([...BASE_EXAMPLES, ...ADDITIONAL_EXAMPLES]);
 
 /**
+ * Restores a reviewed example origin only when its title still exists.
+ *
+ * Storing the title keeps the learner's chosen question visible after reload
+ * while avoiding any record of completion, behavior, or code edits.
+ *
+ * @returns {string} Valid reviewed title or an empty string.
+ */
+function loadSelectedExampleTitle() {
+  try {
+    const storedTitle = localStorage.getItem(SELECTED_EXAMPLE_STORAGE_KEY) || "";
+    return EXAMPLES.some((example) => example.title === storedTitle) ? storedTitle : "";
+  } catch (error) {
+    console.warn("Code Explorer could not read the selected example title.", error);
+    return "";
+  }
+}
+
+/**
+ * Saves or clears the reviewed example origin without touching source.
+ *
+ * @param {string} title Unique reviewed title, or empty text for custom source.
+ */
+function saveSelectedExampleTitle(title) {
+  try {
+    if (title) localStorage.setItem(SELECTED_EXAMPLE_STORAGE_KEY, title);
+    else localStorage.removeItem(SELECTED_EXAMPLE_STORAGE_KEY);
+  } catch (error) {
+    console.warn("Code Explorer could not save the selected example title.", error);
+  }
+}
+
+/**
+ * Returns the reviewed record that supplied the visible study question.
+ *
+ * The origin intentionally survives learner edits. Paste and complete-source
+ * replacement clear it because those actions start a different document.
+ *
+ * @returns {object|null} Reviewed example origin or null.
+ */
+function selectedExample() {
+  return EXAMPLES.find((example) => example.title === state.selectedExampleTitle) || null;
+}
+
+/** Renders the selected reviewed question as text above the Python editor. */
+function renderSelectedProgramQuestion() {
+  const example = selectedExample();
+  const visible = Boolean(example);
+  els.selectedProgramQuestion.classList.toggle("hidden", !visible);
+  els.editorPanel.classList.toggle("has-selected-question", visible);
+  if (!example) {
+    els.selectedProgramQuestionTitle.textContent = "";
+    els.selectedProgramQuestionDescription.textContent = "";
+    return;
+  }
+  els.selectedProgramQuestionTitle.textContent = example.title;
+  els.selectedProgramQuestionDescription.textContent = example.description;
+}
+
+/**
  * Prepared search text avoids repeatedly flattening full source and metadata
  * while a learner types. The Map remains session-only and never changes a
  * reviewed curriculum record or writes a query to browser storage.
@@ -1305,7 +1370,9 @@ const els = Object.fromEntries(
   [
     "runtimeStatus", "runtimeLabel", "themeButton", "themeLabel", "welcomeScreen", "workspace",
     "heroExampleButton", "backButton", "examplesButton", "learningCommentsButton", "runButton", "stopButton",
-    "editor", "editorShell", "editorWrapButton", "editorAutomaticCommentsButton", "editorFontSizeSelect", "editorCopyButton", "editorPasteButton",
+    "editorPanel", "editor", "editorShell", "selectedProgramQuestion",
+    "selectedProgramQuestionTitle", "selectedProgramQuestionDescription",
+    "editorWrapButton", "editorAutomaticCommentsButton", "editorFontSizeSelect", "editorCopyButton", "editorPasteButton",
     "codeStats", "storyTab", "beforeAfterTab", "conditionsTab", "functionsTab", "errorTab",
     "variablesTab", "watchesTab", "structuresTab", "referencesTab", "mutationTab", "flowTab",
     "coverageTab", "loopTableTab", "loopTab", "inputTab", "compareTab", "bookmarksTab",
@@ -1419,6 +1486,8 @@ const state = {
   activeExampleCategory: "All",
   // Search is temporary session state and is never persisted or sent anywhere.
   exampleSearchQuery: "",
+  // A reviewed example title preserves the learner's chosen question across edits and reloads.
+  selectedExampleTitle: loadSelectedExampleTitle(),
 };
 
 /**
@@ -1706,9 +1775,12 @@ function getCode() {
  * Replaces all editor content with a selected example or supplied program.
  * The operation updates CodeMirror through a transaction, synchronizes statistics, and clears any trace that belongs to older source.
  * @param {string} code The Python source that should replace the current document.
+ * @param {object|null} example Reviewed origin selected from the catalog, or null for custom source.
  */
-function setCode(code) {
+function setCode(code, example = null) {
   state.code = code;
+  state.selectedExampleTitle = example?.title || "";
+  saveSelectedExampleTitle(state.selectedExampleTitle);
   saveCode(code);
   if (state.editorView) {
     state.editorView.dispatch({
@@ -1718,6 +1790,7 @@ function setCode(code) {
   } else if (state.fallbackEditor) {
     state.fallbackEditor.value = code;
   }
+  renderSelectedProgramQuestion();
   updateCodeStats();
   if (els.workspace) clearTrace();
 }
@@ -2205,7 +2278,7 @@ function ensureWorker() {
 
   // The version query keeps GitHub Pages and long-lived browser caches from
   // pairing a new interface with an older tracing or serialization contract.
-  state.worker = new Worker("py-worker.js?v=20260728-20", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260728-21", { type: "module" });
   state.worker.addEventListener("message", handleWorkerMessage);
   state.worker.addEventListener("error", (event) => {
     const message = event.message || "Python worker failed to load.";
@@ -4788,7 +4861,7 @@ function renderExamples() {
       card.querySelector(".example-views strong").textContent = example.views.join(" · ");
       card.addEventListener("click", () => {
         // Save before navigation so the chosen example is waiting in the new editor.
-        setCode(example.code);
+        setCode(example.code, example);
         // Input examples include safe starter responses so they can run immediately.
         if (typeof example.inputs === "string") prepareExampleInputs(example.inputs);
         els.examplesDialog.close();
@@ -4937,6 +5010,8 @@ async function initialize() {
     ensureWorker();
     // Awaiting initialization guarantees either CodeMirror or its fallback is mounted.
     await initializeEditor();
+    // Restore a locally remembered reviewed question after the editor mounts.
+    renderSelectedProgramQuestion();
   }
 }
 

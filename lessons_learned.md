@@ -4407,6 +4407,124 @@ Expected-result matches: 535
 Failures: 0
 ```
 
+## 117. Release counts need one source of truth in the learner interface
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Corrected
+
+What happened:
+
+After all 535 DSA programs were implemented and verified, Aman noticed that
+the Examples dialog still said 451. The underlying catalog and generated count
+were correct, but the dialog heading was a hard-coded sentence from an earlier
+chunk.
+
+Credit and honest assessment:
+
+- Aman deserves credit for comparing the visible interface with the completed
+  catalog instead of assuming the successful validator updated every label.
+- Codex updated the data-driven count and status panel during curriculum work
+  but missed a separate hard-coded dialog heading.
+- Passing 535 program executions did not prove every static sentence displayed
+  the same number.
+
+What changed:
+
+- The heading now states 535 reviewed programs.
+- The validator explicitly checks the visible heading.
+- Future count changes must search interface text as well as program arrays,
+  status cards, guides, tests, and release notes.
+
+What to do next time:
+
+- Prefer data-driven count text where practical.
+- Search the complete repository for the old count before calling a catalog
+  expansion complete.
+- Treat static UI copy as testable behavior.
+
+## 118. Development milestones do not belong in permanent runtime status
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Corrected
+
+What happened:
+
+The DSA workspace still displayed a Chunk 6 topic label, a Chunk Status table,
+and `Tier A ready` after the curriculum had moved beyond that stage. These
+labels mixed release management with the learner's current execution state.
+
+Credit and correction:
+
+- Aman correctly separated what a learner needs now from what maintainers need
+  in historical documentation.
+- Codex had kept old milestone labels as honesty signals during staged
+  development. Once the milestone was complete, leaving them in the active
+  interface became inaccurate rather than honest.
+- Historical chunk information remains valuable in `changelog.md`, `Tier.md`,
+  and contributor records. Removing it from the runtime interface does not
+  erase project history.
+
+What changed:
+
+- The topic label and complete status table were removed.
+- The runtime indicator now reports Loading Python, Python ready, or an honest
+  Python failure state.
+- Validation rejects the removed learner-facing release labels.
+
+What to do next time:
+
+- Put runtime facts in runtime status.
+- Put release history in release documents.
+- Give temporary milestone UI an explicit removal condition.
+
+## 119. A problem prompt should survive the learner's attempt
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented
+
+What happened:
+
+Once a learner opened an inbuilt program, the editor showed only source.
+Changing the program could make it difficult to remember which exercise or
+objective the learner was trying to solve. Aman asked for the question above
+both editors.
+
+What we learned:
+
+- The prompt is orientation, not executable source.
+- Hiding the prompt on the first edit would defeat its purpose.
+- Keeping the prompt for arbitrary pasted source would invent context.
+- A locally saved stable catalog title or ID is sufficient. No completion,
+  behavior, or trace record is needed.
+
+What changed:
+
+- Both workspaces render reviewed question text above the editor.
+- The origin survives ordinary edits and reloads.
+- Paste and complete-source transformations clear the origin.
+- Text is inserted through `textContent`, not trusted HTML.
+
+What to do next time:
+
+- Separate the origin of a learning task from exact-source evidence.
+- Preserve the prompt while the learner works.
+- Clear the prompt when the complete document changes ownership.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

@@ -8,44 +8,42 @@
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-20";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-20";
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-20";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-21";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-21";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-21";
 import {
   DSA_AREAS,
-  DSA_CATALOG_TARGET,
   DSA_EVIDENCE_LABELS,
-  DSA_STRUCTURE_TYPES,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260728-20";
+} from "./dsa-contracts.js?v=20260728-21";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260728-20";
+} from "./dsa-curriculum.js?v=20260728-21";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260728-20";
+} from "./dsa-curriculum-chunk2.js?v=20260728-21";
 import {
   DSA_CHUNK_THREE_PROGRAMS,
   DSA_CHUNK_THREE_SECTIONS,
-} from "./dsa-curriculum-chunk3.js?v=20260728-20";
+} from "./dsa-curriculum-chunk3.js?v=20260728-21";
 import {
   DSA_CHUNK_FOUR_PROGRAMS,
   DSA_CHUNK_FOUR_SECTIONS,
-} from "./dsa-curriculum-chunk4.js?v=20260728-20";
+} from "./dsa-curriculum-chunk4.js?v=20260728-21";
 import {
   DSA_CHUNK_FIVE_PROGRAMS,
   DSA_CHUNK_FIVE_SECTIONS,
-} from "./dsa-curriculum-chunk5.js?v=20260728-20";
+} from "./dsa-curriculum-chunk5.js?v=20260728-21";
 import {
   DSA_CHUNK_SIX_PROGRAMS,
   DSA_CHUNK_SIX_SECTIONS,
-} from "./dsa-curriculum-chunk6.js?v=20260728-20";
+} from "./dsa-curriculum-chunk6.js?v=20260728-21";
 import {
   DSA_CHUNK_SEVEN_PROGRAMS,
   DSA_CHUNK_SEVEN_SECTIONS,
-} from "./dsa-curriculum-chunk7.js?v=20260728-20";
+} from "./dsa-curriculum-chunk7.js?v=20260728-21";
 import {
   DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
@@ -57,7 +55,7 @@ import {
   variableChanges,
   variableComparisons,
   variablesForStep,
-} from "./dsa-runtime.js?v=20260728-20";
+} from "./dsa-runtime.js?v=20260728-21";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
@@ -98,6 +96,7 @@ const STORAGE_KEYS = Object.freeze({
   editorPreferences: "code-explorer-dsa-editor-preferences",
   activeView: "code-explorer-dsa-active-view",
   preparedInputs: "code-explorer-dsa-prepared-inputs",
+  selectedProgram: "code-explorer-dsa-selected-program",
 });
 
 /** Bounded limits protect browser responsiveness and readable displays. */
@@ -118,15 +117,16 @@ const DEFAULT_EDITOR_PREFERENCES = Object.freeze({ wrap: true, fontSize: 14 });
 const els = Object.fromEntries(
   [
     "runtimeStatus", "runtimeLabel", "themeButton", "themeLabel", "dsaExamplesButton",
-    "dsaLearningCommentsButton", "dsaRunButton", "dsaEditor", "dsaEditorShell",
+    "dsaLearningCommentsButton", "dsaRunButton", "dsaEditorPanel", "dsaEditor", "dsaEditorShell",
+    "dsaSelectedProgramQuestion", "dsaSelectedProgramQuestionTitle",
+    "dsaSelectedProgramQuestionDescription",
     "dsaWrapButton", "dsaAutomaticCommentsButton", "dsaAutomaticPreview",
     "dsaAutomaticPreviewDocument", "dsaAutomaticLineCount",
     "dsaFontSizeSelect", "dsaCopyButton", "dsaPasteButton", "dsaCodeStats",
     "dsaAreaNav", "dsaViewTabs", "dsaViewStage", "dsaStepCount",
     "dsaPreviousButton", "dsaPlayButton", "dsaNextButton", "dsaRestartButton",
     "dsaTimeline", "dsaProgressLabel", "dsaSpeedSelect", "dsaClearOutputButton",
-    "dsaConsoleOutput", "dsaImplementedCount", "dsaSectionCount",
-    "dsaStructureCount", "dsaCatalogTarget", "dsaExamplesDialog",
+    "dsaConsoleOutput", "dsaExamplesDialog",
     "dsaCloseExamplesButton", "dsaExampleSearchInput", "dsaExampleFilters", "dsaExampleCount",
     "dsaExampleGrid", "dsaCommentsDialog", "dsaCloseCommentsButton",
     "dsaCommentDetail", "dsaCommentsSummary", "dsaCommentPreview",
@@ -168,6 +168,8 @@ const state = {
   comparisonRuns: [],
   toastTimer: null,
   suppressEditorInvalidation: false,
+  // A reviewed origin identifies the learner's selected question, not progress.
+  selectedProgramId: readLocalText(STORAGE_KEYS.selectedProgram) || "",
 };
 
 /**
@@ -254,6 +256,32 @@ function setRuntimeStatus(text, mode = "idle") {
 /** Finds a reviewed record only when the complete source matches exactly. */
 function matchingProgram(code = state.editor?.getCode() ?? state.code) {
   return DSA_IMPLEMENTED_PROGRAMS.find((program) => program.code === code) || null;
+}
+
+/** Returns the locally remembered reviewed question origin when it remains valid. */
+function selectedQuestionProgram() {
+  return DSA_IMPLEMENTED_PROGRAMS.find((program) => program.id === state.selectedProgramId) || null;
+}
+
+/**
+ * Shows the reviewed title and objective above the editor.
+ *
+ * The origin survives ordinary edits so the learner does not lose the
+ * exercise prompt while solving it. Paste and full-document transformations
+ * clear the origin before this renderer runs.
+ */
+function renderSelectedProgramQuestion() {
+  const program = selectedQuestionProgram();
+  const visible = Boolean(program);
+  els.dsaSelectedProgramQuestion.classList.toggle("hidden", !visible);
+  els.dsaEditorPanel.classList.toggle("has-selected-question", visible);
+  if (!program) {
+    els.dsaSelectedProgramQuestionTitle.textContent = "";
+    els.dsaSelectedProgramQuestionDescription.textContent = "";
+    return;
+  }
+  els.dsaSelectedProgramQuestionTitle.textContent = program.title;
+  els.dsaSelectedProgramQuestionDescription.textContent = program.objective;
 }
 
 /** Updates line and character counts from original editable source only. */
@@ -352,7 +380,7 @@ async function pasteCompleteEditor() {
       showToast("The clipboard contains no text to paste.");
       return;
     }
-    state.editor.setCode(clipboardText);
+    replaceEditorSource(clipboardText);
     state.editor.focus();
     showToast(`Pasted a complete program (${clipboardText.split("\n").length} lines).`);
   } catch (error) {
@@ -399,14 +427,22 @@ function handleSourceChange(code) {
   if (!state.suppressEditorInvalidation) invalidateTrace();
 }
 
-/** Replaces source for an explicit catalog or study-copy action. */
-function replaceEditorSource(code) {
+/**
+ * Replaces source for an explicit catalog, paste, or study-copy action.
+ *
+ * @param {string} code Complete replacement source.
+ * @param {object|null} program Reviewed catalog origin, or null for custom source.
+ */
+function replaceEditorSource(code, program = null) {
   state.suppressEditorInvalidation = true;
   state.editor.setCode(code);
   state.suppressEditorInvalidation = false;
   state.code = code;
   writeLocalText(STORAGE_KEYS.source, code);
   state.activeProgram = matchingProgram(code);
+  state.selectedProgramId = program?.id || "";
+  writeLocalText(STORAGE_KEYS.selectedProgram, state.selectedProgramId);
+  renderSelectedProgramQuestion();
   invalidateTrace();
   updateCodeStats();
 }
@@ -1506,7 +1542,7 @@ function openCatalog() {
 function loadProgram(program) {
   state.preparedInputs = (program.preparedInputs || []).join("\n");
   writeLocalText(STORAGE_KEYS.preparedInputs, state.preparedInputs);
-  replaceEditorSource(program.code);
+  replaceEditorSource(program.code, program);
   state.activeProgram = program;
   if (els.dsaExamplesDialog.open) els.dsaExamplesDialog.close();
   showToast(`Loaded ${program.title}. Run the trace when you are ready.`);
@@ -1521,7 +1557,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260728-20", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260728-21", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;
@@ -1640,7 +1676,7 @@ function loadRunResult(result) {
   state.inputLog = result.inputLog || [];
   state.learningComments = result.learningComments || [];
   state.currentStep = 0;
-  setRuntimeStatus(state.error ? `${state.error.type} recorded` : "Trace ready", state.error ? "error" : "ready");
+  setRuntimeStatus("Python ready", "ready");
 
   if (state.activeProgram?.comparisonGroup) {
     state.comparisonRuns.push({
@@ -1727,6 +1763,8 @@ async function initialize() {
   const themeControls = { button: els.themeButton, label: els.themeLabel };
   applyTheme(preferredTheme(), themeControls);
   bindEvents();
+  // Match the Python workspace by loading the local runtime during startup.
+  ensureWorker();
 
   state.editor = await createPythonEditor({
     mount: els.dsaEditor,
@@ -1748,12 +1786,7 @@ async function initialize() {
   renderConsole();
   renderAutomaticComments();
   renderActiveView();
-
-  els.dsaImplementedCount.textContent = String(DSA_IMPLEMENTED_PROGRAMS.length);
-  els.dsaSectionCount.textContent = String(DSA_IMPLEMENTED_SECTIONS.length);
-  els.dsaStructureCount.textContent = String(DSA_STRUCTURE_TYPES.length);
-  els.dsaCatalogTarget.textContent = String(DSA_CATALOG_TARGET);
-  setRuntimeStatus("Tier A ready", "ready");
+  renderSelectedProgramQuestion();
 }
 
 initialize();

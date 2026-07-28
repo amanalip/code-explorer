@@ -15,6 +15,64 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v15, 2026-07-28
+
+v15 removes stale release-management information from the learner-facing DSA
+workspace and keeps each selected inbuilt exercise visible above its editor.
+
+### Corrected DSA interface facts
+
+The curriculum had already reached 535 reviewed programs, but two pieces of
+visible interface text still described an earlier development stage:
+
+- The Examples dialog said **Explore 451 reviewed programs**.
+- The workspace heading still named Chunk 6 even though Chunks 7 and complete
+  Tier A had shipped.
+
+The separate Chunk Status table repeated implementation totals and exposed
+release-planning language that no longer helped a learner run a program. It
+also made stale counts possible in more than one place.
+
+The correction:
+
+- Changes the dialog heading to **Explore 535 reviewed programs**.
+- Removes the learner-facing chunk label.
+- Removes the entire Chunk Status table and Tier A badge.
+- Uses **Loading Python**, **Python ready**, and honest Python failure states
+  in the DSA header, matching the Python workspace's runtime meaning.
+
+Historical chunk information remains in the changelog, planning reference,
+and contributor documentation where release history is useful. It is no
+longer presented as current runtime state.
+
+### Selected questions above both editors
+
+- Selecting a Python example shows its reviewed title and description above
+  the Python editor.
+- Selecting a DSA example shows its reviewed title and objective above the DSA
+  editor.
+- The question remains visible during ordinary edits and after a reload.
+- Paste and confirmed complete-source transformations clear the question.
+- Custom source never receives invented curriculum wording.
+- The locally stored stable title or ID is orientation only. It is not
+  completion tracking, analytics, or a learner profile.
+
+### Reliability and privacy boundary
+
+- No curriculum source, trace behavior, view, limit, worker serializer,
+  dependency, external URL, analytics system, telemetry, or remote logger
+  changed.
+- Two local same-origin values were added for the selected reviewed origins.
+  They contain only a public catalog title or stable ID and never leave the
+  browser through application code.
+- Cache versions were synchronized because HTML, CSS, and both controllers
+  changed together.
+- Browser checks confirmed both prompts survive ordinary edits and reloads,
+  disappear after completed Paste actions, and remain readable without
+  horizontal page overflow at 390 pixels.
+- `DSA-535` still executed to `Result: True` in light and dark themes, and the
+  runtime indicator remained **Python ready** after the completed trace.
+
 ## v14, 2026-07-28
 
 v14 ships **Chunk 7: complete Tier A investigations and guided challenges**.

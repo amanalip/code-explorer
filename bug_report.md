@@ -776,3 +776,82 @@ program or later tier is automatically safe. It proves the committed Tier A
 catalog against the current worker, controller, and browser presentation.
 Future serializer, worker, runtime, or curriculum changes must retain focused
 non-finite probes and repeat a proportional real-browser audit.
+
+## CE-2026-07-28-02: stale DSA counts and milestone labels
+
+| Field | Value |
+| --- | --- |
+| Status | Corrected in the working tree |
+| Severity | Medium |
+| Reported | 2026-07-28 after complete Tier A verification |
+| Affected surface | DSA catalog heading, workspace heading, status panel, and runtime label |
+| Program execution impact | None |
+| Learner source impact | None |
+| Privacy impact | None |
+
+### Symptom
+
+The DSA catalog contained and executed 535 reviewed programs, but the dialog
+heading still displayed:
+
+```text
+Explore 451 reviewed programs
+```
+
+The page also displayed a Chunk 6 topic label, a Chunk Status table, and
+`Tier A ready`. Those statements described past release milestones rather than
+the current Python runtime.
+
+### Cause
+
+The catalog grid and generated count used the complete program array, while
+the dialog heading was independent hard-coded HTML. Curriculum validation
+proved record arithmetic and execution but did not initially assert that
+static heading. The milestone label and table were intentionally useful during
+staged development, but they had no explicit retirement condition.
+
+```text
+catalog arrays updated
+        |
+        +-- generated card count updated
+        +-- validators updated
+        |
+        +-- hard-coded dialog heading missed
+        +-- temporary milestone UI retained
+```
+
+### Correction
+
+- The dialog now says **Explore 535 reviewed programs**.
+- The Chunk 6 heading label is removed.
+- The Chunk Status table and Tier A badge are removed.
+- The DSA header now reports the Python worker lifecycle.
+- The foundation validator checks the current heading and rejects removed
+  release-management labels.
+
+### Prevention
+
+For every future catalog count change:
+
+1. Validate array and section arithmetic.
+2. Search HTML, JavaScript, CSS comments, public guides, tests, and release
+   documents for the previous count.
+3. Test the visible catalog heading in a browser.
+4. Keep release milestones out of permanent runtime status.
+
+This defect did not execute learner code incorrectly, upload data, change
+source, or weaken the worker. It could still confuse beginners about whether
+the catalog and page were current, so it is documented as a real
+learner-facing correctness defect.
+
+### Correction verification
+
+- The visible dialog heading reports 535.
+- The page contains no Chunk Status, Tier A ready, or Chunk 6 learner text.
+- The header reaches Python ready through actual worker readiness.
+- `DSA-535` still reaches `Result: True`.
+- The selected question remains visible after edits and reloads.
+- Paste clears the selected question after the asynchronous clipboard action
+  completes.
+- Desktop light mode, desktop dark mode, and a 390-pixel layout show no
+  page-level horizontal overflow.
