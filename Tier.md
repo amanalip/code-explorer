@@ -1,16 +1,16 @@
 # Code Explorer Data Structures and Algorithms tiers
 
-This document preserves the curriculum boundary and implementation status for the separate Python Data Structures and Algorithms workspace. Chunk 6 implements the first 451 reviewed programs and the reusable runtime. Later listings remain a planning reference, not a claim that their programs are available.
+This document preserves the curriculum boundary and implementation status for the separate Python Data Structures and Algorithms workspace. Chunk 7 completes all 535 reviewed Tier A programs and the reusable runtime. Tier B and Tier C remain planning references, not claims that their programs are available.
 
 ```text
 CURRENT STATUS
 
-Tier A  -> Chunk 6 implements 451 of 535 approved programs
+Tier A  -> Chunk 7 implements all 535 approved programs
 Tier B  -> recorded for later evaluation
 Tier C  -> recorded as an optional specialist catalog
 
 Local DSA execution, playback, comparisons, comments, and 18 learning views work.
-The remaining 84 Tier A programs are not implemented yet.
+No Tier A programs remain unimplemented.
 ```
 
 ## Why the work is divided into tiers
@@ -51,7 +51,7 @@ Code Explorer landing page
 |
 +-- Start exploring Python Data Structures and Algorithms
        +-- implemented data-structures.html workspace
-       +-- 451-program Chunk 6 curriculum
+       +-- 535-program complete Tier A curriculum
        +-- implemented 18-view runtime
        +-- later reviewed curriculum chunks
 ```
@@ -82,15 +82,15 @@ index.html
 
 The existing `README.md` remains the public beginner guide for the Python execution workspace and its 134-program curriculum. It should be linked from `workspace.html`, not from the shared landing page or the Data Structures workspace.
 
-`README_DSA.md` is the public beginner guide for the Data Structures workspace, its implemented 451-program curriculum, evidence boundaries, verified limits, and later completed curriculum chunks. It is linked from `data-structures.html`, not from the existing Python workspace.
+`README_DSA.md` is the public beginner guide for the Data Structures workspace, its implemented 535-program Tier A curriculum, evidence boundaries, verified limits, and later-tier boundaries. It is linked from `data-structures.html`, not from the existing Python workspace.
 
 `README_DSA.md` must not become a catalogue of unimplemented promises. Update it after each verified Tier A chunk. `Tier.md` remains the planning catalogue; `README_DSA.md` describes only learner-visible behavior that actually exists and explicitly marks unavailable behavior.
 
 Both workspace links should use the same accessible Tool Guide label and visual treatment. Their targets differ by workspace context. External GitHub links must preserve the existing privacy and `noreferrer` rules.
 
-### Implemented Chunk 6 view contract
+### Implemented complete Tier A view contract
 
-Chunk 6 continues to render working results through the final eighteen names under four bounded areas:
+Chunk 7 continues to render working results through the final eighteen names under four bounded areas:
 
 ```text
 TRACE
@@ -229,22 +229,24 @@ The first twenty-three direct-teaching sections are implemented and validated:
 | Dynamic programming | 24 | Implemented in Chunk 6 |
 | Bit manipulation | 16 | Implemented in Chunk 6 |
 | Elementary mathematical algorithms | 14 | Implemented in Chunk 6 |
-| **Implemented total** | **451** | **Executable and validated** |
+| Edge-case and debugging investigations | 48 | Implemented in Chunk 7 |
+| Integrated guided challenges | 36 | Implemented in Chunk 7 |
+| **Implemented total** | **535** | **Complete Tier A, executable and validated** |
 
 ```text
 535 approved Tier A programs
-- 451 implemented programs
-= 84 programs remaining
+- 535 implemented programs
+= 0 programs remaining
 ```
 
-The direct-teaching rows through elementary mathematical algorithms are now implemented. Chunk 6 adds reviewed dynamic-programming, bit-manipulation, and mathematical lessons with exact metadata, conservative evidence, comparisons, and validators. The next approved work is the investigation and integrated guided-challenge curriculum. Those later programs remain unavailable until their own source, metadata, detached validation, and browser evidence are complete.
+The direct-teaching rows through elementary mathematical algorithms and the two final systematic-study rows are implemented. Chunk 7 adds 48 named-case investigations and 36 integrated guided challenges with exact metadata, conservative evidence, comparisons, and validators. Any Tier B or Tier C work requires a new evidence-based approval and must not be described as available until its own source, metadata, detached validation, browser evidence, and documentation are complete.
 
-Chunk 6 release verification also ran all 451 exact catalog programs through
-the real browser worker. Each run reached `Trace ready`, playback advanced to
-the final recorded step, and the visible output matched that record's own
-expected-result marker. This cumulative audit includes the corrected positive
-and negative infinity transport path. It does not change the remaining
-84-program curriculum boundary.
+Chunk 7 release verification runs all 535 exact catalog programs through the
+real browser worker. Each run must reach `Trace ready`, playback must advance
+to the final recorded step, and visible output must match that record's own
+expected-result marker. This cumulative audit retains positive infinity,
+negative infinity, and NaN transport checks. Complete Tier A does not imply
+that Tier B or Tier C is implemented.
 
 ### Program quality contract
 

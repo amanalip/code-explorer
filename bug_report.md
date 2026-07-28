@@ -16,7 +16,7 @@
 | Analytics or telemetry involved | None |
 | Network upload involved | None |
 | Original resolution audit | 397 of 397 DSA programs passed through the real browser worker |
-| Latest regression audit | 451 of 451 DSA programs passed on 2026-07-28 |
+| Latest regression audit | 535 of 535 DSA programs passed on 2026-07-28 |
 
 ## Executive summary
 
@@ -703,3 +703,76 @@ The original defect remains resolved. The 397-program resolution audit and the
 451-program Chunk 6 regression audit both passed. Positive infinity, negative
 infinity, and NaN remain valid learner values, and the worker transports them
 as strict JSON-safe teaching evidence without changing live Python behavior.
+
+## Complete Tier A regression audit
+
+| Field | Value |
+| --- | --- |
+| Audit timestamp | 2026-07-28 13:11:36 EDT, UTC-04:00 |
+| Release boundary | Chunk 7, complete Tier A |
+| Expected catalog records | 535 |
+| Exact visible cards selected | 535 |
+| Real Pyodide worker runs completed | 535 |
+| Final expected-result matches | 535 |
+| Failures | 0 |
+| Learner data uploaded | None |
+
+Chunk 7 expanded the catalog from 451 to all 535 approved Tier A programs. It
+also added explicit investigations of positive infinity, negative infinity,
+and NaN. That made the final Tier A boundary an appropriate point for another
+complete worker audit.
+
+The audit used the learner-facing route rather than importing Python source
+directly into a separate interpreter:
+
+```text
+load data-structures.html
+        |
+wait for local Python readiness
+        |
+open Examples
+        |
+search one exact stable ID
+        |
+require exactly one visible matching card
+        |
+select the card
+        |
+run through the page's Pyodide worker
+        |
+require a nonempty recorded timeline
+        |
+move to the final recorded step
+        |
+compare visible Console Output with that record's expected marker
+```
+
+This route covers several failure points that detached execution cannot:
+
+- ES module integration across all seven curriculum files.
+- Local catalog search and exact stable-ID selection.
+- Editor replacement through the normal reviewed-program action.
+- Worker startup and page-to-worker messages.
+- Strict Python-to-JavaScript trace transport.
+- Controller completion and playback timeline creation.
+- Final-step Console Output rendering.
+- Record-specific expected-result matching.
+
+Final evidence:
+
+```text
+Expected records: 535
+Completed browser runs: 535
+Exact expected-result matches: 535
+Failures: 0
+```
+
+The audit included the earlier positive-infinity and negative-infinity lessons,
+the new NaN classification investigation, all 48 investigation records, all 36
+guided challenges, and `DSA-535`, the final Tier A invariant-audit record.
+
+The original incident remains resolved. This audit does not mean every future
+program or later tier is automatically safe. It proves the committed Tier A
+catalog against the current worker, controller, and browser presentation.
+Future serializer, worker, runtime, or curriculum changes must retain focused
+non-finite probes and repeat a proportional real-browser audit.

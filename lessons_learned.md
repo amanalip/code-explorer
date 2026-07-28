@@ -4225,6 +4225,188 @@ What to do next time:
 - Preserve focused positive-infinity, negative-infinity, and NaN probes even
   when the full catalog passes.
 
+## 113. Completing a catalog means teaching how to investigate failure
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented
+
+What happened:
+
+The first 451 programs directly teach structures and algorithms. Aman insisted
+that the remaining 84 programs must not exist merely to reach the round target
+of 535. That requirement changed the final chunk from a count-completion task
+into two new kinds of learning: systematic investigations and integrated
+guided challenges.
+
+What the user learned:
+
+- A subject catalog needs successful examples and disciplined ways to inspect
+  boundaries.
+- An investigation is stronger when it names the input, actual value, expected
+  value, and pass state.
+- A larger example is valuable when its extra lines expose a complete
+  workflow, not when they pad a counter.
+
+What Codex learned:
+
+- "Edge case" is not sufficient metadata. The learner needs runnable evidence.
+- A debugging lesson should reach a controlled conclusion rather than depend
+  on an accidental exception.
+- Complete coverage still requires an honesty boundary around later tiers.
+
+What changed:
+
+- Forty-eight programs now group named cases across eight investigation
+  families.
+- Every investigation prints case-by-case observations and accepts the final
+  result only when all expectations match.
+- Tier A reaches 535 without describing Tier B or Tier C as implemented.
+
+What to do next time:
+
+- Design the learner question before choosing the catalog count.
+- Make expected behavior executable.
+- Keep systematic debugging as a first-class part of a teaching curriculum.
+
+## 114. Guided variants need a distinct study purpose
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented with an explicit boundary
+
+What happened:
+
+The final curriculum needed 36 guided challenges. Repeating one program with
+different names or constants would have satisfied arithmetic but violated the
+quality promise. The selected design uses twelve complete workflows, each
+studied through baseline, boundary-review, and invariant-audit lenses.
+
+Fair assessment:
+
+- Aman's repeated insistence on quality prevented a shallow catalog expansion.
+- Codex correctly kept the study lenses separate from learner progress because
+  Code Explorer collects no completion data.
+- The boundary-review lens identifies questions to inspect. It does not claim
+  that the interface automatically ran every possible input.
+- The invariant-audit lens makes reviewed rules visible. It does not turn one
+  run into a proof for arbitrary edited code.
+
+What changed:
+
+- Twelve workflows cover navigation, scheduling, inventory, autocomplete,
+  routing, network design, parsing, search, text, dependencies, and caching.
+- Baseline records explain the complete successful run.
+- Boundary-review records expose documented edge questions.
+- Invariant-audit records connect reviewed rules with the final state.
+
+What to do next time:
+
+- Give each variant a different learner question.
+- Never describe curriculum order or study lenses as tracked achievement.
+- Require exact unchanged source before adding reviewed workflow context.
+
+## 115. Executable source can be correct while its teaching expectation is wrong
+
+Perspective:
+- Codex
+- Shared
+
+Status:
+- Corrected during Chunk 7 validation
+
+What happened:
+
+The browser-history workflow compiled and executed, but the first detached run
+reported `Result: False`. The expected back stack was `['home', 'docs']`.
+The action sequence visited `guide`, went back, moved forward to `guide`, and
+then visited `quiz`. Correct browser-history behavior therefore left
+`['home', 'docs', 'guide']` in the back stack.
+
+Why this matters:
+
+```text
+source compiles
+      |
+      v
+source runs
+      |
+      v
+printed state is inspected
+      |
+      v
+reviewed expectation is compared
+```
+
+Stopping after either of the first two stages would have shipped a false
+teaching check. The implementation was correct and the authored expectation
+was wrong.
+
+What changed:
+
+- The expected back stack now includes `guide`.
+- The full detached suite was rerun after correction.
+- The incident is documented as a curriculum-authoring correction, not blamed
+  on Python or the runtime.
+
+What to do next time:
+
+- Simulate state transitions by hand before writing the final marker.
+- Run every record in a fresh namespace.
+- Treat `Result: False` as release-blocking even when there is no exception.
+
+## 116. Permanent regressions should grow with the curriculum
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Reverified
+
+What happened:
+
+Aman explicitly required the earlier infinity transport defect never to
+return. Chunk 7 adds an investigation covering positive infinity, negative
+infinity, and NaN classification, while the full catalog continues to cross
+the same strict worker boundary.
+
+Credit and balance:
+
+- Aman deserves credit for turning a one-time production failure into a
+  permanent release condition.
+- Codex retained the direct serializer checks and did not infer safety from
+  detached Python execution.
+- A full browser audit remains costly, so it is justified at the completed
+  Tier A boundary rather than used as a substitute for focused checks during
+  every small edit.
+
+What to do next time:
+
+- Keep `math.isfinite`, the explicit `nonFinite` marker, and
+  `allow_nan=False`.
+- Exercise positive infinity, negative infinity, and NaN through the worker.
+- Compare each exact catalog ID against its own expected marker.
+- Record both the cost and the decisive evidence honestly.
+
+Final Tier A evidence:
+
+```text
+Expected exact IDs: 535
+Completed real-browser runs: 535
+Expected-result matches: 535
+Failures: 0
+```
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

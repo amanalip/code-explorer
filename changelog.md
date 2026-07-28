@@ -15,6 +15,80 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v14, 2026-07-28
+
+v14 ships **Chunk 7: complete Tier A investigations and guided challenges**.
+It adds 84 reviewed programs to the 451 direct-teaching programs from Chunks 1
+through 6. The implemented DSA catalog now contains all 535 approved Tier A
+programs across twenty-five sections.
+
+### Eighty-four new reviewed programs
+
+| Chunk 7 section | Programs | Main learning journey |
+| --- | ---: | --- |
+| Edge-case and debugging investigations | 48 | Named inputs, observed values, expected values, boundary behavior, debugging evidence, and invariant audits |
+| Integrated guided challenges | 36 | Twelve complete workflows, each studied through baseline, boundary-review, and invariant-audit lenses |
+| **Chunk 7 addition** | **84** | **Systematic debugging practice and integrated application of earlier structures and algorithms** |
+
+```text
+451 previously implemented programs
+ 84 Chunk 7 programs
+--------------------
+535 implemented Tier A programs
+
+535 approved Tier A destination
+-535 implemented programs
+--------------------
+  0 Tier A programs remaining
+```
+
+Stable identifiers now continue through `DSA-535`. Investigations span search
+boundaries, duplicates, ordering, mutation, aliasing, container limits,
+disconnected and cyclic structures, non-finite numeric sentinels, signed
+arithmetic, string boundaries, and invariant checks. Guided workflows include
+navigation, ticket scheduling, inventory, autocomplete, route planning,
+minimum network design, parsing, maze search, edit distance, dependency
+ordering, and caching.
+
+### Quality and correction evidence
+
+- Investigation source ranges from 17 to 30 meaningful lines.
+- Guided challenge source ranges from 21 to 35 meaningful lines.
+- The complete catalog contains 304 programs with at least 15 meaningful
+  lines. The validator protects a conservative floor of 290.
+- Near-duplicate detection still checks the complete catalog.
+- The first execution sweep found one incorrect expected back-stack in the
+  browser-history challenge. The source correctly restored `guide`, so the
+  reviewed expectation was corrected before release.
+- All 535 detached sources compile, execute in isolated namespaces, and match
+  their documented `Result: True` marker.
+
+### Honesty boundaries
+
+- A guided challenge's baseline, boundary-review, and invariant-audit cards
+  are study lenses. They are not progress records.
+- Code Explorer still collects no lesson completion or learner behavior.
+- Curriculum algorithm names, phases, invariants, edge cases, comparisons, and
+  Big O require an exact unchanged catalog source match.
+- Edited or pasted source receives only local observed trace evidence.
+- Tier B and Tier C remain unimplemented even though Tier A is complete.
+- No dependency, analytics, telemetry, remote logging, learner-data request,
+  storage key, execution limit, timeout, or network behavior was added.
+
+### Verification evidence
+
+- Foundation validation confirms 18 views, 31 events, 20 structures, 25
+  sections, and the 535-program Tier A total.
+- Curriculum validation confirms 48 investigations, 36 guided challenges,
+  stable unique IDs, unique titles, unique objectives, unique sources, valid
+  metadata references, depth floors, and no prohibited near duplicates.
+- Detached Python validation compiles and executes all 535 programs.
+- Strict worker checks retain the explicit non-finite marker,
+  `math.isfinite`, and `allow_nan=False`.
+- The final release audit exercised all 535 exact catalog IDs through the real
+  Pyodide worker, advanced each run to its final recorded step, and matched
+  every record's own expected result. The failure count was zero.
+
 ## v13, 2026-07-28
 
 v13 ships **Chunk 6: dynamic programming, bit manipulation, and elementary

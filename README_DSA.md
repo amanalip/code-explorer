@@ -6,12 +6,12 @@ Everything runs on the learner's device. Code Explorer does not collect learner 
 
 ## Current release status
 
-The DSA workspace is at **Chunk 6: dynamic programming, bit manipulation, and elementary mathematical algorithms**.
+The DSA workspace is at **Chunk 7: complete Tier A curriculum**.
 
-Chunks 1 through 6 implement:
+Chunks 1 through 7 implement:
 
-- 451 reviewed and executable curriculum programs.
-- 23 ordered direct-teaching curriculum sections.
+- 535 reviewed and executable curriculum programs.
+- 25 ordered curriculum sections.
 - A vertical example browser with local metadata search, section counts, difficulty, line count, objective, complexity, and recommended views.
 - Local Python execution through the same isolated Pyodide worker used by the Python workspace.
 - A 3,000-step trace limit and a 30-second outer timeout.
@@ -20,14 +20,14 @@ Chunks 1 through 6 implement:
 - Automatic comments, Learning comments, wrapping, font sizing, Copy, Paste, prepared input, source persistence, and theme persistence.
 - 20 approved structure representation names and 31 stable DSA event names.
 
-Chunk 6 completes the 451 approved direct-teaching lessons, but it does **not** implement all of Tier A. The approved Tier A target is 535 programs, so 84 edge-case investigations, debugging investigations, and integrated guided challenges remain unimplemented. A planned program, investigation, challenge, view extension, or algorithm in `Tier.md` is not an implemented claim.
+Chunk 7 completes all 535 approved Tier A programs. The final 84 programs contain 48 edge-case and debugging investigations plus 36 integrated guided challenges. Tier B, Tier C, future view extensions, and later algorithms recorded in `Tier.md` are still plans, not implemented claims.
 
 ## Contents
 
 - [Start here](#start-here)
 - [Choose the correct workspace](#choose-the-correct-workspace)
 - [Workspace map](#workspace-map)
-- [The 451-program curriculum](#the-451-program-curriculum)
+- [The 535-program curriculum](#the-535-program-curriculum)
 - [Your first guided run](#your-first-guided-run)
 - [Editor controls](#editor-controls)
 - [Trace playback](#trace-playback)
@@ -110,9 +110,9 @@ DATA STRUCTURES AND ALGORITHMS WORKSPACE
 |   +-- Paste
 |
 +-- CURRICULUM
-|   +-- 451 reviewed programs
+|   +-- 535 reviewed programs
 |   +-- local search across complete reviewed records
-|   +-- 23 vertical section filters
+|   +-- 25 vertical section filters
 |   +-- objective and description
 |   +-- difficulty and line count
 |   +-- reviewed time and space context
@@ -203,7 +203,7 @@ Playback, Console Output, and Chunk Status keep their positions below the bounde
 
 The learning result uses a stable scrollbar gutter, so its readable width does not jump when a short view becomes long enough to scroll. Short results remain inside the same stable region without needing vertical movement. On a phone, the panel uses a shorter but still bounded height. The view-label strip can scroll horizontally, while the selected learning result scrolls vertically.
 
-## The 451-program curriculum
+## The 535-program curriculum
 
 ### Exact implemented counts
 
@@ -232,7 +232,77 @@ The learning result uses a stable scrollbar gutter, so its readable width does n
 | 21 | Dynamic programming | 24 | State design, base states, transitions, tabulation, memoization, reconstruction, space optimization, sequence alignment, grid paths, interval state, and state machines |
 | 22 | Bit manipulation | 16 | AND, OR, XOR, masks, shifts, bit fields, population counts, one-bit properties, cancellation, subsets, flags, bit sets, Hamming distance, Gray code, and bounded bitwise addition |
 | 23 | Elementary mathematical algorithms | 14 | GCD, extended Euclid, LCM, primality, sieves, factorization, modular arithmetic, binomial coefficients, factorial properties, integer roots, base conversion, fractions, and congruences |
-| **Total** | **Chunks 1 through 6** | **451** | **All approved direct-teaching Tier A programs, with investigations and guided challenges still pending** |
+| 24 | Edge-case and debugging investigations | 48 | Search boundaries, duplicates, ordering, mutation, aliasing, underflow, capacity, malformed structures, disconnected graphs, non-finite numbers, string boundaries, and invariant audits |
+| 25 | Integrated guided challenges | 36 | Complete navigation, scheduling, inventory, autocomplete, routing, network, parsing, search, text, dependency, and cache workflows with baseline, boundary-review, and invariant-audit lenses |
+| **Total** | **Chunks 1 through 7** | **535** | **Complete approved Tier A curriculum** |
+
+### Chunk 7 investigation route
+
+The investigation section teaches a repeatable debugging habit:
+
+```text
+Name the suspicious boundary
+        |
+        v
+Prepare several explicit cases
+        |
+        v
+Run one reviewed operation
+        |
+        v
+Record actual and expected values
+        |
+        v
+Accept the conclusion only if every case agrees
+```
+
+The 48 investigations are executable lessons, not a list of warnings. They
+cover empty and singleton inputs, endpoints, duplicates, stable order,
+rotation, interval contact, aliasing, shallow copies, safe mutation, missing
+keys, stack underflow, queue capacity, deque ends, heap ties, stale priority
+entries, disconnected graphs, cycles, partial trees, duplicate BST keys,
+redundant unions, positive infinity, negative infinity, NaN, signed division,
+modular wraparound, empty string patterns, Unicode characters, delimiter
+balance, hash verification, partition rules, heap order, BST range rules,
+linked cycles, dynamic-programming base states, and shortest-path
+postconditions.
+
+Every investigation card contains named edge cases. The program prints an
+observation row containing the case name, actual value, expected value, and
+pass result. **Edge Case Lab** helps locate the reviewed boundary, while
+**Decisions** and **Step Table** show what the local run actually did.
+
+All 535 Tier A records were selected by exact visible stable ID, executed
+through the real Pyodide worker, advanced to the final recorded step, and
+compared with their own expected-result marker. All 535 matched. This proves
+the current reviewed catalog, not arbitrary future programs or unimplemented
+later tiers.
+
+### Chunk 7 guided challenge route
+
+The 36 guided challenges are twelve complete workflows studied through three
+different lenses:
+
+```text
+WORKFLOW
+|
++-- Baseline
+|      +-- understand the complete successful run
+|
++-- Boundary review
+|      +-- make documented edge questions visible
+|
++-- Invariant audit
+       +-- list the rules that should remain true
+       +-- connect each rule to the final state
+```
+
+The workflow families are browser history, fair ticket scheduling, inventory
+reconciliation, trie autocomplete, unweighted routing, weighted routing,
+minimum-cable network design, expression evaluation, maze backtracking, edit
+distance, dependency ordering, and least-recently-used caching. These are
+guided checkpoints, not evidence that Code Explorer tracked or verified a
+learner's earlier progress.
 
 ### Chunk 6 learning routes
 
@@ -496,7 +566,7 @@ reveal private interpreter storage.
 
 Every catalog program has:
 
-- A unique stable identifier from `DSA-001` through `DSA-451`.
+- A unique stable identifier from `DSA-001` through `DSA-535`.
 - A distinct title and teaching objective.
 - A section and difficulty.
 - Reviewed source code and prepared input.
@@ -529,7 +599,7 @@ This makes metadata that is not printed in full on every card discoverable. For 
 
 - `DSA-337 Kruskal Prim comparison` finds the final Chunk 4 comparison through its stable ID and algorithm metadata.
 - `DSA-397 minimum refueling stops` finds the final Chunk 5 lesson through its stable ID, title, phases, and greedy metadata.
-- `DSA-451 coprime congruences` finds the final Chunk 6 lesson through its stable ID, modular phases, preconditions, and mathematical metadata.
+- `DSA-535 invariant audit` finds the final Tier A cache challenge through its stable ID, invariant, challenge, and audit metadata.
 - `empty list division` finds **Name an algorithm's input and output** through its reviewed edge-case metadata.
 - `O(log n) guided challenge` requires complexity and difficulty terms to match the same program.
 - A class, function, variable, or operation name can match the reviewed source.
@@ -657,7 +727,7 @@ The catalog deliberately uses positive infinity for unsolved minimum states and
 negative infinity for impossible maximum states. These are valid Python floats.
 The strict worker serializer preserves their type and readable spelling while
 transporting JSON-safe trace evidence. Focused DSA-403 and DSA-406 browser
-checks plus the complete 451-program audit protect the correction documented in
+checks plus the complete 535-program audit protect the correction documented in
 `bug_report.md`.
 
 ### Chunk 6 beginner vocabulary
@@ -1173,7 +1243,7 @@ Limits protect the browser and keep explanations readable. An execution limit st
 | Compare Algorithms history | 2 run summaries | The oldest in-session summary is replaced |
 | Prepared-input text | 20,000 characters | Additional text is ignored when loaded into the local input field |
 | Active learning views | 18 | Custom learner-defined views are not supported |
-| Implemented curriculum | 451 programs | The remaining 84 Tier A programs are not selectable |
+| Implemented curriculum | 535 programs | Tier A is complete; Tier B and Tier C remain unimplemented planning references |
 | Approved structure names | 20 | Unknown structures receive generic bounded presentation |
 | Stable event names | 31 | Runtime cues remain conservative when an exact DSA event is unavailable |
 
@@ -1314,9 +1384,12 @@ Chunk 5  60 recursion, backtracking, divide-and-conquer, and greedy programs
 Chunk 6  54 dynamic-programming, bit-manipulation, and mathematics programs
    |
    v
-Later chunks
+Chunk 7  84 investigations and integrated guided challenges
    |
-   +-- complete the remaining 84 Tier A programs
+   v
+Tier A complete: 535 reviewed programs
+   |
+   +-- review complete Tier A evidence before considering Tier B or Tier C
    +-- preserve the same evidence labels and limits
    +-- extend validators before making implementation claims
 ```

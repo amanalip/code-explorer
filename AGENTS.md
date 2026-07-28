@@ -25,7 +25,7 @@ Never claim that Code Explorer supports behavior that has not been implemented a
 - Learner source is a single Python file named `main.py` in the interface.
 - The tool is intended for beginner programs, demonstrations, and small exercises. It is not a general replacement for a Python IDE or production debugger.
 - The Python workspace contains 134 reviewed language-learning programs.
-- DSA Chunk 6 contains 451 reviewed programs across 23 direct-teaching sections. The full Tier A target is 535, so 84 investigation and guided-challenge programs remain unimplemented.
+- DSA Chunk 7 completes Tier A with 535 reviewed programs across 25 sections. Tier B and Tier C remain planning references, not implemented curriculum.
 - DSA reviewed context requires an exact unchanged catalog-source match. Pasted or edited code receives only the observed evidence its local trace supports.
 - The trace limit is 3,000 steps.
 - The outer execution timeout is 30 seconds.
@@ -75,7 +75,7 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 
 - `index.html`: landing page, two learning-path actions, shared header, and footer.
 - `workspace.html`: persistent execution workspace and all dynamic mounting points.
-- `data-structures.html`: separate Chunk 6 DSA workspace, editor, dialogs, playback, status, and 18-view mounting points.
+- `data-structures.html`: separate complete Tier A DSA workspace, editor, dialogs, playback, status, and 18-view mounting points.
 - `styles.css`: complete light theme, dark theme, responsive layout, editor presentation, graphs, panels, and controls.
 - `catalog-search.js`: shared local-only normalization, record indexing, and multi-word matching for both program catalogs.
 - `app.js`: application state, editor setup, the original reviewed example set, playback, learning views, graph rendering, persistence, and UI events.
@@ -88,6 +88,7 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 - `dsa-curriculum-chunk4.js`: 68 reviewed Chunk 4 records for Union-Find, graph representations, traversal, connectivity, shortest paths, and spanning trees, plus four ordered section definitions.
 - `dsa-curriculum-chunk5.js`: 60 reviewed Chunk 5 records for recursion, backtracking, divide and conquer, and greedy algorithms, plus four ordered section definitions.
 - `dsa-curriculum-chunk6.js`: 54 reviewed Chunk 6 records for dynamic programming, bit manipulation, and elementary mathematical algorithms, plus three ordered section definitions.
+- `dsa-curriculum-chunk7.js`: 84 reviewed Chunk 7 records for edge-case and debugging investigations plus integrated guided challenges, with stable IDs `DSA-452` through `DSA-535`.
 - `dsa-runtime.js`: pure observed-evidence classification, value comparison, condition helpers, structure selection, and level-filtered DSA comment generation.
 - `shared-ui.js`: theme and guarded local-storage helpers shared by new page controllers.
 - `shared-editor.js`: reusable Python CodeMirror foundation with a native textarea fallback.
@@ -96,16 +97,16 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 - `scripts/validate-curriculum.mjs`: structural curriculum validator and detached-example exporter.
 - `scripts/validate_curriculum.py`: Python compile-and-run validator for all detached examples and their documented intentional errors.
 - `scripts/validate-dsa-foundation.mjs`: structural validator for shared DSA contracts, routing, ids, 18 views, 20 structures, and the 535-program target.
-- `scripts/validate-dsa-curriculum.mjs`: combined Chunks 1 through 6 schema, exact section counts, uniqueness, depth, metadata, and near-duplicate validator with detached export.
-- `scripts/validate_dsa_curriculum.py`: compile, execute, and expected-result validator for all 451 detached DSA programs.
+- `scripts/validate-dsa-curriculum.mjs`: combined Chunks 1 through 7 schema, exact section counts, uniqueness, depth, metadata, and near-duplicate validator with detached export.
+- `scripts/validate_dsa_curriculum.py`: compile, execute, and expected-result validator for all 535 detached DSA programs.
 - `favicon.svg`: code-themed browser-tab icon shared by both pages.
 - `README.md`: public beginner guide for using Code Explorer and understanding its features.
-- `README_DSA.md`: public guide for the 451-program DSA workspace, evidence boundaries, all active limits, privacy, and later verified chunks.
+- `README_DSA.md`: public guide for the 535-program Tier A DSA workspace, evidence boundaries, all active limits, privacy, and later-tier boundaries.
 - `SKILLS.md`: internal project knowledge, capability ledger, recurring implementation recipes, and verification guidance.
 - `lessons_learned.md`: living post-mortem containing reusable product and engineering lessons from the user and Codex perspectives.
 - `changelog.md`: dated learner-visible release history, verification notes, compatibility boundaries, and upgrade guidance.
 - `bug_report.md`: detailed reliability incident record for the non-finite-float worker transport defect, correction, audit evidence, privacy impact, and prevention rules.
-- `Tier.md`: planning and status reference for implemented Chunk 6 coverage and the remaining Tier A, B, and C curriculum scope.
+- `Tier.md`: planning and status reference for complete Tier A coverage and the unimplemented Tier B and Tier C scope.
 - `LICENSE`: GPL license text. Do not modify it while adding explanatory material.
 
 ## Required workflow for every change
@@ -205,7 +206,7 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm source survives a workspace reload.
 - Confirm Python and DSA source keys do not overwrite each other.
 
-### DSA Chunk 6 checks
+### DSA Chunk 7 and complete Tier A checks
 
 - Run `node scripts/validate-dsa-foundation.mjs`.
 - Run `node scripts/validate-dsa-curriculum.mjs --export /tmp/code-explorer-dsa-curriculum.json`.
@@ -215,7 +216,10 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm `workspace.html` links to `README.md` and `data-structures.html` links to `README_DSA.md`.
 - Confirm the DSA editor supports wrapping, six validated font sizes, Copy, Paste, fallback editing, source statistics, and separate local persistence.
 - Confirm all 18 approved views appear under Trace, Data, Flow, and Labs.
-- Confirm all 451 programs execute and produce their documented expected-result marker.
+- Confirm all 535 programs execute and produce their documented expected-result marker.
+- Confirm section counts include 48 edge-case and debugging investigations and 36 integrated guided challenges.
+- Confirm investigation programs print named actual-versus-expected observations and do not disguise an accidental failure as a lesson.
+- Confirm every guided workflow appears in baseline, boundary-review, and invariant-audit forms while each card retains honest exact-source curriculum context.
 - Confirm section counts are 24 foundations, 12 abstract data types, 42 Python-native containers, 20 array and sequence techniques, 9 searching, 24 sorting, 22 stacks, queues, and deques, 20 linked structures, 24 hash tables and set algorithms, 30 trees and BSTs, 18 heaps and priority queues, 24 tries and string algorithms, 10 Union-Find, 24 graph structures and vocabulary, 20 graph traversal and connectivity, 14 shortest paths and spanning trees, 18 recursion, 16 backtracking, 10 divide and conquer, 16 greedy algorithms, 24 dynamic programming, 16 bit manipulation, and 14 elementary mathematical algorithms.
 - Confirm at least 218 programs retain 15 or more meaningful source lines. The current reviewed count is 220.
 - Confirm the catalog shows accurate section, difficulty, line, complexity, and recommended-view metadata.
@@ -257,7 +261,7 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm dynamic-programming records make states, transitions, base cases, evaluation order, reconstruction, and space optimization explicit.
 - Confirm bit-manipulation records state their finite-width or nonnegative-input boundaries instead of implying that Python integers use a fixed hidden width.
 - Confirm mathematical records verify their invariants, including divisibility, Bezout identities, modular preconditions, and exact integer boundaries.
-- Confirm the status panel states 451 implemented programs, 23 implemented sections, 20 representations, the 535 target, and the honest remaining count of 84.
+- Confirm the status panel states 535 implemented programs, 25 implemented sections, 20 representations, the 535 target, and that no Tier A programs remain unavailable.
 
 ### Trace checks
 

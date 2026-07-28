@@ -1,10 +1,9 @@
 /**
  * Data Structures and Algorithms shared contracts.
  *
- * Chunk 0 defined stable names and relationships. Chunks 1 through 6 connect
- * the first twenty-three direct curriculum sections to bounded execution and evidence-aware
- * views. Remaining catalog sections are planning contracts, not implementation
- * claims.
+ * Chunk 0 defined stable names and relationships. Chunks 1 through 7 connect
+ * all twenty-five Tier A curriculum sections to bounded execution and
+ * evidence-aware views. Tier B and Tier C remain planning contracts.
  */
 
 /** Four bounded navigation areas keep eighteen views approachable. */

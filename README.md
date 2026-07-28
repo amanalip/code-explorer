@@ -20,7 +20,7 @@ Code Explorer is intended for learning, experimentation, demonstrations, and sma
 
 This README is the living beginner guide for Code Explorer. It is reviewed whenever the tool changes so its controls, examples, limits, workflows, and expected behavior remain synchronized with the website.
 
-The landing page also links to the separate **Python Data Structures and Algorithms** workspace. Chunk 6 provides 451 reviewed programs, local trace playback, and 18 DSA learning views. Its implemented behavior, limits, and unavailable later curriculum are documented in [README_DSA.md](README_DSA.md).
+The landing page also links to the separate **Python Data Structures and Algorithms** workspace. Chunk 7 completes Tier A with 535 reviewed programs, local trace playback, and 18 DSA learning views. Its implemented behavior, limits, and later-tier boundaries are documented in [README_DSA.md](README_DSA.md).
 
 ## Contents
 
@@ -55,7 +55,7 @@ Code Explorer landing page
 |      +-- Tool Guide -> README.md
 |
 +-- Start exploring Python Data Structures and Algorithms
-       +-- separate Chunk 6 workspace with 451 reviewed programs
+       +-- complete Tier A workspace with 535 reviewed programs
        +-- local execution, playback, and 18 DSA learning views
        +-- Tool Guide -> README_DSA.md
 ```
@@ -64,7 +64,7 @@ The landing page does not display one ambiguous Tool Guide. Open a workspace to 
 
 The Python page identifies itself as **Python Programming workspace** and explains that learners can write, run, replay, and inspect programs step by step.
 
-The DSA path currently covers algorithm foundations, abstract data types, Python-native containers, array and sequence techniques, searching, sorting, stacks, queues, deques, linked structures, hash tables, sets, trees, binary search trees, heaps, priority queues, tries, string-search algorithms, Union-Find, graph representations, traversal, connectivity, shortest paths, spanning trees, recursion, backtracking, divide and conquer, greedy algorithms, dynamic programming, bit manipulation, and elementary mathematical algorithms. Its approved Tier A target is 535 programs, but only the 451 programs documented in `README_DSA.md` are implemented. The remaining 84 investigations and guided challenges are not presented as available.
+The DSA path covers algorithm foundations, abstract data types, Python-native containers, array and sequence techniques, searching, sorting, stacks, queues, deques, linked structures, hash tables, sets, trees, binary search trees, heaps, priority queues, tries, string-search algorithms, Union-Find, graph representations, traversal, connectivity, shortest paths, spanning trees, recursion, backtracking, divide and conquer, greedy algorithms, dynamic programming, bit manipulation, elementary mathematical algorithms, boundary investigations, debugging investigations, and integrated guided challenges. All 535 approved Tier A programs are implemented and documented in `README_DSA.md`. Tier B and Tier C remain separate planning references, not learner-visible promises.
 
 ## Start here
 
