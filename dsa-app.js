@@ -8,42 +8,42 @@
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-26";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-26";
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-26";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-30";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-30";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-30";
 import {
   DSA_AREAS,
   DSA_EVIDENCE_LABELS,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260728-26";
+} from "./dsa-contracts.js?v=20260728-30";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260728-26";
+} from "./dsa-curriculum.js?v=20260728-30";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260728-26";
+} from "./dsa-curriculum-chunk2.js?v=20260728-30";
 import {
   DSA_CHUNK_THREE_PROGRAMS,
   DSA_CHUNK_THREE_SECTIONS,
-} from "./dsa-curriculum-chunk3.js?v=20260728-26";
+} from "./dsa-curriculum-chunk3.js?v=20260728-30";
 import {
   DSA_CHUNK_FOUR_PROGRAMS,
   DSA_CHUNK_FOUR_SECTIONS,
-} from "./dsa-curriculum-chunk4.js?v=20260728-26";
+} from "./dsa-curriculum-chunk4.js?v=20260728-30";
 import {
   DSA_CHUNK_FIVE_PROGRAMS,
   DSA_CHUNK_FIVE_SECTIONS,
-} from "./dsa-curriculum-chunk5.js?v=20260728-26";
+} from "./dsa-curriculum-chunk5.js?v=20260728-30";
 import {
   DSA_CHUNK_SIX_PROGRAMS,
   DSA_CHUNK_SIX_SECTIONS,
-} from "./dsa-curriculum-chunk6.js?v=20260728-26";
+} from "./dsa-curriculum-chunk6.js?v=20260728-30";
 import {
   DSA_CHUNK_SEVEN_PROGRAMS,
   DSA_CHUNK_SEVEN_SECTIONS,
-} from "./dsa-curriculum-chunk7.js?v=20260728-26";
+} from "./dsa-curriculum-chunk7.js?v=20260728-30";
 import {
   DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
@@ -55,7 +55,7 @@ import {
   variableChanges,
   variableComparisons,
   variablesForStep,
-} from "./dsa-runtime.js?v=20260728-26";
+} from "./dsa-runtime.js?v=20260728-30";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
@@ -132,8 +132,9 @@ const els = Object.fromEntries(
     "dsaPreviousButton", "dsaPlayButton", "dsaNextButton", "dsaRestartButton",
     "dsaTimeline", "dsaProgressLabel", "dsaSpeedSelect", "dsaClearOutputButton",
     "dsaConsoleOutput", "dsaExamplesDialog",
-    "dsaCloseExamplesButton", "dsaExampleSearchInput", "dsaExampleFilters", "dsaExampleCount",
-    "dsaExampleGrid", "dsaCommentsDialog", "dsaCloseCommentsButton",
+    "dsaCloseExamplesButton", "dsaExampleBrowserBody", "dsaExampleSearchInput",
+    "dsaExampleFilters", "dsaExampleCount", "dsaExampleGrid", "dsaExamplePreview",
+    "dsaCommentsDialog", "dsaCloseCommentsButton",
     "dsaCommentDetail", "dsaCommentsSummary", "dsaCommentPreview",
     "dsaCommentLineCount", "dsaCopyCommentsButton",
     "dsaReplaceCommentsButton", "toast",
@@ -151,6 +152,8 @@ const state = {
   activeView: loadActiveView(),
   activeFilter: "All programs",
   searchQuery: "",
+  // Preview selection is temporary catalog navigation, not learner progress.
+  previewProgramId: "",
   activeProgram: null,
   preparedInputs: loadPreparedInputs(),
   worker: null,
@@ -3755,6 +3758,8 @@ function renderCatalogFilters() {
       button.append(label, badge);
       button.addEventListener("click", () => {
         state.activeFilter = name;
+        state.previewProgramId = "";
+        els.dsaExampleBrowserBody.classList.remove("mobile-preview-open");
         renderCatalogFilters();
         renderCatalogPrograms();
         els.dsaExampleGrid.scrollTop = 0;
@@ -3803,26 +3808,159 @@ function createCatalogSearchEmptyState() {
   return empty;
 }
 
-/** Creates one richly labeled catalog card using reviewed metadata only. */
-function programCard(program) {
-  const button = makeElement("button", "example-card dsa-program-card");
+/**
+ * Adds one reviewed metadata group to the DSA program preview.
+ *
+ * @param {HTMLElement} mount Preview destination.
+ * @param {string} label Visible group heading.
+ * @param {string[]} values Reviewed values.
+ */
+function appendDsaPreviewGroup(mount, label, values) {
+  if (!values.length) return;
+  const group = makeElement("section", "example-preview-group");
+  group.append(makeElement("h4", "", label));
+  const list = makeElement("ul", "");
+  values.forEach((value) => list.append(makeElement("li", "", value)));
+  group.append(list);
+  mount.append(group);
+}
+
+/**
+ * Renders one complete reviewed DSA record without changing editor source.
+ *
+ * @param {object} program Selected immutable curriculum record.
+ * @param {number} routePosition One-based position in the complete catalog.
+ */
+function renderDsaProgramPreview(program, routePosition) {
+  const preview = makeElement("article", "example-preview-document");
+  const back = makeElement("button", "example-preview-back", "← Back to program list");
+  back.type = "button";
+  back.addEventListener("click", () => {
+    els.dsaExampleBrowserBody.classList.remove("mobile-preview-open");
+    els.dsaExampleGrid.querySelector(".example-card.active")?.focus();
+  });
+  preview.append(back);
+  preview.append(makeElement(
+    "span",
+    "example-preview-eyebrow",
+    `${program.id.toUpperCase()} · Program ${String(routePosition).padStart(3, "0")} · ${program.algorithm}`,
+  ));
+  preview.append(makeElement("h3", "", program.title));
+  preview.append(makeElement("p", "example-preview-description", program.objective));
+
+  const lineCount = program.code.split("\n").length;
+  const facts = makeElement("dl", "example-preview-facts");
+  [
+    ["Difficulty", program.difficulty],
+    ["Section", program.section],
+    ["Source", `${lineCount} lines`],
+    ["Reviewed context", "Exact catalog source"],
+  ].forEach(([label, value]) => {
+    const fact = makeElement("div", "");
+    fact.append(makeElement("dt", "", label));
+    fact.append(makeElement("dd", "", value));
+    facts.append(fact);
+  });
+  preview.append(facts);
+
+  const complexity = makeElement("section", "example-preview-complexity");
+  complexity.append(makeElement("h4", "", "Reviewed complexity"));
+  const formulas = makeElement("div", "example-preview-complexity-values");
+  formulas.append(makeElement("span", "", `Time ${program.complexity.time}`));
+  formulas.append(makeElement("span", "", `Space ${program.complexity.space}`));
+  complexity.append(formulas);
+  complexity.append(makeElement("p", "", program.complexity.note));
+  preview.append(complexity);
+
+  appendDsaPreviewGroup(preview, "Recommended before starting", program.prerequisites || []);
+  appendDsaPreviewGroup(preview, "Algorithm phases", program.phases || []);
+  appendDsaPreviewGroup(preview, "Invariants to question", program.invariants || []);
+  appendDsaPreviewGroup(preview, "Edge cases to investigate", program.edgeCases || []);
+  appendDsaPreviewGroup(preview, "Structures represented", program.structureTypes || []);
+  appendDsaPreviewGroup(preview, "Best learning views", program.bestViews || []);
+  if (program.comparisonGroup) {
+    appendDsaPreviewGroup(preview, "Comparison group", [program.comparisonGroup]);
+  }
+
+  const expected = makeElement("section", "example-preview-expected");
+  expected.append(makeElement("h4", "", program.intentionalError ? "Intentional error" : "Expected result marker"));
+  expected.append(makeElement(
+    "code",
+    "",
+    program.intentionalError?.type || program.expectedResult || "No separate result marker stored",
+  ));
+  expected.append(makeElement(
+    "p",
+    "",
+    program.intentionalError
+      ? "This reviewed investigation is designed to stop with the named error so Error Coach can explain it."
+      : "The complete catalog validator checks this marker against local program output.",
+  ));
+  preview.append(expected);
+
+  const sourceSection = makeElement("section", "example-preview-source");
+  sourceSection.append(makeElement("h4", "", "Read-only source preview"));
+  sourceSection.append(makeElement("p", "", "Inspect the complete reviewed program before deliberately loading it."));
+  const source = makeElement("pre", "");
+  source.append(makeElement("code", "", program.code));
+  sourceSection.append(source);
+  preview.append(sourceSection);
+
+  const boundary = makeElement(
+    "p",
+    "example-preview-boundary",
+    "Complexity, phases, invariants, and edge cases belong to this exact reviewed source. Editing after loading removes those curriculum claims from runtime views.",
+  );
+  preview.append(boundary);
+  const action = makeElement("button", "primary-button example-preview-open", "Open in DSA workspace");
+  action.type = "button";
+  action.addEventListener("click", () => loadProgram(program));
+  preview.append(action);
+  els.dsaExamplePreview.replaceChildren(preview);
+  // A program selection is a new reading task, so reset only the preview pane
+  // instead of carrying a previous lesson's scroll position into this one.
+  els.dsaExamplePreview.scrollTop = 0;
+}
+
+/**
+ * Selects one DSA record for preview without changing learner source.
+ *
+ * @param {object} program Reviewed curriculum record.
+ * @param {number} routePosition One-based full-catalog position.
+ * @param {HTMLButtonElement} card Selected program-list button.
+ */
+function selectDsaProgramPreview(program, routePosition, card) {
+  state.previewProgramId = program.id;
+  els.dsaExampleGrid.querySelectorAll(".example-card").forEach((candidate) => {
+    const selected = candidate === card;
+    candidate.classList.toggle("active", selected);
+    candidate.setAttribute("aria-pressed", String(selected));
+  });
+  renderDsaProgramPreview(program, routePosition);
+  els.dsaExampleBrowserBody.classList.add("mobile-preview-open");
+}
+
+/**
+ * Creates one readable DSA program-list row using reviewed metadata only.
+ *
+ * @param {object} program Reviewed curriculum record.
+ * @param {boolean} selected Whether this row owns the visible preview.
+ * @returns {HTMLButtonElement} Non-destructive selection control.
+ */
+function programCard(program, selected) {
+  const button = makeElement("button", `example-card dsa-program-card ${selected ? "active" : ""}`);
   button.type = "button";
   const lineCount = program.code.split("\n").length;
-  const header = makeElement("div", "example-card-meta");
-  header.append(makeElement("span", "example-topic", `${program.id.toUpperCase()} · ${program.algorithm}`));
-  header.append(makeElement("span", "example-level", `${program.difficulty} · ${lineCount} lines`));
-  button.append(header);
-  button.append(makeElement("strong", "", program.title));
-  button.append(makeElement("p", "", program.objective));
-  const meta = makeElement("div", "dsa-program-meta");
-  meta.append(makeElement("span", "", `Time ${program.complexity.time}`));
-  meta.append(makeElement("span", "", `Space ${program.complexity.space}`));
-  button.append(meta);
-  const best = makeElement("div", "example-views");
-  best.append(makeElement("span", "", "BEST VIEWS"));
-  best.append(makeElement("strong", "", program.bestViews.join(" · ")));
-  button.append(best);
-  button.addEventListener("click", () => loadProgram(program));
+  const routePosition = DSA_IMPLEMENTED_PROGRAMS.indexOf(program) + 1;
+  button.setAttribute("aria-pressed", String(selected));
+  button.append(makeElement("span", "example-list-sequence", String(routePosition).padStart(3, "0")));
+  const copy = makeElement("span", "example-list-copy");
+  copy.append(makeElement("span", "example-topic", `${program.id.toUpperCase()} · ${program.algorithm}`));
+  copy.append(makeElement("strong", "", program.title));
+  copy.append(makeElement("span", "example-list-summary", program.objective));
+  button.append(copy);
+  button.append(makeElement("span", "example-level", `${program.difficulty} · ${lineCount} lines`));
+  button.addEventListener("click", () => selectDsaProgramPreview(program, routePosition, button));
   return button;
 }
 
@@ -3833,15 +3971,22 @@ function renderCatalogPrograms() {
     : DSA_IMPLEMENTED_PROGRAMS.filter((program) => program.section === state.activeFilter);
   const visible = sectionPrograms.filter(programMatchesSearch);
   if (!visible.length) {
+    state.previewProgramId = "";
     els.dsaExampleGrid.replaceChildren(createCatalogSearchEmptyState());
+    els.dsaExamplePreview.replaceChildren();
+    els.dsaExampleBrowserBody.classList.remove("mobile-preview-open");
   } else {
-    els.dsaExampleGrid.replaceChildren(...visible.map(programCard));
+    const selected = visible.find((program) => program.id === state.previewProgramId) || visible[0];
+    state.previewProgramId = selected.id;
+    els.dsaExampleGrid.replaceChildren(...visible.map((program) => programCard(program, program === selected)));
+    renderDsaProgramPreview(selected, DSA_IMPLEMENTED_PROGRAMS.indexOf(selected) + 1);
   }
-  els.dsaExampleCount.textContent = `Showing ${visible.length} of ${DSA_IMPLEMENTED_PROGRAMS.length} programs`;
+  els.dsaExampleCount.textContent = `Showing ${visible.length} of ${DSA_IMPLEMENTED_PROGRAMS.length}`;
 }
 
 /** Opens the implemented catalog without changing source. */
 function openCatalog() {
+  els.dsaExampleBrowserBody.classList.remove("mobile-preview-open");
   renderCatalogFilters();
   renderCatalogPrograms();
   els.dsaExamplesDialog.showModal();
@@ -3866,7 +4011,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260728-26", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260728-30", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;
@@ -4068,6 +4213,8 @@ function bindEvents() {
   // Search remains local, unsaved, and composed with the active DSA section.
   els.dsaExampleSearchInput.addEventListener("input", (event) => {
     state.searchQuery = event.target.value;
+    state.previewProgramId = "";
+    els.dsaExampleBrowserBody.classList.remove("mobile-preview-open");
     renderCatalogFilters();
     renderCatalogPrograms();
     els.dsaExampleGrid.scrollTop = 0;
@@ -4113,6 +4260,9 @@ async function initialize() {
   state.activeProgram = matchingProgram(state.code);
   els.dsaCopyButton.disabled = false;
   els.dsaPasteButton.disabled = false;
+  // Event handlers are bound before the asynchronous editor finishes loading.
+  // Enable Run only now so a fast click can never read a missing editor object.
+  els.dsaRunButton.disabled = false;
   applyEditorPreferences();
   updateCodeStats();
   renderAreaNavigation();

@@ -174,6 +174,11 @@ expect(
   "The DSA catalog heading does not show the complete implemented count.",
 );
 expect(
+  /id="dsaRunButton"[^>]*disabled/.test(dsaHtml)
+    && dsaAppSource.includes("els.dsaRunButton.disabled = false;"),
+  "The DSA Run control is not gated until the asynchronous editor has mounted.",
+);
+expect(
   !dsaHtml.includes("CHUNK STATUS")
     && !dsaHtml.includes("foundation-status-badge")
     && !dsaHtml.includes("dsa-heading-label"),
@@ -183,6 +188,13 @@ expect(
   dsaHtml.includes('id="dsaSelectedProgramQuestion"')
     && pythonHtml.includes('id="selectedProgramQuestion"'),
   "One or both workspaces are missing the selected reviewed question region.",
+);
+expect(
+  dsaHtml.includes('id="dsaExampleBrowserBody"')
+    && dsaHtml.includes('id="dsaExamplePreview"')
+    && pythonHtml.includes('id="exampleBrowserBody"')
+    && pythonHtml.includes('id="examplePreview"'),
+  "One or both curriculum dialogs are missing the independent navigation, list, and preview contract.",
 );
 expect(
   pythonAppSource.includes("code-explorer-selected-example")
@@ -195,6 +207,18 @@ expect(
     && dsaAppSource.includes("renderSelectedProgramQuestion()")
     && dsaAppSource.includes("replaceEditorSource(program.code, program)"),
   "The DSA selected-question origin is not persisted and rendered through the catalog path.",
+);
+expect(
+  pythonAppSource.includes("selectExamplePreview(")
+    && pythonAppSource.includes("openExampleFromPreview(")
+    && pythonAppSource.includes('"Open in Python workspace"'),
+  "The Python curriculum explorer is missing non-destructive selection or its explicit open action.",
+);
+expect(
+  dsaAppSource.includes("selectDsaProgramPreview(")
+    && dsaAppSource.includes('"Open in DSA workspace"')
+    && dsaAppSource.includes("renderDsaProgramPreview("),
+  "The DSA curriculum explorer is missing non-destructive selection or its explicit open action.",
 );
 expect(
   dsaAppSource.includes('setRuntimeStatus("Python ready", "ready")')
@@ -231,7 +255,8 @@ const requiredDsaIds = [
   "dsaExamplesButton", "dsaLearningCommentsButton", "dsaRunButton",
   "dsaPreviousButton", "dsaPlayButton", "dsaNextButton", "dsaRestartButton",
   "dsaTimeline", "dsaProgressLabel", "dsaSpeedSelect", "dsaConsoleOutput",
-  "dsaExamplesDialog", "dsaExampleSearchInput", "dsaExampleFilters", "dsaExampleCount", "dsaExampleGrid",
+  "dsaExamplesDialog", "dsaExampleBrowserBody", "dsaExampleSearchInput",
+  "dsaExampleFilters", "dsaExampleCount", "dsaExampleGrid", "dsaExamplePreview",
   "dsaCommentsDialog", "dsaCommentDetail", "dsaCommentsSummary",
   "dsaCommentPreview", "dsaCopyCommentsButton", "dsaAutomaticPreview", "toast",
 ];

@@ -2,11 +2,11 @@
 
 Baseline recorded: 2026-07-28 14:32:14 EDT (-0400)
 
-Document status: Living current-state audit, Trace, Data, Flow, and Labs redesign Chunks 1 through 4 shipped
+Document status: Living current-state audit, all five LAB UI redesign chunks shipped and verified
 
 Scope: All 18 learning views in the Data Structures and Algorithms workspace
 
-Last documentation audit: 2026-07-28 19:04:26 EDT (-0400)
+Last documentation audit: 2026-07-28 19:44:20 EDT (-0400)
 
 ## Why this document exists
 
@@ -28,11 +28,10 @@ The current interface is functionally complete:
 - Light mode, dark mode, desktop, and narrow layouts work without page-level
   horizontal overflow.
 
-The interface redesign is now functionally complete at the individual-view
-level. All five Trace views, all six Data views, all four Flow views, and all
-three Labs views use the new beginner-oriented visual system. Chunk 5 remains
-for the complete cross-view accessibility, fallback, responsive, and
-regression audit.
+The interface redesign and final cross-view audit are complete. All five Trace
+views, all six Data views, all four Flow views, and all three Labs views use
+the beginner-oriented visual system and share the bounded-stage, evidence,
+accessibility, responsive, and fallback contracts described below.
 
 ## Current state after Trace redesign Chunk 1
 
@@ -778,6 +777,98 @@ Any optional graph or plot dependency added during the redesign must be
 audited before use. Loading a library from a pinned asset host must never add
 learner data to a request.
 
+## Current state after final audit Chunk 5
+
+Recorded: 2026-07-28 19:44:20 EDT (-0400)
+
+Chunk 5 did not add a nineteenth view or change the curriculum. It tested the
+complete learning system as one interface and corrected the shared Examples
+experience that a beginner uses before entering any view.
+
+### Cross-view browser evidence
+
+A reviewed `DSA-002` trace produced 14 recorded steps. Every registered view
+was then selected through the real browser:
+
+| Area | Views rendered | Result |
+| --- | ---: | --- |
+| Trace | 5 | All rendered a named heading and an honest evidence state |
+| Data | 6 | All rendered, including the optional References graph plus its semantic text |
+| Flow | 4 | All rendered with bounded long content |
+| Labs | 3 | All rendered a purposeful experiment or an explicit unavailable state |
+| **Total** | **18** | **No page exception or browser error** |
+
+The desktop learning stage measured 593 pixels high in every view. Content
+heights ranged from 619 pixels for a short unavailable state through 2,131
+pixels for Algorithm Path. Every stage reported `overflow-y: auto`. This is
+the intended result: longer teaching material remains reachable through
+internal scrolling while the editor, playback controls, and console keep their
+positions.
+
+The evidence audit also confirmed that Unavailable is a successful state, not
+a missing implementation. For the selected run, Decisions, Error Coach, Input
+Playground, and Compare Algorithms did not have the evidence they require.
+They said so directly. Other views used Observed or Curriculum context
+according to their source.
+
+The fallback test deliberately blocked the pinned Cytoscape request. References
+showed `Interactive map unavailable` and retained its complete readable text
+map. During setup, the test also exposed a startup race: Run could be selected
+after events were bound but before the asynchronous editor existed. Run now
+begins disabled in HTML and becomes available only after CodeMirror or the
+textarea fallback mounts. A DOM-content-loaded audit observed disabled first,
+enabled after editor readiness, and a successful trace afterward.
+
+### Exact-source honesty
+
+The reviewed program was changed by one harmless learner comment. That edit:
+
+- Invalidated the old trace immediately.
+- Removed reviewed invariant and complexity claims.
+- Left the editor usable.
+- Preserved the locally selected question after an explicitly loaded program.
+- Allowed the unchanged reviewed source to be restored through Examples.
+
+Invariant Checker and Complexity Lab both showed Unavailable after the edit.
+No renderer guessed that the modified source still implemented the reviewed
+algorithm.
+
+### Curriculum explorer integration
+
+The shared Examples redesign now gives both workspaces three explicit desktop
+regions:
+
+```text
+Find -> Choose -> Inspect -> Open deliberately
+```
+
+The Python dialog presents 134 programs and the DSA dialog presents 535.
+Selecting a row changes only the read-only preview. It does not replace the
+editor. On a 390 by 844 viewport, both dialogs use a list-to-preview sequence,
+create no page-level horizontal overflow, and return keyboard focus to the
+selected row after Back. The DSA list uses 184-pixel rows so long algorithm
+labels, objectives, and the difficulty badge remain readable.
+
+### Complete regression evidence
+
+- `node --check app.js`
+- `node --check dsa-app.js`
+- `node --check scripts/validate-dsa-foundation.mjs`
+- `node scripts/validate-dsa-foundation.mjs`
+- `node scripts/validate-dsa-curriculum.mjs --export
+  /tmp/code-explorer-dsa-curriculum.json`
+- `python3 scripts/validate_dsa_curriculum.py
+  /tmp/code-explorer-dsa-curriculum.json`
+- `node scripts/validate-curriculum.mjs --export
+  /tmp/code-explorer-curriculum.json`
+- `python3 scripts/validate_curriculum.py
+  /tmp/code-explorer-curriculum.json`
+- `git diff --check`
+
+The validators accepted all 535 DSA programs and all 134 Python programs,
+including the three documented Python intentional-error lessons. The DSA
+depth report now counts 304 programs with at least 15 meaningful lines.
+
 ## Current quality assessment
 
 | Dimension | Baseline assessment | Explanation |
@@ -785,19 +876,18 @@ learner data to a request.
 | Runtime reliability | Strong | Complete curriculum and worker checks pass |
 | Evidence honesty | Strong | Reviewed and observed claims remain separated |
 | Browser stability | Strong | Bounded views and numerical limits are established |
-| Accessibility foundation | Moderate | Navigation and scrolling work, but richer visuals need explicit alternatives |
-| Visual differentiation | Strong pending final audit | All eighteen views now use purpose-specific teaching layouts |
-| Beginner scanability | Strong pending final audit | Every view begins with an evidence-aware question and a concept-specific reading path |
-| Empty-state quality | Strong pending final audit | Missing trace, curriculum, comparison, and optional graph states explain why and offer a safe next step |
+| Accessibility foundation | Strong | Named areas, tab semantics, visible evidence text, bounded keyboard scrolling, focus restoration, and semantic graph alternatives are present |
+| Visual differentiation | Strong | All eighteen views use purpose-specific teaching layouts and passed the cross-view render audit |
+| Beginner scanability | Strong | Every view begins with an evidence-aware question and a concept-specific reading path |
+| Empty-state quality | Strong | Missing trace, curriculum, comparison, and optional graph states explain why and offer a safe next step |
 | Concept visualization | Strong with bounded limits | History, state, relationships, transitions, debugger rows, complexity evidence, input order, comparisons, and experiments are visible |
 
 ## Baseline conclusion
 
-The current DSA LAB UI is technically dependable and now has complete
+The current DSA LAB UI is technically dependable and has complete
 beginner-oriented Trace, Data, Flow, and Labs areas. Every individual view has
-its intended teaching form. The redesign is not declared fully complete until
-Chunk 5 finishes the cross-view accessibility, fallback, responsive, and
-complete curriculum regression audit.
+its intended teaching form, and Chunk 5 completed the cross-view accessibility,
+fallback, responsive, and complete curriculum regression audit.
 
 The redesign must preserve the proven runtime and evidence foundation while
 giving every view a visual form appropriate to the concept it teaches.

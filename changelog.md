@@ -15,6 +15,95 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v20, 2026-07-28
+
+v20 ships the **shared curriculum explorer overhaul** and completes **DSA LAB
+UI redesign Chunk 5**.
+
+### Find, Choose, Inspect
+
+Both Examples dialogs now use one deliberate learning sequence:
+
+```text
+Find a concept
+      |
+      v
+Choose a readable lesson row
+      |
+      v
+Inspect complete metadata and source
+      |
+      v
+Open in the workspace explicitly
+```
+
+Learner-visible changes:
+
+- Python keeps all 134 programs and DSA keeps all 535 programs.
+- Desktop dialogs use separate navigation, program-index, and read-only
+  preview panes.
+- Program rows use larger text, stable route numbers, two-line purposes,
+  difficulty, and exact line counts.
+- The DSA preview adds exact-source status, reviewed complexity, phases,
+  invariants, edge cases, structures, comparison context, expected result, and
+  complete source.
+- The Python preview adds difficulty, section, prerequisites, recommended
+  views, prepared input, intentional-error context, and complete source.
+- Selecting a row no longer changes the editor.
+- Only **Open in Python workspace** or **Open in DSA workspace** replaces
+  source.
+- Every new preview begins at its heading.
+- Tablet and phone layouts use a two-stage list-to-preview flow with Back and
+  keyboard-focus restoration.
+- Python rows use a 158-pixel minimum and DSA rows use a 184-pixel minimum so
+  larger text and metadata never collide.
+
+### Final 18-view audit
+
+- One reviewed 14-step DSA run rendered all 18 views through their real area
+  and tab controls.
+- All 18 produced a named heading and an honest Observed, Curriculum context,
+  or Unavailable state.
+- No page exception occurred.
+- Every desktop view retained a 593-pixel bounded stage with internal vertical
+  scrolling. Algorithm Path reached 2,131 pixels of content without moving the
+  playback and console regions.
+- Editing exact reviewed source invalidated the trace and removed reviewed
+  invariant and complexity claims.
+- The DSA dialog found `DSA-535` by stable ID and previewed the correct final
+  guided challenge.
+- The Python dialog found four records for `ValueError`; all category badges
+  and the live result count updated from the same local query.
+- Desktop dark mode and 390-pixel light mode produced no page-level horizontal
+  overflow.
+- Blocking Cytoscape left the References text map usable and displayed an
+  explicit interactive-map unavailable message.
+- Run trace now remains disabled until the DSA editor or its textarea fallback
+  has finished mounting, closing a fast-click startup race.
+
+### Validation
+
+- Both changed application controllers passed JavaScript syntax checks.
+- The extended DSA foundation validator passed 18 view, 31 event, 20
+  structure, explicit preview, and 535-program contracts.
+- All 535 DSA programs compiled, executed, and matched their reviewed result
+  markers.
+- All 134 Python programs passed structural and execution validation, including
+  three documented intentional-error lessons.
+- The DSA depth validator reports 304 programs with at least 15 meaningful
+  source lines.
+- `git diff --check`, forbidden-dash review, privacy scanning, and cache-version
+  consistency checks passed.
+
+### Boundaries preserved
+
+- Search and preview state remains in current page memory only.
+- No analytics, telemetry, progress tracking, or learner-data request was
+  added.
+- A preview is not execution evidence.
+- Reviewed DSA metadata remains valid only for exact unchanged catalog source.
+- Trace and display limits remain unchanged.
+
 ## v19, 2026-07-28
 
 v19 ships **DSA LAB UI redesign Chunk 4**. Input Playground, Compare

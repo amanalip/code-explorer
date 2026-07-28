@@ -2,13 +2,13 @@
 
 Ledger created: 2026-07-28 14:32:14 EDT (-0400)
 
-Document status: Living implementation ledger, Trace, Data, and Flow redesign Chunks 1 through 3 verified
+Document status: Living implementation ledger, all five redesign chunks implemented and verified
 
 Scope: Visual and interaction redesign of all 18 DSA learning views
 
 Companion baseline: `current state of LAB UI.md`
 
-Last implementation audit: 2026-07-28 16:25:20 EDT (-0400)
+Last implementation audit: 2026-07-28 19:44:20 EDT (-0400)
 
 ## How to read this document
 
@@ -1150,11 +1150,130 @@ Verification:
 
 ### Chunk 5
 
-Status: Not started
+Status: Implemented and verified
 
-Actual changes: None
+Completed: 2026-07-28 19:44:20 EDT (-0400)
 
-Verification: Not run
+### Additional learner request accepted before Chunk 5
+
+Before the final audit, Aman asked for the Examples interface to be overhauled
+and pointed out that some text remained too small. This request was accepted
+because the catalog is the learner's entrance to the complete LAB UI. A
+carefully designed view cannot help a beginner who cannot confidently choose
+the program feeding that view.
+
+The earlier browser mixed navigation and explanation inside one dense card
+grid. A click also loaded source immediately. That produced three problems:
+
+1. Large cards repeated details while still making long text difficult to
+   scan.
+2. A learner could not inspect complete metadata or source before changing the
+   editor.
+3. Increasing type size caused badges to collide with summaries because the
+   old compact row height had not been reconsidered.
+
+The corrected interaction model is:
+
+```text
+FIND
+search and vertical curriculum route
+        |
+        v
+CHOOSE
+readable lesson index
+        |
+        v
+INSPECT
+complete read-only record and source
+        |
+        v
+OPEN
+one explicit editor-replacement action
+```
+
+### Actual curriculum explorer changes
+
+- Replaced both two-column card grids with a shared three-pane desktop
+  curriculum explorer.
+- Kept search and categories or sections in a dedicated Find pane.
+- Changed program cards into a vertical Choose index with stable position,
+  topic or algorithm, title, two-line purpose, difficulty, and line count.
+- Increased search, filter, index, and preview text sizes instead of relying on
+  small monospaced labels.
+- Added a complete Inspect pane for Python difficulty, section, source length,
+  prerequisites, recommended views, prepared input, intentional-error status,
+  and read-only source.
+- Added a complete Inspect pane for DSA ID, curriculum position, algorithm,
+  objective, exact-source status, complexity, prerequisites, phases,
+  invariants, edge cases, structures, best views, comparison group,
+  expected-result marker, and read-only source.
+- Made row selection non-destructive. Only **Open in Python workspace** or
+  **Open in DSA workspace** replaces source.
+- Reset every new preview to its heading so scroll position cannot leak from a
+  previous lesson.
+- Gave DSA rows 184 pixels of minimum height because long algorithm names and
+  objectives need more room than language-foundation labels.
+- Converted tablet and phone layouts into a two-stage list-to-preview journey.
+- Added Back with focus restoration to the selected list row.
+- Preserved independent vertical scrolling and zero page-level horizontal
+  overflow.
+
+### Why this belongs in the LAB UI redesign
+
+The curriculum explorer decides the exact source and reviewed context that the
+18 views receive. Making that choice readable, reversible, and deliberate is
+part of evidence design. It also protects beginner confidence because browsing
+no longer changes working code unexpectedly.
+
+### Cross-view audit changes
+
+- Extended the foundation validator to require both preview mount points and
+  the separate non-destructive selection and explicit-open functions.
+- Exercised all 18 views from one real reviewed 14-step trace.
+- Confirmed every selected tab owned a nonempty heading and evidence state.
+- Confirmed no browser page exception occurred during the complete view loop.
+- Measured the same 593-pixel desktop learning stage across every view.
+- Confirmed every long stage used internal `overflow-y: auto`, including an
+  Algorithm Path result with 2,131 pixels of content.
+- Edited exact reviewed source and confirmed invariant and complexity claims
+  became Unavailable while the editor remained usable.
+- Confirmed both catalog searches compose with their vertical filters and
+  report accurate live counts.
+- Confirmed row selection leaves editor source unchanged and the explicit Open
+  action performs the replacement.
+- Confirmed the DSA 535th stable ID is searchable and opens the correct preview.
+- Confirmed desktop dark presentation and 390-pixel light presentation remain
+  readable with no horizontal page overflow.
+- Blocked the exact Cytoscape module request and confirmed References retained
+  its complete text map with an explicit interactive-map unavailable message.
+- Found and corrected a startup race exposed by that test. Run now stays
+  disabled until CodeMirror or the fallback textarea has mounted, preventing a
+  fast click from reading a null editor.
+
+### Complete validation evidence
+
+- JavaScript syntax checks passed for both controllers and the extended
+  foundation validator.
+- `git diff --check` passed.
+- The DSA foundation validator passed 18 view, 31 event, 20 structure, and
+  535-program contracts.
+- The DSA structural validator accepted all 535 records across 25 sections and
+  reported 304 programs with at least 15 meaningful lines.
+- The DSA Python validator compiled, executed, and matched all 535 documented
+  result markers.
+- The Python curriculum validator accepted the 54 plus 80 composition and all
+  134 metadata records.
+- The Python execution validator ran all 134 records, including the three
+  documented intentional errors.
+
+### What remained unchanged
+
+- Program source, prepared inputs, and expected-result markers.
+- The 3,000-step trace limit and 30-second timeout.
+- Worker transport and strict non-finite-value handling.
+- The Observed, Curriculum context, Unavailable, and Shortened evidence model.
+- Local persistence and the no-analytics rule.
+- The 18-view inventory and each view's bounded presentation limit.
 
 ## Required verification after every chunk
 

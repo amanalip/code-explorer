@@ -8,11 +8,14 @@ Everything runs on the learner's device. Code Explorer does not collect learner 
 
 The DSA workspace is at **Chunk 7: complete Tier A curriculum**.
 
+The separate five-chunk LAB UI redesign is also complete. Its chunk numbers
+describe interface-review stages, not additional curriculum sections.
+
 Chunks 1 through 7 implement:
 
 - 535 reviewed and executable curriculum programs.
 - 25 ordered curriculum sections.
-- A vertical example browser with local metadata search, section counts, difficulty, line count, objective, complexity, and recommended views.
+- A three-pane curriculum explorer with local metadata search, vertical section counts, a readable lesson index, and a complete non-destructive program preview.
 - Local Python execution through the same isolated Pyodide worker used by the Python workspace.
 - A 3,000-step trace limit and a 30-second outer timeout.
 - Playback controls and 18 working learning views under Trace, Data, Flow, and Labs.
@@ -576,6 +579,54 @@ Every catalog program has:
 - Phases, invariants, edge cases, comparison groups, and complexity context when applicable.
 - Recommended views selected for that program.
 
+### Using the curriculum explorer
+
+The Examples dialog separates three different learner decisions:
+
+```text
+FIND
+search and choose a section
+        |
+        v
+CHOOSE
+scan stable IDs, titles, objectives, difficulty, and line counts
+        |
+        v
+INSPECT
+read the complete reviewed record and source
+        |
+        +-- return to the list
+        |
+        +-- Open in DSA workspace
+```
+
+This separation protects the editor. Clicking a row does not load code, clear a trace, replace prepared input, or save a new source document. It only updates the Inspect pane. The editor changes only after the explicit **Open in DSA workspace** action.
+
+The Inspect pane explains more than a compact list row can safely hold:
+
+- Stable DSA ID, absolute curriculum position, algorithm label, title, and objective.
+- Difficulty, section, exact line count, and exact-source reviewed-context status.
+- Reviewed time and space formulas with the accompanying explanation.
+- Prerequisites, phases, invariants, edge cases, structures, best views, and comparison group when the record supplies them.
+- Expected-result marker or intentional-error contract.
+- Complete read-only Python source.
+- A visible reminder that reviewed claims disappear from runtime views after the source changes.
+
+The three desktop regions scroll independently. Long section lists do not move the lesson index, and long source does not move the dialog header. DSA rows receive extra height because algorithm labels and objectives are often longer than Python-language lesson names. The interface keeps the larger readable text rather than clipping metadata or shrinking it to fit.
+
+At tablet and phone widths, the explorer becomes a two-stage flow:
+
+```text
+Stage 1                         Stage 2
++-------------------------+    +-----------------------------+
+| search and sections     |    | Back to program list        |
+| lesson index            | -> | complete program preview    |
+| choose one lesson       |    | Open in DSA workspace       |
++-------------------------+    +-----------------------------+
+```
+
+Back restores keyboard focus to the selected lesson. A new selection always resets the preview to its heading. The dialog creates no page-level horizontal scrolling at the tested 390-pixel viewport.
+
 ### Searching the DSA curriculum
 
 The search field examines the complete reviewed program record:
@@ -617,7 +668,7 @@ Visible cards and per-section match counts
 
 Each word must match somewhere in the same reviewed record. Punctuation and capitalization do not need to be exact, so `O(n)` and `o n` are treated consistently. If the selected section has no match, the catalog shows a clear empty result and a **Clear search** action. Clearing the query retains the selected section.
 
-The query is temporary page state. It is not saved, included in learner progress, collected for analytics, or transmitted over the network. Selecting a matching card still uses the ordinary reviewed-program loading path and does not run it until the learner selects **Run trace**.
+The query is temporary page state. It is not saved, included in learner progress, collected for analytics, or transmitted over the network. Selecting a matching row opens the read-only preview. It does not load or run the program. Only **Open in DSA workspace** uses the reviewed-program loading path, and the program still waits for the learner to select **Run trace**.
 
 The catalog validator rejects missing metadata, duplicate identifiers, duplicate titles, duplicate source, weak source depth, unsupported structure names, unsupported event names, and suspiciously similar examples. A separate Python validator compiles and executes every program and checks its expected result.
 
@@ -631,7 +682,7 @@ Difficulty is editorial guidance. It is not a score, test result, or claim about
 
 ### Longer programs
 
-Short examples remain useful for atomic ideas, but the implemented catalog includes 146 programs with at least 15 meaningful source lines. Every traversal lesson has at least 19 meaningful lines, and every shortest-path or spanning-tree lesson has at least 14. Longer examples are used where setup, transformation, checks, and results need room to form one coherent lesson.
+Short examples remain useful for atomic ideas, but the current curriculum validator reports 304 programs with at least 15 meaningful source lines. This is a depth-distribution measurement, not a score by itself. Every traversal lesson has at least 19 meaningful lines, and every shortest-path or spanning-tree lesson has at least 14. Longer examples are used where setup, transformation, checks, and results need room to form one coherent lesson.
 
 ### What Chunk 2 adds
 
@@ -935,6 +986,14 @@ Paste and confirmed complete-source replacement clear the question. Pasted or
 independently written code never receives an invented exercise description.
 The banner is curriculum orientation, not proof of completion and not an
 analytics or progress record.
+
+### Run readiness
+
+**Run trace** begins disabled during the brief editor-mounting phase. It becomes
+available after CodeMirror or the basic textarea fallback is ready. This
+prevents a fast click on a slow device from trying to read an editor that does
+not exist yet. The header separately reports Python runtime loading and
+readiness.
 
 ### Wrap
 

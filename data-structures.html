@@ -24,7 +24,7 @@
     <link rel="preconnect" href="https://esm.sh" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <!-- The synchronized version query prevents stale cross-workspace styling. -->
-    <link rel="stylesheet" href="styles.css?v=20260728-26" />
+    <link rel="stylesheet" href="styles.css?v=20260728-30" />
   </head>
   <body class="dsa-page">
     <!-- The shared decorative layer never enters the accessibility tree. -->
@@ -89,7 +89,8 @@
             <button class="text-button learning-comments-button" id="dsaLearningCommentsButton" type="button" disabled>
               Learning comments
             </button>
-            <button class="primary-button compact" id="dsaRunButton" type="button">
+            <!-- Run remains unavailable until CodeMirror or its textarea fallback has finished mounting. -->
+            <button class="primary-button compact" id="dsaRunButton" type="button" disabled>
               Run trace
             </button>
           </div>
@@ -263,7 +264,11 @@
         </div>
         <button class="dialog-close" id="dsaCloseExamplesButton" type="button" aria-label="Close DSA examples">×</button>
       </div>
-      <div class="example-browser-body">
+      <!--
+        The DSA curriculum explorer separates section navigation, program
+        selection, and full reviewed context so 535 records remain readable.
+      -->
+      <div class="example-browser-body" id="dsaExampleBrowserBody">
         <aside class="example-browser-toolbar" aria-label="DSA curriculum sections">
           <!--
             Search stays in browser memory and composes with the active section.
@@ -283,9 +288,20 @@
           </div>
           <span class="example-curriculum-label">Implemented order</span>
           <div class="example-filters" id="dsaExampleFilters" role="group" aria-label="Filter DSA programs"></div>
-          <span class="example-count" id="dsaExampleCount" role="status" aria-live="polite"></span>
         </aside>
-        <div class="example-grid dsa-example-grid" id="dsaExampleGrid"></div>
+        <!-- Program rows update the preview without changing the editor. -->
+        <section class="example-results-pane" aria-label="DSA curriculum programs">
+          <div class="example-results-header">
+            <div>
+              <span>Program library</span>
+              <strong>Choose a lesson to inspect</strong>
+            </div>
+            <span class="example-count" id="dsaExampleCount" role="status" aria-live="polite"></span>
+          </div>
+          <div class="example-grid dsa-example-grid" id="dsaExampleGrid"></div>
+        </section>
+        <!-- The explicit preview action is the only control that loads source. -->
+        <aside class="example-preview dsa-example-preview" id="dsaExamplePreview" aria-label="Selected DSA program preview" aria-live="polite"></aside>
       </div>
     </dialog>
 
@@ -360,6 +376,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- One version keeps this page aligned with its contracts and shared modules. -->
-    <script type="module" src="dsa-app.js?v=20260728-26"></script>
+    <script type="module" src="dsa-app.js?v=20260728-30"></script>
   </body>
 </html>

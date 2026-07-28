@@ -1499,7 +1499,7 @@ Select **Examples** to open a curated library of 134 programs. The library is a 
 
 The current library is a blend rather than a replacement. The tested 54-program v2 corpus was reviewed, renamed or moved where useful, and combined with 80 new programs. Input, intentional errors, recursion, mutation, shallow copying, and nested collections were preserved instead of being lost during the reorganization.
 
-Every example card shows:
+The lesson row and its read-only preview show:
 
 - The primary topic
 - A difficulty level
@@ -1509,6 +1509,7 @@ Every example card shows:
 - A fixed sequence number
 - Recommended prerequisite concepts for guided checkpoints
 - A visible learning-error label when failure is intentional
+- The complete reviewed source before the learner decides to open it
 
 ### Filtering the library
 
@@ -1569,44 +1570,66 @@ Only class-and-object programs whose reviewed information contains list
 
 Count badges update to show how many current search matches exist in each category. The result summary is announced politely to assistive technology. If nothing matches, the card area explains the result and provides **Clear search** without changing the selected category.
 
-Search is temporary. The query remains only in the current page memory, is not stored after reload, is not added to analytics, and is never sent over the network. Selecting a matching card loads it into the editor through the same normal example-loading path.
+Search is temporary. The query remains only in the current page memory, is not stored after reload, is not added to analytics, and is never sent over the network.
+
+Selecting a lesson row is now non-destructive. It changes only the read-only preview. The visible editor, saved source, prepared input, and trace remain unchanged until the learner selects **Open in Python workspace**.
 
 ```text
 DESKTOP EXAMPLES BROWSER
-+----------------------+--------------------------------------+
-| CATEGORY SIDEBAR     | PROGRAM CARDS                        |
-|                      |                                      |
-| Search programs      | matching cards update while typing   |
-| All programs     134 | [Hello, Python] [Store one value]    |
-| 01 First Steps    10 | [A tiny calculation] [Smart Cafe]    |
-| 02 Variables      10 | [More programs continue below]       |
-| 03 Operators      10 |                                      |
-| 04 Strings         8 | independent vertical card scrolling  |
-| 05 Decisions      12 |                                      |
-| 06 Loops          16 |                                      |
-| 07 Functions      16 |                                      |
-| 08 Collections    16 |                                      |
-| 09 References      8 |                                      |
-| 10 Input/Errors    8 |                                      |
-| 11 Classes         8 |                                      |
-| 12 Guided         12 |                                      |
-|                      |                                      |
-| Showing 134 of 134   |                                      |
-+----------------------+--------------------------------------+
++------------------+----------------------+--------------------------+
+| FIND             | CHOOSE               | INSPECT                  |
+|                  |                      |                          |
+| Search locally   | 001 Hello, Python    | title and purpose        |
+|                  | 002 Print values     | difficulty and section   |
+| All programs 134 | 003 Clear output     | prerequisite concepts    |
+| 01 First Steps   | ...                  | best learning views      |
+| 02 Variables     |                      | prepared input           |
+| ...              | readable summary     | complete read-only code  |
+| 12 Guided        | difficulty and lines |                          |
+|                  |                      | [Open in workspace]      |
++------------------+----------------------+--------------------------+
 
 PHONE EXAMPLES BROWSER
 +----------------------------------+
-| Search programs                  |
+| FIND AND CHOOSE                  |
 +----------------------------------+
-| vertical category region         |
-| All, First Steps, Variables, ...  |
+| search and vertical categories   |
+| one-column lesson rows           |
 +----------------------------------+
-| one-column program cards          |
-| scroll down through the results   |
+| select one lesson                |
+|                                  |
+| INSPECT                          |
+| full preview and read-only code  |
+| [Back to program list]           |
+| [Open in Python workspace]       |
 +----------------------------------+
 ```
 
-On a wide screen, the category sidebar and card list scroll vertically as separate regions. On a narrow screen, the category region stacks above the one-column card list and keeps vertical navigation. Selecting a category returns its result list to the first program. Category names receive enough room to wrap rather than creating horizontal navigation.
+On a wide screen, Find, Choose, and Inspect remain visible together. Each region scrolls vertically inside its own boundary. The middle rows use larger text, a stable sequence number, a concise two-line summary, difficulty, and exact source length. The preview uses comfortable reading text and shows the complete reviewed source inside its own scrollable code box.
+
+On a narrow screen, Find and Choose appear first. Selecting a lesson opens Inspect as a second screen instead of compressing three columns into the phone width. **Back to program list** restores the list and keyboard focus to the selected lesson. Selecting a category returns its result list to the first program. Category names wrap inside vertical rows rather than creating horizontal navigation.
+
+### Safe example-opening sequence
+
+```text
+Select a lesson row
+        |
+        v
+Preview metadata and source
+        |
+        +-- choose Back or another row
+        |      |
+        |      +-- editor remains unchanged
+        |
+        +-- choose Open in Python workspace
+               |
+               v
+        replace the editor deliberately
+        save that source locally
+        clear the previous trace
+```
+
+The preview deliberately starts at its heading every time a different lesson is selected. A scroll position from a longer lesson cannot make the next lesson appear to begin halfway through. Source is inserted as text, not trusted as HTML, and the preview action uses the same guarded source-loading path as the rest of the workspace.
 
 The numbers are a fixed recommendation, not tracked progress. Code Explorer does not know which lesson a learner completed, whether someone is ready for a checkpoint, or how long anyone studied. There are no accounts, progress profiles, completion analytics, or learner scores. A learner may open, skip, or revisit any program at any time.
 

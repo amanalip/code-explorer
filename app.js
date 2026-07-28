@@ -10,9 +10,9 @@
 
 // The expanded curriculum lives in a dedicated data module so application
 // controllers remain readable while the library grows to 134 programs.
-import { ADDITIONAL_EXAMPLES } from "./curriculum.js?v=20260728-26";
+import { ADDITIONAL_EXAMPLES } from "./curriculum.js?v=20260728-30";
 // Both catalogs use one local-only matcher so metadata search behaves consistently.
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-26";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-30";
 
 /**
  * The initial program shown in the editor.
@@ -1395,7 +1395,8 @@ const els = Object.fromEntries(
     "emptyBookmarks", "bookmarksContent", "stepCount", "previousButton",
     "playButton", "nextButton", "restartButton", "bookmarkButton", "stepSlider", "progressPercent", "speedSelect",
     "consoleOutput", "clearOutputButton", "examplesDialog", "closeExamplesButton",
-    "exampleSearchInput", "exampleFilters", "exampleCount", "exampleGrid",
+    "exampleBrowserBody", "exampleSearchInput", "exampleFilters", "exampleCount",
+    "exampleGrid", "examplePreview",
     "learningCommentsDialog", "closeLearningCommentsButton", "learningCommentDetail", "learningCommentsSummary",
     "learningCommentsLineCount",
     "learningCommentsPreview", "copyLearningCommentsButton", "replaceWithLearningCommentsButton", "toast",
@@ -1486,6 +1487,8 @@ const state = {
   activeExampleCategory: "All",
   // Search is temporary session state and is never persisted or sent anywhere.
   exampleSearchQuery: "",
+  // Preview selection is temporary catalog navigation, not saved progress.
+  examplePreviewTitle: "",
   // A reviewed example title preserves the learner's chosen question across edits and reloads.
   selectedExampleTitle: loadSelectedExampleTitle(),
 };
@@ -2278,7 +2281,7 @@ function ensureWorker() {
 
   // The version query keeps GitHub Pages and long-lived browser caches from
   // pairing a new interface with an older tracing or serialization contract.
-  state.worker = new Worker("py-worker.js?v=20260728-26", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260728-30", { type: "module" });
   state.worker.addEventListener("message", handleWorkerMessage);
   state.worker.addEventListener("error", (event) => {
     const message = event.message || "Python worker failed to load.";
@@ -4740,17 +4743,163 @@ function createExampleSearchEmptyState() {
 }
 
 /**
- * Creates category filters and example cards from the shared EXAMPLES data.
- * Landing cards are native links to the workspace, while workspace cards are
- * buttons that update the open editor. Text nodes keep all metadata safe.
+ * Adds one labelled value group to the selected-program preview.
+ *
+ * @param {HTMLElement} mount Preview destination.
+ * @param {string} label Short visible heading.
+ * @param {string[]} values Safe reviewed values.
+ */
+function appendExamplePreviewGroup(mount, label, values) {
+  if (!values.length) return;
+  const group = document.createElement("section");
+  group.className = "example-preview-group";
+  const heading = document.createElement("h4");
+  heading.textContent = label;
+  const list = document.createElement("ul");
+  values.forEach((value) => {
+    const item = document.createElement("li");
+    item.textContent = value;
+    list.append(item);
+  });
+  group.append(heading, list);
+  mount.append(group);
+}
+
+/**
+ * Loads one explicitly confirmed Python preview into the editor.
+ *
+ * @param {object} example Reviewed Python curriculum record.
+ */
+function openExampleFromPreview(example) {
+  setCode(example.code, example);
+  if (typeof example.inputs === "string") prepareExampleInputs(example.inputs);
+  els.examplesDialog.close();
+  showToast(`${example.title} loaded. Press Run trace when you are ready.`);
+}
+
+/**
+ * Renders the complete selected Python lesson without changing learner source.
+ *
+ * @param {object} example Reviewed program selected in the middle pane.
+ * @param {number} routePosition One-based position in the complete route.
+ */
+function renderExamplePreview(example, routePosition) {
+  const preview = document.createElement("article");
+  preview.className = "example-preview-document";
+
+  const back = document.createElement("button");
+  back.type = "button";
+  back.className = "example-preview-back";
+  back.textContent = "← Back to program list";
+  back.addEventListener("click", () => {
+    els.exampleBrowserBody.classList.remove("mobile-preview-open");
+    els.exampleGrid.querySelector(".example-card.active")?.focus();
+  });
+  preview.append(back);
+
+  const eyebrow = document.createElement("span");
+  eyebrow.className = "example-preview-eyebrow";
+  eyebrow.textContent = `Program ${String(routePosition).padStart(3, "0")} · ${example.topic}`;
+  const title = document.createElement("h3");
+  title.textContent = example.title;
+  const description = document.createElement("p");
+  description.className = "example-preview-description";
+  description.textContent = example.description;
+  preview.append(eyebrow, title, description);
+
+  const lineCount = example.code.split("\n").length;
+  const facts = document.createElement("dl");
+  facts.className = "example-preview-facts";
+  [
+    ["Difficulty", example.level],
+    ["Section", example.category],
+    ["Source", `${lineCount} line${lineCount === 1 ? "" : "s"}`],
+  ].forEach(([label, value]) => {
+    const fact = document.createElement("div");
+    const term = document.createElement("dt");
+    term.textContent = label;
+    const detail = document.createElement("dd");
+    detail.textContent = value;
+    fact.append(term, detail);
+    facts.append(fact);
+  });
+  preview.append(facts);
+
+  if (example.expectedError) {
+    const warning = document.createElement("p");
+    warning.className = "example-preview-warning";
+    warning.textContent = `Intentional learning error: ${example.expectedError}. This program is designed to stop so Error Coach can explain the recorded exception.`;
+    preview.append(warning);
+  } else {
+    const result = document.createElement("p");
+    result.className = "example-preview-boundary";
+    result.textContent = "This lesson has no separate exact-output contract in its catalog record. Run it and inspect the recommended views instead of guessing an output from this preview.";
+    preview.append(result);
+  }
+
+  appendExamplePreviewGroup(
+    preview,
+    "Recommended before starting",
+    Array.isArray(example.prerequisites) ? example.prerequisites : [],
+  );
+  appendExamplePreviewGroup(preview, "Best learning views", example.views || []);
+  if (typeof example.inputs === "string") {
+    appendExamplePreviewGroup(
+      preview,
+      "Prepared input",
+      example.inputs === "" ? ["No prepared responses"] : example.inputs.split("\n").map((value, index) => `Response ${index + 1}: ${value || "(blank)"}`),
+    );
+  }
+
+  const sourceSection = document.createElement("section");
+  sourceSection.className = "example-preview-source";
+  const sourceHeading = document.createElement("h4");
+  sourceHeading.textContent = "Read-only source preview";
+  const sourceHelp = document.createElement("p");
+  sourceHelp.textContent = "Inspect the complete reviewed program here. Opening it is a separate deliberate action.";
+  const source = document.createElement("pre");
+  const code = document.createElement("code");
+  code.textContent = example.code;
+  source.append(code);
+  sourceSection.append(sourceHeading, sourceHelp, source);
+  preview.append(sourceSection);
+
+  const action = document.createElement("button");
+  action.type = "button";
+  action.className = "primary-button example-preview-open";
+  action.textContent = "Open in Python workspace";
+  action.addEventListener("click", () => openExampleFromPreview(example));
+  preview.append(action);
+  els.examplePreview.replaceChildren(preview);
+  // Every newly selected lesson starts at its heading so a previous preview's
+  // reading position cannot make the next lesson appear to begin midway down.
+  els.examplePreview.scrollTop = 0;
+}
+
+/**
+ * Selects one Python record for inspection without replacing editor source.
+ *
+ * @param {object} example Reviewed program.
+ * @param {number} routePosition One-based complete-route position.
+ * @param {HTMLButtonElement} card Program-list button.
+ */
+function selectExamplePreview(example, routePosition, card) {
+  state.examplePreviewTitle = example.title;
+  els.exampleGrid.querySelectorAll(".example-card").forEach((candidate) => {
+    const selected = candidate === card;
+    candidate.classList.toggle("active", selected);
+    candidate.setAttribute("aria-pressed", String(selected));
+  });
+  renderExamplePreview(example, routePosition);
+  els.exampleBrowserBody.classList.add("mobile-preview-open");
+}
+
+/**
+ * Creates category navigation, a vertical program index, and one rich preview.
+ * Selecting a row is non-destructive. Only the preview action loads source.
  */
 function renderExamples() {
-  // The workspace marker determines whether a card should navigate or update in place.
-  const isWorkspace = Boolean(els.workspace);
-  // Reject an obsolete category value instead of rendering an unexplained empty dialog.
   if (!EXAMPLE_CATEGORIES.includes(state.activeExampleCategory)) state.activeExampleCategory = "All";
-  // Recreate the vertical category navigation so pressed states and counts always
-  // match the complete library without requiring horizontal scrolling.
   els.exampleFilters.replaceChildren(
     ...EXAMPLE_CATEGORIES.map((category) => {
       const filter = document.createElement("button");
@@ -4758,11 +4907,8 @@ function renderExamples() {
       filter.className = `example-filter ${category === state.activeExampleCategory ? "active" : ""}`;
       const categoryCount = category === "All"
         ? EXAMPLES.filter(exampleMatchesSearch).length
-        : EXAMPLES.filter((example) => (
-          example.category === category && exampleMatchesSearch(example)
-        )).length;
+        : EXAMPLES.filter((example) => example.category === category && exampleMatchesSearch(example)).length;
       const label = document.createElement("span");
-      // Numbered focused sections communicate a fixed route without implying progress tracking.
       label.textContent = category === "All"
         ? "All programs"
         : `${EXAMPLE_CATEGORY_NUMBERS[category]}  ${category}`;
@@ -4774,111 +4920,75 @@ function renderExamples() {
       filter.setAttribute("aria-pressed", String(category === state.activeExampleCategory));
       filter.addEventListener("click", () => {
         state.activeExampleCategory = category;
+        state.examplePreviewTitle = "";
+        els.exampleBrowserBody.classList.remove("mobile-preview-open");
         renderExamples();
-        // A newly selected curriculum family starts at its first program. This
-        // prevents a scroll position from a longer category from opening the
-        // next category halfway through its cards, especially after resizing.
         els.exampleGrid.scrollTop = 0;
       });
       return filter;
     }),
   );
-  // All follows the fixed curriculum route. A selected category keeps the same
-  // relative order so switching filters never changes the teaching progression.
+
   const recommendedExamples = buildRecommendedExamples();
   const categoryExamples = state.activeExampleCategory === "All"
     ? recommendedExamples
     : recommendedExamples.filter((example) => example.category === state.activeExampleCategory);
   const visibleExamples = categoryExamples.filter(exampleMatchesSearch);
-  els.exampleCount.textContent = `Showing ${visibleExamples.length} of ${EXAMPLES.length} programs`;
+  els.exampleCount.textContent = `Showing ${visibleExamples.length} of ${EXAMPLES.length}`;
   if (!visibleExamples.length) {
+    state.examplePreviewTitle = "";
     els.exampleGrid.replaceChildren(createExampleSearchEmptyState());
+    els.examplePreview.replaceChildren();
+    els.exampleBrowserBody.classList.remove("mobile-preview-open");
     return;
   }
-  els.exampleGrid.replaceChildren(
-    ...visibleExamples.map((example, visibleIndex) => {
-      // Native links make landing-page navigation reliable for file URLs and hosted URLs.
-      const card = document.createElement(isWorkspace ? "button" : "a");
-      if (isWorkspace) {
-        card.type = "button";
-      } else {
-        card.href = "workspace.html";
-      }
-      card.className = `example-card ${example.category === "Guided Mini Programs" ? "guided-checkpoint" : ""}`.trim();
-      card.innerHTML = `
-        <span class="example-card-meta">
-          <span class="example-topic"></span>
-          <span class="example-level"></span>
-        </span>
-        <h3></h3>
-        <p></p>
-        <span class="example-warning" hidden></span>
-        <span class="example-prerequisites" hidden>
-          <span>RECOMMENDED BEFORE STARTING</span>
-          <strong></strong>
-        </span>
-        <span class="example-views">
-          <span>BEST VIEWS</span>
-          <strong></strong>
-        </span>`;
-      /*
-        Search results keep their absolute recommended-route number so a learner
-        never sees one program renamed as result 001. Focused browsing without
-        search retains its established two-digit category-relative numbering.
-      */
-      const searchIsActive = Boolean(state.exampleSearchQuery.trim());
-      const sequenceWidth = state.activeExampleCategory === "All" || searchIsActive ? 3 : 2;
-      const sequencePosition = searchIsActive
-        ? recommendedExamples.indexOf(example) + 1
-        : visibleIndex + 1;
-      const sequence = String(sequencePosition).padStart(sequenceWidth, "0");
-      const guidedExamples = recommendedExamples.filter((candidate) => candidate.category === "Guided Mini Programs");
-      const checkpointNumber = String(guidedExamples.indexOf(example) + 1).padStart(2, "0");
-      card.querySelector(".example-topic").textContent = example.category === "Guided Mini Programs"
-        ? `Guided checkpoint ${checkpointNumber}${state.activeExampleCategory === "All" ? ` · Program ${sequence}` : ""}`
-        : `${sequence} · ${example.topic}`;
-      const level = card.querySelector(".example-level");
-      const sourceLineCount = example.code.split("\n").length;
-      level.textContent = `${example.level} · ${sourceLineCount} line${sourceLineCount === 1 ? "" : "s"}`;
-      // Multi-word levels become separate safe class tokens, such as guided and challenge.
-      level.classList.add(...example.level.toLowerCase().split(/\s+/));
-      card.querySelector("h3").textContent = example.title;
-      card.querySelector("p").textContent = example.description;
-      // Intentional failure programs are labelled before selection so beginners
-      // never confuse a planned Error Coach lesson with broken example code.
-      const warning = card.querySelector(".example-warning");
-      if (example.expectedError) {
-        warning.hidden = false;
-        warning.textContent = `LEARNING ERROR · ${example.expectedError}`;
-      }
-      // Checkpoint prerequisites are recommendations only. They are fixed card
-      // metadata and do not depend on accounts, completion records, or analytics.
-      const prerequisiteBlock = card.querySelector(".example-prerequisites");
-      if (Array.isArray(example.prerequisites) && example.prerequisites.length) {
-        prerequisiteBlock.hidden = false;
-        prerequisiteBlock.querySelector("strong").textContent = example.prerequisites.join(" · ");
-      }
-      card.querySelector(".example-views strong").textContent = example.views.join(" · ");
-      card.addEventListener("click", () => {
-        // Save before navigation so the chosen example is waiting in the new editor.
-        setCode(example.code, example);
-        // Input examples include safe starter responses so they can run immediately.
-        if (typeof example.inputs === "string") prepareExampleInputs(example.inputs);
-        els.examplesDialog.close();
-        if (isWorkspace) {
-          showToast(`${example.title} loaded. Press Run trace when you are ready.`);
-        }
-      });
-      return card;
-    }),
-  );
+
+  const selectedExampleRecord = visibleExamples.find((example) => example.title === state.examplePreviewTitle) || visibleExamples[0];
+  state.examplePreviewTitle = selectedExampleRecord.title;
+  const rows = visibleExamples.map((example, visibleIndex) => {
+    const routePosition = recommendedExamples.indexOf(example) + 1;
+    const lineCount = example.code.split("\n").length;
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = `example-card ${example === selectedExampleRecord ? "active" : ""}`;
+    card.setAttribute("aria-pressed", String(example === selectedExampleRecord));
+
+    const sequence = document.createElement("span");
+    sequence.className = "example-list-sequence";
+    sequence.textContent = String(routePosition).padStart(3, "0");
+    const copy = document.createElement("span");
+    copy.className = "example-list-copy";
+    const topic = document.createElement("span");
+    topic.className = "example-topic";
+    topic.textContent = example.topic;
+    const title = document.createElement("strong");
+    title.textContent = example.title;
+    const summary = document.createElement("span");
+    summary.className = "example-list-summary";
+    summary.textContent = example.description;
+    copy.append(topic, title, summary);
+    const level = document.createElement("span");
+    level.className = "example-level";
+    level.classList.add(...example.level.toLowerCase().split(/\s+/));
+    level.textContent = `${example.level} · ${lineCount} ${lineCount === 1 ? "line" : "lines"}`;
+    card.append(sequence, copy, level);
+    card.addEventListener("click", () => selectExamplePreview(example, routePosition, card));
+    return card;
+  });
+  els.exampleGrid.replaceChildren(...rows);
+  const selectedPosition = recommendedExamples.indexOf(selectedExampleRecord) + 1;
+  renderExamplePreview(selectedExampleRecord, selectedPosition);
 }
 
 /**
  * Opens the native examples dialog only when it is not already open.
  */
 function openExamples() {
-  if (!els.examplesDialog.open) els.examplesDialog.showModal();
+  if (!els.examplesDialog.open) {
+    els.exampleBrowserBody.classList.remove("mobile-preview-open");
+    renderExamples();
+    els.examplesDialog.showModal();
+  }
 }
 
 /**
@@ -4897,6 +5007,8 @@ function bindEvents() {
   // Search is local, unsaved, and composed with the selected curriculum category.
   els.exampleSearchInput?.addEventListener("input", (event) => {
     state.exampleSearchQuery = event.target.value;
+    state.examplePreviewTitle = "";
+    els.exampleBrowserBody.classList.remove("mobile-preview-open");
     renderExamples();
     els.exampleGrid.scrollTop = 0;
   });

@@ -7441,9 +7441,9 @@ main {
   font-size: var(--editor-font-size, 14px);
 }
 
-/* DSA program cards reserve room for complexity and view metadata. */
+/* DSA program rows share the compact curriculum-explorer list geometry. */
 .dsa-program-card {
-  min-height: 270px;
+  min-height: 0;
 }
 
 /* Time and space labels sit together but wrap rather than overflow. */
@@ -7470,8 +7470,8 @@ main {
 /* Examples */
 /* Styles `.examples-dialog`. This component rule controls sizing and spacing, color and visual emphasis, boundaries and focus treatment, overflow behavior for the matching interface element. */
 .examples-dialog {
-  width: min(1180px, calc(100% - 32px));
-  height: min(820px, calc(100vh - 40px));
+  width: min(1360px, calc(100% - 32px));
+  height: min(900px, calc(100vh - 32px));
   max-height: calc(100vh - 40px);
   padding: 0;
   overflow: hidden;
@@ -7506,22 +7506,23 @@ main {
 /* Styles `.dialog-header h2`. This component rule controls sizing and spacing, typography for the matching interface element. */
 .dialog-header h2 {
   margin: 10px 0 0;
-  font-size: 1.8rem;
+  font-size: clamp(1.75rem, 2.4vw, 2.15rem);
 }
 
 /* Explains the fixed curriculum route without suggesting stored learner progress. */
 .dialog-intro {
   margin: 9px 0 0;
   color: var(--text-soft);
-  font-size: 0.88rem;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.6;
 }
 
-/* Divides category navigation from the independently scrolling program-card region. */
+/* Divides curriculum navigation, program selection, and lesson details. */
 .example-browser-body {
   display: grid;
   min-height: 0;
-  grid-template-columns: 285px minmax(0, 1fr);
+  grid-template-columns: 255px minmax(330px, 390px) minmax(420px, 1fr);
+  overflow: hidden;
 }
 
 /* Places categories in a stable vertical sidebar that never needs horizontal scrolling. */
@@ -7530,7 +7531,7 @@ main {
   min-height: 0;
   flex-direction: column;
   gap: 14px;
-  padding: 18px;
+  padding: 20px 18px;
   overflow-y: auto;
   border-right: 1px solid var(--line);
   background: var(--panel-soft);
@@ -7547,7 +7548,7 @@ main {
 /* The explicit label keeps the search purpose visible after a learner starts typing. */
 .example-search label {
   color: var(--text);
-  font: 700 0.62rem/1 var(--mono);
+  font: 700 0.78rem/1.2 var(--mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -7555,13 +7556,13 @@ main {
 /* A native search field supplies familiar keyboard, selection, and clear behavior. */
 .example-search input {
   width: 100%;
-  min-height: 42px;
-  padding: 10px 11px;
+  min-height: 46px;
+  padding: 11px 12px;
   border: 1px solid var(--line-bright);
   border-radius: 8px;
   color: var(--text);
   background: var(--bg-raised);
-  font: 600 0.7rem/1.35 var(--mono);
+  font: 600 0.82rem/1.4 var(--mono);
 }
 
 /* Placeholder contrast stays quieter than entered text while remaining readable. */
@@ -7573,14 +7574,14 @@ main {
 /* Brief guidance explains multi-word narrowing without making the sidebar noisy. */
 .example-search > span {
   color: var(--text-dim);
-  font-size: 0.67rem;
-  line-height: 1.45;
+  font-size: 0.78rem;
+  line-height: 1.55;
 }
 
 /* Labels the sidebar as a recommendation rather than a completion tracker. */
 .example-curriculum-label {
   color: var(--text-dim);
-  font: 700 0.58rem/1.2 var(--mono);
+  font: 700 0.74rem/1.3 var(--mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -7597,16 +7598,16 @@ main {
 .example-filter {
   display: flex;
   width: 100%;
-  min-height: 39px;
+  min-height: 46px;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 9px 11px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--text-soft);
   background: var(--bg-raised);
-  font: 600 0.64rem/1.25 var(--mono);
+  font: 600 0.78rem/1.35 var(--mono);
   letter-spacing: 0.03em;
   text-align: left;
   cursor: pointer;
@@ -7615,13 +7616,13 @@ main {
 /* Category totals make the larger curriculum easier to understand before filtering. */
 .example-filter-count {
   display: inline-grid;
-  min-width: 25px;
-  height: 22px;
+  min-width: 28px;
+  height: 24px;
   place-items: center;
   border-radius: 999px;
   color: var(--text-dim);
   background: var(--panel-solid);
-  font-size: 0.58rem;
+  font-size: 0.72rem;
 }
 
 /* Highlights the category whose program cards are currently displayed. */
@@ -7639,13 +7640,49 @@ main {
 
 /* Keeps the visible and total program counts stable beside the scrolling filters. */
 .example-count {
-  margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
   color: var(--text-dim);
-  font: 600 0.61rem/1.2 var(--mono);
+  font: 600 0.72rem/1.35 var(--mono);
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+/* The middle pane owns its heading and independently scrolling program index. */
+.example-results-pane {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  border-right: 1px solid var(--line);
+  background: var(--panel-solid);
+}
+
+/* The result heading explains the selection action and keeps count visible. */
+.example-results-header {
+  display: flex;
+  min-height: 82px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* Program-library context uses a label and sentence instead of tiny metadata. */
+.example-results-header > div {
+  display: grid;
+  gap: 5px;
+}
+
+.example-results-header > div > span {
+  color: var(--purple);
+  font: 700 0.72rem/1.2 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.example-results-header > div > strong {
+  font-size: 0.92rem;
+  line-height: 1.35;
 }
 
 /*
@@ -7656,7 +7693,6 @@ main {
   display: grid;
   width: min(520px, 100%);
   min-height: 250px;
-  grid-column: 1 / -1;
   place-self: center;
   place-items: center;
   align-content: center;
@@ -7701,39 +7737,51 @@ main {
   cursor: pointer;
 }
 
-/* Styles `.example-grid`. This component rule controls layout, sizing and spacing for the matching interface element. */
+/* The program index is one stable vertical reading route rather than a card mosaic. */
 .example-grid {
-  display: grid;
+  display: flex;
   min-height: 0;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-content: start;
-  gap: 10px;
-  padding: 22px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
   overflow-y: auto;
 }
 
-/* Styles `.example-card`. This component rule controls sizing and spacing, color and visual emphasis, typography, boundaries and focus treatment, motion and interaction feedback for the matching interface element. */
+/* Each list row is a non-destructive selection control with a clear hierarchy. */
 .example-card {
-  display: flex;
-  min-height: 220px;
-  flex-direction: column;
-  padding: 20px;
+  display: grid;
+  width: 100%;
+  min-height: 158px;
+  grid-template-columns: 42px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: start;
+  gap: 8px 12px;
+  padding: 15px;
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: 10px;
   color: var(--text);
   background: var(--bg-raised);
   font: inherit;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
-  transition: 160ms ease;
+  transition: border-color 140ms ease, background 140ms ease;
 }
 
 /* Guided checkpoints receive extra room and a subtle accent because they show prerequisites. */
 .example-card.guided-checkpoint {
-  min-height: 285px;
+  min-height: 158px;
   border-color: color-mix(in srgb, var(--amber) 42%, var(--line));
   background: color-mix(in srgb, var(--amber) 5%, var(--bg-raised));
+}
+
+/*
+  DSA labels and titles are often longer than their Python counterparts. The
+  extra height preserves two readable summary lines and the metadata badge
+  without allowing any part of the selection row to overlap its neighbor.
+*/
+.example-card.dsa-program-card {
+  min-height: 184px;
 }
 
 /* A stronger checkpoint hover preserves the card's project identity during selection. */
@@ -7754,30 +7802,240 @@ main {
 .example-card:hover {
   border-color: var(--mint);
   background: var(--mint-soft);
-  transform: translateY(-2px);
+}
+
+/* The selected row stays visibly connected to the preview without relying on color alone. */
+.example-card.active {
+  border-color: var(--mint);
+  box-shadow: inset 4px 0 0 var(--mint);
+  background: var(--mint-soft);
+}
+
+/* Stable route numbers make search results and section browsing easy to cross-reference. */
+.example-list-sequence {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  color: var(--purple);
+  font: 700 0.8rem/1.4 var(--mono);
+}
+
+/* The row copy keeps topic, title, and summary in one natural reading column. */
+.example-list-copy {
+  display: grid;
+  min-width: 0;
+  grid-column: 2;
+  grid-row: 1;
+  gap: 5px;
+}
+
+.example-list-copy > strong {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.example-list-summary {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 /* Styles `.example-topic`. This component rule controls color and visual emphasis, typography, motion and interaction feedback for the matching interface element. */
 .example-topic {
   min-width: 0;
   color: var(--purple);
-  font: 600 0.6rem/1 var(--mono);
-  letter-spacing: 0.1em;
+  font: 700 0.76rem/1.3 var(--mono);
+  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
 /* Uses a quiet badge to communicate the assumed experience level before selection. */
 .example-level {
-  flex-shrink: 0;
-  padding: 5px 7px;
+  width: fit-content;
+  grid-column: 2;
+  grid-row: 2;
+  padding: 5px 8px;
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--text-dim);
   background: var(--panel-soft);
-  font: 600 0.54rem/1 var(--mono);
-  letter-spacing: 0.07em;
+  font: 600 0.72rem/1.1 var(--mono);
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+/* The right pane is the comfortable reading surface for one selected lesson. */
+.example-preview {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  background:
+    linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 100% 30px,
+    var(--panel-soft);
+}
+
+/* The preview document uses familiar editorial spacing instead of dense cards. */
+.example-preview-document {
+  display: grid;
+  gap: 20px;
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: 28px 30px 40px;
+}
+
+/* The phone-only return control is hidden while all desktop panes remain visible. */
+.example-preview-back {
+  display: none;
+}
+
+.example-preview-eyebrow {
+  color: var(--purple);
+  font: 700 0.78rem/1.45 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.example-preview-document h3 {
+  margin: -6px 0 0;
+  font-size: clamp(1.6rem, 2.4vw, 2rem);
+  line-height: 1.15;
+}
+
+.example-preview-description {
+  max-width: 62ch;
+  margin: -8px 0 0;
+  color: var(--text-soft);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* Facts use responsive cards with real definition-list semantics. */
+.example-preview-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-raised);
+}
+
+.example-preview-facts > div {
+  display: grid;
+  gap: 6px;
+  padding: 13px 14px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.example-preview-facts dt,
+.example-preview-group h4,
+.example-preview-source h4,
+.example-preview-complexity h4,
+.example-preview-expected h4 {
+  margin: 0;
+  color: var(--text-dim);
+  font: 700 0.75rem/1.3 var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.example-preview-facts dd {
+  margin: 0;
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.example-preview-group,
+.example-preview-source,
+.example-preview-complexity,
+.example-preview-expected {
+  display: grid;
+  gap: 10px;
+  padding: 17px 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-raised);
+}
+
+.example-preview-group ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.example-preview-group li,
+.example-preview-source > p,
+.example-preview-complexity > p,
+.example-preview-expected > p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+
+.example-preview-complexity-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.example-preview-complexity-values span {
+  padding: 7px 9px;
+  border: 1px solid var(--line-bright);
+  border-radius: 999px;
+  color: var(--mint);
+  font: 700 0.78rem/1 var(--mono);
+}
+
+.example-preview-expected code {
+  width: fit-content;
+  padding: 8px 10px;
+  border-radius: 7px;
+  color: var(--mint);
+  background: var(--code-bg);
+  font-size: 0.86rem;
+}
+
+.example-preview-warning,
+.example-preview-boundary {
+  margin: 0;
+  padding: 14px 16px;
+  border-left: 4px solid var(--purple);
+  color: var(--text-soft);
+  background: color-mix(in srgb, var(--purple) 8%, var(--bg-raised));
+  font-size: 0.94rem;
+  line-height: 1.65;
+}
+
+.example-preview-warning {
+  border-left-color: var(--red);
+  background: color-mix(in srgb, var(--red) 7%, var(--bg-raised));
+}
+
+.example-preview-source pre {
+  max-height: 300px;
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--code-plain);
+  background: var(--code-bg);
+  font: 500 0.85rem/1.7 var(--mono);
+  white-space: pre;
+}
+
+.example-preview-open {
+  width: 100%;
+  min-height: 48px;
+  font-size: 0.88rem;
 }
 
 /* Gives developing programs a distinct purple cue without suggesting an error state. */
@@ -8290,6 +8548,47 @@ main {
   100% { transform: translateX(100%); }
 }
 
+/* Tablets use a two-stage catalog so neither list nor preview becomes cramped. */
+@media (max-width: 1100px) {
+  /* Route navigation and program rows remain visible until a program is selected. */
+  .example-browser-body {
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+
+  /* Preview becomes a deliberate second stage at tablet width. */
+  .example-preview {
+    display: none;
+  }
+
+  .example-browser-body.mobile-preview-open {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .example-browser-body.mobile-preview-open .example-browser-toolbar,
+  .example-browser-body.mobile-preview-open .example-results-pane {
+    display: none;
+  }
+
+  .example-browser-body.mobile-preview-open .example-preview {
+    display: block;
+  }
+
+  /* A visible return control restores the previous catalog stage. */
+  .example-preview-back {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 40px;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid var(--line-bright);
+    border-radius: 8px;
+    color: var(--text);
+    background: var(--bg-raised);
+    font: 700 0.78rem/1.2 var(--mono);
+    cursor: pointer;
+  }
+}
+
 /* Adapts the layout inside @media (max-width: 1050px) so the same interface remains usable on narrower screens. */
 @media (max-width: 1050px) {
   /* Styles `.welcome-screen`. This component rule controls layout, sizing and spacing for the matching interface element. */
@@ -8617,16 +8916,15 @@ main {
     grid-row: 1;
   }
 
-  /* Styles `.example-grid`. This component rule controls layout, sizing and spacing for the matching interface element. */
+  /* The mobile program list keeps the same compact vertical row system. */
   .example-grid {
-    grid-template-columns: 1fr;
     padding: 14px;
   }
 
-  /* Stacks a bounded vertical category region above independently scrolling cards. */
+  /* The first mobile stage stacks bounded navigation above the program list. */
   .example-browser-body {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(190px, 34vh) minmax(0, 1fr);
+    grid-template-rows: minmax(190px, 38%) minmax(0, 1fr);
   }
 
   /* The phone sidebar keeps vertical navigation and uses its own bounded scroll area. */
@@ -8635,6 +8933,62 @@ main {
     padding: 12px 14px;
     border-right: 0;
     border-bottom: 1px solid var(--line);
+  }
+
+  /* The middle program pane becomes the second independently scrolling stage. */
+  .example-results-pane {
+    border-right: 0;
+  }
+
+  /* Preview is a deliberate second mobile screen rather than a cramped third pane. */
+  .example-preview {
+    display: none;
+  }
+
+  /* Selecting one program replaces navigation and list with its complete preview. */
+  .example-browser-body.mobile-preview-open {
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .example-browser-body.mobile-preview-open .example-browser-toolbar,
+  .example-browser-body.mobile-preview-open .example-results-pane {
+    display: none;
+  }
+
+  .example-browser-body.mobile-preview-open .example-preview {
+    display: block;
+  }
+
+  /* The return action makes the mobile two-stage navigation explicit. */
+  .example-preview-back {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 40px;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid var(--line-bright);
+    border-radius: 8px;
+    color: var(--text);
+    background: var(--bg-raised);
+    font: 700 0.78rem/1.2 var(--mono);
+    cursor: pointer;
+  }
+
+  /* Phone preview spacing preserves readable type without wasting width. */
+  .example-preview-document {
+    gap: 16px;
+    padding: 18px 16px 30px;
+  }
+
+  /* Program facts stack when even two concise columns would become cramped. */
+  .example-preview-facts {
+    grid-template-columns: 1fr;
+  }
+
+  /* The complete source remains horizontally scrollable inside its own box. */
+  .example-preview-source pre {
+    max-height: 240px;
+    font-size: 0.78rem;
   }
 
   /* The search remains full width above the vertical mobile category list. */
@@ -8653,16 +9007,14 @@ main {
     margin-top: 2px;
   }
 
-  /* Keeps each one-column program card tall enough for its teaching summary.
-     A real minimum is important here because a constrained CSS Grid can
-     otherwise shrink button rows and let their text overlap neighboring cards. */
+  /* Compact rows show enough summary to choose while detail stays in preview. */
   .example-card {
-    min-height: 224px;
+    min-height: 158px;
   }
 
-  /* Mobile checkpoint cards retain enough height for purpose, prerequisites, and views. */
+  /* Guided checkpoints no longer need oversized cards because preview owns detail. */
   .example-card.guided-checkpoint {
-    min-height: 330px;
+    min-height: 158px;
   }
 
   /* Comment controls stack above the preview on phones while retaining native keyboard behavior. */
@@ -9005,13 +9357,13 @@ main {
     margin: 10px;
   }
 
-  /* DSA catalog cards need one column and natural height on narrow screens. */
+  /* DSA program rows use the same compact mobile selection geometry. */
   .dsa-example-grid {
-    grid-template-columns: 1fr;
+    display: flex;
   }
 
   .dsa-program-card {
-    min-height: 250px;
+    min-height: 184px;
   }
 }
 

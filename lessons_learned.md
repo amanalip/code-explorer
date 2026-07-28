@@ -5357,6 +5357,224 @@ How to verify:
 - Add one harmless source comment.
 - Confirm the reviewed cards disappear immediately.
 
+## 2026-07-28: A curriculum browser should separate choosing from changing code
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented and browser verified
+
+What happened:
+
+Aman asked to change the Examples look and feel, then noticed that some text
+was still too small. The existing cards tried to be a navigation item, a
+summary, a metadata sheet, and a source-loading action at the same time. The
+large catalogs made that combination difficult to scan, while an ordinary
+card click replaced the editor before the learner could inspect the complete
+lesson.
+
+What the user learned:
+
+- A large curriculum needs an information architecture, not only more cards.
+- Readable text may require more row height and more scrolling. That is a good
+  trade when the alternative is clipping or eye strain.
+- Previewing before opening protects the current program and helps a beginner
+  make an informed choice.
+- A consistent Find, Choose, Inspect sequence can serve a 134-program language
+  route and a 535-program DSA route without pretending their metadata is
+  identical.
+
+What Codex learned:
+
+- The first enlarged-text implementation kept the old compact row height. A
+  browser screenshot revealed that the difficulty badge crossed the row
+  boundary. Typography changes must be tested as geometry changes.
+- A preview pane needs its own scroll reset. Reusing the bottom scroll position
+  from a previous program makes a new program appear to start in the middle.
+- A click contract is part of learner safety. Row selection and source
+  replacement should be separate functions so a future refactor cannot
+  accidentally combine them.
+- Mobile should not squeeze three desktop columns into 390 pixels. A two-stage
+  list-to-preview journey is clearer and preserves larger text.
+
+What changed:
+
+- Both dialogs now use Find, Choose, and Inspect on desktop.
+- Row selection changes only the preview.
+- An explicit Open in workspace action performs source replacement.
+- Python rows use 158 pixels and DSA rows use 184 pixels of minimum height.
+- Both mobile dialogs provide Back and restore focus to the selected lesson.
+- Every preview starts at its heading and source remains read only until Open.
+
+Credit:
+
+Aman deserves credit for identifying both the weak catalog presentation and
+the small-text problem before the final audit. Codex deserves credit for
+turning the observation into a reusable interaction contract and catching the
+row-height regression through visual browser testing. The result belongs to
+the discussion, not to one person being right and the other wrong.
+
+How to verify:
+
+1. Record the visible editor source.
+2. Select another lesson row and confirm the editor is unchanged.
+3. Select Open and confirm the editor changes.
+4. Repeat at 390 by 844 and confirm Back restores focus.
+5. Inspect long labels in both themes and confirm no badge overlaps.
+
+## 2026-07-28: A final UI audit must test the system, not only each completed chunk
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented and verified in DSA LAB UI redesign Chunk 5
+
+What happened:
+
+Trace, Data, Flow, and Labs were redesigned in separate chunks. Each chunk
+passed focused checks, but that did not yet prove that all 18 views could share
+one runtime, navigation shell, scroll boundary, theme, viewport, and evidence
+model without conflict.
+
+What the user learned:
+
+- Splitting work into chunks protects quality, but a final cumulative pass is
+  still necessary.
+- An Unavailable result is useful when it explains why evidence is missing.
+  It is not the same as an unfinished blank view.
+- Stable internal scrolling is a workspace-level promise shared by every view.
+
+What Codex learned:
+
+- Count views through the contract and exercise every real tab. Do not infer
+  completeness from the number of renderer functions.
+- Record stage `clientHeight`, `scrollHeight`, and computed overflow. A
+  screenshot alone cannot prove that long content remains independently
+  scrollable.
+- Attach a page-error listener during the complete navigation loop.
+- Test one harmless exact-source edit and verify that every reviewed claim
+  disappears where required.
+- Repeat the independent Python and DSA curriculum validators after UI work,
+  even when no curriculum record was intentionally changed.
+
+What changed:
+
+- One reviewed 14-step run exercised all 18 DSA views.
+- Every view produced a heading, evidence state, and bounded result.
+- No browser page error occurred.
+- The stage remained 593 pixels high while long Algorithm Path content reached
+  2,131 pixels and scrolled internally.
+- Exact-source edits removed invariant and complexity claims.
+- All 535 DSA and 134 Python programs passed their complete validators.
+
+How to verify:
+
+Run the complete area and tab loop, inspect the error list, compare stage
+geometry, edit exact source, and rerun both curriculum suites. A final audit is
+complete only when those independent forms of evidence agree.
+
+## 2026-07-28: Browser evidence can reveal a defect that source inspection misses
+
+Perspective:
+- Codex
+- Shared
+
+Status:
+- Implemented correction
+
+What happened:
+
+The source correctly declared a larger minimum row height, but the first
+browser still displayed an earlier cached stylesheet. The screenshot therefore
+continued showing the old clipped layout even though the file looked correct.
+The browser's computed style reported 158 pixels for a DSA row when the new
+contract required 184.
+
+What Codex learned:
+
+- Source inspection, network versioning, computed style, and screenshot
+  evidence answer different questions.
+- A cache-version change must occur after the final style edit, not only near
+  the beginning of a UI task.
+- When source and browser disagree, inspect the real loaded URL and computed
+  style before changing correct code again.
+
+What the user learned:
+
+- Browser caching can make a completed UI correction appear absent until the
+  page loads the new versioned asset.
+- A release check should verify the loaded interface, not only the repository
+  diff.
+
+What changed:
+
+- The shared cache version was advanced after the final curriculum styles.
+- DSA rows were verified at 184 pixels in the newly loaded page.
+- The validation checklist now treats the explorer geometry and explicit Open
+  behavior as contracts.
+
+How to verify:
+
+Open a fresh workspace URL, inspect the requested stylesheet version, measure
+the first DSA row with `getComputedStyle()`, and compare it with a screenshot.
+
+## 2026-07-28: Bind early only when controls remain gated until their state exists
+
+Perspective:
+- Codex
+- Shared
+
+Status:
+- Implemented correction
+
+What happened:
+
+The final optional-library test navigated to a fresh DSA page and selected Run
+immediately. Event handlers had already been bound, but the asynchronous
+CodeMirror setup had not yet assigned `state.editor`. The handler attempted
+`state.editor.getCode()` and raised a null-object error. Ordinary manual
+testing had missed the narrow timing window because the editor usually mounts
+quickly.
+
+What Codex learned:
+
+- An enabled control must imply that every object its handler needs already
+  exists.
+- Binding events before asynchronous setup is acceptable only when dependent
+  controls begin disabled.
+- Fast automated interaction is useful because it approximates slower devices
+  and unusual scheduling, not because learners are expected to race the page.
+- An infrastructure timeout during a test should be inspected. It may expose a
+  product race rather than a failing external dependency.
+
+What the user learned:
+
+- A final cumulative audit can discover startup defects even after normal
+  program execution and all curriculum validators pass.
+- Reliability includes the moments before the main interface appears ready.
+
+What changed:
+
+- `#dsaRunButton` is disabled in the original HTML.
+- Initialization enables it only after CodeMirror or the textarea fallback has
+  mounted.
+- A DOM-content-loaded browser check observed disabled first, enabled after
+  editor readiness, and successful tracing afterward.
+- Blocking Cytoscape then produced the intended References fallback with its
+  complete text map.
+
+How to verify:
+
+Navigate with `waitUntil: "domcontentloaded"`, inspect the disabled Run state,
+wait for the editor mount, confirm Run becomes enabled, execute a trace, and
+then test the optional graph fallback.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

@@ -107,8 +107,8 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 - `changelog.md`: dated learner-visible release history, verification notes, compatibility boundaries, and upgrade guidance.
 - `bug_report.md`: detailed reliability incident record for the non-finite-float worker transport defect, correction, audit evidence, privacy impact, and prevention rules.
 - `Tier.md`: planning and status reference for complete Tier A coverage and the unimplemented Tier B and Tier C scope.
-- `current state of LAB UI.md`: timestamped baseline and living current-state audit for all eighteen redesigned Trace, Data, Flow, and Labs views, with the final cross-view audit still pending.
-- `Improvements in LAB UI.md`: five-chunk technical redesign ledger that must distinguish planned work from implemented, corrected, and verified work.
+- `current state of LAB UI.md`: timestamped baseline and living current-state audit for all eighteen redesigned Trace, Data, Flow, and Labs views after the completed final cross-view audit.
+- `Improvements in LAB UI.md`: completed five-chunk technical redesign ledger that distinguishes planned work from implemented, corrected, and verified work.
 - `LICENSE`: GPL license text. Do not modify it while adding explanatory material.
 
 ## Required workflow for every change
@@ -168,6 +168,8 @@ For JavaScript functions, use JSDoc with parameter and return information where 
 - Prefer contextual actions, tooltips, and progressive disclosure over permanent toolbar clutter.
 - Keep bounded concept navigation vertical when all categories can fit naturally in a list. Do not require laptop or phone users to scroll a category row sideways.
 - When a dialog contains navigation and many results, give each region an explicit height and independent vertical overflow. Never let card contents escape a compressed grid row.
+- Curriculum row selection is non-destructive. The editor changes only through the explicit Open in workspace action shown in the complete read-only preview.
+- On narrow screens, the curriculum explorer is a two-stage list-to-preview journey. Back must restore focus to the selected lesson.
 - A visual teaching layer inside the editor must remain distinguishable from actual editable Python source.
 - A read-only preview that resembles an editor must say that it is read only. File chrome, visual line numbers, syntax spans, badges, and status text must remain outside copied or adopted source.
 
@@ -218,6 +220,7 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm the landing page has two matching primary learning-path buttons and no Tool Guide.
 - Confirm `workspace.html` links to `README.md` and `data-structures.html` links to `README_DSA.md`.
 - Confirm the DSA editor supports wrapping, six validated font sizes, Copy, Paste, fallback editing, source statistics, and separate local persistence.
+- Confirm Run trace is disabled until CodeMirror or the textarea fallback has mounted, then becomes available without requiring a reload.
 - Confirm all 18 approved views appear under Trace, Data, Flow, and Labs.
 - Confirm all 535 programs execute and produce their documented expected-result marker.
 - Confirm section counts include 48 edge-case and debugging investigations and 36 integrated guided challenges.
@@ -229,6 +232,8 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm DSA search matches stable ids, titles, source, edge cases, phases, invariants, complexity, structures, events, expected results, and recommended views.
 - Confirm DSA search and section filters compose as an intersection, update every section badge, announce the result count, and provide a keyboard-focusable Clear search action.
 - Confirm DSA search queries are not persisted, uploaded, logged remotely, or added to request URLs.
+- Confirm selecting a DSA result changes only the preview, every new preview begins at its heading, and only Open in DSA workspace replaces source.
+- Confirm the DSA explorer uses three independent desktop panes, 184-pixel DSA rows, a two-stage phone flow, Back focus restoration, and no page-level horizontal overflow.
 - Confirm Observed appears only for trace-derived facts and Curriculum context only for exact unchanged catalog source.
 - Edit a catalog example and confirm algorithm name, phases, invariants, edge cases, comparison group, and Big O become Unavailable while observed views continue to work.
 - Confirm all 18 views render without an exception after a reviewed trace.
@@ -377,6 +382,8 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm Python search matches title, topic, category, difficulty, description, views, prerequisites, expected errors, and source code.
 - Confirm Python search and category filters compose as an intersection, update all category badges, announce the result count, and preserve absolute recommended-route numbers in search results.
 - Confirm Python search queries are not persisted, uploaded, logged remotely, or added to request URLs.
+- Confirm selecting a Python result changes only the preview, every new preview begins at its heading, and only Open in Python workspace replaces source.
+- Confirm the Python explorer uses three independent desktop panes, a two-stage phone flow, Back focus restoration, and no page-level horizontal overflow.
 - Confirm all 13 filter choices, including All, are visible through vertical scrolling and never require horizontal scrolling.
 - Confirm each filter shows its exact category count and selecting one returns the program list to its first card.
 - Confirm the desktop sidebar and card list scroll independently.

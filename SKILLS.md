@@ -50,6 +50,26 @@ The approved 535-program target has a curriculum quality contract. Counts alone 
 - Explicit Dark mode and Light mode control.
 - Copyright attribution for Aman Ali Pogaku.
 
+### DSA LAB UI final state
+
+- All 18 views have purpose-specific beginner teaching layouts.
+- A complete reviewed-trace browser loop rendered 5 Trace, 6 Data, 4 Flow,
+  and 3 Labs views without a page exception.
+- Every view uses the same bounded `#dsaViewStage`; at the audited desktop
+  viewport it measured 593 pixels high while long content reached 2,131
+  scrollable pixels.
+- Unavailable is treated as a complete evidence state. It identifies the
+  missing trace, error, input, comparison pair, or reviewed source instead of
+  leaving a blank panel.
+- Exact-source edits invalidate the old trace and remove reviewed invariants,
+  phases, edge cases, comparison context, and Big O claims.
+- The final UI audit does not alter curriculum source, trace limits, worker
+  transport, persistence, privacy, or the 18-view contract.
+- `#dsaRunButton` begins disabled in HTML and becomes available only after
+  `createPythonEditor()` resolves. Event handlers are intentionally bound
+  earlier, so this readiness gate prevents a fast click from calling
+  `state.editor.getCode()` while `state.editor` is still null.
+
 ### DSA Chunk 3 trees, heaps, tries, and string search
 
 - Separate DSA `main.py` source, prepared input, active-view state, and editor preferences.
@@ -439,6 +459,66 @@ The runtime may classify conservative cues such as a write, condition, call, ret
 - Eight Classes and Objects programs, including classes, instances, attributes, methods, constructors, inheritance, composition, and a longer object-oriented checkpoint.
 - Extensive README walkthroughs, question maps, workflows, expected behavior, troubleshooting, and glossary.
 
+### Shared curriculum explorer
+
+Both workspaces use one presentation contract over different immutable
+curriculum records:
+
+```text
+Find pane
+search plus vertical route
+        |
+        v
+Choose pane
+compact readable lesson index
+        |
+        v
+Inspect pane
+complete metadata and read-only source
+        |
+        v
+explicit Open action
+```
+
+The controller-specific renderers keep their metadata honest:
+
+- `renderExamplePreview()` presents the selected Python lesson.
+- `renderDsaProgramPreview()` presents the complete reviewed DSA record.
+- `selectExamplePreview()` and `selectDsaProgramPreview()` update only active
+  row state and preview content.
+- `openExampleFromPreview()` and `loadProgram()` are the only preview actions
+  allowed to replace source.
+
+Selecting a row must not call an editor setter, clear a trace, change prepared
+input, or persist source. This split is a learner-safety boundary, not merely a
+layout preference.
+
+Each preview is rebuilt from safe text nodes and resets its own `scrollTop` to
+zero. Without that reset, reading the bottom of one long program can make a
+newly selected program appear to begin in the middle. The source box scrolls
+independently and its visual chrome never becomes copied source.
+
+Desktop uses explicit Find, Choose, and Inspect columns. At 1,100 pixels and
+below, selection replaces navigation and list with the preview. Back removes
+that state and restores focus to `.example-card.active`. The phone route must
+not create document-level horizontal overflow.
+
+Python rows have a 158-pixel minimum. DSA rows have a 184-pixel minimum because
+algorithm labels and objectives commonly wrap. When typography becomes larger,
+row height must be remeasured. Never solve clipping by shrinking beginner text.
+
+Regression checks:
+
+1. Record editor source.
+2. Select another row.
+3. Confirm editor source is byte-for-byte unchanged.
+4. Confirm the preview title, metadata, and complete source changed.
+5. Select the explicit Open action.
+6. Confirm editor source and selected-question origin changed together.
+7. At 390 by 844, confirm list-to-preview behavior, Back focus restoration,
+   preview `scrollTop` zero, and no page overflow.
+8. Repeat in light and dark themes for both catalogs.
+
 ### Shared catalog search
 
 `catalog-search.js` owns one browser-local search contract for both workspaces.
@@ -472,7 +552,8 @@ Implementation rules:
 - Preserve stable DSA identifiers and absolute Python route numbers in search results.
 - Use a visible label, native search input, concise help, polite live result count, keyboard focus, and a Clear search recovery action.
 - Keep curriculum records immutable. The prepared index is a separate in-memory Map.
-- Selecting a match must reuse the existing card-loading path rather than creating a second editor-mutation flow.
+- Selecting a match must reuse the non-destructive preview path. Only the
+  preview's explicit Open action may reuse the existing editor-mutation flow.
 
 ### Automatic Learning Comments
 

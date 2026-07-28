@@ -28,7 +28,7 @@
       The version query forces browsers and GitHub Pages caches to fetch the
       stylesheet that matches this document instead of reusing an older layout.
     -->
-    <link rel="stylesheet" href="styles.css?v=20260728-26" />
+    <link rel="stylesheet" href="styles.css?v=20260728-30" />
   </head>
   <body>
     <!-- This decorative background is ignored by assistive technology. -->
@@ -600,8 +600,12 @@
         </div>
         <button class="dialog-close" id="closeExamplesButton" type="button" aria-label="Close examples">×</button>
       </div>
-      <!-- The sidebar and independently scrolling card area prevent horizontal category scrolling. -->
-      <div class="example-browser-body">
+      <!--
+        The curriculum explorer separates route navigation, program selection,
+        and full lesson details. A learner can inspect a program without
+        replacing the editor until the explicit preview action is selected.
+      -->
+      <div class="example-browser-body" id="exampleBrowserBody">
         <!-- Category navigation stays visible while learners browse a long filtered result list. -->
         <aside class="example-browser-toolbar" aria-label="Starter program categories">
           <!--
@@ -624,11 +628,27 @@
           <span class="example-curriculum-label">Recommended order</span>
           <!-- The generated vertical buttons expose names, counts, and their pressed state. -->
           <div class="example-filters" id="exampleFilters" role="group" aria-label="Filter starter programs"></div>
-          <!-- This live count tells learners how much of the library is currently visible. -->
-          <span class="example-count" id="exampleCount" role="status" aria-live="polite"></span>
         </aside>
-        <!-- JavaScript fills this independently scrolling grid with programs from the selected category. -->
-        <div class="example-grid" id="exampleGrid"></div>
+        <!--
+          The middle pane is a compact, vertical program index. Selecting one
+          row updates the preview but does not alter learner source.
+        -->
+        <section class="example-results-pane" aria-label="Python curriculum programs">
+          <div class="example-results-header">
+            <div>
+              <span>Program library</span>
+              <strong>Choose a lesson to inspect</strong>
+            </div>
+            <!-- This live count reports the intersection of search and category. -->
+            <span class="example-count" id="exampleCount" role="status" aria-live="polite"></span>
+          </div>
+          <div class="example-grid" id="exampleGrid"></div>
+        </section>
+        <!--
+          The detail pane receives safe text nodes from app.js. Its Open action
+          is the only catalog control that replaces the complete editor.
+        -->
+        <aside class="example-preview" id="examplePreview" aria-label="Selected Python program preview" aria-live="polite"></aside>
       </div>
     </dialog>
 
@@ -702,6 +722,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- The version query keeps this page synchronized with the landing page's navigation code. -->
-    <script type="module" src="app.js?v=20260728-26"></script>
+    <script type="module" src="app.js?v=20260728-30"></script>
   </body>
 </html>
