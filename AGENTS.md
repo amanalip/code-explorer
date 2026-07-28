@@ -25,7 +25,7 @@ Never claim that Code Explorer supports behavior that has not been implemented a
 - Learner source is a single Python file named `main.py` in the interface.
 - The tool is intended for beginner programs, demonstrations, and small exercises. It is not a general replacement for a Python IDE or production debugger.
 - The Python workspace contains 134 reviewed language-learning programs.
-- DSA Chunk 4 contains 337 reviewed programs across 16 sections. The full Tier A target is 535, so 198 later programs remain unimplemented.
+- DSA Chunk 5 contains 397 reviewed programs across 20 sections. The full Tier A target is 535, so 138 later programs remain unimplemented.
 - DSA reviewed context requires an exact unchanged catalog-source match. Pasted or edited code receives only the observed evidence its local trace supports.
 - The trace limit is 3,000 steps.
 - The outer execution timeout is 30 seconds.
@@ -75,7 +75,7 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 
 - `index.html`: landing page, two learning-path actions, shared header, and footer.
 - `workspace.html`: persistent execution workspace and all dynamic mounting points.
-- `data-structures.html`: separate Chunk 4 DSA workspace, editor, dialogs, playback, status, and 18-view mounting points.
+- `data-structures.html`: separate Chunk 5 DSA workspace, editor, dialogs, playback, status, and 18-view mounting points.
 - `styles.css`: complete light theme, dark theme, responsive layout, editor presentation, graphs, panels, and controls.
 - `catalog-search.js`: shared local-only normalization, record indexing, and multi-word matching for both program catalogs.
 - `app.js`: application state, editor setup, the original reviewed example set, playback, learning views, graph rendering, persistence, and UI events.
@@ -86,6 +86,7 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 - `dsa-curriculum-chunk2.js`: 66 reviewed Chunk 2 records for stacks, queues, deques, linked structures, hash tables, and sets, plus three ordered section definitions.
 - `dsa-curriculum-chunk3.js`: 72 reviewed Chunk 3 records for trees, BSTs, heaps, priority queues, tries, and string algorithms, plus three ordered section definitions.
 - `dsa-curriculum-chunk4.js`: 68 reviewed Chunk 4 records for Union-Find, graph representations, traversal, connectivity, shortest paths, and spanning trees, plus four ordered section definitions.
+- `dsa-curriculum-chunk5.js`: 60 reviewed Chunk 5 records for recursion, backtracking, divide and conquer, and greedy algorithms, plus four ordered section definitions.
 - `dsa-runtime.js`: pure observed-evidence classification, value comparison, condition helpers, structure selection, and level-filtered DSA comment generation.
 - `shared-ui.js`: theme and guarded local-storage helpers shared by new page controllers.
 - `shared-editor.js`: reusable Python CodeMirror foundation with a native textarea fallback.
@@ -94,15 +95,16 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 - `scripts/validate-curriculum.mjs`: structural curriculum validator and detached-example exporter.
 - `scripts/validate_curriculum.py`: Python compile-and-run validator for all detached examples and their documented intentional errors.
 - `scripts/validate-dsa-foundation.mjs`: structural validator for shared DSA contracts, routing, ids, 18 views, 20 structures, and the 535-program target.
-- `scripts/validate-dsa-curriculum.mjs`: combined Chunks 1 through 4 schema, exact section counts, uniqueness, depth, metadata, and near-duplicate validator with detached export.
-- `scripts/validate_dsa_curriculum.py`: compile, execute, and expected-result validator for all 337 detached DSA programs.
+- `scripts/validate-dsa-curriculum.mjs`: combined Chunks 1 through 5 schema, exact section counts, uniqueness, depth, metadata, and near-duplicate validator with detached export.
+- `scripts/validate_dsa_curriculum.py`: compile, execute, and expected-result validator for all 397 detached DSA programs.
 - `favicon.svg`: code-themed browser-tab icon shared by both pages.
 - `README.md`: public beginner guide for using Code Explorer and understanding its features.
-- `README_DSA.md`: public guide for the 337-program DSA workspace, evidence boundaries, all active limits, privacy, and later verified chunks.
+- `README_DSA.md`: public guide for the 397-program DSA workspace, evidence boundaries, all active limits, privacy, and later verified chunks.
 - `SKILLS.md`: internal project knowledge, capability ledger, recurring implementation recipes, and verification guidance.
 - `lessons_learned.md`: living post-mortem containing reusable product and engineering lessons from the user and Codex perspectives.
 - `changelog.md`: dated learner-visible release history, verification notes, compatibility boundaries, and upgrade guidance.
-- `Tier.md`: planning and status reference for implemented Chunk 4 coverage and the remaining Tier A, B, and C curriculum scope.
+- `bug_report.md`: detailed reliability incident record for the non-finite-float worker transport defect, correction, audit evidence, privacy impact, and prevention rules.
+- `Tier.md`: planning and status reference for implemented Chunk 5 coverage and the remaining Tier A, B, and C curriculum scope.
 - `LICENSE`: GPL license text. Do not modify it while adding explanatory material.
 
 ## Required workflow for every change
@@ -202,7 +204,7 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm source survives a workspace reload.
 - Confirm Python and DSA source keys do not overwrite each other.
 
-### DSA Chunk 4 checks
+### DSA Chunk 5 checks
 
 - Run `node scripts/validate-dsa-foundation.mjs`.
 - Run `node scripts/validate-dsa-curriculum.mjs --export /tmp/code-explorer-dsa-curriculum.json`.
@@ -212,9 +214,9 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm `workspace.html` links to `README.md` and `data-structures.html` links to `README_DSA.md`.
 - Confirm the DSA editor supports wrapping, six validated font sizes, Copy, Paste, fallback editing, source statistics, and separate local persistence.
 - Confirm all 18 approved views appear under Trace, Data, Flow, and Labs.
-- Confirm all 337 programs execute and produce their documented expected-result marker.
-- Confirm section counts are 24 foundations, 12 abstract data types, 42 Python-native containers, 20 array and sequence techniques, 9 searching, 24 sorting, 22 stacks, queues, and deques, 20 linked structures, 24 hash tables and set algorithms, 30 trees and BSTs, 18 heaps and priority queues, 24 tries and string algorithms, 10 Union-Find, 24 graph structures and vocabulary, 20 graph traversal and connectivity, and 14 shortest paths and spanning trees.
-- Confirm at least 140 programs retain 15 or more meaningful source lines. The current reviewed count is 146.
+- Confirm all 397 programs execute and produce their documented expected-result marker.
+- Confirm section counts are 24 foundations, 12 abstract data types, 42 Python-native containers, 20 array and sequence techniques, 9 searching, 24 sorting, 22 stacks, queues, and deques, 20 linked structures, 24 hash tables and set algorithms, 30 trees and BSTs, 18 heaps and priority queues, 24 tries and string algorithms, 10 Union-Find, 24 graph structures and vocabulary, 20 graph traversal and connectivity, 14 shortest paths and spanning trees, 18 recursion, 16 backtracking, 10 divide and conquer, and 16 greedy algorithms.
+- Confirm at least 190 programs retain 15 or more meaningful source lines. The current reviewed count is 192.
 - Confirm the catalog shows accurate section, difficulty, line, complexity, and recommended-view metadata.
 - Confirm DSA search matches stable ids, titles, source, edge cases, phases, invariants, complexity, structures, events, expected results, and recommended views.
 - Confirm DSA search and section filters compose as an intersection, update every section badge, announce the result count, and provide a keyboard-focusable Clear search action.
@@ -222,7 +224,16 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm Observed appears only for trace-derived facts and Curriculum context only for exact unchanged catalog source.
 - Edit a catalog example and confirm algorithm name, phases, invariants, edge cases, comparison group, and Big O become Unavailable while observed views continue to work.
 - Confirm all 18 views render without an exception after a reviewed trace.
+- Confirm Calls and Recursion shows changing frames for a reviewed recursive
+  lesson, while edited source receives only observed frame evidence.
+- Confirm backtracking examples visibly restore mutable choices and do not
+  present a rejected branch as a completed solution.
+- Confirm divided-range and greedy curriculum claims disappear after any source
+  edit while observed steps remain usable.
 - Confirm 3,000 trace steps produce the explicit limit message and retain an inspectable partial trace.
+- Confirm positive infinity, negative infinity, and NaN keep their Python float type and readable display while every worker message remains strict JSON.
+- Confirm the worker uses an explicit non-finite marker and `allow_nan=False`; direct Python execution alone is not sufficient transport evidence.
+- When performing a complete catalog browser audit, select the exact visible stable ID, advance playback to the final recorded step, and compare the visible output with that record's own expected-result marker.
 - Confirm Automatic comments never change original editor source and Learning comments replacement requires confirmation.
 - Confirm Automatic comments and Learning comments use the same line-numbered IDE presentation while normal Copy, Copy commented code, and confirmed replacement continue using their documented plain-source targets.
 - Confirm DSA Learning comments offers Essential, Guided, and Detailed filtering, updates its exact note summary without rerunning, and keeps reviewed curriculum context visibly separate from syntax or trace notes.
@@ -242,7 +253,7 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm narrow screens scroll only inside the DSA view-label strip and never create page-level horizontal overflow.
 - Confirm playback buttons remain one grouped row, the timeline receives usable width, and mobile moves the timeline below the controls.
 - Confirm light and dark themes, desktop and mobile layouts, visible focus, tab semantics, and no horizontal page overflow.
-- Confirm the status panel states 337 implemented programs, 16 implemented sections, 20 representations, the 535 target, and the honest remaining count of 198.
+- Confirm the status panel states 397 implemented programs, 20 implemented sections, 20 representations, the 535 target, and the honest remaining count of 138.
 
 ### Trace checks
 

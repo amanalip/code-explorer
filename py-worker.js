@@ -40,6 +40,8 @@ import contextlib
 import io
 # JSON creates a value that crosses the Python and JavaScript boundary safely.
 import json
+# math identifies NaN and infinity before strict JSON encoding.
+import math
 # Regular expressions remove default object addresses from teaching previews.
 import re
 # sys.settrace supplies the call, line, return, and exception events used below.
@@ -102,7 +104,18 @@ def _serialize(value, seen=None, depth=0):
 
     # The Python type name is displayed next to each variable in the interface.
     value_type = type(value).__name__
-    # Primitive immutable values can cross JSON directly without child traversal.
+    # JSON does not permit NaN or positive and negative infinity. Python's
+    # default json.dumps behavior emits those tokens, but JavaScript JSON.parse
+    # correctly rejects them. Preserve the Python type and readable display
+    # while replacing only the transport value with a stable string marker.
+    if isinstance(value, float) and not math.isfinite(value):
+        return {
+            "type": value_type,
+            "display": _safe_repr(value),
+            "value": _safe_repr(value),
+            "nonFinite": True,
+        }
+    # Other primitive immutable values can cross JSON directly without traversal.
     if value is None or isinstance(value, (bool, int, float, str)):
         return {
             "type": value_type,
@@ -705,7 +718,12 @@ def run_trace(source, prepared_inputs=None):
     }
 
 # USER_SOURCE is injected by JavaScript immediately before this harness runs.
-result_json = json.dumps(run_trace(USER_SOURCE, json.loads(USER_INPUTS_JSON)))
+# Strict encoding is a final safety assertion. Any future raw non-finite value
+# must fail inside the harness instead of producing invalid text for JSON.parse.
+result_json = json.dumps(
+    run_trace(USER_SOURCE, json.loads(USER_INPUTS_JSON)),
+    allow_nan=False,
+)
 `;
 
 /**

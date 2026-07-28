@@ -126,13 +126,15 @@ expect(
   "Before and After did not shrink after a removed local left both snapshots.",
 );
 
-// Read shipped pages and the two view sources as text so routing and visual-state contracts stay dependency-free and fast.
-const [landingHtml, pythonHtml, dsaHtml, dsaAppSource, stylesSource] = await Promise.all([
+// Read shipped pages and runtime sources as text so routing, visual-state, and
+// strict transport contracts stay dependency-free and fast.
+const [landingHtml, pythonHtml, dsaHtml, dsaAppSource, stylesSource, workerSource] = await Promise.all([
   readFile(new URL("../index.html", import.meta.url), "utf8"),
   readFile(new URL("../workspace.html", import.meta.url), "utf8"),
   readFile(new URL("../data-structures.html", import.meta.url), "utf8"),
   readFile(new URL("../dsa-app.js", import.meta.url), "utf8"),
   readFile(new URL("../styles.css", import.meta.url), "utf8"),
+  readFile(new URL("../py-worker.js", import.meta.url), "utf8"),
 ]);
 
 // The landing page chooses a path but owns neither workspace-specific guide.
@@ -167,14 +169,14 @@ expect(
   "DSA view stage is missing its focusable keyboard-scrolling contract.",
 );
 expect(
-  dsaHtml.includes("Chunk 4 implements the first 337 reviewed programs")
-    && dsaHtml.includes("remaining 198 programs"),
-  "DSA status copy does not match the verified Chunk 4 arithmetic.",
+  dsaHtml.includes("Chunk 5 implements the first 397 reviewed programs")
+    && dsaHtml.includes("remaining 138 programs"),
+  "DSA status copy does not match the verified Chunk 5 arithmetic.",
 );
 expect(
-  dsaAppSource.includes("DSA_CHUNK_FOUR_PROGRAMS")
-    && dsaAppSource.includes("DSA_CHUNK_FOUR_SECTIONS"),
-  "DSA controller is not integrating both Chunk 4 program and section contracts.",
+  dsaAppSource.includes("DSA_CHUNK_FIVE_PROGRAMS")
+    && dsaAppSource.includes("DSA_CHUNK_FIVE_SECTIONS"),
+  "DSA controller is not integrating both Chunk 5 program and section contracts.",
 );
 expect(
   dsaAppSource.includes("reviewedStructureCandidate(selectedStep(), reviewedStructureRole())")
@@ -182,6 +184,12 @@ expect(
     && dsaAppSource.includes("graph: { names: /(?:graph|adjacency|matrix|edges|vertices|forest|tree)/i")
     && dsaAppSource.includes('reviewedRole: ""'),
   "Chunk 4 structure roles are not selecting compatible Union-Find and graph variables.",
+);
+expect(
+  workerSource.includes("isinstance(value, float) and not math.isfinite(value)")
+    && workerSource.includes('"nonFinite": True')
+    && workerSource.includes("allow_nan=False"),
+  "The worker is not preserving non-finite Python floats through strict JSON.",
 );
 
 // Every id read by the DSA controller must exist in the dedicated document.

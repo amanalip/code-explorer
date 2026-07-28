@@ -20,7 +20,7 @@ Code Explorer is intended for learning, experimentation, demonstrations, and sma
 
 This README is the living beginner guide for Code Explorer. It is reviewed whenever the tool changes so its controls, examples, limits, workflows, and expected behavior remain synchronized with the website.
 
-The landing page also links to the separate **Python Data Structures and Algorithms** workspace. Chunk 4 provides 337 reviewed programs, local trace playback, and 18 DSA learning views. Its implemented behavior, limits, and unavailable later curriculum are documented in [README_DSA.md](README_DSA.md).
+The landing page also links to the separate **Python Data Structures and Algorithms** workspace. Chunk 5 provides 397 reviewed programs, local trace playback, and 18 DSA learning views. Its implemented behavior, limits, and unavailable later curriculum are documented in [README_DSA.md](README_DSA.md).
 
 ## Contents
 
@@ -55,7 +55,7 @@ Code Explorer landing page
 |      +-- Tool Guide -> README.md
 |
 +-- Start exploring Python Data Structures and Algorithms
-       +-- separate Chunk 4 workspace with 337 reviewed programs
+       +-- separate Chunk 5 workspace with 397 reviewed programs
        +-- local execution, playback, and 18 DSA learning views
        +-- Tool Guide -> README_DSA.md
 ```
@@ -64,7 +64,7 @@ The landing page does not display one ambiguous Tool Guide. Open a workspace to 
 
 The Python page identifies itself as **Python Programming workspace** and explains that learners can write, run, replay, and inspect programs step by step.
 
-The DSA path currently covers algorithm foundations, abstract data types, Python-native containers, array and sequence techniques, searching, sorting, stacks, queues, deques, linked structures, hash tables, sets, trees, binary search trees, heaps, priority queues, tries, string-search algorithms, Union-Find, graph representations, traversal, connectivity, shortest paths, and spanning trees. Its approved Tier A target is 535 programs, but only the 337 programs documented in `README_DSA.md` are implemented. The remaining 198 are not presented as available.
+The DSA path currently covers algorithm foundations, abstract data types, Python-native containers, array and sequence techniques, searching, sorting, stacks, queues, deques, linked structures, hash tables, sets, trees, binary search trees, heaps, priority queues, tries, string-search algorithms, Union-Find, graph representations, traversal, connectivity, shortest paths, spanning trees, recursion, backtracking, divide and conquer, and greedy algorithms. Its approved Tier A target is 535 programs, but only the 397 programs documented in `README_DSA.md` are implemented. The remaining 138 are not presented as available.
 
 ## Start here
 
@@ -2926,6 +2926,7 @@ Program stopped by a safety limit
 | --- | ---: | --- |
 | Maximum trace | 3,000 steps | Execution stops with a clear trace-limit message |
 | Execution timeout | 30 seconds | The run is stopped and the Python runtime is reset |
+| Non-finite float transport | `inf`, `-inf`, and `nan` | Python keeps the live value; the detached trace carries its type and readable spelling as strict JSON-safe text |
 
 ### Visualization limits
 
@@ -2958,6 +2959,12 @@ Code Explorer works best with:
 - Small algorithm examples
 
 Code Explorer is not intended to replace a complete local Python development environment. Very large algorithm runs, long recursion, intensive numerical work, interactive graphical programs, operating-system access, and programs requiring many external packages may not fit the visual trace limits.
+
+`float("inf")`, `float("-inf")`, and `float("nan")` are valid Python values.
+When they appear in a recorded snapshot, Code Explorer preserves their
+`float` type and readable Python spelling while using strict JSON-safe trace
+text. The transport representation does not change the value used by the
+running Python program.
 
 ## Saved preferences and privacy
 

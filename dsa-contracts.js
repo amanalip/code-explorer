@@ -1,8 +1,8 @@
 /**
  * Data Structures and Algorithms shared contracts.
  *
- * Chunk 0 defined stable names and relationships. Chunks 1 through 4 connect
- * the first sixteen curriculum sections to bounded execution and evidence-aware
+ * Chunk 0 defined stable names and relationships. Chunks 1 through 5 connect
+ * the first twenty curriculum sections to bounded execution and evidence-aware
  * views. Remaining catalog sections are planning contracts, not implementation
  * claims.
  */

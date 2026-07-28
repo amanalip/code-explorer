@@ -15,6 +15,130 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v12, 2026-07-27
+
+v12 ships **Chunk 5: recursion, backtracking, divide and conquer, and greedy
+algorithms** for the Python Data Structures and Algorithms workspace. It adds
+60 reviewed programs to the 337 programs from Chunks 1 through 4. The
+implemented catalog now contains 397 programs across twenty ordered sections.
+
+### Sixty new reviewed programs
+
+| Chunk 5 section | Programs | Main learning journey |
+| --- | ---: | --- |
+| Recursion | 18 | Base cases, shrinking measures, return-time combination, recursive strings, numbers, ranges, nested structures, trees, memoization, mutual recursion, and comparisons |
+| Backtracking | 16 | Choice trees, restoration, pruning, subsets, permutations, combinations, constraints, grids, N-Queens, Sudoku, word search, graph coloring, partitions, and duplicate handling |
+| Divide and conquer | 10 | Balanced reductions, sorting, lower bounds, inversion counting, crossing ranges, majority candidates, Karatsuba multiplication, and quickselect |
+| Greedy algorithms | 16 | Scheduling, rooms, fractional choice, coin boundaries, cash, reachability, intervals, prefix coding, job sequencing, ropes, and refueling |
+| **Chunk 5 addition** | **60** | **Reviewed recursive, search, decomposition, and local-choice curriculum** |
+
+The exact release arithmetic is:
+
+```text
+337 previously implemented programs
+ 60 Chunk 5 programs
+--------------------
+397 implemented programs
+
+535 approved Tier A destination
+-397 implemented programs
+--------------------
+138 programs still unavailable
+```
+
+Stable identifiers now continue through `DSA-397`. Every new program contains
+executable Python, a distinct objective, difficulty, expected result, reviewed
+structures and events, phases, invariants, edge cases, comparison metadata,
+complexity context, and recommended views.
+
+### Teaching progression and honesty
+
+The Recursion route does not stop at countdown or factorial. It reaches
+boundary search, nested structures, expression trees, memoization, mutual
+recursion, and comparisons with iterative or repeated-subproblem forms.
+
+Backtracking programs expose the complete learning loop:
+
+```text
+choose
+  |
+  v
+explore
+  |
+  +-- constraint fails -> reject
+  |
+  v
+restore
+  |
+  v
+try the next candidate
+```
+
+Greedy lessons state the reviewed local rule and preserve counterexamples. The
+coin-change and activity-selection comparisons demonstrate that a locally
+appealing rule is not automatically optimal for every related problem.
+
+Named base cases, recurrences, pruning rules, combine steps, greedy-choice
+properties, optimality context, and Big O remain available only for exact
+unchanged catalog source. Edited or pasted code receives observed frames,
+values, decisions, calls, and returns without an invented proof.
+
+### Verification evidence
+
+- Structural validation confirmed 397 unique cumulative records and exact
+  Chunk 5 section counts of 18, 16, 10, and 16.
+- The depth audit found 192 cumulative programs with at least 15 meaningful
+  source lines.
+- Chunk 5 minimum meaningful line counts are 10 for Recursion, 14 for
+  Backtracking, 14 for Divide and conquer, and 11 for Greedy algorithms.
+- The detached Python validator compiled and executed all 397 programs and
+  checked every expected-result marker.
+- Catalog search finds the final lesson through `DSA-397 minimum refueling
+  stops`.
+- Browser checks executed representative recursive, backtracking,
+  divide-and-conquer, and greedy lessons; rendered all 18 views; confirmed the
+  edited-source honesty boundary; and verified bounded mobile scrolling.
+- The browser pass reproduced and corrected a shared worker serialization
+  failure for positive infinity, negative infinity, and NaN.
+- A definitive exact-ID browser audit ran all 397 catalog programs through the
+  actual Pyodide worker, advanced each trace to its final step, and matched the
+  visible output with that record's own expected-result marker. All 397 passed.
+- No dependency, analytics, telemetry, remote logging, learner-data request,
+  storage key, execution limit, timeout, or network behavior was added.
+
+### Reliability correction for non-finite floats
+
+Valid Python values such as `float("inf")` previously crossed the primitive
+serializer unchanged. Python's permissive JSON encoder emitted `Infinity`, but
+strict JavaScript `JSON.parse` rejected that token before the workspace could
+receive a trace.
+
+The worker now:
+
+- Detects non-finite floats with `math.isfinite`.
+- Preserves their Python `float` type and readable `inf`, `-inf`, or `nan`
+  spelling.
+- Transports the detached teaching value as stable JSON-safe text.
+- Adds an explicit `nonFinite` marker.
+- Uses `allow_nan=False` at final encoding so a future raw leak fails inside
+  the worker.
+
+Focused browser regressions cover positive infinity in `DSA-324`, negative
+infinity in `DSA-378`, and a pasted list containing `inf`, `-inf`, and `nan`.
+The complete 397-program browser audit provides cumulative evidence that every
+reviewed program reaches `Trace ready` and shows its documented result.
+
+The incident, root cause, why direct Python validation missed it, two
+audit-harness corrections, privacy analysis, and prevention matrix are
+documented in `bug_report.md`.
+
+### Known boundary
+
+Chunk 5 does not implement the dynamic-programming, bit-manipulation,
+elementary-mathematics, investigation, or integrated guided-challenge sections.
+Those 138 programs remain planning contracts in `Tier.md`, not selectable
+curriculum.
+
 ## v11, 2026-07-27
 
 v11 ships **Chunk 4: Union-Find and graph algorithms** for the Python Data

@@ -3103,6 +3103,101 @@ What to repeat:
 4. Keep exact-source context separate from observed-value selection.
 5. Add a validator source contract and a browser regression for the correction.
 
+# Chunk 4 lessons learned
+
+The first Chunk 4 documentation pass contained six individual lessons, but it
+did not begin with a complete retrospective. That made the section easier to
+misread as a few isolated corrections instead of the record of a 68-program
+curriculum release. Aman was right to question whether the document had been
+updated with the same care as the code.
+
+This audit does not erase the earlier entries or claim they were absent. It
+states the actual shortcoming: the entries did not connect the curriculum
+decision, implementation work, failures, browser evidence, and contributor
+responsibilities into one readable account.
+
+## Chunk 4 retrospective audit
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Corrected documentation
+
+Chunk 4 added 68 reviewed programs:
+
+| Section | Programs | What the route teaches |
+| --- | ---: | --- |
+| Union-Find | 10 | Parent forests, representative lookup, union choices, path compression, size and rank, and connectivity |
+| Graph structures and vocabulary | 24 | Vertices, edges, adjacency forms, degree, walks, trails, paths, cycles, weights, and representation tradeoffs |
+| Graph traversal and connectivity | 20 | BFS, DFS, components, reachability, bipartite checks, topological order, and connectivity comparisons |
+| Shortest paths and spanning trees | 14 | Relaxation, unweighted and weighted paths, DAG paths, Bellman-Ford boundaries, Dijkstra boundaries, Kruskal, Prim, and comparisons |
+| **Total** | **68** | **A connected route from representation to graph algorithms** |
+
+The release crossed several different proof boundaries:
+
+```text
+metadata and source review
+        |
+        +-- confirms schema, counts, order, and named curriculum context
+        |
+detached Python execution
+        |
+        +-- confirms syntax, completion, and documented result markers
+        |
+real browser worker execution
+        |
+        +-- confirms transport, trace creation, playback, and visible output
+        |
+view inspection at early, middle, and final steps
+        |
+        +-- confirms that labels describe the value visible at that moment
+```
+
+What Aman contributed:
+
+- He protected the chunk-by-chunk commit boundary so a verified 269-program
+  state remained recoverable before 68 more programs were added.
+- He clarified that "prep" meant full generation, not a planning-only result.
+- He kept the curriculum goal on teaching the subject in a connected order
+  instead of collecting impressive but isolated graph examples.
+- He required honest separation between reviewed curriculum knowledge and
+  evidence available from edited or pasted code.
+- He required comparisons because a beginner learns tool selection by seeing
+  neighboring approaches, not by memorizing one preferred algorithm.
+
+What Codex contributed:
+
+- It implemented the 68 records with exact counts, stable IDs, complexity
+  metadata, phases, invariants, edge cases, comparison groups, and recommended
+  views.
+- It extended conceptual Structure Canvas orientation for compatible reviewed
+  Union-Find and graph values without claiming physical memory addresses.
+- It ran cumulative validation across all 337 programs rather than validating
+  only the new records.
+- It found and corrected two curriculum mistakes before release: an ambiguous
+  equal-cost route and an incorrect shortest-distance expectation.
+- It found and corrected a browser-only presentation defect where specialized
+  labels could attach before the intended runtime container existed.
+
+What the first lessons update underemphasized:
+
+1. Chunk 4 was a curriculum-design result as well as a code-generation result.
+2. Static validation and detached execution could not prove correct
+   step-specific visual labeling.
+3. Two algorithm-answer mistakes and one renderer-selection mistake required
+   different tests.
+4. The user's insistence on sequence, subject completeness, comparisons, and
+   honesty materially shaped the release.
+5. A living postmortem needs a release-level overview in addition to individual
+   lessons.
+
+The correction is itself a lesson. Updating a file is not the same as
+documenting a release completely. A future chunk must be audited for narrative
+coverage, not only for the presence of new headings.
+
 ## 93. A commit boundary can protect ambition instead of reducing it
 
 Perspective:
@@ -3362,6 +3457,465 @@ What to repeat:
 4. Never attach a specialized label merely because some container exists.
 5. Record browser-discovered honesty defects as product lessons, not cosmetic
    fixes.
+
+## Chunk 4 release evidence that future contributors must preserve
+
+Perspective:
+- Shared
+
+Status:
+- Verified
+
+The following evidence belongs together. Removing one check weakens a
+different part of the learner promise:
+
+| Evidence | What it proved | What it could not prove alone |
+| --- | --- | --- |
+| Exact section counts | The catalog contains the approved 10, 24, 20, and 14 records | That any program executes |
+| Schema and uniqueness validation | IDs, fields, contracts, and sources are coherent | That expected answers are correct |
+| Detached Python execution | All 337 programs compile, run, and print documented markers | That browser transport and views work |
+| Real browser execution | The worker, JSON boundary, trace, playback, and output cooperate | That every specialized label is attached to the right value |
+| Early, middle, and final frame inspection | A visible reviewed role matches a compatible current container | That every future program preserves the same behavior |
+| Edited-source check | Named context becomes unavailable while observed evidence remains | That a similar-looking pasted algorithm was recognized |
+
+The user learned:
+
+- A large catalog remains trustworthy only when quality is checked at several
+  layers.
+- A working final output does not prove that every intermediate explanation is
+  accurate.
+- Commit boundaries make ambitious multi-stage work safer and easier to review.
+
+Codex learned:
+
+- Expected graph answers need executable proof, especially where equal-cost
+  routes or several relaxations exist.
+- Runtime candidate selection is a semantic UI concern that static metadata
+  validation cannot settle.
+- Documentation should explain the whole release and allocate credit fairly,
+  not merely append narrow technical findings.
+
+Release rule:
+
+```text
+new graph curriculum
+        |
+        +-- validate catalog contracts
+        +-- execute every program
+        +-- inspect representative browser traces
+        +-- inspect specialized views across time
+        +-- edit reviewed source and confirm context disappears
+        +-- document user and Codex findings together
+```
+
+# Chunk 5 lessons learned
+
+## 99. A recursion lesson must name what gets smaller
+
+Perspective:
+- Shared
+
+Status:
+- Implemented
+
+Calling a function from itself is syntax. It does not yet explain why the
+program terminates or what each frame contributes. The Recursion catalog became
+more useful when every lesson identified all three parts:
+
+```text
+base case
+    +
+shrinking measure
+    +
+return-time combination
+```
+
+Examples use a decreasing number, an advancing index, an inward-moving pair of
+boundaries, a smaller tree, or a halved exponent. Calls and Recursion can show
+frames, but exact curriculum metadata explains why the reviewed recurrence is
+valid.
+
+What the user learned:
+
+- Recursion is easier to predict when the learner writes down what becomes
+  smaller before following the calls.
+
+What Codex learned:
+
+- A catalog containing several self-calling functions can still be shallow if
+  every lesson is only factorial with different names. Recursive strings,
+  numbers, boundaries, containers, trees, memoization, mutual recursion, and
+  comparisons are needed to teach the transferable idea.
+
+What to repeat:
+
+1. State the base case.
+2. State the shrinking measure.
+3. State what waits for the recursive result.
+4. Check the smallest valid and invalid boundaries.
+5. Keep these named claims unavailable for edited or pasted source.
+
+## 100. Restoration is the defining visible action in backtracking
+
+Perspective:
+- Shared
+
+Status:
+- Implemented
+
+Backtracking is not merely recursion with several branches. A mutable choice is
+often added before recursion and removed after it. If the restoration is hidden,
+the learner cannot distinguish a valid search state from leftover state created
+by an earlier branch.
+
+```text
+state before choice
+        |
+        +-- choose
+        +-- explore
+        +-- restore
+        |
+        v
+same state shape before the next candidate
+```
+
+The Chunk 5 programs therefore use visible append and pop pairs, swap and
+restore pairs, board writes and resets, or dictionary assignment and deletion.
+Mutation Explorer and Before and After can reveal those changes.
+
+What the user learned:
+
+- A correct final answer is not enough evidence that mutable search state was
+  restored correctly.
+
+What Codex learned:
+
+- Small backtracking examples need invariant checks around restoration.
+  Otherwise a program can appear to work on one route and corrupt later routes.
+
+What to repeat:
+
+1. Pair every temporary mutation with its inverse.
+2. Explain whether early success intentionally keeps a found path.
+3. Test more than the first solution when enumeration is promised.
+4. Include an empty, impossible, or duplicate boundary where relevant.
+5. Never label an observed pop as backtracking unless exact curriculum context
+   or sufficient neutral evidence supports that interpretation.
+
+## 101. Greedy teaching requires both a rule and the boundary of that rule
+
+Perspective:
+- User
+- Codex
+
+Status:
+- Implemented
+
+Greedy code can be short and persuasive. That makes it especially dangerous for
+a beginner when a local rule is shown without its precondition or a
+counterexample.
+
+Chunk 5 pairs successful rules with boundaries:
+
+- Earliest finish is compared with shortest duration for activity selection.
+- Largest-first coin change succeeds for one denomination system and fails for
+  another.
+- Fractional knapsack allows part of an item; zero-one knapsack does not inherit
+  that proof.
+- A priority queue supports reviewed room, rope, prefix-code, and refueling
+  choices for different reasons, not one universal "take the smallest" rule.
+
+What the user learned:
+
+- One successful example demonstrates behavior, not a general proof of
+  optimality.
+
+What Codex learned:
+
+- Complexity metadata and polished output can make a greedy lesson sound more
+  certain than its proof. The curriculum must name the exact problem contract
+  and include a failure example when a nearby tempting rule is false.
+
+What to repeat:
+
+1. State the local choice.
+2. State the invariant or exchange reasoning supplied by reviewed context.
+3. Name the input contract.
+4. Add a counterexample for a nearby invalid generalization.
+5. Keep optimality claims unavailable after source edits.
+
+## 102. A long-program count is an audit signal, not a curriculum objective
+
+Perspective:
+- Codex
+
+Status:
+- Implemented
+
+Chunk 5 raised the cumulative count of programs with at least 15 meaningful
+lines from 146 to 192. The first attempted validator threshold expected 195.
+The actual catalog contained 192, and several shorter lessons were genuinely
+atomic base cases or direct greedy scans.
+
+Codex corrected the validator to enforce the observed quality floor of 190 and
+added per-section minimums of 10 Recursion lines, 14 Backtracking lines, 14
+Divide-and-conquer lines, and 11 Greedy lines.
+
+The honest lesson is not that shorter programs are lower quality:
+
+```text
+line count reports suspicious patterns
+        |
+        +-- human review asks whether the idea needs more room
+        |
+        +-- no filler is added merely to satisfy a round number
+```
+
+What to repeat:
+
+1. Report minimum, median, and maximum source depth by section.
+2. Investigate clusters of tiny examples.
+3. Add setup or validation only when it improves the lesson.
+4. Reject filler comments or statements added to manipulate a metric.
+5. Keep the validator threshold below the verified count so one accidental
+   regression fails while legitimate focused programs remain possible.
+
+## 103. Steering can add an important task without changing the active sequence
+
+Perspective:
+- User
+
+Status:
+- Implemented
+
+During Chunk 5 generation, the user reported a production browser failure and
+explicitly said not to investigate it in parallel. The same sequencing rule was
+applied when the user raised concern about the completeness of Chunk 4 lessons.
+
+The user's correction matters because an urgent-looking defect can tempt an
+agent to abandon an incomplete release slice, mix unrelated edits, and make the
+final audit harder to trust.
+
+```text
+active Chunk 5 work
+        |
+        +-- record production defect
+        +-- record documentation audit
+        +-- finish and verify Chunk 5
+        +-- investigate queued tasks in stated order
+```
+
+What the user learned:
+
+- A concern can be preserved with exact evidence without forcing immediate
+  context switching.
+
+What Codex learned:
+
+- "Do this after the current task" is a sequencing requirement, not permission
+  to begin partial diagnosis. Acknowledge the queue, preserve the evidence, and
+  continue the active scope.
+
+What to repeat:
+
+1. Restate the queued issue precisely.
+2. Preserve its screenshot, message, and affected program.
+3. Do not make parallel source changes.
+4. Finish the active validation boundary.
+5. Start the queued audit only after declaring the current task complete.
+
+## 104. A Python value can be valid while its transport representation is invalid
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Corrected and verified
+
+During the Chunk 5 work, Aman supplied a production screenshot showing
+`DSA-324`, an edge-relaxation lesson, failing with:
+
+```text
+Unexpected token 'I', ..."value": Infinity}... is not valid JSON
+```
+
+The Python program was valid. `float("inf")` is a normal Python floating-point
+value and is useful in shortest-path lessons as an initial unreachable
+distance. The failure happened after Python execution, when the trace crossed
+the worker boundary.
+
+Before the correction, the path was:
+
+```text
+Python value float("inf")
+        |
+        v
+serializer keeps the raw float
+        |
+        v
+Python json.dumps uses allow_nan=True by default
+        |
+        v
+text contains Infinity
+        |
+        v
+JavaScript JSON.parse rejects nonstandard JSON
+        |
+        v
+the browser reports Python unavailable
+```
+
+Strict JSON permits numbers, but it does not permit `Infinity`, `-Infinity`, or
+`NaN`. Python's standard encoder accepts those values by default and emits
+JavaScript-like tokens for compatibility with its own decoder. JavaScript's
+`JSON.parse` correctly rejects those tokens because they are outside the JSON
+standard.
+
+Why the earlier validator missed it:
+
+- The detached validator compiled and executed the Python source directly.
+- It checked captured standard output against `expectedResult`.
+- It did not serialize every trace snapshot through Python JSON.
+- It did not parse that serialized text through JavaScript `JSON.parse`.
+- Therefore it proved the algorithm result but not the browser transport
+  contract.
+
+The worker correction now checks every floating-point value before the normal
+primitive path:
+
+```python
+if isinstance(value, float) and not math.isfinite(value):
+    return {
+        "type": "float",
+        "display": repr(value),
+        "value": repr(value),
+        "nonFinite": True,
+    }
+```
+
+The exact type and readable Python spelling remain available for learning.
+Only the transport value becomes the stable string `"inf"`, `"-inf"`, or
+`"nan"`. The live Python value used by the learner's program is not changed.
+
+The final `json.dumps` call now uses `allow_nan=False`. This is a second line of
+defense. If any future code path leaks a raw non-finite float past the
+serializer, encoding fails inside the worker instead of sending invalid text to
+JavaScript.
+
+Verification included:
+
+- `DSA-324` with positive infinity reached `Trace ready` and printed the
+  documented relaxation result.
+- Variables displayed the distance dictionary and the `infinity` value as
+  readable `inf` evidence.
+- `DSA-378` with negative infinity reached `Trace ready` and printed the
+  documented maximum-subarray result.
+- A focused pasted program containing `inf`, `-inf`, and `nan` in one list
+  reached `Trace ready`, preserved all three readable spellings, and confirmed
+  `math.isnan` still returned true inside Python.
+- All 397 exact catalog programs ran through the real browser worker and
+  displayed their individual expected-result markers.
+- The foundation validator now requires the non-finite guard, marker, and
+  strict final encoding.
+
+Credit belongs to Aman for reporting the concrete production symptom and
+insisting on a complete catalog audit. Codex's earlier detached-execution
+confidence was incomplete because it did not cover the Python-to-JavaScript
+boundary.
+
+What the user learned:
+
+- A valid algorithm can still fail in the application layer that transports
+  its trace.
+- A screenshot containing the exact parser message can identify the boundary
+  where a failure occurred.
+- Asking for every catalog program to run in the actual browser was justified.
+
+What Codex learned:
+
+- "JSON-compatible" must be tested with the strict consumer, not inferred from
+  Python's default encoder.
+- Serializer boundary values require explicit tests for positive infinity,
+  negative infinity, and NaN.
+- Direct language execution and browser integration are separate proof layers.
+
+## 105. An audit harness must reproduce the learner's selected state
+
+Perspective:
+- Codex
+
+Status:
+- Corrected during verification
+
+The browser-audit work made three incorrect assumptions.
+None was a product failure, but each could have produced a false release
+conclusion.
+
+First mistake:
+
+- The harness read Console Output while playback was still at step zero.
+- The workspace intentionally reveals only output available at the selected
+  trace step.
+- Every program correctly showed `// No output yet`.
+- The harness incorrectly classified that expected state as 397 failures.
+
+Second mistake:
+
+- The corrected harness searched for an ID such as `dsa-170` and clicked the
+  first matching card.
+- Catalog search is intentionally metadata-wide and token-based.
+- The radix-sort source contains the number `170`, so it also matched the
+  normalized query.
+- The harness ran that valid radix lesson while comparing it with the
+  `DSA-170` expected marker.
+
+Third mistake:
+
+- The first focused NaN probe reloaded the page and clicked Run before the
+  controller reported `Chunk 5 ready`.
+- The HTML button existed, but the editor state and event lifecycle were not
+  ready.
+- The automation produced a local `getCode` error instead of starting Python.
+- The corrected probe waited for controller readiness and then passed.
+
+The definitive harness therefore:
+
+1. Waits for the workspace controller to report readiness after navigation or
+   reload.
+2. Searches to expose the candidate set.
+3. Selects the card whose visible stable ID exactly matches the requested ID.
+4. Runs the program through the actual Pyodide worker.
+5. Waits for the run button to become available and the runtime to leave its
+   loading or running state.
+6. Requires the terminal state to be `Trace ready`.
+7. Moves the timeline to its maximum recorded step.
+8. Reads learner-visible Console Output.
+9. Compares it with that record's own `expectedResult`.
+
+Final evidence:
+
+```text
+Expected records: 397
+Completed browser runs: 397
+Exact expected-result matches: 397
+Failures: 0
+```
+
+What to repeat:
+
+- Test stateful views at the state a learner would inspect.
+- Wait for application readiness instead of treating visible static HTML as
+  proof that its controller is initialized.
+- Use exact identifiers for test selection even when the product search is
+  intentionally broad.
+- Treat a surprising all-fail result as evidence to inspect the test as well
+  as the product.
+- Never hide a flawed audit attempt. Document why it was wrong and how the
+  corrected proof differs.
+- Keep detached execution because it is fast, but pair it with a real
+  transport audit when serializer or worker behavior changes.
 
 # Future update template
 

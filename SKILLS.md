@@ -2,6 +2,11 @@
 
 This file preserves the practical knowledge needed to extend Code Explorer safely. It complements `AGENTS.md`: that file defines the rules, while this file records what the application currently does and how its major parts fit together. Reusable discoveries, mistakes, successful patterns, and deferred decisions belong in `lessons_learned.md`.
 
+Material reliability incidents receive a dedicated technical record.
+`bug_report.md` currently documents the non-finite-float transport failure,
+root cause, correction, complete browser audit, privacy analysis, and required
+regression matrix.
+
 Update this document whenever a capability, dependency, data contract, implementation pattern, important risk, or regression test changes.
 
 ## Product purpose
@@ -22,11 +27,11 @@ Recorded execution
 
 The tool records a bounded execution first and then replays it. Playback breakpoints and timeline controls navigate the recorded trace. They do not pause the original Python interpreter.
 
-`Tier.md` records the Tier A, B, and C curriculum for the separate Data Structures workspace. Chunk 4 implements the first 337 reviewed programs across sixteen sections, local execution, playback, and all 18 DSA learning views. The complete Tier A target remains 535, so 198 programs remain unimplemented. Do not treat a later listed structure, algorithm, renderer extension, or program as implemented unless code, verification, and learner-visible documentation prove it.
+`Tier.md` records the Tier A, B, and C curriculum for the separate Data Structures workspace. Chunk 5 implements the first 397 reviewed programs across twenty sections, local execution, playback, and all 18 DSA learning views. The complete Tier A target remains 535, so 138 programs remain unimplemented. Do not treat a later listed structure, algorithm, renderer extension, or program as implemented unless code, verification, and learner-visible documentation prove it.
 
 Documentation routing is implemented: `index.html` has no ambiguous Tool Guide control, its two matching primary actions open the Python and DSA paths, `workspace.html` links to `README.md`, and `data-structures.html` links to `README_DSA.md`.
 
-The DSA guide documents every active Chunk 4 execution, serialization, display, history, comparison, explanation, complexity, persistence, platform, and curriculum boundary. It states the verified value, what is counted, why it exists, threshold behavior, whether execution stopped or presentation was shortened, what evidence remains safe, and what the learner can try next.
+The DSA guide documents every active Chunk 5 execution, serialization, display, history, comparison, explanation, complexity, persistence, platform, and curriculum boundary. It states the verified value, what is counted, why it exists, threshold behavior, whether execution stopped or presentation was shortened, what evidence remains safe, and what the learner can try next.
 
 The approved 535-program target has a curriculum quality contract. Counts alone never establish completion. Each section must progress from focused foundations through standard operations, meaningful variations, applied programs, and comparisons. Reject constant-only or name-only variations, filler lines, incoherent scripts, weak metadata, and examples whose recommended views have nothing useful to show. Validation must report line-count distributions and near-duplicate candidates, while human review must judge correctness, teaching depth, readability, coherent progression, and whether longer concepts received enough space. Short programs remain valid when the concept is genuinely atomic.
 
@@ -67,7 +72,7 @@ The approved 535-program target has a curriculum quality contract. Counts alone 
 - Bounded DSA presentation: 12 watches, 30 structure entries, 30 journey events, 80 path transitions, 120 table rows, and 2 comparison summaries.
 - `scripts/validate-dsa-foundation.mjs` checks contracts, routes, guide targets, and required HTML ids.
 - `scripts/validate-dsa-curriculum.mjs` validates exact counts, schema, uniqueness, source depth, metadata, and near-duplicate candidates.
-- `scripts/validate_dsa_curriculum.py` compiles, executes, and checks the expected result for all 337 detached programs.
+- `scripts/validate_dsa_curriculum.py` compiles, executes, and checks the expected result for all 397 detached programs.
 - Reviewed Structure Canvas roles now include tree, binary tree, BST, heap, priority queue, trie, Union-Find, and graph. These roles decorate observed serialized values only after exact source matching and a compatible value appears in the selected trace step. Edited and pasted source stays generic.
 
 ### DSA Chunk 4 Union-Find and graph algorithms
@@ -98,6 +103,107 @@ Chunk 4 browser evidence:
   all 18 observed views continue rendering.
 - The bounded DSA view stage scrolls independently at desktop and 390-pixel
   mobile widths without creating page-level horizontal overflow.
+
+### DSA Chunk 5 recursion, backtracking, divide and conquer, and greedy algorithms
+
+- 397 reviewed programs: 337 from Chunks 1 through 4, plus 18 recursion
+  lessons, 16 backtracking lessons, 10 divide-and-conquer lessons, and 16
+  greedy lessons.
+- `dsa-curriculum-chunk5.js` owns stable IDs `DSA-338` through `DSA-397` and
+  the exact 18, 16, 10, and 16 section contracts.
+- The recursion route progresses from direct base cases through string, number,
+  array, nested-structure, and tree recursion, then memoization, mutual
+  recursion, and iterative comparisons.
+- The backtracking route requires visible choose, explore, restore, and reject
+  behavior. Applied programs include grids, N-Queens, four-by-four Sudoku, word
+  search, graph coloring, subset constraints, and duplicate pruning.
+- Divide-and-conquer records expose split boundaries, solved parts, and combine
+  steps through reductions, sorting, lower bounds, inversion counting,
+  maximum-subarray combination, majority candidates, Karatsuba, and
+  quickselect.
+- Greedy metadata states the local rule and reviewed invariant. The catalog
+  includes counterexamples so a local choice is never described as generally
+  optimal without its required problem contract.
+- One hundred ninety-two cumulative programs contain at least 15 meaningful
+  source lines. Chunk 5 section minima are 10 recursion lines, 14 backtracking
+  lines, 14 divide-and-conquer lines, and 11 greedy lines.
+- `scripts/validate-dsa-curriculum.mjs` enforces 397 cumulative programs,
+  exact section counts, source depth, schema, search, uniqueness, and
+  near-duplicate boundaries.
+- `scripts/validate_dsa_curriculum.py` compiles, executes, and checks the
+  expected-result marker for all 397 detached programs.
+- Reviewed context for a base case, recurrence, pruning rule, combine step,
+  greedy-choice property, or Big O remains exact-source only. Edited and pasted
+  programs receive observed frames, values, decisions, and events without an
+  invented algorithm proof.
+
+Chunk 5 browser evidence:
+
+- Search exposes exact section badges of 18 Recursion, 16 Backtracking, 10
+  Divide and conquer, and 16 Greedy algorithms, with 397 total programs.
+- `DSA-355` records 264 steps and shows six nested naive-Fibonacci frames at a
+  representative middle step.
+- `DSA-364` records 575 steps, solves the reviewed four-by-four Sudoku, and
+  reports 20 attempted values.
+- `DSA-374` records 162 steps and reports a correctly sorted result after seven
+  merges.
+- `DSA-397` records 64 steps and reports three refueling stops.
+- Editing `DSA-374` removes named merge-sort context while observed line and
+  value evidence remains available.
+- All 18 views render after the reviewed merge-sort trace.
+- At 390 by 844 pixels in dark mode, the learning panel remains 590 pixels
+  high, the view stage scrolls independently, and page-level horizontal
+  overflow remains zero.
+- Browser testing reproduced and corrected the shared non-finite-float
+  serialization defect. `DSA-324` now transports positive infinity,
+  `DSA-378` transports negative infinity, and both reach `Trace ready`.
+- A separate pasted-code probe transported `inf`, `-inf`, and `nan` together,
+  reached `Trace ready`, and preserved Python's `math.isnan` result.
+- A definitive exact-ID browser audit ran all 397 catalog programs through the
+  actual Pyodide worker, advanced each trace to its final step, and matched
+  every record's own expected-result marker. The final failure count was zero.
+
+### Strict Python-to-JavaScript value transport
+
+`py-worker.js` must detach every recorded Python value into strict
+JSON-compatible teaching data. Python's `json.dumps` accepts NaN and positive
+or negative infinity by default, but the emitted `NaN`, `Infinity`, and
+`-Infinity` tokens are not valid JSON and JavaScript `JSON.parse` rejects
+them.
+
+The required contract is:
+
+```text
+finite primitive
+    |
+    +-- preserve its JSON number, boolean, string, or null value
+
+non-finite float
+    |
+    +-- preserve type: float
+    +-- preserve display: inf, -inf, or nan
+    +-- transport value as stable text
+    +-- mark nonFinite: true
+
+final result
+    |
+    +-- json.dumps(..., allow_nan=False)
+```
+
+The explicit `math.isfinite` branch is the normal conversion. Strict final
+encoding is defense in depth. Do not remove either one.
+
+Transport verification has separate layers:
+
+1. Direct Python execution proves the program itself runs.
+2. Serializer checks prove the trace contains bounded detached descriptions.
+3. Strict encoding proves Python produced valid JSON text.
+4. JavaScript parsing proves the consumer accepts that text.
+5. Browser playback at the final step proves the learner can see the
+   program-specific expected output.
+
+The incident, root cause, audit-harness corrections, privacy analysis, and
+prevention matrix are recorded in `bug_report.md`.
 
 ### DSA evidence flow
 
@@ -338,7 +444,11 @@ dsa-app.js
      +-- dsa-curriculum-chunk4.js
      |      +-- 4 Chunk 4 sections
      |      +-- 68 reviewed records
-     |      +-- 337 combined reviewed records
+     |
+     +-- dsa-curriculum-chunk5.js
+     |      +-- 4 Chunk 5 sections
+     |      +-- 60 reviewed records
+     |      +-- 397 combined reviewed records
      |
      +-- dsa-runtime.js
      |      +-- pure observed-evidence helpers

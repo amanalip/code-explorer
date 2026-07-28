@@ -6,12 +6,12 @@ Everything runs on the learner's device. Code Explorer does not collect learner 
 
 ## Current release status
 
-The DSA workspace is at **Chunk 4: Union-Find and graph algorithms**.
+The DSA workspace is at **Chunk 5: recursion, backtracking, divide and conquer, and greedy algorithms**.
 
-Chunks 1 through 4 implement:
+Chunks 1 through 5 implement:
 
-- 337 reviewed and executable curriculum programs.
-- 16 ordered curriculum sections.
+- 397 reviewed and executable curriculum programs.
+- 20 ordered curriculum sections.
 - A vertical example browser with local metadata search, section counts, difficulty, line count, objective, complexity, and recommended views.
 - Local Python execution through the same isolated Pyodide worker used by the Python workspace.
 - A 3,000-step trace limit and a 30-second outer timeout.
@@ -20,14 +20,14 @@ Chunks 1 through 4 implement:
 - Automatic comments, Learning comments, wrapping, font sizing, Copy, Paste, prepared input, source persistence, and theme persistence.
 - 20 approved structure representation names and 31 stable DSA event names.
 
-Chunk 4 does **not** implement all of Tier A. The approved Tier A target is 535 programs, so 198 programs and their later algorithm families remain unimplemented. A planned program, structure, view extension, or algorithm in `Tier.md` is not an implemented claim.
+Chunk 5 does **not** implement all of Tier A. The approved Tier A target is 535 programs, so 138 programs and their later algorithm families remain unimplemented. A planned program, structure, view extension, or algorithm in `Tier.md` is not an implemented claim.
 
 ## Contents
 
 - [Start here](#start-here)
 - [Choose the correct workspace](#choose-the-correct-workspace)
 - [Workspace map](#workspace-map)
-- [The 337-program curriculum](#the-337-program-curriculum)
+- [The 397-program curriculum](#the-397-program-curriculum)
 - [Your first guided run](#your-first-guided-run)
 - [Editor controls](#editor-controls)
 - [Trace playback](#trace-playback)
@@ -110,9 +110,9 @@ DATA STRUCTURES AND ALGORITHMS WORKSPACE
 |   +-- Paste
 |
 +-- CURRICULUM
-|   +-- 337 reviewed programs
+|   +-- 397 reviewed programs
 |   +-- local search across complete reviewed records
-|   +-- 16 vertical section filters
+|   +-- 20 vertical section filters
 |   +-- objective and description
 |   +-- difficulty and line count
 |   +-- reviewed time and space context
@@ -203,7 +203,7 @@ Playback, Console Output, and Chunk Status keep their positions below the bounde
 
 The learning result uses a stable scrollbar gutter, so its readable width does not jump when a short view becomes long enough to scroll. Short results remain inside the same stable region without needing vertical movement. On a phone, the panel uses a shorter but still bounded height. The view-label strip can scroll horizontally, while the selected learning result scrolls vertically.
 
-## The 337-program curriculum
+## The 397-program curriculum
 
 ### Exact implemented counts
 
@@ -225,9 +225,58 @@ The learning result uses a stable scrollbar gutter, so its readable width does n
 | 14 | Graph structures and vocabulary | 24 | Vertices, edges, direction, weights, degree, adjacency lists, matrices, edge lists, conversions, validation, walks, trails, paths, DAGs, and representation tradeoffs |
 | 15 | Graph traversal and connectivity | 20 | BFS, recursive and iterative DFS, paths, reachability, components, cycles, bipartite checks, topological sorts, grid traversal, and traversal comparisons |
 | 16 | Shortest paths and spanning trees | 14 | Relaxation, Dijkstra, DAG paths, Bellman-Ford, negative cycles, Floyd-Warshall, Kruskal, Prim, forests, and MST comparison |
-| **Total** | **Chunks 1 through 4** | **337** | **Reviewed sequence, structure, connectivity, traversal, shortest-path, and spanning-tree curriculum** |
+| 17 | Recursion | 18 | Base cases, shrinking measures, return-time combination, recursive strings, numbers, arrays, trees, mutual recursion, memoization, and iterative comparisons |
+| 18 | Backtracking | 16 | Choice trees, restoration, pruning, subsets, permutations, combinations, grids, N-Queens, Sudoku, graph coloring, partitions, and duplicate-aware enumeration |
+| 19 | Divide and conquer | 10 | Balanced reductions, merge sort, quicksort, lower bounds, inversion counting, range optimization, majority candidates, Karatsuba multiplication, and quickselect |
+| 20 | Greedy algorithms | 16 | Scheduling, room allocation, fractional choice, coin boundaries, cash change, reachability, intervals, prefix coding, job sequencing, ropes, and refueling |
+| **Total** | **Chunks 1 through 5** | **397** | **Reviewed structure, graph, recursive, backtracking, divide-and-conquer, and greedy curriculum** |
 
-### Chunk 4 learning routes
+### Chunk 5 learning routes
+
+The 60 new programs form four connected learning routes:
+
+```text
+RECURSION, 18 PROGRAMS
+|
++-- identify a base case and a shrinking measure
++-- combine results while calls return
++-- process strings, numbers, arrays, nested lists, and trees
++-- inspect inclusive and half-open recursive boundaries
++-- reuse memoized subproblems
++-- compare recursion with iteration and naive repeated work
+
+BACKTRACKING, 16 PROGRAMS
+|
++-- build binary choices, subsets, permutations, and combinations
++-- make one choice and restore mutable state after the branch
++-- reject impossible prefixes before deeper exploration
++-- solve grid routes, N-Queens, a four-by-four Sudoku, and word search
++-- color a graph and solve subset constraints
++-- prune duplicate permutations without losing unique answers
+
+DIVIDE AND CONQUER, 10 PROGRAMS
+|
++-- split balanced ranges and combine sums or maxima
++-- sort through merge and pivot partitions
++-- preserve a lower-bound search contract
++-- count inversions during merge
++-- combine crossing ranges and majority candidates
++-- study Karatsuba multiplication and rank selection
+
+GREEDY ALGORITHMS, 16 PROGRAMS
+|
++-- justify earliest-finish scheduling
++-- allocate rooms and fractional capacity
++-- compare a valid coin system with a greedy counterexample
++-- preserve useful cash, reachability, fuel, and interval boundaries
++-- construct prefix codes and schedule profitable jobs
++-- minimize rope cost and refueling stops with priority queues
+```
+
+These routes are recommendations, not tracked progress. Code Explorer does not
+record which route a learner opened or completed.
+
+### Earlier Chunk 4 learning routes
 
 The 68 new programs continue the ordered curriculum with four connected routes:
 
@@ -332,7 +381,28 @@ My question is about...
        +-- Compare Algorithms, Complexity Lab
 ```
 
-Chunk 4 adds these useful questions:
+Chunk 5 adds these useful questions:
+
+```text
+My question is about...
+|
++-- base cases, call depth, or return-time combination
+|      +-- Calls and Recursion, Algorithm Path, Step Table
+|
++-- choosing, rejecting, and restoring one branch
+|      +-- Calls and Recursion, Mutation Explorer, Decisions
+|
++-- split ranges and combined subproblem results
+|      +-- Algorithm Path, Before and After, Complexity Lab
+|
++-- whether a local greedy rule is justified
+|      +-- Decisions, Invariant Checker, Compare Algorithms
+|
++-- a greedy counterexample or boundary condition
+       +-- Edge Case Lab, Compare Algorithms, Algorithm Story
+```
+
+Earlier Chunk 4 topics add these useful questions:
 
 ```text
 My question is about...
@@ -363,7 +433,7 @@ reveal private interpreter storage.
 
 Every catalog program has:
 
-- A unique stable identifier from `DSA-001` through `DSA-337`.
+- A unique stable identifier from `DSA-001` through `DSA-397`.
 - A distinct title and teaching objective.
 - A section and difficulty.
 - Reviewed source code and prepared input.
@@ -395,6 +465,7 @@ DSA SEARCH INDEX
 This makes metadata that is not printed in full on every card discoverable. For example:
 
 - `DSA-337 Kruskal Prim comparison` finds the final Chunk 4 comparison through its stable ID and algorithm metadata.
+- `DSA-397 minimum refueling stops` finds the final Chunk 5 lesson through its stable ID, title, phases, and greedy metadata.
 - `empty list division` finds **Name an algorithm's input and output** through its reviewed edge-case metadata.
 - `O(log n) guided challenge` requires complexity and difficulty terms to match the same program.
 - A class, function, variable, or operation name can match the reviewed source.
@@ -478,6 +549,61 @@ tie policies, top-k selection, trie prefix applications, and substring-search
 strategies. Compare Algorithms suggests related reviewed programs directly.
 Selecting one loads its complete reviewed source into the editor so a comparison
 run is based on that source, not on a hidden implementation.
+
+### What Chunk 5 adds
+
+```text
+RECURSION
+problem
+   |
+   +-- base case returns directly
+   |
+   +-- recursive case solves a smaller version
+                |
+                +-- waiting calls combine returned results
+
+BACKTRACKING
+choose -> explore -> restore
+   |
+   +-- reject a branch as soon as a reviewed constraint fails
+
+DIVIDE AND CONQUER
+split -> solve left and right -> combine
+
+GREEDY
+reviewed local rule -> choice -> preserved invariant
+                           |
+                           +-- a counterexample means the rule needs a different precondition
+```
+
+Chunk 5 comparisons cover recursive and iterative factorial, naive and memoized
+Fibonacci, duplicate-aware permutations, activity-selection rules, canonical
+and noncanonical coin systems, interval choices, and compatible divided-range
+strategies. A comparison result belongs to its reviewed source and input.
+
+### Chunk 5 beginner vocabulary
+
+| Term | Beginner meaning | First evidence to inspect | A useful next experiment |
+| --- | --- | --- | --- |
+| **Recursion** | A function solves a problem by calling itself, directly or indirectly, on a smaller problem. | Open Calls and Recursion and locate the changing argument. | Change the input by one and compare maximum call depth. |
+| **Base case** | A condition that returns without making another recursive call. It stops further descent. | Find the deepest call and the first direct return. | Remove or break the base case only in a tiny copied example and observe the safe trace or runtime boundary. |
+| **Recursive case** | The part that reduces the current problem and delegates the smaller version to another call. | Compare arguments in adjacent call frames. | Write down the shrinking measure before running. |
+| **Call stack** | The ordered active function frames waiting for deeper calls to return. Code Explorer presents conceptual frames, not physical RAM addresses. | Use Calls and Recursion during the deepest step. | Compare recursive and iterative factorial. |
+| **Memoization** | Storing a solved subproblem so later calls can reuse its answer. | Watch the memo dictionary and cache-hit path. | Remove memo storage from Fibonacci and compare observed call counts. |
+| **Backtracking** | A search method that makes a choice, explores what follows, and restores state before trying another choice. | Use Mutation Explorer around an append and matching pop or a swap and restore. | Disable one restoration line in a copied small example and inspect the broken invariant. |
+| **Candidate** | One possible choice at the current search position. | Open Decisions and identify accepted and rejected values. | Reverse candidate order and compare solution order without claiming the set of valid answers changed. |
+| **Constraint** | A rule that every valid partial or complete answer must satisfy. | Use Invariant Checker in N-Queens, Sudoku, or graph coloring. | Add one extra restriction and observe which branches disappear. |
+| **Pruning** | Stopping a branch when evidence proves it cannot produce an acceptable answer. | Compare a rejected state with the next backtrack event. | Remove one safe pruning rule and compare step counts on the same small input. |
+| **Choice tree** | A conceptual tree whose edges are decisions and whose leaves are complete answers or rejected dead ends. | Open Algorithm Path for subsets or parentheses. | Increase the input size by one and compare the number of results. |
+| **Divide and conquer** | Split a problem into smaller parts, solve them, and combine their results. | Follow range boundaries and merge events. | Compare balanced and unbalanced quicksort partitions. |
+| **Combine step** | The work that turns solved subproblems into the current problem's answer. | Inspect a merge, half-maximum comparison, or crossing-range choice. | Predict the combined result before moving playback forward. |
+| **Greedy algorithm** | A method that commits to a locally preferred choice because a reviewed argument shows the choice can belong to an optimal solution. | Use Decisions and Invariant Checker together. | Change the input to a documented counterexample before trusting a similar local rule elsewhere. |
+| **Greedy-choice property** | The reason a locally preferred choice can be made without revisiting it for that problem. | Read Curriculum context and the invariant for the exact reviewed program. | Compare earliest-finish scheduling with shortest-duration scheduling. |
+| **Counterexample** | A concrete input that disproves a broad claim. One correct result cannot prove a rule, but one valid counterexample can disprove it. | Open the greedy coin-change counterexample. | Change the denominations and test whether the failure remains. |
+
+The honesty boundary still applies. Edited or pasted recursion can show observed
+calls, frames, values, and returns, but Code Explorer does not invent its base
+case, recurrence, pruning proof, greedy-choice property, or Big O claim.
 
 ### What Chunk 4 adds
 
@@ -897,6 +1023,7 @@ Limits protect the browser and keep explanations readable. An execution limit st
 | Serialization depth | 4 nested levels | Deeper content is represented by a bounded marker |
 | Serialized items per container | 30 | Additional items are omitted from the serialized snapshot |
 | Serialized representation text | 120 characters | Longer representations are shortened |
+| Non-finite floats | `inf`, `-inf`, and `nan` | Python keeps the live float while the trace transports its type and readable spelling through strict JSON-safe text |
 | Structure Canvas entries | 30 | The view is labeled Shortened |
 | Suggested watches | 12 names | Additional visible names are not shown in Watches |
 | Operation Journey | 30 events | The view is labeled Shortened |
@@ -905,7 +1032,7 @@ Limits protect the browser and keep explanations readable. An execution limit st
 | Compare Algorithms history | 2 run summaries | The oldest in-session summary is replaced |
 | Prepared-input text | 20,000 characters | Additional text is ignored when loaded into the local input field |
 | Active learning views | 18 | Custom learner-defined views are not supported |
-| Implemented curriculum | 337 programs | The remaining 198 Tier A programs are not selectable |
+| Implemented curriculum | 397 programs | The remaining 138 Tier A programs are not selectable |
 | Approved structure names | 20 | Unknown structures receive generic bounded presentation |
 | Stable event names | 31 | Runtime cues remain conservative when an exact DSA event is unavailable |
 
@@ -997,6 +1124,23 @@ Allow clipboard access for the page, or paste directly into the focused editor w
 
 Move the timeline later. Console Output follows recorded time and does not reveal future output.
 
+### A program uses infinity or NaN
+
+Python permits `float("inf")`, `float("-inf")`, and `float("nan")`. Code
+Explorer preserves the live Python value during execution. Its detached trace
+stores the value's `float` type and readable spelling as strict JSON-safe text
+so the browser can display it without changing the learner's calculation.
+
+Infinity is common in shortest-path and optimization examples. NaN has its
+normal Python behavior, including the fact that it does not compare equal to
+itself. The trace display is evidence about the recorded value, not a
+replacement value inserted into the learner's program.
+
+The non-finite transport path is covered by positive-infinity,
+negative-infinity, strict-encoding, and complete-catalog browser checks. The
+technical incident and its prevention rules are recorded in
+[`bug_report.md`](bug_report.md).
+
 ### A structure is shortened
 
 The underlying serialized evidence exceeded a presentation or serialization boundary. Use a smaller input or inspect Variables and Step Table. Shortened is not the same as an execution failure.
@@ -1023,9 +1167,12 @@ Chunk 3  72 tree, BST, heap, priority-queue, trie, and string-search programs
 Chunk 4  68 Union-Find, graph representation, traversal, path, and MST programs
    |
    v
+Chunk 5  60 recursion, backtracking, divide-and-conquer, and greedy programs
+   |
+   v
 Later chunks
    |
-   +-- complete the remaining 198 Tier A programs
+   +-- complete the remaining 138 Tier A programs
    +-- preserve the same evidence labels and limits
    +-- extend validators before making implementation claims
 ```
