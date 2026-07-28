@@ -1,31 +1,35 @@
 /**
  * Code Explorer Data Structures and Algorithms workspace controller.
  *
- * Chunk 2 connects the separate editor to 197 reviewed programs, the shared
+ * Chunk 3 connects the separate editor to 269 reviewed programs, the shared
  * bounded Python worker, trace playback, eighteen evidence-aware learning
  * views, prepared input, and non-destructive study comments. All persistence is
  * same-origin browser storage. No learner source or derived trace leaves the
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260723-12";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260723-12";
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260723-12";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260727-14";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260727-14";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260727-14";
 import {
   DSA_AREAS,
   DSA_CATALOG_TARGET,
   DSA_EVIDENCE_LABELS,
   DSA_STRUCTURE_TYPES,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260723-12";
+} from "./dsa-contracts.js?v=20260727-14";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260723-12";
+} from "./dsa-curriculum.js?v=20260727-14";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260723-12";
+} from "./dsa-curriculum-chunk2.js?v=20260727-14";
+import {
+  DSA_CHUNK_THREE_PROGRAMS,
+  DSA_CHUNK_THREE_SECTIONS,
+} from "./dsa-curriculum-chunk3.js?v=20260727-14";
 import {
   DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
@@ -37,22 +41,24 @@ import {
   variableChanges,
   variableComparisons,
   variablesForStep,
-} from "./dsa-runtime.js?v=20260723-12";
+} from "./dsa-runtime.js?v=20260727-14";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
   ...DSA_CHUNK_ONE_SECTIONS,
   ...DSA_CHUNK_TWO_SECTIONS,
+  ...DSA_CHUNK_THREE_SECTIONS,
 ]);
 
 /** One immutable catalog supports matching, filtering, comparison, and counts. */
 const DSA_IMPLEMENTED_PROGRAMS = Object.freeze([
   ...DSA_CHUNK_ONE_PROGRAMS,
   ...DSA_CHUNK_TWO_PROGRAMS,
+  ...DSA_CHUNK_THREE_PROGRAMS,
 ]);
 
 /**
- * Prepared text indexes every reviewed field once instead of flattening 197
+ * Prepared text indexes every reviewed field once instead of flattening 269
  * complete records after every keystroke. The index and query stay in memory.
  */
 const DSA_PROGRAM_SEARCH_INDEX = new Map(
@@ -669,7 +675,7 @@ function renderWatches() {
  *
  * Runtime snapshots describe Python values, while this optional role explains
  * how the reviewed lesson uses those values as a stack, queue, linked chain,
- * hash table, set, or ordinary sequence.
+ * hash table, tree, heap, trie, or ordinary sequence.
  *
  * @returns {string} Stable CSS role or an empty string for pasted source.
  */
@@ -677,7 +683,8 @@ function reviewedStructureRole() {
   if (!state.activeProgram) return "";
   const roles = [
     "stack", "queue", "deque", "singly-linked-list", "doubly-linked-list",
-    "circular-linked-list", "hash-table", "set",
+    "circular-linked-list", "hash-table", "set", "tree", "binary-tree",
+    "binary-search-tree", "heap", "priority-queue", "trie",
   ];
   return state.activeProgram.structureTypes.find((type) => roles.includes(type)) || "";
 }
@@ -689,18 +696,58 @@ function structurePositionLabel(role, index, count) {
   if (role.includes("linked-list")) return index === 0 ? "HEAD" : index === count - 1 ? "TAIL" : String(index);
   if (role === "hash-table") return `ENTRY ${index}`;
   if (role === "set") return "MEMBER";
+  if (role === "heap" || role === "priority-queue") {
+    if (index === 0) return "ROOT";
+    return index * 2 + 1 >= count ? `LEAF ${index}` : `NODE ${index}`;
+  }
+  if (role === "tree" || role === "binary-tree" || role === "binary-search-tree") {
+    return index === 0 ? "ROOT FIELD" : `FIELD ${index}`;
+  }
+  if (role === "trie") return index === 0 ? "ROOT EDGE" : `EDGE ${index}`;
   return String(index);
+}
+
+/**
+ * Chooses the observed value that best matches an exact reviewed structure.
+ *
+ * A trie program can expose both its source word list and the nested trie.
+ * Generic "largest container" selection would then place trie labels on the
+ * word list. Exact curriculum roles may prefer a semantically named compatible
+ * variable, while edited and pasted source continue using the generic helper.
+ *
+ * @param {object|null} step Selected recorded snapshot.
+ * @param {string} role Exact reviewed structure role or an empty string.
+ * @returns {{name: string, value: object}|null} Best bounded value candidate.
+ */
+function reviewedStructureCandidate(step, role) {
+  if (!role) return structureCandidate(step);
+  const variables = variablesForStep(step);
+  const entries = Object.entries(variables);
+  const rolePreferences = {
+    tree: { names: /(?:tree|root|node)/i, shape: (value) => Array.isArray(value?.entries) },
+    "binary-tree": { names: /(?:tree|root|node)/i, shape: (value) => Array.isArray(value?.entries) },
+    "binary-search-tree": { names: /(?:tree|root|node)/i, shape: (value) => Array.isArray(value?.entries) },
+    heap: { names: /(?:heap|frontier|leaders|waiting|jobs|available)/i, shape: (value) => Array.isArray(value?.items) },
+    "priority-queue": { names: /(?:heap|queue|frontier|leaders|waiting|jobs|available)/i, shape: (value) => Array.isArray(value?.items) },
+    trie: { names: /(?:trie|root|node)/i, shape: (value) => Array.isArray(value?.entries) },
+  };
+  const preference = rolePreferences[role];
+  if (!preference) return structureCandidate(step);
+  const named = entries.find(([name, value]) => preference.names.test(name) && preference.shape(value));
+  if (named) return { name: named[0], value: named[1] };
+  const compatible = entries.find(([, value]) => preference.shape(value));
+  return compatible ? { name: compatible[0], value: compatible[1] } : structureCandidate(step);
 }
 
 /** Renders one bounded container using observed values and optional reviewed orientation. */
 function renderStructureCanvas() {
-  const candidate = structureCandidate(selectedStep());
+  const role = reviewedStructureRole();
+  const candidate = reviewedStructureCandidate(selectedStep(), role);
   if (!candidate) {
     renderUnavailable("No supported structure visible", "Run a step that exposes a serialized list, tuple, set, deque, or dictionary.");
     return;
   }
   const { name, value } = candidate;
-  const role = reviewedStructureRole();
   const article = makeElement("article", "dsa-runtime-view");
   article.append(evidenceBadge("observed"));
   article.append(makeElement("h2", "", `${name} · ${value.type}`));
@@ -1441,7 +1488,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260723-12", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260727-14", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;
@@ -1673,7 +1720,7 @@ async function initialize() {
   els.dsaSectionCount.textContent = String(DSA_IMPLEMENTED_SECTIONS.length);
   els.dsaStructureCount.textContent = String(DSA_STRUCTURE_TYPES.length);
   els.dsaCatalogTarget.textContent = String(DSA_CATALOG_TARGET);
-  setRuntimeStatus("Chunk 2 ready", "ready");
+  setRuntimeStatus("Chunk 3 ready", "ready");
 }
 
 initialize();

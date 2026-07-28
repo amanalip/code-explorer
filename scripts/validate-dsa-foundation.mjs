@@ -166,6 +166,21 @@ expect(
   /id="dsaViewStage"[\s\S]*?role="tabpanel"[\s\S]*?tabindex="0"[\s\S]*?aria-label="Selected DSA learning view"/.test(dsaHtml),
   "DSA view stage is missing its focusable keyboard-scrolling contract.",
 );
+expect(
+  dsaHtml.includes("Chunk 3 implements the first 269 reviewed programs")
+    && dsaHtml.includes("remaining 266 programs"),
+  "DSA status copy does not match the verified Chunk 3 arithmetic.",
+);
+expect(
+  dsaAppSource.includes("DSA_CHUNK_THREE_PROGRAMS")
+    && dsaAppSource.includes("DSA_CHUNK_THREE_SECTIONS"),
+  "DSA controller is not integrating both Chunk 3 program and section contracts.",
+);
+expect(
+  dsaAppSource.includes("reviewedStructureCandidate(selectedStep(), role)")
+    && dsaAppSource.includes("trie: { names: /(?:trie|root|node)/i"),
+  "Chunk 3 structure roles are not selecting a compatible reviewed variable.",
+);
 
 // Every id read by the DSA controller must exist in the dedicated document.
 const requiredDsaIds = [

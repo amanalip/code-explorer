@@ -22,11 +22,11 @@ Recorded execution
 
 The tool records a bounded execution first and then replays it. Playback breakpoints and timeline controls navigate the recorded trace. They do not pause the original Python interpreter.
 
-`Tier.md` records the Tier A, B, and C curriculum for the separate Data Structures workspace. Chunk 2 implements the first 197 reviewed programs across nine sections, local execution, playback, and all 18 DSA learning views. The complete Tier A target remains 535, so 338 programs remain unimplemented. Do not treat a later listed structure, algorithm, renderer extension, or program as implemented unless code, verification, and learner-visible documentation prove it.
+`Tier.md` records the Tier A, B, and C curriculum for the separate Data Structures workspace. Chunk 3 implements the first 269 reviewed programs across twelve sections, local execution, playback, and all 18 DSA learning views. The complete Tier A target remains 535, so 266 programs remain unimplemented. Do not treat a later listed structure, algorithm, renderer extension, or program as implemented unless code, verification, and learner-visible documentation prove it.
 
 Documentation routing is implemented: `index.html` has no ambiguous Tool Guide control, its two matching primary actions open the Python and DSA paths, `workspace.html` links to `README.md`, and `data-structures.html` links to `README_DSA.md`.
 
-The DSA guide documents every active Chunk 2 execution, serialization, display, history, comparison, explanation, complexity, persistence, platform, and curriculum boundary. It states the verified value, what is counted, why it exists, threshold behavior, whether execution stopped or presentation was shortened, what evidence remains safe, and what the learner can try next.
+The DSA guide documents every active Chunk 3 execution, serialization, display, history, comparison, explanation, complexity, persistence, platform, and curriculum boundary. It states the verified value, what is counted, why it exists, threshold behavior, whether execution stopped or presentation was shortened, what evidence remains safe, and what the learner can try next.
 
 The approved 535-program target has a curriculum quality contract. Counts alone never establish completion. Each section must progress from focused foundations through standard operations, meaningful variations, applied programs, and comparisons. Reject constant-only or name-only variations, filler lines, incoherent scripts, weak metadata, and examples whose recommended views have nothing useful to show. Validation must report line-count distributions and near-duplicate candidates, while human review must judge correctness, teaching depth, readability, coherent progression, and whether longer concepts received enough space. Short programs remain valid when the concept is genuinely atomic.
 
@@ -45,10 +45,12 @@ The approved 535-program target has a curriculum quality contract. Counts alone 
 - Explicit Dark mode and Light mode control.
 - Copyright attribution for Aman Ali Pogaku.
 
-### DSA Chunk 2 linear and hashed structures
+### DSA Chunk 3 trees, heaps, tries, and string search
 
 - Separate DSA `main.py` source, prepared input, active-view state, and editor preferences.
-- 197 reviewed programs: 24 foundations, 12 abstract data types, 42 Python-native containers, 20 array and sequence techniques, 9 searches, 24 sorting lessons, 22 stack, queue, and deque lessons, 20 linked-structure lessons, and 24 hash-table and set lessons.
+- 269 reviewed programs: 197 from Chunks 1 and 2, plus 30 tree and BST lessons, 18 heap and priority-queue lessons, and 24 trie and string-algorithm lessons.
+- `dsa-curriculum-chunk3.js` owns stable IDs `DSA-198` through `DSA-269` and the exact 30, 18, and 24 section contracts.
+- Chunk 3 programs progress from representations and basic operations through invariants, edge cases, applied workflows, and explicit comparisons. Ninety-six implemented programs now contain at least 15 meaningful source lines.
 - CodeMirror Python editing with a native textarea fallback, wrapping, six font sizes, whole-document Copy and Paste, and local source statistics.
 - Existing `py-worker.js` local execution with a 3,000-step trace limit and a 30-second outer worker timeout.
 - Working playback and 18 views grouped under Trace, Data, Flow, and Labs.
@@ -65,7 +67,8 @@ The approved 535-program target has a curriculum quality contract. Counts alone 
 - Bounded DSA presentation: 12 watches, 30 structure entries, 30 journey events, 80 path transitions, 120 table rows, and 2 comparison summaries.
 - `scripts/validate-dsa-foundation.mjs` checks contracts, routes, guide targets, and required HTML ids.
 - `scripts/validate-dsa-curriculum.mjs` validates exact counts, schema, uniqueness, source depth, metadata, and near-duplicate candidates.
-- `scripts/validate_dsa_curriculum.py` compiles, executes, and checks the expected result for all 197 detached programs.
+- `scripts/validate_dsa_curriculum.py` compiles, executes, and checks the expected result for all 269 detached programs.
+- Reviewed Structure Canvas roles now include tree, binary tree, BST, heap, priority queue, and trie. These roles decorate observed serialized values only after exact source matching; edited and pasted source stays generic.
 
 ### DSA evidence flow
 
@@ -298,7 +301,11 @@ dsa-app.js
      +-- dsa-curriculum-chunk2.js
      |      +-- 3 Chunk 2 sections
      |      +-- 66 reviewed records
-     |      +-- 197 combined reviewed records
+     |
+     +-- dsa-curriculum-chunk3.js
+     |      +-- 3 Chunk 3 sections
+     |      +-- 72 reviewed records
+     |      +-- 269 combined reviewed records
      |
      +-- dsa-runtime.js
      |      +-- pure observed-evidence helpers
@@ -769,6 +776,11 @@ Verify all three detail levels, inline on and off, unchanged source statistics, 
 - A 14-row Step Table kept the desktop source and learning panels at 690 pixels. Its stage measured 593 visible pixels against 717 scrollable pixels, and `scrollTop` moved from 0 to 100 without changing panel height.
 - At 390 by 844, both primary panels measured 590 pixels, the Step Table stage measured 448 visible pixels against 656 scrollable pixels, and the four-card Before and After view measured 1,156 scrollable pixels. The page width remained exactly 390 pixels.
 - The bounded stage is keyboard-focusable, visibly identifies focus, and retains native mouse, trackpad, touch, and keyboard scrolling.
+- Chunk 3 browser checks found `DSA-198`, `DSA-228`, and `DSA-246` through local catalog metadata, executed representative tree, heap, and trie programs, and observed their exact result markers.
+- Tree, heap, and trie Structure Canvas checks confirmed `role-tree`, `role-heap`, and `role-trie` select compatible observed variables. The trie regression specifically proves the nested `trie` dictionary is selected instead of the simultaneously visible `words` list.
+- Editing the exact trie source produced Observed line evidence and the explicit `Named algorithm unavailable` boundary.
+- All 18 registered DSA views rendered after a completed Chunk 3 trace without an exception.
+- At 390 by 844 in dark mode, the DSA learning panel remained 590 pixels high, the stage scrolled from 0 to 120, and document width remained exactly 390 pixels.
 
 ## Documentation completion test
 

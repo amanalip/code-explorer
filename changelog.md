@@ -15,6 +15,93 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v10, 2026-07-27
+
+v10 ships **Chunk 3: trees, heaps, tries, and string search** for the Python Data
+Structures and Algorithms workspace. It adds 72 reviewed programs to the 197
+programs from Chunks 1 and 2. The implemented catalog now contains 269 programs
+across twelve ordered sections.
+
+### Seventy-two new reviewed programs
+
+| Chunk 3 section | Programs | Main learning journey |
+| --- | ---: | --- |
+| Trees and binary search trees | 30 | Representation, traversals, node and leaf reasoning, paths, shape rules, serialization, BST search, insertion, deletion, validation, ranks, neighbors, ancestors, and balanced versus skewed height |
+| Heaps and priority queues | 18 | Array relationships, heapify, push, pop, peek, root replacement, invariant diagnosis, top-k selection, stable scheduling, k-way merge, and construction comparisons |
+| Tries and string algorithms | 24 | Insertion, exact lookup, prefixes, autocomplete, deletion, counted paths, wildcard matching, suffix tries, word segmentation, direct substring search, KMP, rolling hash, and reviewed comparisons |
+| **Chunk 3 addition** | **72** | **Reviewed hierarchical, priority, prefix, and string-search curriculum** |
+
+The exact release arithmetic is:
+
+```text
+197 previously implemented programs
+ 72 Chunk 3 programs
+--------------------
+269 implemented programs
+
+535 approved Tier A destination
+-269 implemented programs
+--------------------
+266 programs still unavailable
+```
+
+Every new program carries executable source, a distinct objective, difficulty,
+expected output, approved structure and event names, algorithm phases,
+invariants, edge cases, comparison relationships, complexity context, and
+recommended learning views. The catalog retains stable identifiers through
+`DSA-269`.
+
+### Reviewed structure orientation
+
+Structure Canvas now recognizes exact reviewed tree, binary-tree, BST, heap,
+priority-queue, and trie roles in addition to the earlier linear and hashed
+roles. Tree records identify conceptual root fields, heap records emphasize the
+observed root and array nodes, and trie records label character edges.
+
+These labels are curriculum context over bounded serialized Python values. They
+are not physical memory addresses or claims about private Python internals.
+Editing or pasting source removes the exact reviewed role and returns the
+canvas to its generic observed presentation.
+
+### Curriculum comparisons
+
+Chunk 3 adds comparison groups for:
+
+- Tree traversal orders and balanced versus skewed shapes.
+- BST validation, neighbors, deletion cases, and core operations.
+- Heap construction, updates, top-k selection, and priority tie policies.
+- Trie prefix applications and core operations.
+- Direct substring search, KMP, rolling hash, and suffix-trie approaches.
+
+Compare Algorithms can load a related reviewed program into the editor. The
+learner still selects Run trace explicitly. Observed step counts remain
+input-specific evidence and never replace reviewed Big O context.
+
+### Verification evidence
+
+- The combined structural validator confirmed 269 unique records and exact
+  section counts of 30, 18, and 24 for Chunk 3.
+- The source-depth audit found 96 implemented programs with at least 15
+  meaningful lines.
+- The detached Python validator compiled and executed all 269 programs and
+  checked every documented expected-result marker.
+- Validation caught and corrected an incomplete k-way merge fixture and an
+  incorrect shared-prefix edge count before release.
+- Browser testing caught and corrected trie orientation selecting the source
+  word list instead of the observed trie dictionary when both were visible.
+- JavaScript syntax, contract, whitespace, forbidden-dash, and browser checks
+  cover the DSA catalog, exact-source honesty, all 18 views, desktop and mobile
+  layouts, both themes, and the original Python workspace.
+- No analytics, telemetry, remote logging, learner-data request, dependency,
+  storage key, execution limit, timeout, or network behavior was added.
+
+### Known boundary
+
+Chunk 3 does not implement Union-Find, graph sections, the dedicated recursion,
+backtracking, divide-and-conquer, greedy, dynamic-programming, bit, mathematics,
+investigation, or integrated guided-challenge sections. Those 266 programs
+remain planning contracts in `Tier.md`, not selectable curriculum.
+
 ## v9, 2026-07-23
 
 v9 adds local program search to the Python and DSA example catalogs.

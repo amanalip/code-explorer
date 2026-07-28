@@ -2914,6 +2914,195 @@ What to repeat:
 3. Select all 18 DSA views after any shared renderer, runtime, or import change.
 4. Fail the release when any view logs a console exception, even if the feature under direct development looks correct.
 
+# DSA Chunk 3 curriculum lessons learned by the user
+
+## 88. A complete subject catalog becomes trustworthy through committed chunks
+
+Perspective:
+- User
+- Shared
+
+Status:
+- Implemented
+
+The user consistently argued that a few showcase programs would not teach the
+subject. That judgment shaped the 535-program destination. The equally
+important correction was to release it in committed chunks rather than trying
+to make one enormous unreviewable change.
+
+Chunk 3 proves that both ideas can coexist:
+
+```text
+Complete learning destination
+          +
+Small verified release boundary
+          |
+          v
+72 reviewed programs
+          |
+          +-- compile and execute
+          +-- inspect metadata and similarity
+          +-- test the real browser
+          +-- commit before Chunk 4
+```
+
+The user deserves credit for protecting both breadth and recoverability. The
+project did not reduce the planned subject to a toy catalog, and it did not
+claim unbuilt graph or dynamic-programming lessons merely because they appear
+in `Tier.md`.
+
+What to repeat:
+
+1. Keep the full curriculum arithmetic visible.
+2. Give each chunk a coherent conceptual boundary.
+3. Stop after the agreed chunk and wait for a commit.
+4. Treat the remaining count as an honesty statement, not a failure.
+5. Never lower program quality to make the remaining count fall faster.
+
+# DSA Chunk 3 curriculum lessons learned by Codex
+
+## 89. Expected output must be executed, not reasoned about informally
+
+Perspective:
+- Codex
+
+Status:
+- Implemented
+
+During the first detached execution of Chunk 3, two programs failed their own
+expected-result contracts. The k-way merge fixture omitted the number `3` while
+claiming it produced the complete range from zero through nine. The trie prefix
+lesson created six distinct character edges while its assertion expected
+seven.
+
+Codex authored both incorrect expectations. The programs compiled and their
+metadata looked coherent, so syntax and schema validation could not reveal the
+mistake. Executing every detached program did.
+
+```text
+Readable source
+    + complete metadata
+    + valid syntax
+    != verified lesson
+
+Verified lesson
+    = actual execution
+    + documented marker observed
+    + result reviewed for teaching meaning
+```
+
+The correction was not to weaken the expected marker. The input fixture and
+the expected edge count were repaired so the explanations, output, and
+curriculum claims agree.
+
+What to repeat:
+
+1. Execute the complete cumulative catalog after every chunk.
+2. Check the documented marker in captured output.
+3. Treat any mismatch as a release blocker.
+4. Review whether the fixture or the claim is wrong before editing either.
+5. Preserve the failure in lessons and changelog verification notes.
+
+## 90. Section arithmetic should reject overlap before it reaches the catalog
+
+Perspective:
+- Codex
+- Shared
+
+Status:
+- Implemented
+
+The initial Chunk 3 draft contained more candidate lessons than the approved
+30 tree, 18 heap, and 24 trie/string slots. More source is not automatically
+more curriculum. Several candidates repeated an objective already taught more
+clearly by a stronger lesson.
+
+The user had already set the correct principle: do work in chunks and preserve
+quality. The section count is part of that quality contract. Codex therefore
+kept the exported catalog at exactly 72 and selected the programs with the
+strongest progression, applied value, or comparison role.
+
+What to repeat:
+
+1. Count section records before assigning stable IDs.
+2. Prefer the stronger teaching journey when two objectives overlap.
+3. Do not change approved Tier A arithmetic to hide an overfull draft.
+4. Use the validator to prove exact counts and stable final IDs.
+5. Human-review the retained set because uniqueness alone does not prove value.
+
+## 91. Dedicated visual orientation must remain an honest overlay
+
+Perspective:
+- Shared
+
+Status:
+- Implemented
+
+Trees, heaps, and tries benefit from different visual vocabulary, but the
+worker records bounded serialized Python values rather than private interpreter
+nodes. Chunk 3 extends Structure Canvas orientation only for an exact unchanged
+catalog program.
+
+```text
+Exact reviewed source
+        |
+        +-- observed serialized value
+        +-- reviewed structure role
+        |
+        v
+conceptual tree, heap, or trie labels
+
+Edited or pasted source
+        |
+        v
+generic observed container layout
+```
+
+This boundary preserves usefulness for arbitrary pasted code without pretending
+that Code Explorer recognized an algorithm or recovered a physical memory
+layout. The user repeatedly emphasized honesty in earlier planning, and this
+implementation carries that requirement into the new structures.
+
+## 92. A reviewed role and an observed value must refer to the same structure
+
+Perspective:
+- Codex
+
+Status:
+- Implemented
+
+The first Chunk 3 browser run exposed a mismatch that schema and Python
+execution tests could not find. The trie program correctly matched its reviewed
+curriculum record, but the generic Structure Canvas selector chose the visible
+source `words` list because it was a convenient container. The renderer then
+placed trie edge labels on ordinary word-list cells.
+
+Codex caused this presentation error by extending the role labels without also
+extending candidate selection. The corrected selector now uses an exact
+reviewed role to prefer a compatible, semantically named observed variable:
+
+```text
+reviewed trie role + observed trie dictionary -> trie edge orientation
+reviewed heap role + observed heap list       -> heap orientation
+reviewed tree role + observed tree dictionary -> tree orientation
+
+pasted or edited source -> generic observed candidate
+```
+
+The role still does not create evidence. It only chooses among values already
+present in the recorded snapshot. If no compatible value exists, the view uses
+its safe unavailable or generic behavior rather than relabeling an unrelated
+container.
+
+What to repeat:
+
+1. Run one real representative program for every new visual role.
+2. Inspect the selected variable name, value type, and visible role together.
+3. Include programs that expose several containers, because that is where
+   generic candidate selection becomes ambiguous.
+4. Keep exact-source context separate from observed-value selection.
+5. Add a validator source contract and a browser regression for the correction.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

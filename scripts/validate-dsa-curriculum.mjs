@@ -22,11 +22,23 @@ import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
 } from "../dsa-curriculum-chunk2.js";
+import {
+  DSA_CHUNK_THREE_PROGRAMS,
+  DSA_CHUNK_THREE_SECTIONS,
+} from "../dsa-curriculum-chunk3.js";
 import { catalogSearchText, matchesCatalogSearch } from "../catalog-search.js";
 
 /** The release validator treats committed chunks as one ordered catalog. */
-const IMPLEMENTED_PROGRAMS = [...DSA_CHUNK_ONE_PROGRAMS, ...DSA_CHUNK_TWO_PROGRAMS];
-const IMPLEMENTED_SECTIONS = [...DSA_CHUNK_ONE_SECTIONS, ...DSA_CHUNK_TWO_SECTIONS];
+const IMPLEMENTED_PROGRAMS = [
+  ...DSA_CHUNK_ONE_PROGRAMS,
+  ...DSA_CHUNK_TWO_PROGRAMS,
+  ...DSA_CHUNK_THREE_PROGRAMS,
+];
+const IMPLEMENTED_SECTIONS = [
+  ...DSA_CHUNK_ONE_SECTIONS,
+  ...DSA_CHUNK_TWO_SECTIONS,
+  ...DSA_CHUNK_THREE_SECTIONS,
+];
 
 /** Throws a readable release-blocking error when one contract is false. */
 function expect(condition, message) {
@@ -60,7 +72,8 @@ const difficultyNames = new Set(DSA_DIFFICULTIES);
 
 expect(DSA_CHUNK_ONE_PROGRAMS.length === 131, `Chunk 1 has ${DSA_CHUNK_ONE_PROGRAMS.length} programs, not 131.`);
 expect(DSA_CHUNK_TWO_PROGRAMS.length === 66, `Chunk 2 has ${DSA_CHUNK_TWO_PROGRAMS.length} programs, not 66.`);
-expect(IMPLEMENTED_PROGRAMS.length === 197, `Implemented catalog has ${IMPLEMENTED_PROGRAMS.length} programs, not 197.`);
+expect(DSA_CHUNK_THREE_PROGRAMS.length === 72, `Chunk 3 has ${DSA_CHUNK_THREE_PROGRAMS.length} programs, not 72.`);
+expect(IMPLEMENTED_PROGRAMS.length === 269, `Implemented catalog has ${IMPLEMENTED_PROGRAMS.length} programs, not 269.`);
 
 const uniqueIds = new Set();
 const uniqueTitles = new Set();
@@ -122,9 +135,9 @@ const searchPrograms = (query) => indexedPrograms
   .filter(({ searchText }) => matchesCatalogSearch(searchText, query))
   .map(({ program }) => program);
 expect(
-  searchPrograms("DSA-197 FIFO").length === 1
-    && searchPrograms("DSA-197 FIFO")[0].id === "dsa-197",
-  "DSA search should find the exact FIFO cache through its stable id and algorithm metadata.",
+  searchPrograms("DSA-269 KMP evidence").length === 1
+    && searchPrograms("DSA-269 KMP evidence")[0].id === "dsa-269",
+  "DSA search should find the exact comparison lesson through its stable id and algorithm metadata.",
 );
 expect(
   searchPrograms("empty list division").length === 1
@@ -162,9 +175,9 @@ expect(nearDuplicates.length === 0, `Near-duplicate sources found: ${JSON.string
 
 const lineCounts = IMPLEMENTED_PROGRAMS.map(sourceLines).sort((left, right) => left - right);
 const longPrograms = lineCounts.filter((count) => count >= 15).length;
-// At least forty-five longer lessons protects substantial workflows while
-// allowing focused O(1) operations to remain concise and readable.
-expect(longPrograms >= 45, `Only ${longPrograms} implemented programs have at least 15 meaningful lines.`);
+// At least eighty longer lessons protect substantial workflows while allowing
+// focused operations to remain concise when the concept is genuinely atomic.
+expect(longPrograms >= 80, `Only ${longPrograms} implemented programs have at least 15 meaningful lines.`);
 
 const sectionReport = Object.fromEntries(
   IMPLEMENTED_SECTIONS.map(([section]) => {

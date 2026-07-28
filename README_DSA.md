@@ -6,12 +6,12 @@ Everything runs on the learner's device. Code Explorer does not collect learner 
 
 ## Current release status
 
-The DSA workspace is at **Chunk 2: linear and hashed structures**.
+The DSA workspace is at **Chunk 3: trees, heaps, tries, and string search**.
 
-Chunks 1 and 2 implement:
+Chunks 1 through 3 implement:
 
-- 197 reviewed and executable curriculum programs.
-- 9 ordered curriculum sections.
+- 269 reviewed and executable curriculum programs.
+- 12 ordered curriculum sections.
 - A vertical example browser with local metadata search, section counts, difficulty, line count, objective, complexity, and recommended views.
 - Local Python execution through the same isolated Pyodide worker used by the Python workspace.
 - A 3,000-step trace limit and a 30-second outer timeout.
@@ -20,14 +20,14 @@ Chunks 1 and 2 implement:
 - Automatic comments, Learning comments, wrapping, font sizing, Copy, Paste, prepared input, source persistence, and theme persistence.
 - 20 approved structure representation names and 31 stable DSA event names.
 
-Chunk 2 does **not** implement all of Tier A. The approved Tier A target is 535 programs, so 338 programs and their later structure families remain unimplemented. A planned program, structure, view extension, or algorithm in `Tier.md` is not an implemented claim.
+Chunk 3 does **not** implement all of Tier A. The approved Tier A target is 535 programs, so 266 programs and their later structure families remain unimplemented. A planned program, structure, view extension, or algorithm in `Tier.md` is not an implemented claim.
 
 ## Contents
 
 - [Start here](#start-here)
 - [Choose the correct workspace](#choose-the-correct-workspace)
 - [Workspace map](#workspace-map)
-- [The 197-program curriculum](#the-197-program-curriculum)
+- [The 269-program curriculum](#the-269-program-curriculum)
 - [Your first guided run](#your-first-guided-run)
 - [Editor controls](#editor-controls)
 - [Trace playback](#trace-playback)
@@ -110,9 +110,9 @@ DATA STRUCTURES AND ALGORITHMS WORKSPACE
 |   +-- Paste
 |
 +-- CURRICULUM
-|   +-- 197 reviewed programs
+|   +-- 269 reviewed programs
 |   +-- local search across complete reviewed records
-|   +-- 9 vertical section filters
+|   +-- 12 vertical section filters
 |   +-- objective and description
 |   +-- difficulty and line count
 |   +-- reviewed time and space context
@@ -203,7 +203,7 @@ Playback, Console Output, and Chunk Status keep their positions below the bounde
 
 The learning result uses a stable scrollbar gutter, so its readable width does not jump when a short view becomes long enough to scroll. Short results remain inside the same stable region without needing vertical movement. On a phone, the panel uses a shorter but still bounded height. The view-label strip can scroll horizontally, while the selected learning result scrolls vertically.
 
-## The 197-program curriculum
+## The 269-program curriculum
 
 ### Exact implemented counts
 
@@ -218,11 +218,80 @@ The learning result uses a stable scrollbar gutter, so its readable width does n
 | 07 | Stacks, queues, and deques | 22 | LIFO and FIFO contracts, monotonic structures, circular queues, bounded history, and comparisons |
 | 08 | Linked structures | 20 | Singly, doubly, and circular links, traversal, insertion, deletion, reversal, pointers, and linked ADTs |
 | 09 | Hash tables and set algorithms | 24 | Buckets, collisions, chaining, resizing, membership, frequencies, grouping, and set relationships |
-| **Total** | **Chunks 1 and 2** | **197** | **Reviewed sequence, linear, and hashed structure curriculum** |
+| 10 | Trees and binary search trees | 30 | Tree vocabulary, depth-first and breadth-first traversals, shape rules, serialization, BST search, insertion, deletion, validation, rank, and height |
+| 11 | Heaps and priority queues | 18 | Array relationships, heapify, push, pop, invariant checks, top-k selection, stable scheduling, k-way merge, and construction comparisons |
+| 12 | Tries and string algorithms | 24 | Prefix insertion, lookup, deletion, autocomplete, counted paths, suffix tries, direct search, KMP, rolling hash, and string transformations |
+| **Total** | **Chunks 1 through 3** | **269** | **Reviewed sequence, linear, hashed, hierarchical, priority, prefix, and string-search curriculum** |
+
+### Chunk 3 learning routes
+
+The 72 new programs are not a flat collection. Each section moves from a visible
+representation toward operations, invariants, applications, and comparisons:
+
+```text
+TREES AND BINARY SEARCH TREES, 30 PROGRAMS
+|
++-- represent roots, children, leaves, and empty links
++-- traverse in preorder, inorder, postorder, and level order
++-- count nodes, leaves, height, and paths
++-- inspect shape rules, equality, balance, and completeness
++-- serialize, deserialize, mirror, and search
++-- insert, validate, and delete BST keys
++-- study extremes, ancestors, neighbors, rank, and tree shape
+
+HEAPS AND PRIORITY QUEUES, 18 PROGRAMS
+|
++-- map parent and child indices
++-- heapify, peek, push, pop, replace, and validate
++-- select kth and top-k values
++-- preserve stable order for equal priorities
++-- schedule applied work and merge sorted sequences
++-- compare repeated insertion with bottom-up heapify
+
+TRIES AND STRING ALGORITHMS, 24 PROGRAMS
+|
++-- insert, find, prefix-check, count, and delete trie words
++-- autocomplete, suggest contacts, and store prefix counts
++-- study wildcard paths, suffix tries, and word segmentation
++-- search directly, with KMP, and with a rolling hash
++-- inspect anagrams, common prefixes, runs, and overlapping matches
++-- compare direct search evidence with KMP on the same input
+```
+
+Use the routes as recommendations, not tracked progress. Code Explorer never
+records whether a learner opened, completed, or understood a program.
+
+### Which view should I open first?
+
+```text
+My question is about...
+|
++-- tree shape or character branches
+|      +-- Structure Canvas, References, Invariant Checker
+|
++-- recursion or traversal order
+|      +-- Calls and Recursion, Operation Journey, Algorithm Path
+|
++-- heap repair or top-k candidates
+|      +-- Structure Canvas, Mutation Explorer, Step Table
+|
++-- search boundaries or pattern indices
+|      +-- Watches, Step Table, Before and After
+|
++-- two reviewed strategies
+       +-- Compare Algorithms, Complexity Lab
+```
+
+Structure Canvas uses a dedicated reviewed orientation only when the editor
+source exactly matches a catalog program. Tree-family records label their root
+fields, heap-family records emphasize the observed root, and trie records label
+character edges. These are conceptual teaching labels over serialized Python
+values. They are not physical RAM addresses and they do not reveal private
+interpreter storage.
 
 Every catalog program has:
 
-- A unique stable identifier from `DSA-001` through `DSA-197`.
+- A unique stable identifier from `DSA-001` through `DSA-269`.
 - A distinct title and teaching objective.
 - A section and difficulty.
 - Reviewed source code and prepared input.
@@ -253,7 +322,7 @@ DSA SEARCH INDEX
 
 This makes metadata that is not printed in full on every card discoverable. For example:
 
-- `DSA-197 FIFO` finds the exact reviewed cache program through its stable ID and algorithm label.
+- `DSA-269 KMP evidence` finds the exact reviewed direct-versus-KMP comparison through its stable ID and metadata.
 - `empty list division` finds **Name an algorithm's input and output** through its reviewed edge-case metadata.
 - `O(log n) guided challenge` requires complexity and difficulty terms to match the same program.
 - A class, function, variable, or operation name can match the reviewed source.
@@ -285,7 +354,7 @@ Difficulty is editorial guidance. It is not a score, test result, or claim about
 
 ### Longer programs
 
-Short examples remain useful for atomic ideas, but the implemented catalog includes 48 programs with at least 15 meaningful source lines. Longer examples are used where setup, transformation, checks, and results need room to form one coherent lesson.
+Short examples remain useful for atomic ideas, but the implemented catalog includes 96 programs with at least 15 meaningful source lines. Longer examples are used where setup, transformation, checks, and results need room to form one coherent lesson.
 
 ### What Chunk 2 adds
 
@@ -309,6 +378,34 @@ SET
 These diagrams are conceptual. They explain the reviewed abstract role of observed Python values. They are not physical RAM addresses, CPython internal diagrams, or claims about an arbitrary pasted program.
 
 Chunk 2 includes representation comparisons such as list versus deque stacks, deque versus two-stack queues, linked versus array insertion, and list scan versus set membership. Comparison cards keep observed counts separate from reviewed complexity.
+
+### What Chunk 3 adds
+
+```text
+BINARY TREE
+                 root
+                /    \
+             left    right
+
+MIN-HEAP ARRAY
+index 0 is the root
+parent(i) = (i - 1) // 2
+left(i)   = 2 * i + 1
+right(i)  = 2 * i + 2
+
+TRIE
+root
+ +-- c -- a -- t [word]
+ |         +-- r [word]
+ +-- d -- o -- g [word]
+```
+
+Chunk 3 adds exact-source curriculum comparisons for tree traversal orders, BST
+deletion cases, balanced and skewed shapes, heap construction, priority-queue
+tie policies, top-k selection, trie prefix applications, and substring-search
+strategies. Compare Algorithms suggests related reviewed programs directly.
+Selecting one loads its complete reviewed source into the editor so a comparison
+run is based on that source, not on a hidden implementation.
 
 ## Your first guided run
 
@@ -473,7 +570,7 @@ Suggests up to 12 currently visible names. These are local suggestions, not save
 
 #### Structure Canvas
 
-Shows one visible container using a representation appropriate to its serialized shape. For an exact Chunk 2 catalog program, reviewed labels can orient the same observed cells as stack TOP and BASE, queue FRONT and REAR, linked HEAD and TAIL, hash entries, or set members. Pasted code receives generic observed cells because its abstract role is not reviewed. A display contains at most 30 cells or entries. Additional content is marked Shortened.
+Shows one visible container using a representation appropriate to its serialized shape. For an exact catalog program, reviewed labels can orient the same observed cells as stack TOP and BASE, queue FRONT and REAR, linked HEAD and TAIL, hash entries, set members, tree root fields, heap roots and nodes, or trie character edges. Pasted code receives generic observed cells because its abstract role is not reviewed. A display contains at most 30 cells or entries. Additional content is marked Shortened.
 
 #### References
 
@@ -669,7 +766,7 @@ Limits protect the browser and keep explanations readable. An execution limit st
 | Compare Algorithms history | 2 run summaries | The oldest in-session summary is replaced |
 | Prepared-input text | 20,000 characters | Additional text is ignored when loaded into the local input field |
 | Active learning views | 18 | Custom learner-defined views are not supported |
-| Implemented curriculum | 197 programs | The remaining 338 Tier A programs are not selectable |
+| Implemented curriculum | 269 programs | The remaining 266 Tier A programs are not selectable |
 | Approved structure names | 20 | Unknown structures receive generic bounded presentation |
 | Stable event names | 31 | Runtime cues remain conservative when an exact DSA event is unavailable |
 
@@ -781,9 +878,12 @@ Chunk 1  131 programs, local runtime, 18 working views
 Chunk 2  66 stack, queue, deque, linked, hash, and set programs
    |
    v
+Chunk 3  72 tree, BST, heap, priority-queue, trie, and string-search programs
+   |
+   v
 Later chunks
    |
-   +-- complete the remaining 338 Tier A programs
+   +-- complete the remaining 266 Tier A programs
    +-- preserve the same evidence labels and limits
    +-- extend validators before making implementation claims
 ```

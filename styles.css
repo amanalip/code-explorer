@@ -3752,6 +3752,36 @@ main {
   text-align: center;
 }
 
+/*
+ * Tree-family records use a wider root-oriented grid. Serialized cells remain
+ * conceptual fields rather than physical nodes or memory locations.
+ */
+.dsa-structure-cells.role-tree,
+.dsa-structure-cells.role-binary-tree,
+.dsa-structure-cells.role-binary-search-tree {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.dsa-structure-cells.role-tree .dsa-structure-cell:first-child,
+.dsa-structure-cells.role-binary-tree .dsa-structure-cell:first-child,
+.dsa-structure-cells.role-binary-search-tree .dsa-structure-cell:first-child {
+  border-color: var(--mint);
+  box-shadow: inset 0 3px 0 color-mix(in srgb, var(--mint) 65%, transparent);
+}
+
+/* Heap and priority-queue cells keep the root visually prominent. */
+.dsa-structure-cells.role-heap .dsa-structure-cell:first-child,
+.dsa-structure-cells.role-priority-queue .dsa-structure-cell:first-child {
+  border: 2px solid var(--mint);
+  background: color-mix(in srgb, var(--mint) 9%, var(--bg-raised));
+}
+
+/* Trie entries resemble character edges and retain readable wrapped values. */
+.dsa-structure-cells.role-trie .dsa-structure-cell {
+  border-left: 4px solid var(--purple);
+  border-radius: 4px 12px 12px 4px;
+}
+
 /* Operation history uses source snippets below each normalized event label. */
 .dsa-operation-list {
   display: grid;
