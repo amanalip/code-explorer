@@ -722,6 +722,10 @@ The `learningComments` result contains JSON-compatible records with `line`, `lev
 - `state.referenceGraphLibrary` caches only the optional Cytoscape module for
   the current page. `state.referenceGraph` owns the live References instance,
   and `state.referenceGraphRenderId` rejects stale asynchronous completions.
+- `state.algorithmPathGraph` owns the separate live Algorithm Path instance,
+  while `state.algorithmPathGraphRenderId` rejects stale imports or renders.
+  Both graph views reuse `state.referenceGraphLibrary` and must destroy their
+  own instance when playback, theme, source, or view state requires it.
 - Editing source immediately clears the old trace, error, comments, comparison eligibility, and exact reviewed-program identity.
 - Reviewed phases, invariants, edge cases, complexity, and comparison groups must read from `state.program`, never from source-text heuristics.
 - Observed views must read from worker evidence and remain useful when `state.program` is null.
@@ -1136,7 +1140,7 @@ The redesign is divided into five commit-sized chunks:
 1. Shared visual system and five Trace views. Implemented and verified on
    2026-07-28.
 2. Six Data views. Implemented and verified on 2026-07-28.
-3. Four Flow views.
+3. Four Flow views. Implemented and verified on 2026-07-28.
 4. Three Labs views.
 5. Cross-view accessibility, responsive behavior, fallbacks, documentation,
    and the complete regression audit.
@@ -1187,6 +1191,71 @@ The References enhancement lazily imports the already pinned Cytoscape 3.31.0
 module from `esm.sh`. No learner source, prepared input, trace, object token,
 or identifier is attached to that asset request. The complete HTML map is the
 accessible fallback and remains present after success.
+
+### Implemented Flow visual system
+
+The four Flow renderers use `createFlowViewShell()` for orientation and
+`renderFlowUnavailable()` for purposeful pre-run states.
+
+```text
+createFlowViewShell()
+        |
+        +-- evidence and Flow view identity
+        +-- one beginner question
+        +-- program and selected boundary
+        +-- source line and escaped executed source
+        |
+        v
+purpose-specific body mount
+        |
+        +-- Operation Journey event spine
+        +-- Algorithm Path graph and ordered fallback
+        +-- Step Table debugger surface
+        +-- Complexity Lab evidence columns
+```
+
+`boundedFlowWindow(entries, activeIndex, limit)` is the shared window contract.
+It centers around the selected step when possible and guarantees that the
+selected step remains inside the displayed subset. It is used with:
+
+- 30 Operation Journey events.
+- 80 Algorithm Path recorded steps.
+- 120 Step Table rows.
+
+Algorithm Path reuses the pinned Cytoscape 3.31.0 module and theme palette
+already approved for References. It owns a separate graph instance and render
+identifier. The optional graph groups repeated line transitions, while the
+permanent semantic list retains displayed chronological order. Playback
+suspends graph construction, and stopping playback rebuilds one graph.
+
+Complexity Lab follows this non-negotiable evidence split:
+
+```text
+observed prefix metrics
+        !=
+reviewed asymptotic complexity
+```
+
+Observed metrics may count trace steps, reached lines, and normalized event
+cues through `state.currentStep`. They must not be described as elapsed time,
+processor work, memory usage, or proof of Big O. Time and space formulas may
+come only from `state.activeProgram`, which requires an exact unchanged
+catalog-source match.
+
+Flow regression checks must confirm:
+
+1. Operation Journey selection follows playback and later entries are called
+   later recorded steps.
+2. Algorithm Path retains its ordered transition list before, during, and
+   after optional graph failure.
+3. Algorithm Path destroys its graph during playback and rebuilds once after
+   pause or completion.
+4. Step Table contains one and only one visible `aria-current="true"` row.
+5. Previous, Next, Play, Restart, and timeline movement update the table row.
+6. Edited source retains observed Complexity Lab counts and loses reviewed Big
+   O.
+7. The 390-pixel layout scrolls inside `dsaViewStage` without page-level
+   horizontal overflow.
 
 ### Implemented Trace visual system
 

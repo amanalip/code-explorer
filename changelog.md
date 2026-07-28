@@ -15,6 +15,69 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v18, 2026-07-28
+
+v18 ships **DSA LAB UI redesign Chunk 3**. All four Flow views now use a
+beginner-oriented, playback-aware visual system. The three Labs views remain
+the next redesign chunk.
+
+### Four redesigned Flow views
+
+| View | Learner-visible change |
+| --- | --- |
+| Operation Journey | Adds a selected-operation explanation and a keyboard-focusable vertical event spine |
+| Algorithm Path | Adds an optional interactive path graph, complete ordered transition list, selected boundary, and visit counts |
+| Step Table | Adds sticky debugger headings, executed source, and one playback-controlled Current step row |
+| Complexity Lab | Separates observed prefix metrics and event bars from reviewed time and space Big O |
+
+Every Flow view now starts with its evidence type, one beginner question,
+program, selected playback boundary, source line, and exact executed source.
+Designed pre-run states explain how the learner can create the missing
+evidence.
+
+### Stable Algorithm Path enhancement
+
+- Algorithm Path reuses pinned Cytoscape 3.31.0. No new dependency was added.
+- Repeated line-to-line transitions are grouped only in the optional graph.
+- A complete ordered transition list remains present as semantic evidence.
+- Fit, pan, selection, and 50 to 160 percent zoom are available.
+- Automatic playback suspends the graph and rebuilds one graph after playback
+  pauses or completes.
+- A failed Cytoscape request produces an explicit unavailable message while
+  the transition list remains complete.
+- The fixed asset request carries no learner source, trace content, selected
+  line, prepared input, local preference, or identifier.
+
+### Evidence and safety boundaries
+
+- Operation Journey stops at 30 displayed operations around the selected step.
+- Algorithm Path stops at 80 displayed recorded steps around the selected
+  boundary.
+- Step Table stops at 120 rows while keeping the selected row in view.
+- Complexity event bars describe one recorded playback prefix. They are not
+  timings or proof of Big O.
+- Reviewed time and space formulas appear only for exact unchanged catalog
+  source.
+- Edited or pasted source retains observed counts and receives an explicit
+  reviewed Big O Unavailable state.
+
+### Verification
+
+- The DSA foundation validator now protects the shared Flow shell and all four
+  purpose-specific contracts.
+- All four Flow views rendered after a reviewed loop trace.
+- Operation Journey selection followed playback.
+- Algorithm Path rendered a graph with three Cytoscape canvases and retained a
+  complete 14-entry ordered transition list.
+- Playback suspended the live path graph.
+- Deliberately blocking the exact Cytoscape request preserved the transition
+  list with an explicit fallback message.
+- Step Table moved its only Current step row after Previous.
+- Adding one harmless source comment removed reviewed complexity and retained
+  observed metrics.
+- At 390 by 844 in dark mode, all four Flow views remained inside a 448-pixel
+  scrollable stage with no page-level horizontal overflow.
+
 ## v17, 2026-07-28
 
 v17 ships **DSA LAB UI redesign Chunk 2**. All six Data views now use a

@@ -1299,42 +1299,124 @@ observed Data views continue to work.
 
 ### Flow area
 
+Every Flow view begins with the evidence type, its learner question, program,
+selected playback boundary, source line, and exact executed source. The word
+**boundary** means the position between adjacent recorded moments where the
+selected line completed. Flow views explain movement across that position.
+
 #### Operation Journey
 
-Lists up to 30 observed event cues in order. It is a bounded learning summary, not the complete internal worker event stream.
+Answers: **Which operation is selected, and what happened around it?**
 
-The selected operation already carries the existing current-step treatment. This view is intentionally independent from the Before and After layout.
+The selected event appears first with its plain-language explanation. A
+vertical spine then places earlier, selected, and later recorded operations in
+order. Every entry is a button that moves playback to that step.
+
+```text
+SELECTED OPERATION
+WRITE
+Python updated a recorded name after this line.
+
+  07  Earlier recorded operation
+  08  Earlier recorded operation
+ [09] Selected recorded operation
+  10  Later recorded operation
+```
+
+The view shows at most 30 operations in a window around the selected step.
+Later entries are called later **recorded** steps because the run has already
+completed. They are not described as code Python has not executed.
+
+Operation Journey is intentionally independent from Before and After. The
+first explains an ordered operation sequence. The second compares complete
+visible values across one adjacent snapshot boundary.
 
 #### Algorithm Path
 
-Shows up to 80 executed source-line transitions and visit counts.
+Answers: **Which source-line transition is selected, and how often was each
+route recorded?**
+
+The view has two representations:
+
+1. An optional interactive Cytoscape graph groups equal line-to-line
+   transitions and labels their count.
+2. A complete semantic list preserves every displayed transition in recorded
+   order.
+
+```text
+selected boundary: line 4 to line 5
+
+graph summary
+line 4 ---- 4x ----> line 5
+line 5 ---- 3x ----> line 4
+
+ordered evidence
+step 04  line 4 -> line 5
+step 05  line 5 -> line 4
+step 06  line 4 -> line 5
+```
+
+The grouped graph makes loops easier to recognize. The ordered list prevents a
+`4x` edge from hiding where the four transitions occurred. Fit, pan, node
+selection, and 50 to 160 percent zoom are available after the optional graph
+loads.
+
+Algorithm Path displays at most 80 recorded steps around the selected
+boundary. The limit bounds graph and list work. It does not delete the full
+trace or prevent playback from reaching another recorded step.
+
+If Cytoscape cannot load, the graph says it is unavailable and the ordered
+transition list remains usable. During automatic playback, the live graph is
+temporarily suspended so layout work does not shake the panel. One graph
+returns after playback pauses or completes.
 
 #### Step Table
 
-Shows up to 120 recorded rows with step, line, event cue, and changed names. The row matching the selected playback position receives a visible **Current step** label, a boundary, and `aria-current="true"`. Previous, Next, playback, restart, and timeline movement update that marker with the selected trace step. Color is only supporting emphasis.
+Answers: **What evidence belongs to each recorded step?**
+
+Step Table is a debugger-style view with sticky column headings:
 
 ```text
-Step                 Line   Event cue       Changed names
-1                    1      WRITE           values
-2                    2      WRITE           total
-3  [Current step]    4      VISIT_INDEX     value
+Step                 Line   Event cue       Changed names   Executed source
+1                    1      WRITE           values          values = [...]
+2                    2      WRITE           total           total = 0
+3  [Current step]    4      VISIT INDEX     value           for value in values:
 ```
 
-When more than 120 rows are available in the selected trace prefix, the view displays the latest bounded rows and marks the presentation Shortened. The underlying inspectable trace is not deleted by this presentation limit.
+The row matching the selected playback position receives a visible **Current
+step** label, a boundary, and `aria-current="true"`. Previous, Next, Play,
+Restart, and timeline movement update that one row. Color is only supporting
+emphasis.
+
+When more than 120 rows exist, the view keeps the selected row inside a
+120-row window and marks the presentation Shortened. The underlying trace is
+not deleted, and playback still reaches every recorded step.
 
 #### Complexity Lab
 
-Separates observed counts from reviewed asymptotic context:
+Answers: **What happened in this run, and what does the reviewed Big O claim
+mean?**
+
+Complexity Lab separates observed playback-prefix counts from reviewed
+asymptotic context:
 
 ```text
-Observed in this run                  Reviewed curriculum context
---------------------                  ---------------------------
-recorded steps                        time complexity
-reached source lines                  space complexity
-event cue counts                      comparison notes
+Observed through selected step        Reviewed curriculum context
+------------------------------        ---------------------------
+recorded steps                        reviewed time Big O
+reached source lines                  reviewed space Big O
+event cue count bars                  reviewed growth explanation
 ```
 
-One run cannot prove a complexity class. The Big O card appears only for an unchanged reviewed program.
+The bars compare normalized events only within one locally recorded playback
+prefix. They are not elapsed-time measurements, processor benchmarks, or
+physical memory measurements.
+
+**Big O** describes how work or extra storage grows as input size grows. One
+run cannot prove that general growth class. Reviewed time and space cards
+therefore appear only for the exact unchanged catalog source. Editing or
+pasting code keeps the observed counts but replaces reviewed Big O with an
+explicit Unavailable explanation.
 
 ### Labs area
 
@@ -1540,16 +1622,17 @@ The application does not upload:
 Browser execution still makes ordinary asset requests:
 
 - GitHub Pages serves the static site.
-- `esm.sh` serves pinned CodeMirror modules and, when References has useful
-  evidence, pinned Cytoscape 3.31.0.
+- `esm.sh` serves pinned CodeMirror modules and, when References or Algorithm
+  Path has useful evidence, pinned Cytoscape 3.31.0.
 - jsDelivr serves pinned Pyodide files.
 - Google Fonts may serve the configured fonts.
 - Explicit external links navigate only when selected.
 
-The References request uses the fixed Cytoscape library URL. Code Explorer
-does not append source, trace content, object tokens, selected names, program
-IDs, catalog searches, local-storage values, or learner identifiers. If the
-request fails, the complete local semantic text map remains usable.
+References and Algorithm Path reuse the same fixed Cytoscape library URL. Code
+Explorer does not append source, trace content, object tokens, selected names,
+selected lines, program IDs, catalog searches, local-storage values, or
+learner identifiers. If the request fails, References keeps its complete local
+text map and Algorithm Path keeps its complete ordered transition list.
 
 Those providers can receive ordinary request metadata such as an IP address and browser headers under their own policies. Code Explorer does not attach learner content or project-generated identifiers to those requests. The project maintainers cannot inspect provider-side raw IP addresses or browser headers through Code Explorer.
 

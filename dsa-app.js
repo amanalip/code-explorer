@@ -8,42 +8,42 @@
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-24";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-24";
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-24";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-25";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-25";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-25";
 import {
   DSA_AREAS,
   DSA_EVIDENCE_LABELS,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260728-24";
+} from "./dsa-contracts.js?v=20260728-25";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260728-24";
+} from "./dsa-curriculum.js?v=20260728-25";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260728-24";
+} from "./dsa-curriculum-chunk2.js?v=20260728-25";
 import {
   DSA_CHUNK_THREE_PROGRAMS,
   DSA_CHUNK_THREE_SECTIONS,
-} from "./dsa-curriculum-chunk3.js?v=20260728-24";
+} from "./dsa-curriculum-chunk3.js?v=20260728-25";
 import {
   DSA_CHUNK_FOUR_PROGRAMS,
   DSA_CHUNK_FOUR_SECTIONS,
-} from "./dsa-curriculum-chunk4.js?v=20260728-24";
+} from "./dsa-curriculum-chunk4.js?v=20260728-25";
 import {
   DSA_CHUNK_FIVE_PROGRAMS,
   DSA_CHUNK_FIVE_SECTIONS,
-} from "./dsa-curriculum-chunk5.js?v=20260728-24";
+} from "./dsa-curriculum-chunk5.js?v=20260728-25";
 import {
   DSA_CHUNK_SIX_PROGRAMS,
   DSA_CHUNK_SIX_SECTIONS,
-} from "./dsa-curriculum-chunk6.js?v=20260728-24";
+} from "./dsa-curriculum-chunk6.js?v=20260728-25";
 import {
   DSA_CHUNK_SEVEN_PROGRAMS,
   DSA_CHUNK_SEVEN_SECTIONS,
-} from "./dsa-curriculum-chunk7.js?v=20260728-24";
+} from "./dsa-curriculum-chunk7.js?v=20260728-25";
 import {
   DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
@@ -55,7 +55,7 @@ import {
   variableChanges,
   variableComparisons,
   variablesForStep,
-} from "./dsa-runtime.js?v=20260728-24";
+} from "./dsa-runtime.js?v=20260728-25";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
@@ -174,6 +174,9 @@ const state = {
   referenceGraphLibrary: null,
   referenceGraph: null,
   referenceGraphRenderId: 0,
+  // Algorithm Path uses a separate Cytoscape instance and the same audited library.
+  algorithmPathGraph: null,
+  algorithmPathGraphRenderId: 0,
   // A reviewed origin identifies the learner's selected question, not progress.
   selectedProgramId: readLocalText(STORAGE_KEYS.selectedProgram) || "",
 };
@@ -401,21 +404,22 @@ async function pasteCompleteEditor() {
 /**
  * Stops playback without changing the selected trace step.
  *
- * Reference graphs intentionally remain still during automatic playback. A
- * deliberate pause or natural completion refreshes that graph once, while
- * source invalidation and new runs suppress the unnecessary refresh.
+ * Cytoscape graphs intentionally remain still during automatic playback. A
+ * deliberate pause or natural completion refreshes the active graph once,
+ * while source invalidation and new runs suppress the unnecessary refresh.
  *
- * @param {boolean} [refreshReferenceView] Whether a paused reference view should rebuild.
+ * @param {boolean} [refreshGraphView] Whether a paused graph view should rebuild.
  */
-function stopPlayback(refreshReferenceView = true) {
+function stopPlayback(refreshGraphView = true) {
   const wasPlaying = Boolean(state.playbackTimer);
   if (state.playbackTimer) window.clearInterval(state.playbackTimer);
   state.playbackTimer = null;
   els.dsaPlayButton.textContent = "▶";
   els.dsaPlayButton.setAttribute("aria-label", "Play DSA trace");
-  if (wasPlaying && refreshReferenceView && state.activeView === "references" && state.trace.length) {
+  const graphViews = ["references", "algorithm-path"];
+  if (wasPlaying && refreshGraphView && graphViews.includes(state.activeView) && state.trace.length) {
     window.requestAnimationFrame(() => {
-      if (!state.playbackTimer && state.activeView === "references" && state.trace.length) renderActiveView();
+      if (!state.playbackTimer && graphViews.includes(state.activeView) && state.trace.length) renderActiveView();
     });
   }
 }
@@ -2244,84 +2248,541 @@ function renderInvariantChecker() {
   els.dsaViewStage.replaceChildren(article);
 }
 
-/** Builds a bounded history of observed normalized events through the current step. */
-function observedEventsThroughCurrent() {
-  return state.trace.slice(0, state.currentStep + 1).map((step, index) => {
+/**
+ * Builds normalized events for the complete recorded trace.
+ *
+ * Playback selects a position inside an already completed recording. Keeping
+ * all event indexes lets Flow views show earlier and later recorded context
+ * without implying that later rows have not executed.
+ *
+ * @returns {Array<object>} Complete ordered event records.
+ */
+function observedEventsForTrace() {
+  return state.trace.map((step, index) => {
     const changes = variableChanges(state.trace[index - 1] || null, step);
     return { step, changes, event: classifyDsaEvent(step, changes), index };
   });
 }
 
-/** Renders recent operations as an ordered journey. */
-function renderOperationJourney() {
-  const events = observedEventsThroughCurrent();
-  if (!events.length) {
-    renderUnavailable("No operation journey", "Run a program to build a recorded sequence of operation cues.");
-    return;
+/**
+ * Selects a bounded window that always contains the active playback position.
+ *
+ * @param {Array<object>} entries Complete ordered entries.
+ * @param {number} activeIndex Absolute selected index.
+ * @param {number} limit Maximum entries shown.
+ * @returns {{entries: Array<object>, start: number, shortened: boolean}} Window metadata.
+ */
+function boundedFlowWindow(entries, activeIndex, limit) {
+  if (entries.length <= limit) return { entries, start: 0, shortened: false };
+  const half = Math.floor(limit / 2);
+  const start = Math.max(0, Math.min(activeIndex - half, entries.length - limit));
+  return { entries: entries.slice(start, start + limit), start, shortened: true };
+}
+
+/**
+ * Builds the common orientation header for all four Flow views.
+ *
+ * Flow views explain ordered movement rather than only one snapshot. Their
+ * header therefore names the selected boundary and keeps the executed source
+ * line visible before the learner reads a timeline, graph, table, or metric.
+ *
+ * @param {object} options Flow-view presentation options.
+ * @param {string} options.viewId Stable view id used by scoped CSS.
+ * @param {string} options.title Learner-facing title.
+ * @param {string} options.question Plain-language question answered by the view.
+ * @param {object|null} [options.step] Selected recorded step.
+ * @param {Array<string>} [options.evidenceKeys] Evidence badges shown in order.
+ * @param {Array<Array<string>>} [options.extraFacts] Additional context facts.
+ * @returns {{article: HTMLElement, body: HTMLElement}} Shell and empty content mount.
+ */
+function createFlowViewShell({
+  viewId,
+  title,
+  question,
+  step = selectedStep(),
+  evidenceKeys = ["observed"],
+  extraFacts = [],
+}) {
+  const article = makeElement("article", `dsa-runtime-view dsa-flow-view dsa-flow-${viewId}`);
+  const hero = makeElement("header", "dsa-flow-hero");
+  const identity = makeElement("div", "dsa-flow-identity");
+  const eyebrow = makeElement("div", "dsa-flow-eyebrow");
+  evidenceKeys.forEach((key) => eyebrow.append(evidenceBadge(key)));
+  eyebrow.append(makeElement("span", "", `FLOW / ${title.toUpperCase()}`));
+  identity.append(eyebrow);
+  identity.append(makeElement("h2", "", title));
+  identity.append(makeElement("p", "", question));
+  hero.append(identity);
+
+  const context = makeElement("section", "dsa-flow-context");
+  const facts = [["Program", traceProgramLabel()]];
+  if (step) {
+    facts.push(
+      ["Selected boundary", `${state.currentStep + 1} of ${state.trace.length}`],
+      ["Source line", String(step.line)],
+    );
   }
-  const visible = events.slice(-LIMITS.operationJourneyRows);
-  const article = makeElement("article", "dsa-runtime-view");
-  if (visible.length < events.length) article.append(evidenceBadge("shortened"));
-  article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", "Observed operation journey"));
-  const list = makeElement("ol", "dsa-operation-list");
-  visible.forEach(({ step, event, index }) => {
-    const item = makeElement("li", index === state.currentStep ? "current" : "");
-    item.append(makeElement("strong", "", `${event.type} · line ${step.line}`));
-    item.append(makeElement("code", "", step.source.trim()));
-    list.append(item);
+  facts.push(...extraFacts);
+  facts.forEach(([label, value]) => {
+    const fact = makeElement("div", "dsa-flow-context-fact");
+    fact.append(makeElement("span", "", label));
+    fact.append(makeElement("strong", "", value));
+    context.append(fact);
   });
-  article.append(list);
+  hero.append(context);
+  if (step) hero.append(makeElement("code", "dsa-flow-source", step.source.trim()));
+
+  const body = makeElement("div", "dsa-flow-body");
+  article.append(hero, body);
+  return { article, body };
+}
+
+/**
+ * Renders a purposeful pre-run state for one Flow view.
+ *
+ * @param {object} options Empty-state content.
+ * @param {string} options.viewId Stable view id.
+ * @param {string} options.glyph Compact visual mark.
+ * @param {string} options.title Learner-facing title.
+ * @param {string} options.question Question answered after a run.
+ * @param {string} options.reason Honest reason evidence is unavailable.
+ * @param {Array<string>} options.steps Safe learner actions.
+ */
+function renderFlowUnavailable({ viewId, glyph, title, question, reason, steps }) {
+  const { article, body } = createFlowViewShell({
+    viewId,
+    title,
+    question,
+    step: null,
+    evidenceKeys: ["unavailable"],
+  });
+  const empty = makeElement("section", "dsa-flow-empty-state");
+  const mark = makeElement("span", "dsa-flow-empty-glyph", glyph);
+  mark.setAttribute("aria-hidden", "true");
+  empty.append(mark);
+  empty.append(makeElement("h3", "", reason));
+  const list = makeElement("ol", "dsa-flow-next-steps");
+  steps.forEach((step) => list.append(makeElement("li", "", step)));
+  empty.append(list);
+  body.append(empty);
   els.dsaViewStage.replaceChildren(article);
 }
 
-/** Renders visited source lines and counts as an honest bounded path. */
-function renderAlgorithmPath() {
-  if (!state.trace.length) {
-    renderUnavailable("No execution path", "Run a program to see the source lines Python actually reached.");
+/** Renders the selected operation inside a bounded chronological spine. */
+function renderOperationJourney() {
+  const events = observedEventsForTrace();
+  if (!events.length) {
+    renderFlowUnavailable({
+      viewId: "operations",
+      glyph: "→",
+      title: "Operation Journey",
+      question: "Which operation is selected, and what happened around it?",
+      reason: "Run a trace to build an ordered journey of observed operations.",
+      steps: [
+        "Choose a reviewed example or keep your own Python.",
+        "Run the program locally in this browser.",
+        "Move playback to follow the active operation.",
+      ],
+    });
     return;
   }
+  const windowed = boundedFlowWindow(events, state.currentStep, LIMITS.operationJourneyRows);
+  const evidenceKeys = ["observed"];
+  if (windowed.shortened) evidenceKeys.push("shortened");
+  const current = events[state.currentStep];
+  const { article, body } = createFlowViewShell({
+    viewId: "operations",
+    title: "Operation Journey",
+    question: "Which operation is selected, and what happened around it?",
+    evidenceKeys,
+    extraFacts: [
+      ["Observed event", current.event.type.replaceAll("_", " ")],
+      ["Window", `${windowed.entries.length} of ${events.length} operations`],
+    ],
+  });
+
+  const active = makeElement("section", "dsa-flow-current-operation");
+  active.append(makeElement("span", "", "SELECTED OPERATION"));
+  active.append(makeElement("strong", "", current.event.type.replaceAll("_", " ")));
+  active.append(makeElement("p", "", current.event.explanation));
+  body.append(active);
+
+  const list = makeElement("ol", "dsa-flow-operation-spine");
+  windowed.entries.forEach(({ step, event, changes, index }) => {
+    const position = index < state.currentStep ? "earlier" : index > state.currentStep ? "later" : "current";
+    const item = makeElement("li", `dsa-flow-operation ${position}`);
+    const jump = makeElement("button", "", "");
+    jump.type = "button";
+    jump.setAttribute("aria-label", `Go to recorded step ${index + 1}, line ${step.line}`);
+    if (position === "current") jump.setAttribute("aria-current", "step");
+    const marker = makeElement("span", "dsa-flow-operation-marker", String(index + 1).padStart(2, "0"));
+    const copy = makeElement("span", "dsa-flow-operation-copy");
+    copy.append(makeElement("strong", "", event.type.replaceAll("_", " ")));
+    copy.append(makeElement("code", "", step.source.trim()));
+    copy.append(makeElement(
+      "span",
+      "",
+      `${position === "current" ? "Selected" : `${position[0].toUpperCase()}${position.slice(1)}`} recorded step · ${changes.length} changed ${changes.length === 1 ? "name" : "names"}`,
+    ));
+    jump.append(marker, copy);
+    jump.addEventListener("click", () => selectStep(index));
+    item.append(jump);
+    list.append(item);
+  });
+  body.append(list);
+  if (windowed.shortened) {
+    body.append(makeElement("p", "dsa-flow-boundary", `Operation Journey keeps the selected step inside a ${LIMITS.operationJourneyRows}-event window. The full recorded trace remains available through playback and Step Table.`));
+  }
+  els.dsaViewStage.replaceChildren(article);
+}
+
+/**
+ * Destroys the optional Algorithm Path graph and invalidates pending imports.
+ */
+function disposeAlgorithmPathGraph() {
+  state.algorithmPathGraphRenderId += 1;
+  state.algorithmPathGraph?.destroy();
+  state.algorithmPathGraph = null;
+}
+
+/**
+ * Builds unique line nodes and counted transitions from an exact step window.
+ *
+ * The accompanying semantic transition list retains chronological order. The
+ * graph groups repeated transitions only to reduce visual clutter.
+ *
+ * @param {Array<object>} entries Bounded ordered trace entries.
+ * @returns {Array<object>} Cytoscape nodes and edges.
+ */
+function algorithmPathGraphElements(entries) {
+  const nodes = new Map();
+  const edges = new Map();
+  entries.forEach(({ step, index }, entryIndex) => {
+    const nodeId = `line-${step.line}`;
+    if (!nodes.has(nodeId)) {
+      nodes.set(nodeId, {
+        data: {
+          id: nodeId,
+          label: `LINE ${step.line}\n${step.source.trim()}`,
+          kind: index === state.currentStep ? "current" : "line",
+        },
+      });
+    } else if (index === state.currentStep) {
+      nodes.get(nodeId).data.kind = "current";
+    }
+    if (entryIndex === 0) return;
+    const previous = entries[entryIndex - 1];
+    const edgeId = `edge-${previous.step.line}-${step.line}`;
+    if (!edges.has(edgeId)) {
+      edges.set(edgeId, {
+        data: {
+          id: edgeId,
+          source: `line-${previous.step.line}`,
+          target: nodeId,
+          count: 0,
+          kind: "transition",
+        },
+      });
+    }
+    const edge = edges.get(edgeId);
+    edge.data.count += 1;
+    edge.data.label = `${edge.data.count}x`;
+    if (index === state.currentStep) edge.data.kind = "current";
+  });
+  return [...nodes.values(), ...edges.values()];
+}
+
+/**
+ * Enhances the complete HTML transition list with an optional path graph.
+ *
+ * @param {HTMLElement} canvas Mounted graph container.
+ * @param {Array<object>} entries Bounded exact trace entries.
+ * @param {object} controls Fit, zoom, output, and status elements.
+ * @returns {Promise<void>} Resolves after enhancement or safe fallback.
+ */
+async function enhanceAlgorithmPathGraph(canvas, entries, controls) {
+  const renderId = ++state.algorithmPathGraphRenderId;
+  controls.status.textContent = "Loading optional path graph";
+  const cytoscape = await loadDsaReferenceGraphLibrary();
+  if (
+    !cytoscape
+    || renderId !== state.algorithmPathGraphRenderId
+    || state.activeView !== "algorithm-path"
+    || !canvas.isConnected
+  ) {
+    if (canvas.isConnected && renderId === state.algorithmPathGraphRenderId) {
+      controls.status.textContent = "Interactive graph unavailable. The complete ordered transition list remains below.";
+      canvas.classList.add("unavailable");
+      canvas.dataset.message = "Interactive path graph unavailable";
+    }
+    return;
+  }
+
+  const colors = dsaReferenceGraphPalette();
+  state.algorithmPathGraph?.destroy();
+  state.algorithmPathGraph = cytoscape({
+    container: canvas,
+    elements: algorithmPathGraphElements(entries),
+    pixelRatio: Math.min(3, Math.max(2, window.devicePixelRatio || 1)),
+    minZoom: 0.5,
+    maxZoom: 1.6,
+    layout: {
+      name: "breadthfirst",
+      directed: true,
+      padding: 28,
+      spacingFactor: 1.18,
+      animate: false,
+    },
+    style: [
+      {
+        selector: "node",
+        style: {
+          label: "data(label)",
+          color: colors.text,
+          "background-color": colors.panel,
+          "border-color": colors.line,
+          "border-width": 1.5,
+          "font-family": colors.mono,
+          "font-size": 11,
+          "font-weight": 600,
+          "text-wrap": "wrap",
+          "text-max-width": 160,
+          "text-valign": "center",
+          "text-halign": "center",
+          shape: "round-rectangle",
+          width: 170,
+          height: 64,
+        },
+      },
+      {
+        selector: 'node[kind = "current"]',
+        style: {
+          "border-color": colors.mint,
+          "border-width": 4,
+          "background-color": colors.panel,
+        },
+      },
+      {
+        selector: "edge",
+        style: {
+          label: "data(label)",
+          width: 1.8,
+          "line-color": colors.line,
+          "target-arrow-color": colors.line,
+          "target-arrow-shape": "triangle",
+          "curve-style": "bezier",
+          color: colors.soft,
+          "font-family": colors.mono,
+          "font-size": 10,
+          "text-background-color": colors.panel,
+          "text-background-opacity": 1,
+          "text-background-padding": 3,
+        },
+      },
+      {
+        selector: 'edge[kind = "current"]',
+        style: {
+          width: 4,
+          "line-color": colors.mint,
+          "target-arrow-color": colors.mint,
+        },
+      },
+      {
+        selector: "node:selected",
+        style: {
+          "border-color": colors.purple,
+          "border-width": 4,
+        },
+      },
+    ],
+  });
+
+  const syncZoom = () => {
+    const percent = Math.round(state.algorithmPathGraph.zoom() * 100);
+    controls.slider.value = String(percent);
+    controls.output.value = `${percent}%`;
+  };
+  const setZoom = (requested) => {
+    const percent = Math.min(160, Math.max(50, Number(requested) || 100));
+    state.algorithmPathGraph.zoom({
+      level: percent / 100,
+      renderedPosition: { x: canvas.clientWidth / 2, y: canvas.clientHeight / 2 },
+    });
+    syncZoom();
+  };
+  controls.slider.disabled = false;
+  controls.fit.disabled = false;
+  controls.slider.addEventListener("input", () => setZoom(controls.slider.value));
+  controls.fit.addEventListener("click", () => {
+    state.algorithmPathGraph.fit(undefined, 28);
+    syncZoom();
+  });
+  state.algorithmPathGraph.on("zoom", syncZoom);
+  state.algorithmPathGraph.fit(undefined, 28);
+  syncZoom();
+  controls.status.textContent = "Interactive path ready. Select a line, pan, zoom, or use Fit.";
+  canvas.classList.remove("loading", "unavailable");
+  delete canvas.dataset.message;
+}
+
+/** Renders exact executed transitions with an optional readable graph. */
+function renderAlgorithmPath() {
+  disposeAlgorithmPathGraph();
+  if (!state.trace.length) {
+    renderFlowUnavailable({
+      viewId: "path",
+      glyph: "↳",
+      title: "Algorithm Path",
+      question: "Which source-line transition is selected, and how often was each route recorded?",
+      reason: "Run a trace to map the source lines Python actually reached.",
+      steps: [
+        "Run a reviewed or pasted Python program.",
+        "Use playback to select one transition boundary.",
+        "Read the ordered list even if the optional graph is unavailable.",
+      ],
+    });
+    return;
+  }
+  const allEntries = state.trace.map((step, index) => ({ step, index }));
+  const windowed = boundedFlowWindow(allEntries, state.currentStep, LIMITS.algorithmPathSteps);
   const prefix = state.trace.slice(0, state.currentStep + 1);
   const counts = new Map();
   prefix.forEach((step) => counts.set(step.line, (counts.get(step.line) || 0) + 1));
-  const visible = prefix.slice(-LIMITS.algorithmPathSteps);
-  const article = makeElement("article", "dsa-runtime-view");
-  if (visible.length < prefix.length) article.append(evidenceBadge("shortened"));
-  article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", "Executed source path"));
-  const path = makeElement("div", "dsa-path-strip");
-  visible.forEach((step, index) => {
-    path.append(makeElement("span", index === visible.length - 1 ? "current" : "", `L${step.line}`));
+  const evidenceKeys = ["observed"];
+  if (windowed.shortened) evidenceKeys.push("shortened");
+  const previous = state.trace[state.currentStep - 1] || null;
+  const transition = previous ? `Line ${previous.line} to line ${selectedStep().line}` : `Start at line ${selectedStep().line}`;
+  const { article, body } = createFlowViewShell({
+    viewId: "path",
+    title: "Algorithm Path",
+    question: "Which source-line transition is selected, and how often was each route recorded?",
+    evidenceKeys,
+    extraFacts: [
+      ["Selected transition", transition],
+      ["Window", `${windowed.entries.length} of ${state.trace.length} steps`],
+    ],
   });
-  article.append(path);
-  const summary = makeElement("div", "dsa-line-counts");
+
+  const boundary = makeElement("section", "dsa-flow-path-boundary");
+  boundary.append(makeElement("span", "", "SELECTED TRANSITION BOUNDARY"));
+  boundary.append(makeElement("strong", "", transition));
+  boundary.append(makeElement("p", "", "The graph groups repeated line-to-line transitions for readability. The ordered list below preserves every displayed transition in recorded order."));
+  body.append(boundary);
+
+  const graphPanel = makeElement("section", "dsa-flow-path-graph");
+  const toolbar = makeElement("div", "dsa-flow-path-toolbar");
+  const status = makeElement("p", "dsa-flow-path-status", state.playbackTimer
+    ? "Playback is running. The path graph will refresh once playback pauses."
+    : "Preparing the optional path graph");
+  status.setAttribute("role", "status");
+  const controls = makeElement("div", "dsa-flow-path-controls");
+  const fit = makeElement("button", "", "Fit");
+  fit.type = "button";
+  fit.disabled = true;
+  const sliderLabel = makeElement("label", "");
+  sliderLabel.append(makeElement("span", "", "Zoom"));
+  const slider = document.createElement("input");
+  slider.type = "range";
+  slider.min = "50";
+  slider.max = "160";
+  slider.step = "5";
+  slider.value = "100";
+  slider.disabled = true;
+  slider.setAttribute("aria-label", "Algorithm Path graph zoom");
+  const output = document.createElement("output");
+  output.value = "100%";
+  sliderLabel.append(slider, output);
+  controls.append(fit, sliderLabel);
+  toolbar.append(status, controls);
+  const canvas = makeElement("div", "dsa-flow-path-canvas loading");
+  canvas.dataset.message = state.playbackTimer ? "Graph waits while playback runs" : "Building the path graph";
+  canvas.setAttribute("aria-label", "Interactive observed source-line path");
+  graphPanel.append(toolbar, canvas);
+  body.append(graphPanel);
+
+  const ordered = makeElement("ol", "dsa-flow-transition-list");
+  windowed.entries.forEach(({ step, index }, entryIndex) => {
+    const from = entryIndex > 0 ? windowed.entries[entryIndex - 1].step : null;
+    const item = makeElement("li", index === state.currentStep ? "current" : "");
+    if (index === state.currentStep) item.setAttribute("aria-current", "step");
+    const stepLabel = makeElement("span", "dsa-flow-transition-step", String(index + 1).padStart(2, "0"));
+    const copy = makeElement("div", "dsa-flow-transition-copy");
+    copy.append(makeElement("strong", "", from ? `Line ${from.line} → line ${step.line}` : `Window starts at line ${step.line}`));
+    copy.append(makeElement("code", "", step.source.trim()));
+    item.append(stepLabel, copy);
+    ordered.append(item);
+  });
+  body.append(ordered);
+
+  const summary = makeElement("section", "dsa-flow-line-frequency");
+  summary.append(makeElement("h3", "", "Visits through the selected boundary"));
+  const chips = makeElement("div", "dsa-line-counts");
   [...counts.entries()].sort((left, right) => left[0] - right[0]).forEach(([line, count]) => {
-    summary.append(makeElement("span", "", `Line ${line}: ${count}`));
+    chips.append(makeElement("span", "", `Line ${line}: ${count}`));
   });
-  article.append(summary);
+  summary.append(chips);
+  body.append(summary);
+  if (windowed.shortened) {
+    body.append(makeElement("p", "dsa-flow-boundary", `Algorithm Path shows at most ${LIMITS.algorithmPathSteps} recorded steps around the selected boundary. This display limit does not delete the trace.`));
+  }
   els.dsaViewStage.replaceChildren(article);
+  if (!state.playbackTimer && windowed.entries.length > 1) {
+    enhanceAlgorithmPathGraph(canvas, windowed.entries, { fit, slider, output, status });
+  }
 }
 
-/** Renders a bounded table of steps, event cues, and changed names. */
+/** Renders a debugger-style table whose active row follows playback. */
 function renderStepTable() {
-  const events = observedEventsThroughCurrent();
+  const events = observedEventsForTrace();
   if (!events.length) {
-    renderUnavailable("No step table", "Run a program to compare recorded operations across steps.");
+    renderFlowUnavailable({
+      viewId: "table",
+      glyph: "▦",
+      title: "Step Table",
+      question: "What evidence belongs to each recorded step?",
+      reason: "Run a trace to compare lines, events, and changed names in one debugger table.",
+      steps: [
+        "Run a program to record steps.",
+        "Move playback or use the timeline.",
+        "Find the row marked Current step.",
+      ],
+    });
     return;
   }
-  const visible = events.slice(-LIMITS.stepTableRows);
-  const article = makeElement("article", "dsa-runtime-view");
-  if (visible.length < events.length) article.append(evidenceBadge("shortened"));
-  article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", "Recorded step table"));
+  const windowed = boundedFlowWindow(events, state.currentStep, LIMITS.stepTableRows);
+  const evidenceKeys = ["observed"];
+  if (windowed.shortened) evidenceKeys.push("shortened");
+  const current = events[state.currentStep];
+  const { article, body: flowBody } = createFlowViewShell({
+    viewId: "table",
+    title: "Step Table",
+    question: "What evidence belongs to each recorded step?",
+    evidenceKeys,
+    extraFacts: [
+      ["Current event", current.event.type.replaceAll("_", " ")],
+      ["Rows shown", `${windowed.entries.length} of ${events.length}`],
+    ],
+  });
+
+  const tableIntro = makeElement("section", "dsa-flow-table-intro");
+  tableIntro.append(makeElement("strong", "", "The highlighted row is controlled by playback."));
+  tableIntro.append(makeElement("p", "", "Use Previous, Next, Play, Restart, or the timeline. The table keeps the current row inside the bounded window."));
+  flowBody.append(tableIntro);
+
   const tableWrap = makeElement("div", "dsa-table-wrap");
   const table = document.createElement("table");
+  table.className = "dsa-step-table";
+  table.setAttribute("aria-label", "Recorded DSA execution steps");
   const head = document.createElement("thead");
   const headRow = document.createElement("tr");
-  ["Step", "Line", "Event cue", "Changed names"].forEach((label) => headRow.append(makeElement("th", "", label)));
+  ["Step", "Line", "Event cue", "Changed names", "Executed source"].forEach((label) => {
+    const heading = makeElement("th", "", label);
+    heading.scope = "col";
+    headRow.append(heading);
+  });
   head.append(headRow);
   const body = document.createElement("tbody");
-  visible.forEach(({ step, event, changes, index }) => {
+  windowed.entries.forEach(({ step, event, changes, index }) => {
     const row = document.createElement("tr");
     const isCurrent = index === state.currentStep;
     if (isCurrent) {
@@ -2337,48 +2798,119 @@ function renderStepTable() {
       stepCell.append(makeElement("span", "dsa-current-step-label", "Current step"));
     }
     row.append(stepCell);
-    [step.line, event.type, changes.map((change) => change.name).join(", ") || "none"]
+    [step.line, event.type.replaceAll("_", " "), changes.map((change) => change.name).join(", ") || "none"]
       .forEach((value) => row.append(makeElement("td", "", String(value))));
+    row.append(makeElement("td", "dsa-step-source", step.source.trim()));
     body.append(row);
   });
   table.append(head, body);
   tableWrap.append(table);
-  article.append(tableWrap);
+  flowBody.append(tableWrap);
+  if (windowed.shortened) {
+    flowBody.append(makeElement("p", "dsa-flow-boundary", `Step Table shows at most ${LIMITS.stepTableRows} rows while keeping the selected row visible. Playback still reaches every recorded step.`));
+  }
   els.dsaViewStage.replaceChildren(article);
+  window.requestAnimationFrame(() => {
+    const currentRow = tableWrap.querySelector('tr[aria-current="true"]');
+    currentRow?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  });
 }
 
-/** Separates measured counts from reviewed complexity claims. */
+/** Separates one-run measurements from reviewed asymptotic growth context. */
 function renderComplexityLab() {
   if (!state.trace.length) {
-    renderUnavailable("No observed counts", "Run a program to measure one bounded execution.");
+    renderFlowUnavailable({
+      viewId: "complexity",
+      glyph: "O",
+      title: "Complexity Lab",
+      question: "What happened in this run, and what does the reviewed Big O claim mean?",
+      reason: "Run a trace to count observed events without pretending one run proves Big O.",
+      steps: [
+        "Run a reviewed example for observed counts and reviewed context.",
+        "Move playback to see counts accumulate through the selected step.",
+        "Change the source to confirm reviewed Big O disappears.",
+      ],
+    });
     return;
   }
-  const events = state.trace.map((step, index) => classifyDsaEvent(step, variableChanges(state.trace[index - 1] || null, step)));
+  const prefix = state.trace.slice(0, state.currentStep + 1);
+  const events = prefix.map((step, index) => classifyDsaEvent(step, variableChanges(prefix[index - 1] || null, step)));
   const counts = new Map();
   events.forEach((event) => counts.set(event.type, (counts.get(event.type) || 0) + 1));
-  const article = makeElement("article", "dsa-runtime-view");
-  const observed = makeElement("section", "dsa-evidence-card observed-card");
+  const evidenceKeys = ["observed"];
+  if (state.activeProgram) evidenceKeys.push("curriculum");
+  else evidenceKeys.push("unavailable");
+  const { article, body } = createFlowViewShell({
+    viewId: "complexity",
+    title: "Complexity Lab",
+    question: "What happened in this run, and what does the reviewed Big O claim mean?",
+    evidenceKeys,
+    extraFacts: [["Measured range", `Steps 1 through ${state.currentStep + 1}`]],
+  });
+
+  const observed = makeElement("section", "dsa-flow-complexity-panel observed");
   observed.append(evidenceBadge("observed"));
-  observed.append(makeElement("h2", "", "This run"));
-  observed.append(makeElement("p", "", `${state.trace.length} recorded steps · ${new Set(state.trace.map((step) => step.line)).size} reached source lines`));
-  const list = makeElement("div", "dsa-complexity-counts");
-  [...counts.entries()].sort((left, right) => right[1] - left[1]).forEach(([name, count]) => list.append(makeElement("span", "", `${name}: ${count}`)));
-  observed.append(list);
-  article.append(observed);
+  observed.append(makeElement("h3", "", "Observed through this playback step"));
+  const metrics = makeElement("div", "dsa-flow-metric-grid");
+  [
+    [String(prefix.length), "recorded steps"],
+    [String(new Set(prefix.map((step) => step.line)).size), "reached source lines"],
+    [String(counts.size), "event cue types"],
+  ].forEach(([value, label]) => {
+    const metric = makeElement("div", "dsa-flow-metric");
+    metric.append(makeElement("strong", "", value));
+    metric.append(makeElement("span", "", label));
+    metrics.append(metric);
+  });
+  observed.append(metrics);
+
+  const bars = makeElement("div", "dsa-flow-event-bars");
+  const sortedCounts = [...counts.entries()].sort((left, right) => right[1] - left[1]);
+  const maximum = Math.max(...sortedCounts.map((entry) => entry[1]), 1);
+  sortedCounts.forEach(([name, count]) => {
+    const row = makeElement("div", "dsa-flow-event-bar");
+    const label = makeElement("span", "", name.replaceAll("_", " "));
+    const track = makeElement("span", "dsa-flow-event-track");
+    const fill = makeElement("span", "dsa-flow-event-fill");
+    fill.style.setProperty("--event-share", `${(count / maximum) * 100}%`);
+    track.append(fill);
+    const value = makeElement("strong", "", String(count));
+    row.setAttribute(
+      "aria-label",
+      `${name.replaceAll("_", " ")} observed ${count} ${count === 1 ? "time" : "times"} through selected step`,
+    );
+    row.append(label, track, value);
+    bars.append(row);
+  });
+  observed.append(bars);
+  observed.append(makeElement("p", "dsa-flow-boundary", "These counts describe one recorded run and one playback prefix. They are not wall-clock timings and do not prove an asymptotic growth class."));
+  body.append(observed);
 
   if (state.activeProgram) {
-    const context = makeElement("section", "dsa-evidence-card curriculum-card");
+    const context = makeElement("section", "dsa-flow-complexity-panel curriculum");
     context.append(evidenceBadge("curriculum"));
-    context.append(makeElement("h2", "", "Reviewed growth context"));
-    context.append(makeElement("p", "", `Time: ${state.activeProgram.complexity.time}`));
-    context.append(makeElement("p", "", `Space: ${state.activeProgram.complexity.space}`));
+    context.append(makeElement("h3", "", "Reviewed growth context"));
+    const formulas = makeElement("div", "dsa-flow-complexity-formulas");
+    [
+      ["TIME", state.activeProgram.complexity.time, "How the reviewed work grows as input size grows."],
+      ["SPACE", state.activeProgram.complexity.space, "How the reviewed extra storage grows as input size grows."],
+    ].forEach(([label, formula, explanation]) => {
+      const card = makeElement("div", "dsa-flow-complexity-formula");
+      card.append(makeElement("span", "", label));
+      card.append(makeElement("strong", "", formula));
+      card.append(makeElement("p", "", explanation));
+      formulas.append(card);
+    });
+    context.append(formulas);
     context.append(makeElement("p", "dsa-honesty-note", state.activeProgram.complexity.note));
-    article.append(context);
+    context.append(makeElement("p", "dsa-flow-boundary", "This Big O statement belongs to the exact unchanged reviewed program. It is curriculum context, not a measurement produced from the event bars."));
+    body.append(context);
   } else {
-    const unavailable = makeElement("section", "dsa-evidence-card unavailable-card");
+    const unavailable = makeElement("section", "dsa-flow-complexity-panel unavailable");
     unavailable.append(evidenceBadge("unavailable"));
+    unavailable.append(makeElement("h3", "", "Reviewed Big O unavailable"));
     unavailable.append(makeElement("p", "", "A Big O classification is unavailable for arbitrary pasted code. One recorded run cannot prove a general growth class."));
-    article.append(unavailable);
+    body.append(unavailable);
   }
   els.dsaViewStage.replaceChildren(article);
 }
@@ -2463,8 +2995,9 @@ function renderEdgeCaseLab() {
 
 /** Routes the active view id to one bounded renderer. */
 function renderActiveView() {
-  // Cytoscape owns canvas resources, so leaving References releases them before another view mounts.
+  // Cytoscape owns canvas resources, so leaving either graph view releases its instance.
   if (state.activeView !== "references" && state.referenceGraph) disposeReferenceGraph();
+  if (state.activeView !== "algorithm-path" && state.algorithmPathGraph) disposeAlgorithmPathGraph();
   const renderers = {
     "algorithm-story": renderAlgorithmStory,
     "before-after": renderBeforeAfter,
@@ -2883,7 +3416,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260728-24", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260728-25", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;
@@ -3034,8 +3567,10 @@ function bindEvents() {
   const themeControls = { button: els.themeButton, label: els.themeLabel };
   els.themeButton.addEventListener("click", () => {
     toggleTheme(themeControls);
-    // A live canvas cannot inherit CSS variables, so rebuild it once with the new resolved theme tokens.
-    if (state.activeView === "references" && !state.playbackTimer) renderReferences();
+    // A live canvas cannot inherit CSS variables, so rebuild the active graph once.
+    if (["references", "algorithm-path"].includes(state.activeView) && !state.playbackTimer) {
+      renderActiveView();
+    }
   });
   els.dsaExamplesButton.addEventListener("click", openCatalog);
   els.dsaCloseExamplesButton.addEventListener("click", () => els.dsaExamplesDialog.close());

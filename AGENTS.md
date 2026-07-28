@@ -107,7 +107,7 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 - `changelog.md`: dated learner-visible release history, verification notes, compatibility boundaries, and upgrade guidance.
 - `bug_report.md`: detailed reliability incident record for the non-finite-float worker transport defect, correction, audit evidence, privacy impact, and prevention rules.
 - `Tier.md`: planning and status reference for complete Tier A coverage and the unimplemented Tier B and Tier C scope.
-- `current state of LAB UI.md`: timestamped baseline and living current-state audit for the five Trace and six Data views already redesigned plus the seven views still pending.
+- `current state of LAB UI.md`: timestamped baseline and living current-state audit for the five Trace, six Data, and four Flow views already redesigned plus the three Labs views still pending.
 - `Improvements in LAB UI.md`: five-chunk technical redesign ledger that must distinguish planned work from implemented, corrected, and verified work.
 - `LICENSE`: GPL license text. Do not modify it while adding explanatory material.
 
@@ -264,6 +264,12 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm the DSA learning-comment modal retains its header, toolbar, flexible preview, and visible Copy and Replace footer at desktop and 390-pixel mobile width in both themes.
 - Confirm visual gutters, syntax spans, file chrome, badges, and status text never enter copied or adopted Python.
 - Confirm Structure Canvas stops at 30 entries, Watches at 12 names, Operation Journey at 30 events, Algorithm Path at 80 transitions, Step Table at 120 rows, and Compare Algorithms at 2 summaries.
+- Confirm Algorithm Path always retains its ordered transition list, groups
+  repeated edges only in the optional graph, suspends graph construction
+  during playback, and rebuilds once after playback stops.
+- Confirm Complexity Lab counts only the selected playback prefix, never calls
+  event bars timings, and removes reviewed time and space formulas after any
+  source edit.
 - Confirm Variables displays one module scope, adds a separate scope during a
   real function call, and shows previous values only when adjacent evidence
   supports the comparison.

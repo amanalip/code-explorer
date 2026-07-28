@@ -2,13 +2,13 @@
 
 Ledger created: 2026-07-28 14:32:14 EDT (-0400)
 
-Document status: Living implementation ledger, Trace and Data redesign Chunks 1 and 2 verified
+Document status: Living implementation ledger, Trace, Data, and Flow redesign Chunks 1 through 3 verified
 
 Scope: Visual and interaction redesign of all 18 DSA learning views
 
 Companion baseline: `current state of LAB UI.md`
 
-Last implementation audit: 2026-07-28 15:37:06 EDT (-0400)
+Last implementation audit: 2026-07-28 16:25:20 EDT (-0400)
 
 ## How to read this document
 
@@ -111,11 +111,12 @@ The redesign must not change:
 
 ## Shared visual system
 
-Status: Implemented and verified for the five Trace and six Data views
+Status: Implemented and verified for the five Trace, six Data, and four Flow views
 
 The five Trace views use one shared Trace shell. The six Data views use a
 parallel Data shell with scope, structure, identity, and mutation vocabulary.
-Every view retains its own purpose-specific layout. Flow and Labs adoption
+The four Flow views use a third shell with selected-boundary and ordered-event
+vocabulary. Every view retains its own purpose-specific layout. Labs adoption
 remains planned.
 
 ### Program and step context strip
@@ -985,11 +986,91 @@ Verification:
 
 ### Chunk 3
 
-Status: Not started
+Status: Implemented and verified
 
-Actual changes: None
+Completed: 2026-07-28 16:25:20 EDT (-0400)
 
-Verification: Not run
+Actual changes:
+
+- Added one shared Flow orientation shell and one designed pre-run state.
+- Added a bounded-window helper that keeps the selected playback position
+  visible inside every long Flow presentation.
+- Rebuilt Operation Journey as a selected-operation explanation and vertical
+  chronology with keyboard-focusable step navigation.
+- Rebuilt Algorithm Path as an exact selected transition, optional interactive
+  Cytoscape graph, permanent semantic transition list, and playback-prefix
+  line-visit summary.
+- Grouped repeated line-to-line transitions only in the optional graph while
+  retaining displayed chronological order in the text list.
+- Added Fit, pan, selection, and 50 to 160 percent zoom to Algorithm Path.
+- Suspended Algorithm Path graph construction during playback and rebuilt one
+  graph after playback paused or completed.
+- Rebuilt Step Table as a debugger surface with sticky column headings,
+  changed names, executed source, one visible Current step label, and one
+  `aria-current="true"` row.
+- Rebuilt Complexity Lab as observed prefix metrics and event bars beside
+  visibly separate reviewed time and space formulas.
+- Made edited or pasted source keep observed metrics while changing the
+  reviewed Big O panel to Unavailable.
+- Added responsive light and dark styling for all four Flow visual grammars.
+- Extended the DSA foundation validator with Flow shell, window, graph
+  fallback, debugger, limit, and complexity-evidence contracts.
+
+Why these designs were chosen:
+
+- Operation Journey now answers **what operation is selected** before asking a
+  beginner to scan many events.
+- Algorithm Path keeps a complete semantic representation because an
+  interactive graph is optional, grouped, and not suitable as the only source
+  of chronological evidence.
+- Step Table includes executed source because line numbers and normalized event
+  names alone require too much context switching for a beginner.
+- Complexity Lab does not use elapsed-time charts. One browser timing sample is
+  noisy and would encourage a false performance conclusion.
+- Every view treats playback as selection inside an already recorded run.
+  Later rows are labelled later recorded steps, not future or unexecuted steps.
+
+Dependency and privacy result:
+
+- Chunk 3 added no new dependency.
+- Algorithm Path reuses pinned Cytoscape 3.31.0 already used by References.
+- The optional request contains no learner source, selected line, trace,
+  prepared input, local preference, or identifier.
+- No analytics, telemetry, remote logging, cookie, or learner-data request was
+  introduced.
+
+Verification:
+
+- `node --check dsa-app.js`
+- `node scripts/validate-dsa-foundation.mjs`
+- All four Flow views rendered after a reviewed accumulation trace.
+- Operation Journey showed 14 ordered operations and moved its selected event
+  with playback.
+- Algorithm Path rendered an optional graph with three Cytoscape canvases,
+  Fit, zoom, selected line, selected edge, grouped transition counts, and a
+  complete 14-entry ordered transition list.
+- During playback, Algorithm Path displayed its stable pause message and no
+  live graph. The graph returned after playback stopped.
+- Blocking the exact Cytoscape URL produced an explicit unavailable state
+  while all 14 semantic transition entries remained.
+- Step Table moved its only Current step marker from row 14 to row 13 after
+  Previous.
+- Complexity Lab displayed prefix metrics and reviewed `O(n)` time with
+  `O(1)` space for exact reviewed source.
+- Appending one harmless comment removed the reviewed formulas and retained
+  observed counts with an explicit Unavailable state.
+- At 390 by 844 in dark mode, all four views retained a 448-pixel bounded
+  stage, produced no page-level horizontal overflow, and scrolled internally.
+- Measured Flow content ranged from 1,347 to 2,353 scrollable pixels for the
+  representative trace.
+- Desktop dark-mode visual inspection confirmed the observed and curriculum
+  complexity panels remained visually distinct and readable.
+
+Remaining:
+
+- Chunk 4 redesign of all three Labs views.
+- Chunk 5 cross-view accessibility, fallback, documentation, and complete
+  regression audit.
 
 ### Chunk 4
 

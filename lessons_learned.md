@@ -4946,6 +4946,198 @@ How to verify:
 - Repeat in both themes and at 390 pixels without page-level horizontal
   overflow.
 
+## 2026-07-28: A Flow view should orient the learner before visualizing movement
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented and verified in DSA LAB UI redesign Chunk 3
+
+What happened:
+
+The user asked that the next redesign chunk keep the same empathy for a person
+learning programming for the first time. The existing Flow views contained
+useful evidence, but they began directly with lists, chips, tables, or
+complexity text. A beginner first had to infer:
+
+- what question the view answered,
+- which playback step controlled it,
+- which source line was involved,
+- whether a fact came from the trace or the reviewed curriculum.
+
+That inference cost made technically correct information feel less helpful
+than the equivalent Python workspace view.
+
+What the user learned:
+
+- Empathy can be turned into a repeatable interface sequence rather than left
+  as a vague request for better styling.
+- A path graph is useful only when the exact ordered evidence remains
+  available beside it.
+- Complexity becomes safer to study when observed counts and reviewed formulas
+  look like different evidence classes.
+- More detail is not automatically better. The selected operation or
+  transition should appear before the complete chronology.
+
+What Codex learned:
+
+- The active playback position is the learner's orientation anchor for a Flow
+  view.
+- Playback moves through an already completed recording. Calling later
+  recorded rows future or unexecuted would be misleading.
+- A shared shell can standardize evidence and context without making four
+  different concepts look identical.
+- A bounded window should follow the selected row, not always show the first
+  or last records.
+
+What changed:
+
+- `createFlowViewShell()` now presents evidence, question, program, selected
+  boundary, line, and source in a stable order.
+- `renderFlowUnavailable()` gives every pre-run Flow state a reason and three
+  safe next actions.
+- `boundedFlowWindow()` keeps the active step inside long journeys, paths, and
+  tables.
+- Each Flow view then uses its own visual grammar.
+
+What to do next time:
+
+Before styling a learning view, write the one question it must answer. Then
+show the smallest current answer before the complete supporting evidence.
+
+How to verify:
+
+- Open every Flow view before a run and confirm its question and next actions.
+- Run a loop and move playback through earlier and later positions.
+- Confirm the selected boundary stays visible while the larger view remains
+  internally scrollable.
+
+## 2026-07-28: A grouped graph and an ordered trace answer different questions
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented and verified in DSA LAB UI redesign Chunk 3
+
+What happened:
+
+Algorithm Path needed a graph that could make repeated routes visible. A loop
+might record the transition from line 4 to line 5 four times. Grouping those
+four occurrences into one edge labelled `4x` makes the overall route easier to
+see, but it removes chronological positions.
+
+```text
+grouped graph asks: Which routes exist, and how often?
+
+ordered list asks: At which recorded steps did each route occur?
+```
+
+Neither representation can replace the other without losing useful evidence.
+
+What the user learned:
+
+- A graph can simplify a pattern while an ordered list protects exact detail.
+- A fallback is not merely an error screen when it is a complete semantic
+  representation of the same lesson.
+- Reusing an already audited library can be safer than adding a second
+  visualization dependency.
+
+What Codex learned:
+
+- Graph edges may aggregate repeated transitions only when the interface says
+  so explicitly.
+- The selected transition boundary must still be calculated from adjacent
+  recorded steps, not inferred from the grouped graph.
+- Cytoscape must be treated as an enhancement with its own instance,
+  asynchronous render identifier, cleanup, playback suspension, and
+  theme-aware reconstruction.
+- Dependency failure needs a deliberate browser test.
+
+What changed:
+
+- Algorithm Path always renders its selected boundary and ordered transition
+  list.
+- The optional graph groups repeated line pairs and labels counts.
+- The selected line and selected incoming edge receive written context plus
+  visible treatment.
+- The graph supports Fit, pan, selection, and bounded zoom.
+- Playback removes the graph once and rebuilds it after pause.
+- A failed import leaves the complete ordered list usable.
+
+What to do next time:
+
+For every visualization that aggregates evidence, document exactly what detail
+was compressed and keep an accessible representation that preserves it.
+
+How to verify:
+
+- Run a loop with repeated lines.
+- Compare the grouped edge count with the ordered transitions.
+- Block the pinned Cytoscape request.
+- Confirm every ordered transition remains readable.
+
+## 2026-07-28: One recorded run is not a Big O experiment
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented and verified in DSA LAB UI redesign Chunk 3
+
+What happened:
+
+The earlier Complexity Lab placed observed facts and reviewed time and space
+text near each other. That was factually bounded, but the layout could still
+encourage a beginner to think the program's Big O had been calculated from one
+trace.
+
+What the user learned:
+
+- Visual separation can be part of evidence honesty.
+- Event counts are useful for studying a run even when they cannot prove
+  performance growth.
+- Pasted code should still receive honest observed help instead of losing the
+  complete view.
+
+What Codex learned:
+
+- A bar chart can imply performance measurement even when it only counts event
+  categories. Its title, labels, and boundary statement must name the actual
+  measurement.
+- Browser timing is noisy and was not needed for this learning goal.
+- Reviewed Big O belongs only to an exact unchanged curriculum record.
+- Editing a harmless comment is a valuable regression test because it must
+  remove reviewed claims without damaging observed evidence.
+
+What changed:
+
+- The observed panel counts steps, reached lines, and event cues only through
+  the selected playback position.
+- Event bars are labelled as trace event counts, not time.
+- Reviewed time and space formulas occupy a separate curriculum panel.
+- Edited or pasted source receives an explicit reviewed Big O Unavailable
+  state while observed metrics remain.
+
+What to do next time:
+
+Whenever a chart appears near a performance term, write down its exact unit.
+If the unit is not time, memory, or input growth, do not let styling imply that
+it is.
+
+How to verify:
+
+- Run an unchanged reviewed program and inspect both evidence panels.
+- Move playback and confirm only observed prefix metrics change.
+- Add a harmless comment, rerun, and confirm reviewed formulas disappear.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

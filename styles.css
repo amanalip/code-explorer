@@ -5769,6 +5769,707 @@ main {
   border-top: 3px solid color-mix(in srgb, var(--purple) 65%, var(--line));
 }
 
+/*
+  Chunk 3 gives the four Flow views a shared orientation system while keeping
+  a different visual grammar for operations, transitions, debugger rows, and
+  complexity evidence.
+*/
+.dsa-flow-view {
+  padding: 0;
+  background: var(--panel-solid);
+}
+
+/*
+  The Flow hero uses a directional grid and mint glow to suggest ordered
+  movement without animating or shifting the panel during playback.
+*/
+.dsa-flow-hero {
+  display: grid;
+  gap: 18px;
+  padding: clamp(20px, 3vw, 30px);
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(135deg, transparent 0 47%, color-mix(in srgb, var(--line) 28%, transparent) 48% 49%, transparent 50%) 0 0 / 34px 34px,
+    radial-gradient(circle at 88% 0%, color-mix(in srgb, var(--mint) 10%, transparent), transparent 38%),
+    var(--panel-solid);
+}
+
+/* The identity block anchors the learner before ordered evidence begins. */
+.dsa-flow-identity {
+  min-width: 0;
+}
+
+/* Evidence badges and the Flow label remain readable without relying on color. */
+.dsa-flow-eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-items: center;
+  color: var(--text-dim);
+  font: 700 0.56rem/1 var(--mono);
+  letter-spacing: 0.09em;
+}
+
+/* Flow titles carry the same hierarchy as the redesigned Trace and Data areas. */
+.dsa-flow-identity h2 {
+  margin: 12px 0 7px;
+  color: var(--text);
+  font-size: clamp(1.45rem, 2.8vw, 2.15rem);
+  letter-spacing: -0.025em;
+}
+
+/* The learner question explains why this view exists before showing details. */
+.dsa-flow-identity p {
+  max-width: 800px;
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Context facts adapt to laptop and phone widths without page overflow. */
+.dsa-flow-context {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--line);
+}
+
+/* Each context fact keeps its label and value together. */
+.dsa-flow-context-fact {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  padding: 11px 13px;
+  background: color-mix(in srgb, var(--bg-raised) 97%, transparent);
+}
+
+/* Context labels identify the selected playback boundary. */
+.dsa-flow-context-fact span {
+  color: var(--text-dim);
+  font: 700 0.52rem/1 var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* Context values wrap rather than widening the stage. */
+.dsa-flow-context-fact strong {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font: 650 0.68rem/1.35 var(--mono);
+}
+
+/* The executed source line stays visibly read only beneath its boundary facts. */
+.dsa-flow-source {
+  display: block;
+  padding: 13px 15px;
+  overflow-wrap: anywhere;
+  border: 1px solid color-mix(in srgb, var(--mint) 38%, var(--line));
+  border-radius: 9px;
+  color: var(--text);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--mint) 7%, transparent), transparent 76%),
+    var(--code-bg);
+  font: 650 0.76rem/1.55 var(--mono);
+  white-space: pre-wrap;
+}
+
+/* Purpose-specific Flow visuals use consistent spacing inside the bounded stage. */
+.dsa-flow-body {
+  display: grid;
+  gap: 18px;
+  padding: clamp(18px, 3vw, 30px);
+}
+
+/* Empty Flow states teach the short path from source to ordered evidence. */
+.dsa-flow-empty-state {
+  display: grid;
+  width: min(620px, 100%);
+  min-height: 330px;
+  place-self: center;
+  align-content: center;
+  gap: 14px;
+  padding: clamp(24px, 5vw, 48px);
+  border: 1px solid var(--line-bright);
+  border-radius: 16px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--mint) 8%, transparent), transparent 52%),
+    var(--bg-raised);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.12);
+}
+
+/* The visual mark supports orientation while the written reason remains primary. */
+.dsa-flow-empty-glyph {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--mint) 55%, var(--line));
+  border-radius: 16px;
+  color: var(--mint);
+  background: color-mix(in srgb, var(--mint) 8%, var(--panel-soft));
+  font: 800 1rem/1 var(--mono);
+}
+
+/* Empty-state titles remain clear but smaller than the view title. */
+.dsa-flow-empty-state h3 {
+  margin: 4px 0 0;
+  color: var(--text);
+  font-size: 1.2rem;
+}
+
+/* Numbered actions turn missing evidence into a beginner workflow. */
+.dsa-flow-next-steps {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  counter-reset: flow-empty-step;
+  list-style: none;
+}
+
+/* Each action reserves a stable number column and a wrapping instruction. */
+.dsa-flow-next-steps li {
+  display: grid;
+  grid-template-columns: 27px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  counter-increment: flow-empty-step;
+}
+
+/* Generated numbers show order without decorative markup. */
+.dsa-flow-next-steps li::before {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--mint);
+  background: color-mix(in srgb, var(--mint) 9%, var(--panel-soft));
+  content: counter(flow-empty-step);
+  font: 700 0.58rem/1 var(--mono);
+}
+
+/* Honest bounds and measurement caveats use one repeatable visual treatment. */
+.dsa-flow-boundary {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--purple);
+  color: var(--text-soft) !important;
+  background: color-mix(in srgb, var(--purple) 6%, var(--panel-soft));
+  font-size: 0.74rem;
+  line-height: 1.55;
+}
+
+/* The selected operation summary answers the view's main question immediately. */
+.dsa-flow-current-operation {
+  display: grid;
+  gap: 7px;
+  padding: 17px;
+  border: 1px solid color-mix(in srgb, var(--mint) 48%, var(--line));
+  border-radius: 11px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--mint) 9%, transparent), transparent 72%),
+    var(--bg-raised);
+}
+
+/* A compact technical label separates the summary from the chronology. */
+.dsa-flow-current-operation > span,
+.dsa-flow-path-boundary > span {
+  color: var(--text-dim);
+  font: 700 0.54rem/1 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+/* Normalized event text is the selected operation's focal point. */
+.dsa-flow-current-operation strong,
+.dsa-flow-path-boundary strong {
+  color: var(--mint);
+  font-size: 0.94rem;
+}
+
+/* Event explanations remain supporting prose. */
+.dsa-flow-current-operation p,
+.dsa-flow-path-boundary p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+/* The operation list draws a stable vertical spine through recorded context. */
+.dsa-flow-operation-spine {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Every operation owns one keyboard-focusable jump target. */
+.dsa-flow-operation {
+  position: relative;
+  padding-left: 18px;
+}
+
+/* The connecting line never animates, preventing visual shaking during playback. */
+.dsa-flow-operation::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 34px;
+  width: 1px;
+  background: var(--line-bright);
+  content: "";
+}
+
+/* The first and last cards keep the spine within visible marker centers. */
+.dsa-flow-operation:first-child::before {
+  top: 34px;
+}
+
+.dsa-flow-operation:last-child::before {
+  bottom: calc(100% - 34px);
+}
+
+/* Operation buttons retain readable two-column chronology. */
+.dsa-flow-operation button {
+  position: relative;
+  display: grid;
+  width: 100%;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 9px 12px 9px 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+}
+
+/* Earlier and later context stays readable but quieter than the selected row. */
+.dsa-flow-operation.earlier button,
+.dsa-flow-operation.later button {
+  opacity: 0.78;
+}
+
+/* The selected card uses text, border, marker shape, and color together. */
+.dsa-flow-operation.current button {
+  border: 1px solid color-mix(in srgb, var(--mint) 55%, var(--line));
+  border-radius: 11px;
+  background: var(--mint-soft);
+  opacity: 1;
+}
+
+/* Numbered circular markers establish order along the spine. */
+.dsa-flow-operation-marker {
+  z-index: 1;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--line-bright);
+  border-radius: 50%;
+  color: var(--text-dim);
+  background: var(--panel-solid);
+  font: 700 0.58rem/1 var(--mono);
+}
+
+/* The selected marker becomes a rounded square so color is not the only cue. */
+.dsa-flow-operation.current .dsa-flow-operation-marker {
+  border: 2px solid var(--mint);
+  border-radius: 9px;
+  color: var(--mint);
+}
+
+/* Operation text keeps event, source, and position in a predictable order. */
+.dsa-flow-operation-copy {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.dsa-flow-operation-copy strong {
+  color: var(--text);
+  font-size: 0.78rem;
+  text-transform: capitalize;
+}
+
+.dsa-flow-operation-copy code {
+  overflow-wrap: anywhere;
+  color: var(--mint);
+  font: 650 0.68rem/1.45 var(--mono);
+}
+
+.dsa-flow-operation-copy > span {
+  color: var(--text-dim);
+  font: 600 0.54rem/1.35 var(--mono);
+}
+
+/* Algorithm Path begins with the exact selected line-to-line boundary. */
+.dsa-flow-path-boundary {
+  display: grid;
+  gap: 7px;
+  padding: 17px;
+  border: 1px solid color-mix(in srgb, var(--cyan) 42%, var(--line));
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--cyan) 6%, var(--bg-raised));
+}
+
+/* The optional graph is enclosed as one replaceable enhancement. */
+.dsa-flow-path-graph {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-raised);
+}
+
+/* Graph status and controls remain visible above the bounded canvas. */
+.dsa-flow-path-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-soft);
+}
+
+/* Status text explains loading, ready, playback waiting, or fallback state. */
+.dsa-flow-path-status {
+  margin: 0;
+  color: var(--text-soft);
+  font: 600 0.58rem/1.45 var(--mono);
+}
+
+/* Fit and zoom form one compact, keyboard-usable control group. */
+.dsa-flow-path-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.dsa-flow-path-controls button {
+  min-height: 34px;
+  padding: 7px 12px;
+  border: 1px solid var(--line-bright);
+  border-radius: 7px;
+  color: var(--text);
+  background: var(--bg-raised);
+  font: 700 0.58rem/1 var(--mono);
+}
+
+.dsa-flow-path-controls label {
+  display: grid;
+  grid-template-columns: auto minmax(90px, 140px) 42px;
+  gap: 8px;
+  align-items: center;
+  color: var(--text-dim);
+  font: 650 0.54rem/1 var(--mono);
+}
+
+.dsa-flow-path-controls input {
+  min-width: 0;
+}
+
+.dsa-flow-path-controls output {
+  color: var(--mint);
+  text-align: right;
+}
+
+/* The canvas height remains fixed so graph loading never moves playback. */
+.dsa-flow-path-canvas {
+  position: relative;
+  width: 100%;
+  height: 390px;
+  min-height: 390px;
+  background:
+    linear-gradient(color-mix(in srgb, var(--line) 38%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 38%, transparent) 1px, transparent 1px),
+    var(--panel-solid);
+  background-size: 32px 32px;
+}
+
+/* Loading and failure states retain an explicit message instead of a blank box. */
+.dsa-flow-path-canvas.loading::before,
+.dsa-flow-path-canvas.unavailable::before {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--text-soft);
+  background: color-mix(in srgb, var(--panel-solid) 90%, transparent);
+  content: attr(data-message);
+  font: 650 0.64rem/1.5 var(--mono);
+  text-align: center;
+}
+
+/* The semantic transition list is always present, including graph failure. */
+.dsa-flow-transition-list {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each transition row keeps the absolute step number and source together. */
+.dsa-flow-transition-list li {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--bg-raised);
+}
+
+/* The selected transition uses redundant current-step treatments. */
+.dsa-flow-transition-list li.current {
+  border: 2px solid var(--mint);
+  background: var(--mint-soft);
+}
+
+.dsa-flow-transition-step {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--text-dim);
+  font: 700 0.58rem/1 var(--mono);
+}
+
+.dsa-flow-transition-list li.current .dsa-flow-transition-step {
+  border-radius: 8px;
+  color: var(--mint);
+  border-color: var(--mint);
+}
+
+.dsa-flow-transition-copy {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.dsa-flow-transition-copy strong {
+  color: var(--text);
+  font-size: 0.76rem;
+}
+
+.dsa-flow-transition-copy code {
+  overflow-wrap: anywhere;
+  color: var(--text-soft);
+  font: 600 0.66rem/1.45 var(--mono);
+}
+
+/* Line-frequency chips are clearly scoped to the selected playback prefix. */
+.dsa-flow-line-frequency {
+  display: grid;
+  gap: 2px;
+}
+
+.dsa-flow-line-frequency h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.86rem;
+}
+
+/* The Step Table introduction teaches how playback controls the highlighted row. */
+.dsa-flow-table-intro {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--mint) 38%, var(--line));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--mint) 5%, var(--bg-raised));
+}
+
+.dsa-flow-table-intro strong {
+  color: var(--mint);
+  font-size: 0.82rem;
+}
+
+.dsa-flow-table-intro p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+/* The debugger table keeps column context visible while its own rows scroll. */
+.dsa-step-table thead {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  background: var(--panel-soft);
+  box-shadow: 0 1px 0 var(--line);
+}
+
+/* Source receives enough width to remain useful on a laptop. */
+.dsa-step-table .dsa-step-source {
+  min-width: 230px;
+  overflow-wrap: anywhere;
+  color: var(--text-soft);
+  font: 600 0.64rem/1.45 var(--mono);
+}
+
+/* Complexity uses a stable two-column learning layout on wide screens. */
+.dsa-flow-complexity .dsa-flow-body {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+/* One panel owns either measured evidence or reviewed context. */
+.dsa-flow-complexity-panel {
+  display: grid;
+  min-width: 0;
+  gap: 15px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-raised);
+}
+
+/* Border colors separate evidence classes while written badges remain primary. */
+.dsa-flow-complexity-panel.observed {
+  border-top: 4px solid var(--mint);
+}
+
+.dsa-flow-complexity-panel.curriculum {
+  border-top: 4px solid var(--purple);
+}
+
+.dsa-flow-complexity-panel.unavailable {
+  grid-column: 2;
+  border-top: 4px solid var(--line-bright);
+}
+
+.dsa-flow-complexity-panel h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.dsa-flow-complexity-panel > p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+/* Three measured values provide a quick, non-timing summary of the prefix. */
+.dsa-flow-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.dsa-flow-metric {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel-soft);
+}
+
+.dsa-flow-metric strong {
+  color: var(--mint);
+  font: 800 1.2rem/1 var(--mono);
+}
+
+.dsa-flow-metric span {
+  color: var(--text-dim);
+  font: 650 0.52rem/1.3 var(--mono);
+}
+
+/* Event bars compare counts only within this one recorded playback prefix. */
+.dsa-flow-event-bars {
+  display: grid;
+  gap: 9px;
+}
+
+.dsa-flow-event-bar {
+  display: grid;
+  grid-template-columns: minmax(92px, 0.8fr) minmax(100px, 1.6fr) 34px;
+  gap: 10px;
+  align-items: center;
+}
+
+.dsa-flow-event-bar > span:first-child {
+  overflow-wrap: anywhere;
+  color: var(--text-soft);
+  font: 650 0.56rem/1.25 var(--mono);
+  text-transform: capitalize;
+}
+
+.dsa-flow-event-track {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.dsa-flow-event-fill {
+  display: block;
+  width: var(--event-share);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--mint);
+}
+
+.dsa-flow-event-bar strong {
+  color: var(--mint);
+  font: 750 0.62rem/1 var(--mono);
+  text-align: right;
+}
+
+/* Reviewed time and space formulas remain visibly separate from measured bars. */
+.dsa-flow-complexity-formulas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.dsa-flow-complexity-formula {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--purple) 38%, var(--line));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--purple) 5%, var(--panel-soft));
+}
+
+.dsa-flow-complexity-formula span {
+  color: var(--text-dim);
+  font: 700 0.52rem/1 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.dsa-flow-complexity-formula strong {
+  overflow-wrap: anywhere;
+  color: var(--purple);
+  font: 800 1rem/1.2 var(--mono);
+}
+
+.dsa-flow-complexity-formula p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
 /* Operation history uses source snippets below each normalized event label. */
 .dsa-operation-list {
   display: grid;
@@ -7477,6 +8178,32 @@ main {
     grid-template-columns: 44px minmax(0, 1fr);
   }
 
+  /* Flow context uses two readable columns before collapsing on smaller phones. */
+  .dsa-flow-context {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Graph controls use a second row so status text retains its full meaning. */
+  .dsa-flow-path-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  /* The optional graph remains useful without dominating the phone stage. */
+  .dsa-flow-path-canvas {
+    height: 330px;
+    min-height: 330px;
+  }
+
+  /* Complexity evidence and reviewed context follow a clear top-to-bottom order. */
+  .dsa-flow-complexity .dsa-flow-body {
+    grid-template-columns: 1fr;
+  }
+
+  /* The unavailable reviewed card follows the observed evidence on phones. */
+  .dsa-flow-complexity-panel.unavailable {
+    grid-column: auto;
+  }
+
   /* Runtime cards use one readable column on a phone. */
   .dsa-change-grid,
   .dsa-variable-grid,
@@ -7560,6 +8287,45 @@ main {
   .dsa-data-hero,
   .dsa-data-body {
     padding: 16px;
+  }
+
+  /* Very narrow screens give every Flow fact a complete row. */
+  .dsa-flow-context {
+    grid-template-columns: 1fr;
+  }
+
+  /* Compact Flow padding protects source and table width. */
+  .dsa-flow-hero,
+  .dsa-flow-body {
+    padding: 16px;
+  }
+
+  /* Graph controls stack so Fit and zoom never create page overflow. */
+  .dsa-flow-path-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  /* Zoom keeps a usable slider even inside a 390-pixel viewport. */
+  .dsa-flow-path-controls label {
+    grid-template-columns: auto minmax(0, 1fr) 42px;
+  }
+
+  /* Observed metrics remain large enough to read in a single vertical column. */
+  .dsa-flow-metric-grid,
+  .dsa-flow-complexity-formulas {
+    grid-template-columns: 1fr;
+  }
+
+  /* Event names move above their bars when horizontal room is limited. */
+  .dsa-flow-event-bar {
+    grid-template-columns: minmax(0, 1fr) 34px;
+  }
+
+  /* The bar owns the complete row beneath its event label. */
+  .dsa-flow-event-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 
   /* Watch ranks become a smaller stable column beside long learner names. */

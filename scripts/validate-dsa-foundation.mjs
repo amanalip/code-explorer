@@ -364,6 +364,47 @@ expect(
     && stylesSource.includes(".dsa-invariant-checklist"),
   "Invariant Checker is missing its conservative verdict boundary or reviewed checklist.",
 );
+/*
+ * Chunk 3 gives every Flow view one ordered, playback-aware visual language.
+ * These checks protect the window bounds, graph fallback, debugger row, and
+ * observed-versus-reviewed complexity separation before browser verification.
+ */
+expect(
+  dsaAppSource.includes("createFlowViewShell")
+    && dsaAppSource.includes("renderFlowUnavailable")
+    && dsaAppSource.includes("boundedFlowWindow")
+    && stylesSource.includes(".dsa-flow-hero")
+    && stylesSource.includes(".dsa-flow-body"),
+  "The shared Flow teaching shell or bounded-window contract is incomplete.",
+);
+expect(
+  dsaAppSource.includes('"dsa-flow-current-operation"')
+    && dsaAppSource.includes('"dsa-flow-operation-spine"')
+    && dsaAppSource.includes("LIMITS.operationJourneyRows"),
+  "Operation Journey is missing its selected summary, ordered spine, or event bound.",
+);
+expect(
+  dsaAppSource.includes("enhanceAlgorithmPathGraph")
+    && dsaAppSource.includes("disposeAlgorithmPathGraph")
+    && dsaAppSource.includes("The complete ordered transition list remains below.")
+    && dsaAppSource.includes("LIMITS.algorithmPathSteps")
+    && stylesSource.includes(".dsa-flow-transition-list"),
+  "Algorithm Path is missing its optional graph, complete fallback, lifecycle, or step bound.",
+);
+expect(
+  dsaAppSource.includes('table.setAttribute("aria-label", "Recorded DSA execution steps")')
+    && dsaAppSource.includes('"dsa-step-source"')
+    && dsaAppSource.includes("LIMITS.stepTableRows")
+    && stylesSource.includes(".dsa-step-table thead"),
+  "Step Table is missing its debugger context, executed source, row bound, or sticky header.",
+);
+expect(
+  dsaAppSource.includes('"dsa-flow-event-bars"')
+    && dsaAppSource.includes("These counts describe one recorded run and one playback prefix.")
+    && dsaAppSource.includes("This Big O statement belongs to the exact unchanged reviewed program.")
+    && stylesSource.includes(".dsa-flow-complexity-formulas"),
+  "Complexity Lab is missing measured bars, evidence honesty, or reviewed formula separation.",
+);
 
 if (failures.length) {
   console.error(`DSA foundation validation failed with ${failures.length} issue(s):`);

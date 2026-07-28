@@ -2,11 +2,11 @@
 
 Baseline recorded: 2026-07-28 14:32:14 EDT (-0400)
 
-Document status: Living current-state audit, Trace and Data redesign Chunks 1 and 2 shipped
+Document status: Living current-state audit, Trace, Data, and Flow redesign Chunks 1 through 3 shipped
 
 Scope: All 18 learning views in the Data Structures and Algorithms workspace
 
-Last documentation audit: 2026-07-28 15:37:06 EDT (-0400)
+Last documentation audit: 2026-07-28 16:25:20 EDT (-0400)
 
 ## Why this document exists
 
@@ -14,9 +14,9 @@ In this project, **LAB UI** means the complete learning interface on the right
 side of `data-structures.html`. It includes the Trace, Data, Flow, and Labs
 areas. It does not mean only the three views under the Labs tab.
 
-This file records what a learner can see before the redesign begins. It keeps
-the project honest by preventing a later visual improvement from being
-described as if it had always existed.
+This file preserves the original baseline and records what a learner can see
+after each shipped redesign chunk. It keeps the project honest by preventing a
+later visual improvement from being described as if it had always existed.
 
 The current interface is functionally complete:
 
@@ -28,10 +28,10 @@ The current interface is functionally complete:
 - Light mode, dark mode, desktop, and narrow layouts work without page-level
   horizontal overflow.
 
-The interface redesign is now partially complete. All five Trace views and all
-six Data views use the new beginner-oriented visual system. The remaining
-seven Flow and Labs views still largely use the earlier generic treatments and
-remain future redesign chunks.
+The interface redesign is now partially complete. All five Trace views, all
+six Data views, and all four Flow views use the new beginner-oriented visual
+system. The remaining three Labs views still use the earlier generic
+treatments and remain the next redesign chunk.
 
 ## Current state after Trace redesign Chunk 1
 
@@ -197,6 +197,118 @@ Real-browser verification covered:
   References content.
 - All six Data views without browser console errors during an ordinary run.
 
+## Current state after Flow redesign Chunk 3
+
+Recorded: 2026-07-28 16:25:20 EDT (-0400)
+
+Chunk 3 changed the presentation and interaction of the four Flow views. It did
+not change learner source, curriculum records, worker messages, execution
+limits, persistence keys, or the rule that edited source loses reviewed
+curriculum claims.
+
+All four Flow views now begin with one orientation sequence:
+
+```text
+evidence badge and Flow view name
+        |
+        v
+one beginner question
+        |
+        v
+program and selected playback boundary
+        |
+        v
+source line and exact executed source
+        |
+        v
+operation, path, table, or complexity visual
+        |
+        v
+honest bound, evidence distinction, or fallback
+```
+
+The selected playback position is described as a **boundary** because Flow
+views explain movement across recorded steps. A learner sees what happened at
+that boundary before scanning a larger chronology.
+
+| Flow view | Current visual form | Beginner benefit | Honesty boundary |
+| --- | --- | --- | --- |
+| Operation Journey | Selected-operation explanation and a keyboard-focusable vertical event spine | Keeps earlier, selected, and later recorded operations in one readable sequence | Shows at most 30 operations around the selected step and never calls later recorded steps unexecuted |
+| Algorithm Path | Selected transition, optional interactive Cytoscape graph, complete ordered transition list, and line-visit counts | Connects an executed source line to the line that preceded it and exposes repeated routes | The graph groups repeated transitions for readability while the text list preserves displayed chronological order |
+| Step Table | Debugger-style table with sticky headings, executed source, and one visible Current step row | Lets playback control one row without losing line, event, changed names, or source context | Shows at most 120 rows around the selected step while playback retains the full trace |
+| Complexity Lab | Observed metrics and event bars beside separate reviewed time and space cards | Distinguishes what one run counted from how reviewed work grows with input size | One run is not wall-clock benchmarking and cannot prove Big O; edited source loses reviewed formulas |
+
+### Algorithm Path graph lifecycle
+
+Algorithm Path reuses the same pinned Cytoscape 3.31.0 asset already approved
+for References. No second graph or plot library was added.
+
+```text
+Algorithm Path opens
+      |
+      +-- selected transition and complete ordered list appear
+      |
+      v
+optional Cytoscape enhancement
+      |
+      +-- succeeds -> Fit, pan, zoom, selected line and transition
+      |
+      +-- fails -> explicit unavailable message, ordered list remains
+
+automatic playback starts
+      |
+      +-- remove the graph once
+      +-- keep the selected transition and list updating
+      |
+      v
+playback pauses or finishes
+      |
+      +-- rebuild one graph for the selected boundary
+```
+
+The graph groups equal line-to-line transitions and labels their visit count.
+The semantic ordered list is not replaced by that grouped picture. This
+prevents a loop edge labelled `4x` from hiding the fact that the transition
+occurred at four distinct recorded positions.
+
+### Complexity evidence model
+
+Complexity Lab now has two visibly separate evidence columns:
+
+```text
+OBSERVED PLAYBACK PREFIX              REVIEWED CURRICULUM CONTEXT
+recorded step count                   reviewed time Big O
+reached source-line count             reviewed space Big O
+normalized event-cue bars             reviewed explanation
+
+one local run                         exact unchanged catalog program
+```
+
+The event bars compare normalized event counts only inside the selected
+playback prefix. They do not measure elapsed time, processor work, or memory
+usage. The reviewed formulas do not come from those bars. Any edit changes the
+right column to an explicit Unavailable state while the observed left column
+continues working.
+
+Real-browser verification covered:
+
+- All four Flow tabs after an unchanged reviewed trace.
+- Operation Journey selection at the start and later points in a repeated
+  loop.
+- Algorithm Path success with Fit, 50 to 160 percent zoom, pan, selection,
+  grouped repeated edges, and the complete ordered transition list.
+- Algorithm Path graph suspension during playback and safe reconstruction
+  after playback.
+- A deliberately blocked Cytoscape request that left the ordered transition
+  list complete with an explicit graph-unavailable message.
+- Step Table moving exactly one `aria-current="true"` row after Previous.
+- Complexity counts changing with the playback prefix.
+- Reviewed time and space formulas disappearing after one harmless source
+  edit while observed counts remained.
+- Dark mode at 390 by 844 pixels with no page-level horizontal overflow.
+- A 448-pixel learning stage scrolling through 1,856 to 2,353 pixels of Flow
+  content depending on the selected view.
+
 ## Current interface map
 
 ```text
@@ -231,9 +343,8 @@ DSA LEARNING PANEL
 
 ## Current rendering architecture
 
-All views are created dynamically by `dsa-app.js`. Trace and Data now use
-separate teaching shells. Flow and Labs still mostly use the earlier generic
-article.
+All views are created dynamically by `dsa-app.js`. Trace, Data, and Flow now
+use separate teaching shells. Labs still uses the earlier generic article.
 
 ```text
 selected view ID
@@ -249,7 +360,12 @@ renderActiveView()
       |                +-- optional graph enhancement
       |                +-- complete HTML fallback
       |
-      +-- Flow or Labs -> earlier generic renderer
+      +-- Flow  -> createFlowViewShell()
+      |                +-- purpose-specific Flow body
+      |                +-- optional path graph enhancement
+      |                +-- complete ordered HTML fallback
+      |
+      +-- Labs -> earlier generic renderer
       |
       v
 bounded dsaViewStage.replaceChildren(...)
@@ -382,9 +498,9 @@ The problem is mainly how this information is presented and connected.
 
 ## Shared current-state problems
 
-The following findings preserve the original all-view baseline. Chunks 1 and 2
-resolve them for the five Trace and six Data views. They remain active review
-questions for the seven Flow and Labs views.
+The following findings preserve the original all-view baseline. Chunks 1
+through 3 resolve them for the five Trace, six Data, and four Flow views. They
+remain active review questions for the three Labs views.
 
 ### One visual treatment is reused too broadly
 
@@ -449,23 +565,23 @@ measured without teaching clarity.
 
 ### Data views
 
-| View | Current presentation | Current strength | Main presentation gap |
+| View | Current presentation | Current strength | Remaining boundary |
 | --- | --- | --- | --- |
-| Variables | Variable cards | Shows visible scope values | Type, scope, change, and current importance compete for attention |
-| Watches | Bounded watched-name rows | Preserves unavailable and changing states | Does not feel like a compact live dashboard |
-| Structure Canvas | Role-specific HTML cells and lanes | Supports bounded conceptual structures | Complex pointer and graph relationships remain visually limited |
-| References | Conceptual relationship content | Avoids physical RAM claims | Lacks a mature interactive node-and-edge map |
-| Mutation Explorer | Mutation history entries | Retains chronological evidence | Before, operation, after, and aliases are not strongly connected |
-| Invariant Checker | Reviewed statements and evidence | Keeps reviewed claims separate | Status, evidence, and failure meaning need a clearer checklist design |
+| Variables | Scope-aware value dashboard | Shows current, previous, type, scope, and change state | Worker serialization remains bounded and conceptual |
+| Watches | Bounded suggestion dashboard | Shows up to 12 useful local names with reasons | Suggestions are not saved watches or learner tracking |
+| Structure Canvas | Reviewed orientation plus observed cells | Supports all approved structure families without inventing edges | Complex relationships remain conservative when structured edge evidence is absent |
+| References | Optional interactive graph plus complete text map | Makes shared conceptual identity visible without physical RAM claims | Graph is bounded to 90 elements and text remains the accessible source of truth |
+| Mutation Explorer | Object-level Before to Executed to After journeys | Groups aliases of one mutated object correctly | Object tokens are temporary evidence for one trace |
+| Invariant Checker | Reviewed question checklist | Keeps reviewed rules beside observed source | Automatic satisfied or violated verdicts remain unavailable |
 
 ### Flow views
 
-| View | Current presentation | Current strength | Main presentation gap |
+| View | Current presentation | Current strength | Remaining boundary |
 | --- | --- | --- | --- |
-| Operation Journey | Ordered event cards | Normalizes reads, writes, calls, returns, and visits | The active event and overall journey lack a strong visual spine |
-| Algorithm Path | Transition-oriented HTML | Uses actual executed transitions | Paths are not laid out as a readable interactive graph |
-| Step Table | Scrollable table | Current row follows playback | Needs stronger debugger styling, sticky context, and easier scanning |
-| Complexity Lab | Reviewed complexity text and observed facts | Separates Big O from one recorded run | Growth behavior and run measurements are not visualized |
+| Operation Journey | Selected-operation summary and vertical event spine | Normalizes reads, writes, calls, returns, and visits while following playback | Bounded to 30 displayed operations around the selected step |
+| Algorithm Path | Optional interactive graph plus complete ordered transitions | Makes repeated routes and the selected transition visible | Grouped graph edges supplement rather than replace chronological text evidence |
+| Step Table | Debugger table with sticky header, source, and one current row | Current row follows every playback control | Bounded to 120 rows around the selected position |
+| Complexity Lab | Observed metric bars beside reviewed formulas | Separates playback-prefix counts from exact-source Big O | Does not benchmark time or infer Big O from one run |
 
 ### Labs views
 
@@ -566,17 +682,17 @@ learner data to a request.
 | Evidence honesty | Strong | Reviewed and observed claims remain separated |
 | Browser stability | Strong | Bounded views and numerical limits are established |
 | Accessibility foundation | Moderate | Navigation and scrolling work, but richer visuals need explicit alternatives |
-| Visual differentiation | Moderate | Trace views are distinct; thirteen later views still need redesign |
-| Beginner scanability | Moderate | Trace orientation is strong; later areas retain denser generic layouts |
-| Empty-state quality | Moderate | Trace states provide actions; later areas still need the same treatment |
-| Concept visualization | Moderate | Trace history, state, decisions, depth, and errors are visual; Data, Flow, and Labs remain |
+| Visual differentiation | Strong with one remaining area | Trace, Data, and Flow views are purpose-specific; three Labs views still need redesign |
+| Beginner scanability | Strong with one remaining area | Fifteen views begin with an evidence-aware learner question; Labs retains generic layouts |
+| Empty-state quality | Strong with one remaining area | Trace, Data, and Flow states provide actions; Labs still needs the same treatment |
+| Concept visualization | Strong with bounded limits | History, state, relationships, transitions, debugger rows, and complexity evidence are visual; Labs remains |
 
 ## Baseline conclusion
 
-The current DSA LAB UI is technically dependable and now has a complete
-beginner-oriented Trace area. It remains visually unfinished as a complete
-18-view system because the Data, Flow, and Labs redesign chunks have not
-started.
+The current DSA LAB UI is technically dependable and now has complete
+beginner-oriented Trace, Data, and Flow areas. It remains visually unfinished
+as a complete 18-view system because the three Labs views and the final
+cross-view audit have not shipped.
 
 The redesign must preserve the proven runtime and evidence foundation while
 giving every view a visual form appropriate to the concept it teaches.
