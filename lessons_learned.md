@@ -4525,6 +4525,74 @@ What to do next time:
 - Preserve the prompt while the learner works.
 - Clear the prompt when the complete document changes ownership.
 
+## 120. Visual completeness is not renderer completeness
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Planned
+
+What happened:
+
+All 18 DSA views rendered, remained bounded, preserved conservative evidence,
+and passed technical checks. Aman compared them with the Python workspace and
+identified that the complete DSA learning interface still felt visually
+unfinished. Codex first narrowed the complaint to the three Labs views. Aman
+corrected the scope: LAB UI meant all 18 views across Trace, Data, Flow, and
+Labs.
+
+Credit and honest assessment:
+
+- Aman deserves credit for distinguishing feature presence from teaching
+  quality and for correcting the overly narrow interpretation.
+- Codex protected runtime reliability and evidence honesty, but optimized the
+  DSA work around curriculum and renderer completion.
+- The shared generic renderer was useful for establishing the contracts. It
+  was not sufficient as the final presentation for eighteen different ideas.
+
+What we learned:
+
+- A teaching view is not complete merely because it returns correct text.
+- Visual acceptance criteria must be designed alongside data and evidence
+  contracts.
+- A variable comparison, recursive stack, graph path, and edge-case
+  investigation need different visual grammars.
+- Stability, accessibility, honesty, and aesthetics are not competing final
+  phases. They must be evaluated together.
+- Planning documentation must distinguish current behavior, planned
+  improvement, implemented code, and verified evidence.
+
+What changed:
+
+- `current state of LAB UI.md` now records the timestamped baseline,
+  architecture, state lifetimes, limits, per-view gaps, privacy, accessibility,
+  and current quality assessment.
+- `Improvements in LAB UI.md` now records the five-chunk design, all eighteen
+  view targets, component architecture, view states, lifecycle, dependency
+  boundaries, risks, deliverables, and verification procedure.
+- No DSA renderer or learner-visible behavior changed during this planning
+  step.
+
+What to do next time:
+
+- Define what the learner should understand within a few seconds.
+- Define empty, active, completed, error, shortened, and fallback states before
+  coding a view.
+- Test visual comprehension in addition to rendering and overflow.
+- Do not collapse a whole-interface complaint into the most recently discussed
+  tab.
+
+How to verify:
+
+- Confirm both LAB UI documents retain timestamps and honest status labels.
+- Confirm the baseline covers all 18 views.
+- Confirm the improvement ledger contains five chunks and no planned view is
+  marked implemented.
+- Confirm future chunks update both documents with actual browser evidence.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

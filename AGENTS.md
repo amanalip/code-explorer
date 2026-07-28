@@ -107,6 +107,8 @@ Do not add an analytics consent banner as a substitute for this rule. The projec
 - `changelog.md`: dated learner-visible release history, verification notes, compatibility boundaries, and upgrade guidance.
 - `bug_report.md`: detailed reliability incident record for the non-finite-float worker transport defect, correction, audit evidence, privacy impact, and prevention rules.
 - `Tier.md`: planning and status reference for complete Tier A coverage and the unimplemented Tier B and Tier C scope.
+- `current state of LAB UI.md`: timestamped baseline audit of all 18 DSA learning views before their visual redesign.
+- `Improvements in LAB UI.md`: five-chunk technical redesign ledger that must distinguish planned work from implemented and verified work.
 - `LICENSE`: GPL license text. Do not modify it while adding explanatory material.
 
 ## Required workflow for every change

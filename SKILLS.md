@@ -1077,3 +1077,29 @@ Before describing a feature as complete, answer all of these questions:
 - Do source comments still describe the real behavior?
 
 If any answer is no, the feature is not fully documented.
+
+## DSA LAB UI visual redesign records
+
+`current state of LAB UI.md` is the dated baseline for the complete 18-view
+DSA learning interface. In this context, LAB UI includes Trace, Data, Flow, and
+Labs. It does not refer only to the three Labs tabs.
+
+`Improvements in LAB UI.md` is the implementation ledger. Update it after
+every redesign chunk with actual source changes, design reasoning, fallback
+behavior, browser evidence, remaining work, and any correction. Never mark a
+planned view as implemented merely because its renderer already existed before
+the redesign.
+
+The redesign is divided into five commit-sized chunks:
+
+1. Shared visual system and five Trace views.
+2. Six Data views.
+3. Four Flow views.
+4. Three Labs views.
+5. Cross-view accessibility, responsive behavior, fallbacks, documentation,
+   and the complete regression audit.
+
+Technical checks must continue to prove stability and conservative evidence.
+Visual acceptance must additionally prove that each view has a purpose-specific
+layout, a designed empty state, a clear primary focus, and readable behavior in
+both themes at desktop and 390-pixel widths.
