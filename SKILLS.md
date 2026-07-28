@@ -1092,7 +1092,8 @@ the redesign.
 
 The redesign is divided into five commit-sized chunks:
 
-1. Shared visual system and five Trace views.
+1. Shared visual system and five Trace views. Implemented and verified on
+   2026-07-28.
 2. Six Data views.
 3. Four Flow views.
 4. Three Labs views.
@@ -1103,3 +1104,59 @@ Technical checks must continue to prove stability and conservative evidence.
 Visual acceptance must additionally prove that each view has a purpose-specific
 layout, a designed empty state, a clear primary focus, and readable behavior in
 both themes at desktop and 390-pixel widths.
+
+### Implemented Trace visual system
+
+The five Trace renderers share orientation without sharing one generic content
+layout:
+
+```text
+createTraceViewShell()
+        |
+        +-- evidence and view identity
+        +-- one beginner question
+        +-- program, step, line, and event
+        +-- escaped executed source
+        |
+        v
+purpose-specific body mount
+        |
+        +-- Algorithm Story timeline
+        +-- Before and After state comparison
+        +-- Decisions route
+        +-- Calls and Recursion frame stack
+        +-- Error Coach diagnostic
+```
+
+`renderTraceUnavailable()` supplies a consistent pre-run structure with a
+symbol, honest reason, and three next actions. It replaces unfinished blank
+states without inventing evidence.
+
+`storyEvidenceAt(index)` derives the normalized event and name changes from the
+selected and previous snapshots. Timeline entries call `selectStep(index)` and
+use `aria-current="step"` on only the selected entry.
+
+`resetViewStageScroll()` returns a newly selected or newly populated view to its
+orientation header. It must not run during ordinary playback because doing so
+would pull a learner away from the long content they are studying.
+
+The Decisions view may label values as visible in scope. It must not call them
+operands because the worker does not reliably report the complete operand set
+for every Python expression.
+
+The Calls and Recursion view renders recorded frames from global to active. Each
+frame includes textual Active or Waiting state and no more than six bounded
+locals. Reviewed algorithm context remains separate and requires exact unchanged
+catalog source.
+
+Error Coach maps common Python error types to conservative meanings and safe
+experiments. It must always keep the guaranteed-repair boundary visible because
+the trace does not record the learner's intended program.
+
+Trace CSS is scoped under `.dsa-trace-view`. Shared orientation classes use the
+`.dsa-trace-*` prefix, while each teaching grammar has story, state, decision,
+call, or error-specific classes. Mobile presentation stacks context and flow
+without creating page-level horizontal overflow.
+
+Chunk 1 does not add a dependency, storage key, worker field, network request,
+or analytics behavior. It changes presentation and view-local navigation only.

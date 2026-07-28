@@ -245,8 +245,9 @@ for (const id of requiredDsaIds) {
  * prove layout geometry or runtime behavior.
  */
 expect(
-  dsaAppSource.includes("Visible variable state at this step"),
-  "Before and After is missing its complete visible-state heading.",
+  dsaAppSource.includes('title: "Before and After"')
+    && dsaAppSource.includes('"dsa-state-summary"'),
+  "Before and After is missing its redesigned state context or summary.",
 );
 expect(
   dsaAppSource.includes("variableComparisons(previous, step)"),
@@ -265,6 +266,43 @@ expect(
 expect(
   /\.dsa-change-grid\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)/.test(stylesSource),
   "Before and After does not retain one full-width card column.",
+);
+/*
+ * Chunk 1 replaces the five generic Trace articles with purpose-specific
+ * teaching visuals. These source assertions protect the shared orientation,
+ * chronology, decision route, frame stack, and diagnostic contracts without
+ * pretending that a text scan proves final browser appearance.
+ */
+expect(
+  dsaAppSource.includes("createTraceViewShell")
+    && dsaAppSource.includes("renderTraceUnavailable")
+    && stylesSource.includes(".dsa-trace-hero")
+    && stylesSource.includes(".dsa-trace-body"),
+  "The shared Trace teaching shell is incomplete.",
+);
+expect(
+  dsaAppSource.includes('"dsa-story-timeline"')
+    && dsaAppSource.includes('"dsa-story-observation"')
+    && dsaAppSource.includes('"dsa-story-phase-map"'),
+  "Algorithm Story is missing chronology, current observation, or reviewed phase presentation.",
+);
+expect(
+  dsaAppSource.includes('"dsa-decision-route"')
+    && dsaAppSource.includes("VISIBLE VALUES AT THE CHECK")
+    && dsaAppSource.includes("does not claim that every value shown was an operand"),
+  "Decisions is missing its route or conservative visible-value boundary.",
+);
+expect(
+  dsaAppSource.includes('"dsa-call-stack"')
+    && dsaAppSource.includes("dsa-call-frame ${")
+    && dsaAppSource.includes("function depth"),
+  "Calls and Recursion is missing its ordered frame stack or depth context.",
+);
+expect(
+  dsaAppSource.includes("errorCoachGuidance")
+    && dsaAppSource.includes('"dsa-error-diagnostic"')
+    && dsaAppSource.includes("A guaranteed repair is unavailable"),
+  "Error Coach is missing its diagnostic journey or conservative repair boundary.",
 );
 expect(
   /\.dsa-workspace-grid\s*>\s*\.editor-panel,\s*[\s\S]*?\.dsa-learning-panel\s*\{[\s\S]*?height:\s*690px/.test(stylesSource),

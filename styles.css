@@ -3373,6 +3373,901 @@ main {
   background: color-mix(in srgb, var(--panel-solid) 94%, transparent);
 }
 
+/*
+  Chunk 1 Trace views use a complete teaching workspace rather than the older
+  generic article treatment. The shell fills the bounded stage, while each
+  view body supplies a visual grammar that matches its programming concept.
+*/
+.dsa-trace-view {
+  padding: 0;
+  background: var(--panel-solid);
+}
+
+/*
+  The hero answers a beginner's first questions before presenting detail:
+  which view is open, what it teaches, which program ran, and which source line
+  the visible evidence describes.
+*/
+.dsa-trace-hero {
+  display: grid;
+  gap: 18px;
+  padding: clamp(20px, 3vw, 30px);
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--mint) 14%, transparent), transparent 35%),
+    linear-gradient(135deg, color-mix(in srgb, var(--purple) 7%, var(--panel-solid)), var(--panel-solid) 64%);
+}
+
+/* View identity stays readable even when the context facts wrap below it. */
+.dsa-trace-identity {
+  min-width: 0;
+}
+
+/* A small technical row separates evidence status from the plain-language title. */
+.dsa-trace-eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  color: var(--text-dim);
+  font: 700 0.56rem/1 var(--mono);
+  letter-spacing: 0.09em;
+}
+
+/* Trace titles establish a stronger hierarchy than the old generic card heading. */
+.dsa-trace-identity h2 {
+  margin: 12px 0 7px;
+  color: var(--text);
+  font-size: clamp(1.45rem, 2.8vw, 2.15rem);
+  letter-spacing: -0.025em;
+}
+
+/* The view question defines unfamiliar concepts through ordinary language. */
+.dsa-trace-identity p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Context facts use responsive cells so program names never force horizontal overflow. */
+.dsa-trace-context {
+  display: grid;
+  grid-template-columns: minmax(180px, 2fr) repeat(3, minmax(100px, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--line);
+}
+
+/* Each context fact has a visible label and one bounded learner-facing value. */
+.dsa-trace-context-fact {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  padding: 11px 13px;
+  background: color-mix(in srgb, var(--bg-raised) 97%, transparent);
+}
+
+.dsa-trace-context-fact span {
+  color: var(--text-dim);
+  font: 700 0.52rem/1 var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.dsa-trace-context-fact strong {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font: 650 0.68rem/1.35 var(--mono);
+}
+
+/* Executed source is visually attached to context without resembling an editable field. */
+.dsa-trace-source {
+  display: block;
+  padding: 13px 15px;
+  overflow-wrap: anywhere;
+  border: 1px solid color-mix(in srgb, var(--mint) 36%, var(--line));
+  border-radius: 9px;
+  color: var(--text);
+  background:
+    linear-gradient(90deg, var(--mint-soft), transparent 75%),
+    var(--code-bg);
+  font: 650 0.76rem/1.55 var(--mono);
+  white-space: pre-wrap;
+}
+
+/* Every purpose-specific Trace visual receives consistent breathing room. */
+.dsa-trace-body {
+  display: grid;
+  gap: 18px;
+  padding: clamp(18px, 3vw, 30px);
+}
+
+/*
+  The designed empty state gives unused panel space a learning purpose. A new
+  programmer sees what the view will answer and exactly how to produce evidence.
+*/
+.dsa-trace-empty-state {
+  display: grid;
+  width: min(620px, 100%);
+  min-height: 330px;
+  place-self: center;
+  align-content: center;
+  gap: 14px;
+  padding: clamp(24px, 5vw, 48px);
+  border: 1px solid var(--line-bright);
+  border-radius: 16px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--purple) 7%, transparent), transparent 50%),
+    var(--bg-raised);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.12);
+}
+
+/* The technical glyph or number orients the eye without replacing real text. */
+.dsa-trace-empty-glyph {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--purple) 50%, var(--line));
+  border-radius: 16px;
+  color: var(--purple);
+  background: color-mix(in srgb, var(--purple) 8%, var(--panel-soft));
+  font: 800 1.1rem/1 var(--mono);
+}
+
+.dsa-trace-empty-state h3 {
+  margin: 4px 0 0;
+  color: var(--text);
+  font-size: 1.2rem;
+}
+
+/* Numbered actions turn an unavailable state into a short beginner workflow. */
+.dsa-trace-next-steps {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  counter-reset: trace-empty-step;
+  list-style: none;
+}
+
+.dsa-trace-next-steps li {
+  display: grid;
+  grid-template-columns: 27px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  counter-increment: trace-empty-step;
+}
+
+.dsa-trace-next-steps li::before {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--mint);
+  background: var(--mint-soft);
+  content: counter(trace-empty-step);
+  font: 700 0.58rem/1 var(--mono);
+}
+
+/* Shared section headings pair a quiet purpose label with the current fact. */
+.dsa-trace-section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--line);
+}
+
+.dsa-trace-section-heading > span {
+  color: var(--text-dim);
+  font: 700 0.55rem/1 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.dsa-trace-section-heading > strong {
+  color: var(--text);
+  font-size: 0.78rem;
+}
+
+/* Quiet notes explain an absence without making it look like an application error. */
+.dsa-trace-quiet-note {
+  margin: 0;
+  color: var(--text-dim) !important;
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+/* Boundary notes make uncertainty explicit without dominating observed evidence. */
+.dsa-trace-boundary {
+  margin: 12px 0 0;
+  padding: 11px 13px;
+  border-left: 3px solid var(--purple);
+  color: var(--text-soft) !important;
+  background: color-mix(in srgb, var(--purple) 6%, var(--panel-soft));
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+/* Algorithm Story uses two complementary columns: recorded sequence and current detail. */
+.dsa-story-grid {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.78fr) minmax(320px, 1.22fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* The ordered timeline retains semantic list order for nonvisual reading. */
+.dsa-story-timeline {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dsa-story-entry {
+  position: relative;
+  padding-bottom: 9px;
+}
+
+/* A vertical rail makes chronology visible without animation. */
+.dsa-story-entry:not(:last-child)::after {
+  position: absolute;
+  top: 38px;
+  bottom: 0;
+  left: 18px;
+  width: 1px;
+  background: var(--line-bright);
+  content: "";
+}
+
+.dsa-story-entry button {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 11px;
+  padding: 9px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dsa-story-entry button:hover {
+  border-color: var(--line-bright);
+  background: var(--panel-soft);
+}
+
+.dsa-story-entry button:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+}
+
+/* The selected story entry combines text, shape, and accent color. */
+.dsa-story-entry.current button {
+  border-color: color-mix(in srgb, var(--mint) 48%, var(--line));
+  background: var(--mint-soft);
+}
+
+.dsa-story-marker {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  z-index: 1;
+  place-items: center;
+  border: 1px solid var(--line-bright);
+  border-radius: 50%;
+  color: var(--text-dim);
+  background: var(--bg-raised);
+  font: 700 0.58rem/1 var(--mono);
+}
+
+.dsa-story-entry.current .dsa-story-marker {
+  border-color: var(--mint);
+  color: var(--bg-raised);
+  background: var(--mint);
+}
+
+.dsa-story-entry-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.dsa-story-entry-copy strong {
+  color: var(--text);
+  font: 700 0.64rem/1.2 var(--mono);
+}
+
+.dsa-story-entry-copy code {
+  overflow-wrap: anywhere;
+  color: var(--text-soft);
+  font: 600 0.67rem/1.45 var(--mono);
+}
+
+.dsa-story-entry-copy > span {
+  color: var(--text-dim);
+  font: 500 0.55rem/1.3 var(--mono);
+}
+
+/* The selected observation receives a distinct instrument-like surface. */
+.dsa-story-observation {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, var(--mint) 40%, var(--line));
+  border-radius: 12px;
+  background:
+    linear-gradient(145deg, var(--mint-soft), transparent 50%),
+    var(--bg-raised);
+}
+
+.dsa-story-observation > p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.dsa-story-change-list {
+  display: grid;
+  gap: 8px;
+}
+
+.dsa-story-change {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(80px, 0.45fr) minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-soft);
+}
+
+.dsa-story-change > span {
+  color: var(--text-dim);
+  font: 700 0.5rem/1 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.dsa-story-change > strong {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 0.72rem;
+}
+
+.dsa-story-change > code {
+  overflow-wrap: anywhere;
+  color: var(--mint);
+  font: 600 0.64rem/1.4 var(--mono);
+}
+
+/* Reviewed phases form a separate full-program map below observed step evidence. */
+.dsa-story-curriculum,
+.dsa-call-curriculum {
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, var(--purple) 38%, var(--line));
+  border-radius: 12px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--purple) 7%, transparent), transparent 55%),
+    var(--bg-raised);
+}
+
+.dsa-story-curriculum > p,
+.dsa-call-curriculum > p {
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.dsa-story-phase-map {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 9px;
+  margin: 15px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dsa-story-phase-map li {
+  display: grid;
+  grid-template-columns: 27px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-soft);
+}
+
+.dsa-story-phase-map span {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border-radius: 7px;
+  color: var(--purple);
+  background: color-mix(in srgb, var(--purple) 10%, transparent);
+  font: 700 0.53rem/1 var(--mono);
+}
+
+.dsa-story-phase-map p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.dsa-trace-boundary-card {
+  display: grid;
+  gap: 9px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--purple);
+  border-radius: 10px;
+  background: var(--bg-raised);
+}
+
+.dsa-trace-boundary-card strong,
+.dsa-trace-boundary-card p {
+  margin: 0;
+}
+
+.dsa-trace-boundary-card p {
+  color: var(--text-soft);
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+/* Before and After begins with counts so the learner knows where to focus. */
+.dsa-state-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.dsa-state-metric {
+  display: grid;
+  gap: 6px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--bg-raised);
+}
+
+.dsa-state-metric strong {
+  color: var(--text);
+  font: 750 1.15rem/1 var(--mono);
+}
+
+.dsa-state-metric span {
+  color: var(--text-dim);
+  font: 700 0.52rem/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dsa-state-metric.created,
+.dsa-change-card.created {
+  border-left: 3px solid var(--cyan);
+}
+
+.dsa-state-metric.changed,
+.dsa-change-card.changed {
+  border-left: 3px solid var(--mint);
+}
+
+.dsa-state-metric.removed,
+.dsa-change-card.removed {
+  border-left: 3px solid var(--red);
+}
+
+.dsa-state-metric.unchanged,
+.dsa-change-card.unchanged {
+  border-left: 3px solid var(--text-dim);
+}
+
+.dsa-trace-inline-empty {
+  display: grid;
+  gap: 7px;
+  padding: 22px;
+  border: 1px dashed var(--line-bright);
+  border-radius: 12px;
+  background: var(--panel-soft);
+}
+
+.dsa-trace-inline-empty p {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+/* Recorded type is supporting context below the main state transition. */
+.dsa-change-type {
+  color: var(--text-dim);
+  font: 600 0.56rem/1.35 var(--mono);
+}
+
+/* Decisions use an explicit condition to result to destination path. */
+.dsa-decision-route {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.35fr) auto minmax(120px, 0.65fr) auto minmax(180px, 1fr);
+  gap: 11px;
+  align-items: stretch;
+}
+
+.dsa-decision-node {
+  display: grid;
+  min-width: 0;
+  align-content: center;
+  gap: 9px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--bg-raised);
+}
+
+.dsa-decision-node > span {
+  color: var(--text-dim);
+  font: 700 0.53rem/1 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.dsa-decision-node code {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font: 650 0.72rem/1.5 var(--mono);
+}
+
+.dsa-decision-node.result {
+  justify-items: center;
+  text-align: center;
+}
+
+.dsa-decision-node.result strong {
+  font: 800 1rem/1 var(--mono);
+}
+
+.dsa-decision-node.result.true {
+  border-color: var(--mint);
+  background: var(--mint-soft);
+}
+
+.dsa-decision-node.result.true strong {
+  color: var(--mint);
+}
+
+.dsa-decision-node.result.false {
+  border-color: var(--red);
+  background: color-mix(in srgb, var(--red) 7%, var(--panel-soft));
+}
+
+.dsa-decision-node.result.false strong {
+  color: var(--red);
+}
+
+.dsa-decision-node.result.unknown {
+  border-color: var(--amber);
+}
+
+.dsa-decision-node.destination strong {
+  color: var(--mint);
+  font-size: 0.78rem;
+}
+
+.dsa-decision-connector {
+  align-self: center;
+  color: var(--mint);
+  font: 800 1rem/1 var(--mono);
+  transform: rotate(-90deg);
+}
+
+.dsa-decision-evidence {
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--bg-raised);
+}
+
+.dsa-decision-values {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.dsa-decision-values > div {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 7px;
+  background: var(--panel-soft);
+}
+
+.dsa-decision-values span {
+  color: var(--text-dim);
+  font: 700 0.54rem/1 var(--mono);
+}
+
+.dsa-decision-values code {
+  overflow-wrap: anywhere;
+  color: var(--mint);
+  font: 650 0.67rem/1.4 var(--mono);
+}
+
+/* Call metrics make depth and the active frame understandable before the stack. */
+.dsa-call-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.dsa-call-metrics > div {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-raised);
+}
+
+.dsa-call-metrics strong {
+  overflow-wrap: anywhere;
+  color: var(--mint);
+  font: 750 1rem/1.2 var(--mono);
+}
+
+.dsa-call-metrics span {
+  color: var(--text-dim);
+  font: 700 0.53rem/1 var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* The semantic ordered list reads from global caller toward the active frame. */
+.dsa-call-stack {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dsa-call-frame {
+  position: relative;
+  display: grid;
+  gap: 11px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--text-dim);
+  border-radius: 11px;
+  background: var(--bg-raised);
+}
+
+.dsa-call-frame:not(:last-child)::after {
+  position: absolute;
+  bottom: -13px;
+  left: 28px;
+  width: 2px;
+  height: 13px;
+  background: var(--line-bright);
+  content: "";
+}
+
+.dsa-call-frame.active {
+  border-color: color-mix(in srgb, var(--mint) 55%, var(--line));
+  border-left-color: var(--mint);
+  background:
+    linear-gradient(90deg, var(--mint-soft), transparent 58%),
+    var(--bg-raised);
+}
+
+.dsa-call-frame-header {
+  display: flex;
+  gap: 12px;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.dsa-call-frame-header > div {
+  display: grid;
+  gap: 5px;
+}
+
+.dsa-call-frame-header span {
+  color: var(--text-dim);
+  font: 700 0.52rem/1 var(--mono);
+  letter-spacing: 0.07em;
+}
+
+.dsa-call-frame-header strong {
+  color: var(--text);
+  font-size: 0.88rem;
+}
+
+.dsa-call-frame-state {
+  padding: 5px 7px;
+  border: 1px solid var(--line-bright);
+  border-radius: 999px;
+}
+
+.dsa-call-frame.active .dsa-call-frame-state {
+  border-color: var(--mint);
+  color: var(--mint);
+}
+
+.dsa-call-frame-line {
+  width: fit-content;
+  color: var(--purple);
+  font: 650 0.62rem/1 var(--mono);
+}
+
+.dsa-call-locals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 7px;
+}
+
+.dsa-call-locals > div {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  padding: 9px 10px;
+  border-radius: 7px;
+  background: var(--panel-soft);
+}
+
+.dsa-call-locals span {
+  color: var(--text-dim);
+  font: 700 0.52rem/1 var(--mono);
+}
+
+.dsa-call-locals code {
+  overflow-wrap: anywhere;
+  color: var(--mint);
+  font: 650 0.65rem/1.4 var(--mono);
+}
+
+.dsa-return-banner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid var(--mint);
+  border-radius: 10px;
+  background: var(--mint-soft);
+}
+
+.dsa-return-banner span {
+  color: var(--text-dim);
+  font: 700 0.54rem/1 var(--mono);
+  letter-spacing: 0.07em;
+}
+
+.dsa-return-banner strong {
+  overflow-wrap: anywhere;
+  color: var(--mint);
+  font: 750 0.8rem/1.4 var(--mono);
+}
+
+.dsa-call-curriculum {
+  display: grid;
+  gap: 9px;
+}
+
+/* Error Coach resembles a diagnostic surface while keeping guidance conservative. */
+.dsa-error-diagnostic {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--red) 48%, var(--line));
+  border-radius: 12px;
+  background: var(--bg-raised);
+}
+
+.dsa-error-title {
+  display: grid;
+  gap: 8px;
+  padding: 17px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--red) 8%, var(--panel-soft));
+}
+
+.dsa-error-title span,
+.dsa-error-location > span,
+.dsa-error-coaching-grid span {
+  color: var(--text-dim);
+  font: 700 0.54rem/1 var(--mono);
+  letter-spacing: 0.07em;
+}
+
+.dsa-error-title strong {
+  overflow-wrap: anywhere;
+  color: var(--red);
+  font: 750 0.86rem/1.5 var(--mono);
+}
+
+.dsa-error-location {
+  display: grid;
+  gap: 8px;
+  padding: 17px;
+}
+
+.dsa-error-location strong {
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.dsa-error-location code {
+  padding: 11px 13px;
+  overflow-wrap: anywhere;
+  border-left: 3px solid var(--red);
+  color: var(--text);
+  background: var(--code-bg);
+  font: 650 0.7rem/1.5 var(--mono);
+  white-space: pre-wrap;
+}
+
+.dsa-error-coaching-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.dsa-error-coaching-grid > div {
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--bg-raised);
+}
+
+.dsa-error-coaching-grid p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.dsa-error-boundary {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--purple) 38%, var(--line));
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--purple) 6%, var(--panel-soft));
+}
+
+.dsa-error-boundary strong,
+.dsa-error-boundary p {
+  margin: 0;
+}
+
+.dsa-error-boundary p {
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
 /* View headings keep a compact relationship with their evidence badge. */
 .dsa-runtime-view > h2,
 .dsa-evidence-card h2 {
@@ -5384,6 +6279,37 @@ main {
     padding: 16px;
   }
 
+  /* Trace context becomes a simple two-column briefing instead of cramped facts. */
+  .dsa-trace-context {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Story chronology sits above the selected observation on a narrow screen. */
+  .dsa-story-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* State counts remain compact while each full comparison card stays vertical. */
+  .dsa-state-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Decision nodes retain the condition to result to destination reading order. */
+  .dsa-decision-route {
+    grid-template-columns: 1fr;
+  }
+
+  /* The same arrow now points down because the decision path is vertical. */
+  .dsa-decision-connector {
+    justify-self: center;
+    transform: none;
+  }
+
+  /* Error meaning and the next experiment stack for comfortable phone reading. */
+  .dsa-error-coaching-grid {
+    grid-template-columns: 1fr;
+  }
+
   /* Runtime cards use one readable column on a phone. */
   .dsa-change-grid,
   .dsa-variable-grid,
@@ -5435,6 +6361,27 @@ main {
   /* Keeps the recognizable terminal mark while yielding space to explicit navigation labels. */
   .brand > span:last-child {
     display: none;
+  }
+
+  /* Very narrow screens give every Trace context fact a complete reading row. */
+  .dsa-trace-context {
+    grid-template-columns: 1fr;
+  }
+
+  /* Compact hero and body padding leaves more room for code and serialized values. */
+  .dsa-trace-hero,
+  .dsa-trace-body {
+    padding: 16px;
+  }
+
+  /* Story change evidence stacks labels above values instead of squeezing them. */
+  .dsa-story-change {
+    grid-template-columns: 1fr;
+  }
+
+  /* Call summary facts stack so long function names never collide. */
+  .dsa-call-metrics {
+    grid-template-columns: 1fr;
   }
 }
 

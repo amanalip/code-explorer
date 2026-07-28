@@ -8,42 +8,42 @@
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-21";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-21";
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-21";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-22";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-22";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-22";
 import {
   DSA_AREAS,
   DSA_EVIDENCE_LABELS,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260728-21";
+} from "./dsa-contracts.js?v=20260728-22";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260728-21";
+} from "./dsa-curriculum.js?v=20260728-22";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260728-21";
+} from "./dsa-curriculum-chunk2.js?v=20260728-22";
 import {
   DSA_CHUNK_THREE_PROGRAMS,
   DSA_CHUNK_THREE_SECTIONS,
-} from "./dsa-curriculum-chunk3.js?v=20260728-21";
+} from "./dsa-curriculum-chunk3.js?v=20260728-22";
 import {
   DSA_CHUNK_FOUR_PROGRAMS,
   DSA_CHUNK_FOUR_SECTIONS,
-} from "./dsa-curriculum-chunk4.js?v=20260728-21";
+} from "./dsa-curriculum-chunk4.js?v=20260728-22";
 import {
   DSA_CHUNK_FIVE_PROGRAMS,
   DSA_CHUNK_FIVE_SECTIONS,
-} from "./dsa-curriculum-chunk5.js?v=20260728-21";
+} from "./dsa-curriculum-chunk5.js?v=20260728-22";
 import {
   DSA_CHUNK_SIX_PROGRAMS,
   DSA_CHUNK_SIX_SECTIONS,
-} from "./dsa-curriculum-chunk6.js?v=20260728-21";
+} from "./dsa-curriculum-chunk6.js?v=20260728-22";
 import {
   DSA_CHUNK_SEVEN_PROGRAMS,
   DSA_CHUNK_SEVEN_SECTIONS,
-} from "./dsa-curriculum-chunk7.js?v=20260728-21";
+} from "./dsa-curriculum-chunk7.js?v=20260728-22";
 import {
   DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
@@ -55,7 +55,7 @@ import {
   variableChanges,
   variableComparisons,
   variablesForStep,
-} from "./dsa-runtime.js?v=20260728-21";
+} from "./dsa-runtime.js?v=20260728-22";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
@@ -415,6 +415,7 @@ function invalidateTrace() {
   renderAutomaticComments();
   updatePlaybackControls();
   renderActiveView();
+  resetViewStageScroll();
   renderConsole();
 }
 
@@ -452,6 +453,17 @@ function activeView() {
   return DSA_VIEWS.find((view) => view.id === state.activeView) || DSA_VIEWS[0];
 }
 
+/**
+ * Returns a newly selected or newly populated view to its orientation header.
+ *
+ * Playback deliberately does not call this helper because a learner comparing
+ * long state cards should not lose their reading position on every step.
+ */
+function resetViewStageScroll() {
+  els.dsaViewStage.scrollTop = 0;
+  els.dsaViewStage.scrollLeft = 0;
+}
+
 /** Selects one approved view and preserves only its id locally. */
 function selectView(viewId) {
   if (!DSA_VIEWS.some((view) => view.id === viewId)) return;
@@ -460,6 +472,7 @@ function selectView(viewId) {
   renderAreaNavigation();
   renderViewTabs();
   renderActiveView();
+  resetViewStageScroll();
 }
 
 /** Renders the four stable areas and their pressed state. */
@@ -516,43 +529,233 @@ function selectedStep() {
   return state.trace[state.currentStep] || null;
 }
 
-/** Renders Algorithm Story from observed state and separately labeled metadata. */
+/**
+ * Returns the safest learner-facing program name for a Trace view.
+ *
+ * Exact reviewed context is intentionally required before a catalog title can
+ * appear inside a runtime explanation. The separately persisted selected
+ * question may survive edits for orientation, but it must not restore reviewed
+ * evidence after the source changes.
+ *
+ * @returns {string} Exact reviewed title or an honest custom-source label.
+ */
+function traceProgramLabel() {
+  return state.activeProgram?.title || "Edited or pasted program";
+}
+
+/**
+ * Builds the shared orientation header used by all five redesigned Trace views.
+ *
+ * This helper owns only presentation. Callers still decide which evidence may
+ * be shown. The returned body remains empty so each view can use a visual
+ * grammar appropriate to its own teaching question.
+ *
+ * @param {object} options Trace-view presentation options.
+ * @param {string} options.viewId Stable view identifier used by scoped CSS.
+ * @param {string} options.title Learner-facing view title.
+ * @param {string} options.question Short question the view helps answer.
+ * @param {object|null} [options.step] Recorded step represented by the view.
+ * @param {number} [options.stepIndex] Zero-based index for the represented step.
+ * @param {string} [options.eventLabel] Optional normalized event or state.
+ * @param {"observed"|"curriculum"|"unavailable"} [options.evidence] Evidence badge.
+ * @returns {{article: HTMLElement, body: HTMLElement}} View shell and content mount.
+ */
+function createTraceViewShell({
+  viewId,
+  title,
+  question,
+  step = selectedStep(),
+  stepIndex = state.currentStep,
+  eventLabel = "",
+  evidence = "observed",
+}) {
+  const article = makeElement("article", `dsa-runtime-view dsa-trace-view dsa-trace-${viewId}`);
+  const hero = makeElement("header", "dsa-trace-hero");
+  const identity = makeElement("div", "dsa-trace-identity");
+  const eyebrow = makeElement("div", "dsa-trace-eyebrow");
+  eyebrow.append(evidenceBadge(evidence));
+  eyebrow.append(makeElement("span", "", `TRACE / ${title.toUpperCase()}`));
+  identity.append(eyebrow);
+  identity.append(makeElement("h2", "", title));
+  identity.append(makeElement("p", "", question));
+  hero.append(identity);
+
+  if (step) {
+    const context = makeElement("section", "dsa-trace-context");
+    const contextFacts = [
+      ["Program", traceProgramLabel()],
+      ["Recorded step", `${stepIndex + 1} of ${state.trace.length}`],
+      ["Source line", String(step.line)],
+    ];
+    if (eventLabel) contextFacts.push(["Event", eventLabel]);
+    contextFacts.forEach(([label, value]) => {
+      const fact = makeElement("div", "dsa-trace-context-fact");
+      fact.append(makeElement("span", "", label));
+      fact.append(makeElement("strong", "", value));
+      context.append(fact);
+    });
+    hero.append(context);
+    hero.append(makeElement("code", "dsa-trace-source", step.source.trim()));
+  }
+
+  const body = makeElement("div", "dsa-trace-body");
+  article.append(hero, body);
+  return { article, body };
+}
+
+/**
+ * Renders a designed pre-run or unavailable state for one Trace view.
+ *
+ * @param {object} options Empty-state content.
+ * @param {string} options.viewId Stable view identifier.
+ * @param {string} options.glyph Compact technical symbol hidden from assistive technology.
+ * @param {string} options.title View title.
+ * @param {string} options.question Question the view will answer after a run.
+ * @param {string} options.reason Honest reason evidence is unavailable.
+ * @param {Array<string>} options.steps Safe learner actions.
+ */
+function renderTraceUnavailable({ viewId, glyph, title, question, reason, steps }) {
+  const { article, body } = createTraceViewShell({
+    viewId,
+    title,
+    question,
+    step: null,
+    evidence: "unavailable",
+  });
+  const empty = makeElement("section", "dsa-trace-empty-state");
+  const mark = makeElement("span", "dsa-trace-empty-glyph", glyph);
+  mark.setAttribute("aria-hidden", "true");
+  empty.append(mark);
+  empty.append(makeElement("h3", "", reason));
+  const list = makeElement("ol", "dsa-trace-next-steps");
+  steps.forEach((step) => list.append(makeElement("li", "", step)));
+  empty.append(list);
+  body.append(empty);
+  els.dsaViewStage.replaceChildren(article);
+}
+
+/**
+ * Classifies a trace step using only the adjacent recorded snapshot.
+ *
+ * @param {number} index Zero-based trace index.
+ * @returns {{changes: Array<object>, event: {type: string, explanation: string}}} Evidence pair.
+ */
+function storyEvidenceAt(index) {
+  const current = state.trace[index];
+  const previous = state.trace[index - 1] || null;
+  const changes = variableChanges(previous, current);
+  return { changes, event: classifyDsaEvent(current, changes) };
+}
+
+/** Renders Algorithm Story as a navigable recorded timeline plus reviewed map. */
 function renderAlgorithmStory() {
   const step = selectedStep();
   if (!step) {
-    renderUnavailable("Run a trace to begin", "Algorithm Story needs a completed local run. It will not infer a named algorithm from source text alone.");
+    renderTraceUnavailable({
+      viewId: "story",
+      glyph: "01",
+      title: "Algorithm Story",
+      question: "What did Python do, and where are we in the recorded journey?",
+      reason: "Run a trace to turn executed lines into a visual story.",
+      steps: [
+        "Choose a reviewed example or keep your own source.",
+        "Run the program locally in the browser.",
+        "Use playback to move through the recorded story.",
+      ],
+    });
     return;
   }
-  const previous = state.trace[state.currentStep - 1] || null;
-  const changes = variableChanges(previous, step);
-  const event = classifyDsaEvent(step, changes);
-  const article = makeElement("article", "dsa-runtime-view");
-  const observed = makeElement("section", "dsa-evidence-card observed-card");
-  observed.append(evidenceBadge("observed"));
-  observed.append(makeElement("span", "dsa-line-label", `LINE ${String(step.line).padStart(2, "0")} · ${event.type}`));
-  observed.append(makeElement("code", "dsa-source-line", step.source.trim()));
+
+  const { changes, event } = storyEvidenceAt(state.currentStep);
+  const { article, body } = createTraceViewShell({
+    viewId: "story",
+    title: "Algorithm Story",
+    question: "What did Python do, and where are we in the recorded journey?",
+    eventLabel: event.type,
+  });
+
+  /*
+    Five entries provide immediate chronological context without rendering the
+    complete trace. Later entries are already recorded evidence, but their
+    labels avoid implying that Python has not executed them yet.
+  */
+  const storyStart = Math.max(0, state.currentStep - 2);
+  const storyEnd = Math.min(state.trace.length, state.currentStep + 3);
+  const timeline = makeElement("ol", "dsa-story-timeline");
+  for (let index = storyStart; index < storyEnd; index += 1) {
+    const timelineStep = state.trace[index];
+    const timelineEvidence = storyEvidenceAt(index);
+    const item = makeElement("li", `dsa-story-entry ${index === state.currentStep ? "current" : ""}`);
+    const jump = makeElement("button", "", "");
+    jump.type = "button";
+    if (index === state.currentStep) jump.setAttribute("aria-current", "step");
+    jump.setAttribute("aria-label", `Go to recorded step ${index + 1}, line ${timelineStep.line}`);
+    const marker = makeElement("span", "dsa-story-marker", String(index + 1).padStart(2, "0"));
+    const copy = makeElement("span", "dsa-story-entry-copy");
+    copy.append(makeElement("strong", "", timelineEvidence.event.type.replaceAll("_", " ")));
+    copy.append(makeElement("code", "", timelineStep.source.trim()));
+    const position = index < state.currentStep
+      ? "Earlier recorded step"
+      : index > state.currentStep
+        ? "Later recorded step"
+        : "Selected step";
+    copy.append(makeElement("span", "", `Line ${timelineStep.line} · ${position}`));
+    jump.append(marker, copy);
+    jump.addEventListener("click", () => selectStep(index));
+    item.append(jump);
+    timeline.append(item);
+  }
+
+  const observed = makeElement("section", "dsa-story-observation");
+  const observationHeading = makeElement("div", "dsa-trace-section-heading");
+  observationHeading.append(makeElement("span", "", "CURRENT OBSERVATION"));
+  observationHeading.append(makeElement("strong", "", event.type.replaceAll("_", " ")));
+  observed.append(observationHeading);
   observed.append(makeElement("p", "", event.explanation));
   if (changes.length) {
-    observed.append(makeElement("p", "dsa-change-summary", `Recorded changes: ${changes.map((change) => change.name).join(", ")}.`));
+    const changeList = makeElement("div", "dsa-story-change-list");
+    changes.forEach((change) => {
+      const changeItem = makeElement("div", `dsa-story-change ${change.kind}`);
+      changeItem.append(makeElement("span", "", change.kind));
+      changeItem.append(makeElement("strong", "", change.name));
+      changeItem.append(makeElement(
+        "code",
+        "",
+        `${serializedLabel(change.before)} → ${serializedLabel(change.after)}`,
+      ));
+      changeList.append(changeItem);
+    });
+    observed.append(changeList);
+  } else {
+    observed.append(makeElement("p", "dsa-trace-quiet-note", "No visible serialized value changed after this line."));
   }
-  article.append(observed);
+  const observedGrid = makeElement("div", "dsa-story-grid");
+  observedGrid.append(timeline, observed);
+  body.append(observedGrid);
 
   if (state.activeProgram) {
-    const context = makeElement("section", "dsa-evidence-card curriculum-card");
-    context.append(evidenceBadge("curriculum"));
-    context.append(makeElement("h2", "", state.activeProgram.algorithm));
+    const context = makeElement("section", "dsa-story-curriculum");
+    const curriculumHeading = makeElement("div", "dsa-trace-section-heading");
+    curriculumHeading.append(evidenceBadge("curriculum"));
+    curriculumHeading.append(makeElement("strong", "", state.activeProgram.algorithm));
+    context.append(curriculumHeading);
     context.append(makeElement("p", "", state.activeProgram.objective));
-    const phases = makeElement("ol", "dsa-phase-list");
-    state.activeProgram.phases.forEach((phase) => phases.append(makeElement("li", "", phase)));
+    const phases = makeElement("ol", "dsa-story-phase-map");
+    state.activeProgram.phases.forEach((phase, index) => {
+      const phaseItem = makeElement("li", "");
+      phaseItem.append(makeElement("span", "", String(index + 1).padStart(2, "0")));
+      phaseItem.append(makeElement("p", "", phase));
+      phases.append(phaseItem);
+    });
     context.append(phases);
-    context.append(makeElement("p", "dsa-honesty-note", "The reviewed phases describe the complete program. Code Explorer does not guess which named phase owns an arbitrary pasted line."));
-    article.append(context);
+    context.append(makeElement("p", "dsa-trace-boundary", "This is the reviewed full-program map. Code Explorer does not guess which named phase owns the selected line."));
+    body.append(context);
   } else {
-    const boundary = makeElement("section", "dsa-evidence-card unavailable-card");
+    const boundary = makeElement("section", "dsa-trace-boundary-card");
     boundary.append(evidenceBadge("unavailable"));
-    boundary.append(makeElement("h2", "", "Named algorithm unavailable"));
+    boundary.append(makeElement("strong", "", "Named algorithm unavailable"));
     boundary.append(makeElement("p", "", "The executed line and value changes are observed. A reviewed algorithm name and phase are unavailable because this source is not an unchanged catalog program."));
-    article.append(boundary);
+    body.append(boundary);
   }
   els.dsaViewStage.replaceChildren(article);
 }
@@ -569,35 +772,49 @@ function renderAlgorithmStory() {
 function renderBeforeAfter() {
   const step = selectedStep();
   if (!step) {
-    renderUnavailable("No adjacent states yet", "Run a program to compare recorded values before and after an executed line.");
+    renderTraceUnavailable({
+      viewId: "before-after",
+      glyph: "↕",
+      title: "Before and After",
+      question: "Which visible values existed before this line, and what was recorded after it?",
+      reason: "Run a trace to compare adjacent recorded states.",
+      steps: [
+        "Run a program that creates or changes a value.",
+        "Move one step at a time with playback.",
+        "Read each variable from Before down to After.",
+      ],
+    });
     return;
   }
   const previous = state.trace[state.currentStep - 1] || null;
   const comparisons = variableComparisons(previous, step);
-  const article = makeElement("article", "dsa-runtime-view");
-  article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", "Before and After"));
-  /*
-    The context strip ties this comparison to one exact recorded step. It uses
-    text rather than color so the learner can identify both the step and source
-    line before reading any values.
-  */
-  const context = makeElement("section", "dsa-step-context");
-  context.append(makeElement(
-    "span",
-    "dsa-step-context-label",
-    `STEP ${state.currentStep + 1} OF ${state.trace.length} · LINE ${step.line}`,
-  ));
-  context.append(makeElement("code", "dsa-source-line", step.source.trim()));
-  article.append(context);
-  article.append(makeElement("h3", "dsa-change-heading", "Visible variable state at this step"));
+  const { article, body } = createTraceViewShell({
+    viewId: "before-after",
+    title: "Before and After",
+    question: "Which visible values existed before this line, and what was recorded after it?",
+    eventLabel: "STATE COMPARISON",
+  });
+
+  const kinds = ["created", "changed", "removed", "unchanged"];
+  const summary = makeElement("section", "dsa-state-summary");
+  kinds.forEach((kind) => {
+    const metric = makeElement("div", `dsa-state-metric ${kind}`);
+    metric.append(makeElement("strong", "", String(comparisons.filter((item) => item.kind === kind).length)));
+    metric.append(makeElement("span", "", kind));
+    summary.append(metric);
+  });
+  body.append(summary);
+
   if (!comparisons.length) {
-    article.append(makeElement("p", "dsa-honesty-note", "No serialized variable name is visible in the recorded scopes at this step."));
+    const empty = makeElement("section", "dsa-trace-inline-empty");
+    empty.append(makeElement("strong", "", "No visible variables at this step"));
+    empty.append(makeElement("p", "", "The line executed, but no serialized learner variable is visible in the recorded scopes."));
+    body.append(empty);
   } else {
     const grid = makeElement("div", "dsa-change-grid");
     comparisons.forEach((change) => {
       // The pure helper retains unchanged values so playback keeps positional context.
-      const card = makeElement("section", "dsa-change-card");
+      const card = makeElement("section", `dsa-change-card ${change.kind}`);
       const header = makeElement("div", "dsa-change-card-header");
       header.append(makeElement("strong", "", change.name));
       header.append(makeElement("span", "dsa-change-kind", change.kind));
@@ -614,9 +831,11 @@ function renderBeforeAfter() {
       after.append(makeElement("code", "", serializedLabel(change.after)));
 
       card.append(header, before, direction, after);
+      const visibleType = change.after?.type || change.before?.type;
+      if (visibleType) card.append(makeElement("span", "dsa-change-type", `Recorded type: ${visibleType}`));
       grid.append(card);
     });
-    article.append(grid);
+    body.append(grid);
   }
   els.dsaViewStage.replaceChildren(article);
 }
@@ -624,21 +843,94 @@ function renderBeforeAfter() {
 /** Renders the nearest observed branch route without reevaluating its expression. */
 function renderDecisions() {
   if (!state.trace.length) {
-    renderUnavailable("No observed decision", "Run a condition or loop to see the route Python actually took.");
+    renderTraceUnavailable({
+      viewId: "decisions",
+      glyph: "?",
+      title: "Decisions",
+      question: "Which recorded route followed a condition or while check?",
+      reason: "Run a condition or while loop to reveal an observed route.",
+      steps: [
+        "Run a program containing if, elif, or while.",
+        "Move playback beyond the condition.",
+        "Inspect the result and next recorded source line.",
+      ],
+    });
     return;
   }
   const found = nearestCondition(state.trace, state.currentStep, state.conditions, state.loops);
   if (!found) {
-    renderUnavailable("No condition reached yet", "The selected trace prefix contains no recorded if or while condition.");
+    renderTraceUnavailable({
+      viewId: "decisions",
+      glyph: "?",
+      title: "Decisions",
+      question: "Which recorded route followed a condition or while check?",
+      reason: "No condition has been reached by the selected step.",
+      steps: [
+        "Continue playback until Python reaches a condition.",
+        "Look for an if, elif, or while line in the editor.",
+        "Return here when the selected trace prefix includes that line.",
+      ],
+    });
     return;
   }
   const outcome = observedConditionOutcome(found.step, state.conditions, state.loops);
-  const article = makeElement("article", "dsa-runtime-view");
-  article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", "Observed decision"));
-  article.append(makeElement("code", "dsa-source-line", found.metadata.source || found.step.source.trim()));
-  article.append(makeElement("div", `dsa-condition-result ${outcome === true ? "true" : outcome === false ? "false" : "unknown"}`, outcome === null ? "Route could not be isolated safely" : `${outcome ? "True" : "False"} path observed`));
-  article.append(makeElement("p", "dsa-honesty-note", "Code Explorer follows the next recorded line. It does not execute the condition a second time."));
+  const decisionIndex = state.trace.lastIndexOf(found.step);
+  const conditionSource = found.metadata.source || found.step.source.trim();
+  const resultLabel = outcome === null ? "Result unavailable" : outcome ? "True" : "False";
+  const nextLine = found.step.nextLine || null;
+  const nextSource = nextLine ? state.code.split("\n")[nextLine - 1]?.trim() : "";
+  const { article, body } = createTraceViewShell({
+    viewId: "decisions",
+    title: "Decisions",
+    question: "Which recorded route followed a condition or while check?",
+    step: found.step,
+    stepIndex: decisionIndex,
+    eventLabel: "CONDITION CHECK",
+  });
+
+  const route = makeElement("section", "dsa-decision-route");
+  const conditionNode = makeElement("div", "dsa-decision-node condition");
+  conditionNode.append(makeElement("span", "", "CONDITION"));
+  conditionNode.append(makeElement("code", "", conditionSource));
+  const connectorOne = makeElement("div", "dsa-decision-connector", "↓");
+  connectorOne.setAttribute("aria-hidden", "true");
+  const resultNode = makeElement(
+    "div",
+    `dsa-decision-node result ${outcome === true ? "true" : outcome === false ? "false" : "unknown"}`,
+  );
+  resultNode.append(makeElement("span", "", "OBSERVED RESULT"));
+  resultNode.append(makeElement("strong", "", resultLabel));
+  const connectorTwo = makeElement("div", "dsa-decision-connector", "↓");
+  connectorTwo.setAttribute("aria-hidden", "true");
+  const destination = makeElement("div", "dsa-decision-node destination");
+  destination.append(makeElement("span", "", "NEXT RECORDED LINE"));
+  destination.append(makeElement("strong", "", nextLine ? `Line ${nextLine}` : "Could not isolate safely"));
+  if (nextSource) destination.append(makeElement("code", "", nextSource));
+  route.append(conditionNode, connectorOne, resultNode, connectorTwo, destination);
+  body.append(route);
+
+  const visibleValues = Object.entries(variablesForStep(found.step))
+    .filter(([, value]) => !["function", "module", "type"].includes(value?.type))
+    .slice(0, 6);
+  const evidence = makeElement("section", "dsa-decision-evidence");
+  const evidenceHeading = makeElement("div", "dsa-trace-section-heading");
+  evidenceHeading.append(makeElement("span", "", "VISIBLE VALUES AT THE CHECK"));
+  evidenceHeading.append(makeElement("strong", "", `${visibleValues.length} shown`));
+  evidence.append(evidenceHeading);
+  if (visibleValues.length) {
+    const values = makeElement("div", "dsa-decision-values");
+    visibleValues.forEach(([name, value]) => {
+      const item = makeElement("div", "");
+      item.append(makeElement("span", "", name));
+      item.append(makeElement("code", "", serializedLabel(value)));
+      values.append(item);
+    });
+    evidence.append(values);
+  } else {
+    evidence.append(makeElement("p", "dsa-trace-quiet-note", "No serialized learner value was visible at this check."));
+  }
+  evidence.append(makeElement("p", "dsa-trace-boundary", "These values were visible in scope. Code Explorer does not claim that every value shown was an operand in the condition."));
+  body.append(evidence);
   els.dsaViewStage.replaceChildren(article);
 }
 
@@ -646,39 +938,202 @@ function renderDecisions() {
 function renderCalls() {
   const step = selectedStep();
   if (!step) {
-    renderUnavailable("No calls recorded", "Run a program with functions to inspect its user-code frames.");
+    renderTraceUnavailable({
+      viewId: "calls",
+      glyph: "ƒ",
+      title: "Calls and Recursion",
+      question: "Which function frames exist, and which frame is active now?",
+      reason: "Run a program with a function to reveal its recorded call stack.",
+      steps: [
+        "Choose a function or recursion example.",
+        "Run the trace and move into the function body.",
+        "Watch frames appear and disappear as playback moves.",
+      ],
+    });
     return;
   }
   const frames = step.frames || [];
-  const article = makeElement("article", "dsa-runtime-view");
-  article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", "Recorded call stack"));
-  const stack = makeElement("div", "dsa-stack-list");
-  frames.forEach((frame, index) => {
-    const card = makeElement("section", "dsa-stack-frame");
-    card.append(makeElement("strong", "", frame.name === "<module>" ? "global frame" : frame.name));
-    card.append(makeElement("span", "", `Depth ${index} · line ${frame.line}`));
-    const names = Object.keys(frame.locals || {});
-    card.append(makeElement("code", "", names.length ? names.join(", ") : "no visible locals"));
-    stack.append(card);
+  const activeFrame = frames.at(-1) || null;
+  const { article, body } = createTraceViewShell({
+    viewId: "calls",
+    title: "Calls and Recursion",
+    question: "Which function frames exist, and which frame is active now?",
+    eventLabel: step.event === "return" ? "RETURN" : "FRAME SNAPSHOT",
   });
-  article.append(stack);
-  if (step.event === "return") article.append(makeElement("p", "dsa-change-summary", `Return value: ${serializedLabel(step.detail)}`));
+
+  const metrics = makeElement("section", "dsa-call-metrics");
+  const depthMetric = makeElement("div", "");
+  depthMetric.append(makeElement("strong", "", String(Math.max(0, frames.length - 1))));
+  depthMetric.append(makeElement("span", "", "function depth"));
+  const activeMetric = makeElement("div", "");
+  activeMetric.append(makeElement("strong", "", activeFrame?.name === "<module>" ? "global" : activeFrame?.name || "none"));
+  activeMetric.append(makeElement("span", "", "active frame"));
+  metrics.append(depthMetric, activeMetric);
+  body.append(metrics);
+
+  const stack = makeElement("ol", "dsa-call-stack");
+  frames.forEach((frame, index) => {
+    const active = index === frames.length - 1;
+    const item = makeElement("li", `dsa-call-frame ${active ? "active" : "suspended"}`);
+    if (active) item.setAttribute("aria-current", "true");
+    const header = makeElement("div", "dsa-call-frame-header");
+    const identity = makeElement("div", "");
+    identity.append(makeElement("span", "", index === 0 ? "GLOBAL SCOPE" : `DEPTH ${index}`));
+    identity.append(makeElement("strong", "", frame.name === "<module>" ? "global frame" : `${frame.name}()`));
+    header.append(identity);
+    header.append(makeElement("span", "dsa-call-frame-state", active ? "ACTIVE" : "WAITING"));
+    item.append(header);
+    item.append(makeElement("code", "dsa-call-frame-line", `line ${frame.line}`));
+
+    const visibleLocals = Object.entries(frame.locals || {})
+      .filter(([, value]) => !["function", "module", "type"].includes(value?.type))
+      .slice(0, 6);
+    const locals = makeElement("div", "dsa-call-locals");
+    if (visibleLocals.length) {
+      visibleLocals.forEach(([name, value]) => {
+        const local = makeElement("div", "");
+        local.append(makeElement("span", "", name));
+        local.append(makeElement("code", "", serializedLabel(value)));
+        locals.append(local);
+      });
+    } else {
+      locals.append(makeElement("p", "dsa-trace-quiet-note", "No visible learner locals in this frame."));
+    }
+    item.append(locals);
+    stack.append(item);
+  });
+  body.append(stack);
+
+  if (step.event === "return") {
+    const returned = makeElement("section", "dsa-return-banner");
+    returned.append(makeElement("span", "", "RETURN RECORDED"));
+    returned.append(makeElement("strong", "", serializedLabel(step.detail)));
+    body.append(returned);
+  }
+  if (state.activeProgram) {
+    const curriculum = makeElement("section", "dsa-call-curriculum");
+    curriculum.append(evidenceBadge("curriculum"));
+    curriculum.append(makeElement("strong", "", state.activeProgram.algorithm));
+    curriculum.append(makeElement("p", "", state.activeProgram.objective));
+    curriculum.append(makeElement("p", "dsa-trace-boundary", "The frame stack is observed. The algorithm name and objective come from the unchanged reviewed program."));
+    body.append(curriculum);
+  }
   els.dsaViewStage.replaceChildren(article);
 }
 
-/** Renders syntax or runtime errors with a conservative first inspection step. */
+/**
+ * Returns type-specific learning guidance without claiming a guaranteed repair.
+ *
+ * @param {string} errorType Python exception class name.
+ * @returns {{meaning: string, experiment: string}} Conservative explanation.
+ */
+function errorCoachGuidance(errorType) {
+  const guidance = {
+    SyntaxError: {
+      meaning: "Python could not parse the program into a valid statement structure.",
+      experiment: "Inspect punctuation and indentation on the reported line and the line immediately before it.",
+    },
+    IndentationError: {
+      meaning: "Python found indentation that does not match the surrounding block structure.",
+      experiment: "Compare the leading spaces with nearby lines in the same function, loop, or condition.",
+    },
+    NameError: {
+      meaning: "The program tried to use a name that was not available in the current scope.",
+      experiment: "Check spelling, assignment order, and whether the name belongs to another function scope.",
+    },
+    TypeError: {
+      meaning: "An operation received a kind of value it does not support in that position.",
+      experiment: "Inspect the recorded types and values supplied to the failing operation.",
+    },
+    IndexError: {
+      meaning: "A sequence position was requested outside the available index range.",
+      experiment: "Compare the requested index with the sequence length immediately before the failure.",
+    },
+    KeyError: {
+      meaning: "A mapping lookup requested a key that was not present.",
+      experiment: "Inspect the recorded keys and the exact lookup value before the failure.",
+    },
+    ZeroDivisionError: {
+      meaning: "The program attempted division or remainder with a zero divisor.",
+      experiment: "Inspect how the divisor became zero and test the boundary before the operation.",
+    },
+    ValueError: {
+      meaning: "A value had an acceptable general type but an unsupported content or shape.",
+      experiment: "Inspect the exact input or conversion value and try a smaller valid example.",
+    },
+    AttributeError: {
+      meaning: "The program requested an attribute or method that the recorded object type does not provide.",
+      experiment: "Inspect the object type and verify the attribute spelling and ownership.",
+    },
+    RecursionError: {
+      meaning: "Recursive calls continued without reaching a stopping condition soon enough.",
+      experiment: "Inspect the base case and confirm that every recursive argument moves toward it.",
+    },
+  };
+  return guidance[errorType] || {
+    meaning: "Python stopped because an exception was raised during this local run.",
+    experiment: "Inspect the reported line and the most recent recorded values used around it.",
+  };
+}
+
+/** Renders syntax or runtime errors as a conservative IDE-style diagnostic journey. */
 function renderErrorCoach() {
   const detail = selectedStep()?.event === "exception" ? selectedStep().detail : state.error;
   if (!detail) {
-    renderUnavailable("No recorded error", "The current completed run has no syntax or runtime error.");
+    renderTraceUnavailable({
+      viewId: "error",
+      glyph: "!",
+      title: "Error Coach",
+      question: "Where did Python stop, what does the error mean, and what should I inspect next?",
+      reason: "No syntax or runtime error is recorded for the current run.",
+      steps: [
+        "Use this view after Python reports an error.",
+        "Keep the source unchanged while inspecting its trace evidence.",
+        "Try one small correction at a time, then run again.",
+      ],
+    });
     return;
   }
-  const article = makeElement("article", "dsa-runtime-view");
-  article.append(evidenceBadge("observed"));
-  article.append(makeElement("h2", "", `${detail.type}: ${detail.message}`));
-  article.append(makeElement("p", "", detail.line ? `Python reported the failure near learner line ${detail.line}.` : "Python reported the failure before a traceable learner line was available."));
-  article.append(makeElement("p", "dsa-honesty-note", "First inspect the highlighted error line, then the most recent recorded values used by that line. Code Explorer does not claim a repair without evidence."));
+  const errorStep = selectedStep()?.event === "exception" ? selectedStep() : null;
+  const errorLine = detail.line || errorStep?.line || null;
+  const errorSource = errorLine ? state.code.split("\n")[errorLine - 1]?.trim() : "";
+  const guidance = errorCoachGuidance(detail.type);
+  const { article, body } = createTraceViewShell({
+    viewId: "error",
+    title: "Error Coach",
+    question: "Where did Python stop, what does the error mean, and what should I inspect next?",
+    step: errorStep,
+    stepIndex: errorStep ? state.trace.lastIndexOf(errorStep) : state.currentStep,
+    eventLabel: detail.type,
+  });
+
+  const diagnostic = makeElement("section", "dsa-error-diagnostic");
+  const diagnosticHeader = makeElement("div", "dsa-error-title");
+  diagnosticHeader.append(makeElement("span", "", detail.type || "Python error"));
+  diagnosticHeader.append(makeElement("strong", "", detail.message || "Python stopped this run."));
+  diagnostic.append(diagnosticHeader);
+  const location = makeElement("div", "dsa-error-location");
+  location.append(makeElement("span", "", "REPORTED LOCATION"));
+  location.append(makeElement("strong", "", errorLine ? `Learner line ${errorLine}` : "No traceable learner line"));
+  if (errorSource) location.append(makeElement("code", "", errorSource));
+  diagnostic.append(location);
+  body.append(diagnostic);
+
+  const coaching = makeElement("section", "dsa-error-coaching-grid");
+  const meaning = makeElement("div", "");
+  meaning.append(makeElement("span", "", "WHAT IT MEANS"));
+  meaning.append(makeElement("p", "", guidance.meaning));
+  const experiment = makeElement("div", "");
+  experiment.append(makeElement("span", "", "SAFE NEXT EXPERIMENT"));
+  experiment.append(makeElement("p", "", guidance.experiment));
+  coaching.append(meaning, experiment);
+  body.append(coaching);
+
+  const boundary = makeElement("section", "dsa-error-boundary");
+  boundary.append(evidenceBadge("unavailable"));
+  boundary.append(makeElement("strong", "", "A guaranteed repair is unavailable"));
+  boundary.append(makeElement("p", "", "The error type, message, location, and recorded values are evidence. Several different source changes might repair the program, so Code Explorer does not choose one without proof."));
+  body.append(boundary);
   els.dsaViewStage.replaceChildren(article);
 }
 
@@ -1557,7 +2012,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260728-21", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260728-22", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;
@@ -1689,7 +2144,10 @@ function loadRunResult(result) {
   }
 
   if (state.error && !state.trace.length) selectView("error-coach");
-  else renderActiveView();
+  else {
+    renderActiveView();
+    resetViewStageScroll();
+  }
   updatePlaybackControls();
   renderConsole();
   renderAutomaticComments();

@@ -2,13 +2,13 @@
 
 Ledger created: 2026-07-28 14:32:14 EDT (-0400)
 
-Document status: Proposed design direction, implementation not started
+Document status: Living implementation ledger, Trace redesign Chunk 1 verified
 
 Scope: Visual and interaction redesign of all 18 DSA learning views
 
 Companion baseline: `current state of LAB UI.md`
 
-Last planning audit: 2026-07-28 14:32:14 EDT (-0400)
+Last implementation audit: 2026-07-28 14:59:56 EDT (-0400)
 
 ## How to read this document
 
@@ -51,6 +51,47 @@ A beginner should be able to answer these questions quickly:
 4. Is this observed evidence, reviewed context, or unavailable?
 5. What should I inspect or try next?
 
+## Beginner empathy is an implementation requirement
+
+Aman added a decisive design instruction before Chunk 1 was closed: inspect
+the interface as if seeing programming for the first time. Empathy is not a
+late copy-editing pass. It changes information order, labels, empty states,
+error guidance, responsive behavior, and verification.
+
+Every redesigned view must therefore pass this beginner check:
+
+```text
+Can I name the question this view answers?
+        |
+        +-- No -> the heading and introduction need work
+        |
+        +-- Yes
+              |
+              v
+Can I find the current program, step, line, and source?
+        |
+        +-- No -> orientation must come before details
+        |
+        +-- Yes
+              |
+              v
+Can I tell observed fact from reviewed guidance?
+        |
+        +-- No -> evidence labels or boundaries are incomplete
+        |
+        +-- Yes
+              |
+              v
+Do I know what to inspect or try next?
+        |
+        +-- No -> add a safe next action
+        |
+        +-- Yes -> the view is ready for visual verification
+```
+
+The practical rule is simple: do not make a beginner decode the interface
+before they can study the program.
+
 ## Non-negotiable boundaries
 
 The redesign must not change:
@@ -70,10 +111,11 @@ The redesign must not change:
 
 ## Shared visual system
 
-Status: Planned
+Status: Partially implemented and verified for the five Trace views
 
-Every view will use a shared set of accessible teaching components while
-retaining its own layout.
+The five Trace views now use the shared orientation and unavailable-state
+components while retaining their own layouts. Data, Flow, and Labs adoption
+remains planned.
 
 ### Program and step context strip
 
@@ -129,7 +171,7 @@ Code Explorer does not have enough trustworthy evidence.
 
 ## Proposed presentation architecture
 
-Status: Planned
+Status: Partially implemented for Trace, planned for later areas
 
 The redesign should separate evidence preparation from visual rendering.
 
@@ -178,7 +220,7 @@ rules.
 
 ## Proposed component ownership
 
-Status: Planned
+Status: Trace component families implemented, later families planned
 
 | Component family | Responsibility | Must not do |
 | --- | --- | --- |
@@ -212,11 +254,12 @@ Every redesigned view must explicitly handle these states:
 
 #### Algorithm Story
 
-Status: Planned
+Status: Implemented and verified in Chunk 1
 
 Change:
 
-- Replace a primarily textual summary with a chronological story lane.
+- Replaced a primarily textual summary with a selectable chronological story
+  lane.
 - Emphasize the active operation, source line, affected values, and position
   within the recorded journey.
 
@@ -227,14 +270,16 @@ that sequence mentally.
 
 How:
 
-- Build bounded story entries from existing trace steps.
+- Builds up to five nearby story entries from existing trace steps.
 - Mark the active entry with text, shape, and focus state.
-- Show previous and next context without claiming future execution.
+- Labels later entries as later recorded steps, not predicted execution.
 - Keep source and serialized values escaped and bounded.
+- Keeps the exact reviewed program phase map visibly separate and explicitly
+  refuses to assign a named phase to an arbitrary selected line.
 
 #### Before and After
 
-Status: Planned
+Status: Implemented and verified in Chunk 1
 
 Change:
 
@@ -252,10 +297,11 @@ How:
 - Keep Before above After.
 - Add an explicit change classification and directional connector.
 - Wrap long serialized values inside the card.
+- Add a four-part summary for created, changed, removed, and unchanged names.
 
 #### Decisions
 
-Status: Planned
+Status: Implemented and verified in Chunk 1
 
 Change:
 
@@ -263,18 +309,27 @@ Change:
 
 Why:
 
-A beginner should see the condition, observed operands, result, and selected
-branch as one connected idea.
+A beginner should see the condition, observed result, and next recorded line
+as one connected idea.
 
 How:
 
-- Use a condition block, operand cells, Boolean result, and branch destination.
-- Label unavailable operands honestly.
+- Use a condition block, textual Boolean result, and next-line destination.
+- Show bounded values visible in scope, while clearly stating that they are not
+  proven to be the condition's operands.
 - Never invent an unexecuted branch.
+
+Correction discovered during implementation:
+
+The initial plan said **observed operands**. The current worker reliably records
+scope snapshots and source lines, but it does not identify the complete operand
+set of every arbitrary Python expression. Renaming the section to **Visible
+values at the check** preserves useful orientation without upgrading scope
+evidence into expression evidence.
 
 #### Calls and Recursion
 
-Status: Planned
+Status: Implemented and verified in Chunk 1
 
 Change:
 
@@ -292,10 +347,11 @@ How:
 - Show bounded arguments, locals, and return values.
 - Use recorded frame evidence for pasted code without inventing an algorithm
   phase.
+- Label every frame Active or Waiting so color is never the only state signal.
 
 #### Error Coach
 
-Status: Planned
+Status: Implemented and verified in Chunk 1
 
 Change:
 
@@ -311,6 +367,10 @@ How:
 - Separate error type, location, source, explanation, evidence, and next step.
 - Retain conservative syntax and runtime guidance.
 - Do not claim one universal repair.
+- Provide plain-language guidance for common syntax, indentation, name, type,
+  index, key, division, value, attribute, and recursion failures.
+- Mark a guaranteed repair as Unavailable because learner intent is not
+  recorded evidence.
 
 ### DATA
 
@@ -767,11 +827,79 @@ Required demonstrations:
 
 ### Chunk 1
 
-Status: Not started
+Status: Implemented and verified
 
-Actual changes: None
+Completed: 2026-07-28 14:59:56 EDT (-0400)
 
-Verification: Not run
+Actual changes:
+
+- Added one shared Trace shell that consistently presents evidence, view name,
+  beginner question, program, recorded step, source line, event, and exact
+  source before the purpose-specific content.
+- Added designed pre-run and unavailable states with a visual marker and three
+  safe next actions.
+- Rebuilt Algorithm Story as a keyboard-focusable five-entry recorded timeline,
+  a selected-step observation, bounded value changes, and a separately labelled
+  reviewed phase map.
+- Strengthened Before and After with a four-count summary while preserving one
+  vertical full-state card for every name visible in either adjacent snapshot.
+- Rebuilt Decisions as condition, observed result, and next recorded line,
+  followed by bounded visible scope values and an explicit operand boundary.
+- Rebuilt Calls and Recursion as an ordered global-to-active frame stack with
+  depth, Active and Waiting states, bounded locals, return cues, and separate
+  exact-source curriculum context.
+- Rebuilt Error Coach as an IDE-style diagnostic with error family, message,
+  learner location, source, plain-language meaning, a safe experiment, and a
+  visible statement that a guaranteed repair is unavailable.
+- Added responsive light and dark styling for all five visual grammars.
+- Reset internal view scroll when selecting or newly populating a view. Playback
+  does not reset it, which prevents long-view reading from jumping.
+- Extended the DSA foundation validator with the new visual and evidence
+  contracts.
+
+How it works:
+
+- `createTraceViewShell()` owns only shared orientation and returns an empty body
+  mount. Each renderer supplies its own teaching visual.
+- `renderTraceUnavailable()` prevents blank states from looking broken.
+- `storyEvidenceAt()` derives event and change evidence from adjacent recorded
+  snapshots.
+- All learner-controlled source and values continue to enter the document
+  through `textContent`.
+- `resetViewStageScroll()` runs after view selection, trace invalidation, and a
+  newly loaded result, but not after ordinary playback steps.
+- No dependency, network request, storage key, worker contract, runtime limit,
+  curriculum record, or analytics behavior changed.
+
+Verification:
+
+- `node --check dsa-app.js`
+- `node --check app.js`
+- `node --check landing.js`
+- `node scripts/validate-dsa-foundation.mjs`
+- Real-browser playback of Average by accumulation for Algorithm Story and
+  Before and After.
+- Real-browser playback of Check a precondition before searching for Decisions.
+- Real-browser playback of Count down through recursive calls through five
+  nested function frames.
+- Real-browser execution of `values = []` followed by `print(values[1])` for
+  the `IndexError` diagnostic journey.
+- Desktop light-theme inspection.
+- 390 by 844 dark-theme inspection.
+- Measured 375-pixel document width against a 375-pixel viewport, proving no
+  page-level horizontal overflow.
+- Measured a 448-pixel visible internal stage against 882 pixels of scrollable
+  content in the mobile error journey.
+- Repeated an error run with browser console and page-error listeners attached;
+  both returned empty error lists.
+
+Remaining:
+
+- Chunk 2 Data views.
+- Chunk 3 Flow views.
+- Chunk 4 Labs views.
+- Chunk 5 cross-view accessibility, fallback, documentation, and complete
+  regression audit.
 
 ### Chunk 2
 

@@ -4593,6 +4593,166 @@ How to verify:
   marked implemented.
 - Confirm future chunks update both documents with actual browser evidence.
 
+## 2026-07-28: Beginner empathy must shape the information architecture
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented in DSA LAB UI redesign Chunk 1
+
+What happened:
+
+Aman advised Codex to inspect every redesigned view as if seeing programming
+for the first time. The advice came after the five Trace renderers were already
+functional, but before the chunk was accepted. It changed the acceptance
+question from "Does the renderer show correct information?" to "Can a new
+programmer understand what this panel is for, find the current evidence, and
+know what to do next?"
+
+Aman deserves direct credit for making empathy explicit. Earlier project work
+had already valued beginners, but an audience label is not the same as using a
+beginner's likely confusion as design evidence.
+
+What the user learned:
+
+- Empathy can be made concrete through information order, not only friendly
+  wording.
+- A large teaching tool can remain approachable when each view starts with one
+  question and one obvious orientation path.
+- An honest Unavailable state can be more helpful than a polished guess because
+  it protects the learner's mental model.
+- Asking the designer to inhabit the learner's perspective can expose problems
+  that correctness checks do not detect.
+
+What Codex learned:
+
+- Program, step, line, and exact source must appear before dense view details.
+- Empty states need a reason and a safe next action. A blank panel asks the
+  beginner to diagnose the interface.
+- Error guidance should separate meaning from experiment. A learner needs both,
+  but they answer different questions.
+- State such as Active, Waiting, True, False, and Unavailable needs visible text
+  and shape, not only theme colors.
+- Mobile verification is an empathy check because a learner should not have to
+  fight page-wide horizontal scrolling to understand one idea.
+
+What changed:
+
+- Every Trace view now begins with an evidence badge, view identity, one
+  beginner question, and current program or source context.
+- Pre-run and unavailable states give three concrete next actions.
+- Algorithm Story uses a selectable chronology instead of making the learner
+  reconstruct execution order from prose.
+- Calls and Recursion labels each frame Active or Waiting and exposes changing
+  bounded locals.
+- Error Coach separates What it means from Safe next experiment and openly says
+  that a guaranteed repair is unavailable.
+
+What to do next time:
+
+- State the learner question before choosing a visual component.
+- Put orientation before detail.
+- Define unfamiliar terms or make their role obvious in the visual.
+- End unavailable and error states with a safe next action.
+- Test with the question, "What might a complete beginner misunderstand here?"
+
+How to verify:
+
+- Open each redesigned view before a run and after a representative run.
+- Confirm the question and next action are visible without prior tool knowledge.
+- Confirm important state is understandable in both light and dark modes.
+- Confirm a 390-pixel learner can use the view without page-level horizontal
+  overflow.
+
+## 2026-07-28: Scope values are not automatically expression operands
+
+Perspective:
+- Codex
+- Shared
+
+Status:
+- Corrected during DSA LAB UI redesign Chunk 1
+
+What happened:
+
+The approved Decisions design initially proposed showing "observed operands."
+During implementation, Codex reviewed the available worker evidence and found a
+critical distinction. The trace records the executed source line and bounded
+scope values. It does not reliably identify every value that participated as an
+operand in every arbitrary Python condition.
+
+What we learned:
+
+Useful evidence must keep its precise name. A value visible when a condition
+runs can help the learner inspect the program, but visibility does not prove the
+value was read by that expression.
+
+What changed:
+
+- The panel is named **Visible values at the check**.
+- It explicitly says the values were visible in scope.
+- It explicitly refuses to claim that every displayed value was an operand.
+- The condition, observed result, and next recorded line remain available.
+
+What to do next time:
+
+- Audit every noun in an evidence label, not only the underlying value.
+- If the runtime reports scope, call it scope.
+- Add richer semantic claims only when the worker records or a reviewed exact
+  source contract supplies that fact.
+
+How to verify:
+
+- Run a condition whose scope contains values unrelated to the expression.
+- Confirm the view calls them visible values and never operands.
+
+## 2026-07-28: View changes need an intentional scroll policy
+
+Perspective:
+- Codex
+
+Status:
+- Corrected during real-browser verification
+
+What happened:
+
+The bounded learning stage correctly retained its internal scroll position, but
+that created an orientation problem when the learner changed views. A newly
+selected view could appear halfway down because it inherited the previous
+view's scroll offset.
+
+What we learned:
+
+Scroll persistence is not universally good or bad. Its correct lifetime depends
+on the action:
+
+```text
+select another view or load another result -> return to the orientation header
+move one playback step                    -> preserve the reading position
+```
+
+What changed:
+
+`resetViewStageScroll()` now resets the internal stage after view selection,
+trace invalidation, and a newly loaded result. Ordinary playback deliberately
+does not call it.
+
+What to do next time:
+
+- Define scroll behavior as part of state behavior.
+- Test view switches from a deliberately scrolled position.
+- Avoid global resets that make long step-by-step comparisons jump.
+
+How to verify:
+
+- Scroll one long view down, then select another view and confirm it opens at
+  its question and orientation header.
+- Scroll a long view down, advance playback, and confirm the reading position
+  remains stable.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

@@ -232,8 +232,24 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm Observed appears only for trace-derived facts and Curriculum context only for exact unchanged catalog source.
 - Edit a catalog example and confirm algorithm name, phases, invariants, edge cases, comparison group, and Big O become Unavailable while observed views continue to work.
 - Confirm all 18 views render without an exception after a reviewed trace.
+- Confirm every redesigned Trace view begins with its beginner question,
+  program, recorded step, source line, event when available, and exact executed
+  source before its purpose-specific visual.
+- Confirm Algorithm Story presents a bounded selectable recorded timeline,
+  gives only the selected entry `aria-current="step"`, and keeps the reviewed
+  phase map separate without assigning a phase to the selected line.
+- Confirm Decisions shows condition, textual observed result, and next recorded
+  line as one route. Visible scope values must not be described as proven
+  operands.
 - Confirm Calls and Recursion shows changing frames for a reviewed recursive
-  lesson, while edited source receives only observed frame evidence.
+  lesson, labels each frame Active or Waiting, bounds visible locals, and gives
+  edited source only observed frame evidence.
+- Confirm Error Coach shows error family, message, learner location, source,
+  plain-language meaning, safe next experiment, and an explicit statement that
+  a guaranteed repair is unavailable.
+- Confirm switching or newly populating a DSA view resets the internal view
+  stage to its orientation header, while ordinary playback preserves the
+  learner's internal reading position.
 - Confirm backtracking examples visibly restore mutable choices and do not
   present a rejected branch as a completed solution.
 - Confirm divided-range and greedy curriculum claims disappear after any source

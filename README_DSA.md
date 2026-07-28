@@ -1005,11 +1005,30 @@ Code Explorer never upgrades a likely guess into a named algorithm claim.
 
 #### Algorithm Story
 
-Shows the executed line, a conservative event cue, recorded name changes, and reviewed algorithm context when the source exactly matches a catalog program. It does not assign a named phase to an arbitrary pasted line.
+Answers: **What did Python do, and where are we in the recorded journey?**
+
+The view starts with the program, recorded step, source line, normalized event,
+and exact executed source. A short timeline shows earlier, selected, and later
+recorded steps. Selecting an entry moves the shared playback position, so the
+editor, console, and every other view remain synchronized.
+
+The Current observation panel explains the selected event from adjacent
+recorded snapshots and lists bounded created, changed, or removed names. An
+unchanged reviewed catalog program also receives a separate Curriculum context
+map of its named phases.
+
+That phase map describes the reviewed program as a whole. Code Explorer does
+not guess which named phase owns an arbitrary selected line. Edited or pasted
+source keeps its observed timeline but loses the reviewed algorithm name,
+objective, and phases.
 
 #### Before and After
 
-Shows the selected trace step, its Python line number, and the exact executed source line before showing any values.
+Answers: **What state changed after this recorded line?**
+
+The view first shows the selected program, step, Python line, event, and exact
+executed source. A four-part summary reports how many visible names were
+created, changed, removed, or unchanged.
 
 Every variable visible immediately before or after that step receives one full-width vertical card:
 
@@ -1036,15 +1055,64 @@ The displayed values are bounded serialized snapshots. They are not live Python 
 
 #### Decisions
 
-Shows reached conditions and an observed outcome when the trace provides enough evidence. If the selected prefix has not reached a condition, it says so.
+Answers: **Which recorded route followed an `if`, `elif`, or `while` check?**
+
+Before a condition is reached, the view gives a three-step next action instead
+of showing an unfinished blank panel. After a condition is reached, it presents
+one visual route:
+
+```text
+condition source
+      |
+      v
+observed True, False, or unknown
+      |
+      v
+next recorded source line
+```
+
+The result uses text and shape as well as color. The view can also show up to
+six values that were visible in the recorded scope at the check. Those are
+orientation values. Code Explorer does not claim that every displayed value
+was an operand in the condition because the current trace does not reliably
+identify expression operands for every possible pasted Python program.
 
 #### Calls and Recursion
 
-Shows the recorded call stack and visible frame variables. Stack depth is observed. A recursion label is used only when the evidence supports it.
+Answers: **Which function frames exist, and which frame is active now?**
+
+The view shows function depth, the active frame, and an ordered frame stack
+from global scope to the currently executing call. Every frame is labelled
+Active or Waiting, and up to six recorded local values appear inside that
+frame. During a recursive countdown, for example, the learner can see
+`number` change from `4` through `0` while earlier calls wait for the deepest
+call to return.
+
+On a return event, a visible return cue explains that Python is leaving the
+active frame. The frame stack is observed evidence. An algorithm name and
+objective appear separately only for exact unchanged reviewed source.
 
 #### Error Coach
 
-Shows a syntax or runtime error, the closest learner line, available recent values, and a reasonable first inspection. It does not invent a repair. A trace-limit failure clearly states the 3,000-step boundary.
+Answers: **Where did Python stop, what does the error mean, and what should I
+inspect next?**
+
+The view uses an IDE-style diagnostic surface with the recorded error type,
+message, closest learner line, and source. It then separates two beginner
+questions:
+
+- **What it means** explains the error family in plain language.
+- **Safe next experiment** gives one evidence-seeking action, such as comparing
+  a list index with the list length.
+
+The current coach covers common syntax, indentation, name, type, index, key,
+division, value, attribute, and recursion failures. Unknown error families
+receive conservative general guidance.
+
+Error Coach deliberately marks a guaranteed repair as Unavailable. Several
+different source changes might remove the same exception, and only the learner
+knows the intended program. A trace-limit failure still clearly states the
+3,000-step boundary.
 
 ### Data area
 

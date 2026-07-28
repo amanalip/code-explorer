@@ -2,11 +2,11 @@
 
 Baseline recorded: 2026-07-28 14:32:14 EDT (-0400)
 
-Document status: Current-state audit before the visual redesign
+Document status: Living current-state audit, Trace redesign Chunk 1 shipped
 
 Scope: All 18 learning views in the Data Structures and Algorithms workspace
 
-Last documentation audit: 2026-07-28 14:32:14 EDT (-0400)
+Last documentation audit: 2026-07-28 14:59:56 EDT (-0400)
 
 ## Why this document exists
 
@@ -28,10 +28,67 @@ The current interface is functionally complete:
 - Light mode, dark mode, desktop, and narrow layouts work without page-level
   horizontal overflow.
 
-The interface is not visually complete. Most views use the same generic
-article, heading, paragraph, card, list, or table treatment. The result is
-stable, but it does not give eighteen different programming ideas eighteen
-appropriate visual explanations.
+The interface redesign is now partially complete. All five Trace views use the
+new beginner-oriented visual system. The remaining thirteen Data, Flow, and
+Labs views still largely use the earlier generic treatments and remain future
+redesign chunks.
+
+## Current state after Trace redesign Chunk 1
+
+Recorded: 2026-07-28 14:59:56 EDT (-0400)
+
+Chunk 1 changed presentation and interaction only. It did not change the 535
+programs, worker, trace format, numerical limits, persistence, privacy model,
+or the other thirteen view renderers.
+
+The five Trace views now share an orientation sequence:
+
+```text
+evidence badge and view name
+        |
+        v
+one beginner question
+        |
+        v
+program, step, source line, and event
+        |
+        v
+exact executed source
+        |
+        v
+purpose-specific teaching visual
+        |
+        v
+honest boundary or next action
+```
+
+This order is an empathy rule, not decoration. A new programmer should not
+need to decode an unfamiliar panel before learning what question it answers.
+
+| Trace view | Current visual form | Beginner benefit | Honesty boundary |
+| --- | --- | --- | --- |
+| Algorithm Story | Selectable recorded timeline, current observation, and separate reviewed phase map | Connects the selected source line to nearby execution history | A reviewed phase is not assigned to an arbitrary selected line |
+| Before and After | Four-count change summary plus one vertical card per visible name | Makes created, changed, removed, and unchanged state scannable | Values are bounded recorded snapshots, not physical memory |
+| Decisions | Condition to result to next-line route, plus visible scope values | Makes the taken path readable as one sequence | Visible values are not claimed to all be condition operands |
+| Calls and Recursion | Depth summary and ordered Active or Waiting frames with bounded locals | Makes nested calls and changing arguments visible | Named algorithm context requires exact unchanged reviewed source |
+| Error Coach | IDE-style diagnostic, meaning, safe experiment, and explicit repair boundary | Turns a failure into a focused investigation | The tool does not promise a guaranteed repair |
+
+Switching views or loading a new result returns the internal learning stage to
+its orientation header. Moving playback does not reset that internal scroll
+position, so a learner reading a long comparison is not pulled away on every
+step.
+
+Real-browser verification covered:
+
+- Algorithm Story playback navigation on an unchanged reviewed program.
+- Before and After dynamic full-state cards.
+- A true precondition route with the exact next recorded line.
+- A five-level recursive countdown with changing local `number` values.
+- A real `IndexError` with location, meaning, and a safe experiment.
+- Light desktop presentation.
+- Dark presentation at a 390 by 844 viewport.
+- Internal vertical overflow with no page-level horizontal overflow.
+- No browser console errors or page exceptions during a repeated error run.
 
 ## Current interface map
 
@@ -217,6 +274,10 @@ The problem is mainly how this information is presented and connected.
 
 ## Shared current-state problems
 
+The following findings preserve the original all-view baseline. Chunk 1 resolves
+them for the five Trace views only. They remain active review questions for the
+thirteen Data, Flow, and Labs views.
+
 ### One visual treatment is reused too broadly
 
 A variable dashboard, recursive call stack, graph path, algorithm comparison,
@@ -397,16 +458,17 @@ learner data to a request.
 | Evidence honesty | Strong | Reviewed and observed claims remain separated |
 | Browser stability | Strong | Bounded views and numerical limits are established |
 | Accessibility foundation | Moderate | Navigation and scrolling work, but richer visuals need explicit alternatives |
-| Visual differentiation | Weak | Too many concepts share generic cards and prose |
-| Beginner scanability | Weak to moderate | Information exists, but the learner must interpret too much text |
-| Empty-state quality | Weak | Several states look unfinished rather than deliberately instructional |
-| Concept visualization | Weak | Relationships, paths, depth, growth, and comparisons are underrepresented |
+| Visual differentiation | Moderate | Trace views are distinct; thirteen later views still need redesign |
+| Beginner scanability | Moderate | Trace orientation is strong; later areas retain denser generic layouts |
+| Empty-state quality | Moderate | Trace states provide actions; later areas still need the same treatment |
+| Concept visualization | Moderate | Trace history, state, decisions, depth, and errors are visual; Data, Flow, and Labs remain |
 
 ## Baseline conclusion
 
-The current DSA LAB UI is technically dependable but visually immature. It
-contains useful evidence, yet it asks beginners to interpret too much through
-plain text and generic cards.
+The current DSA LAB UI is technically dependable and now has a complete
+beginner-oriented Trace area. It remains visually unfinished as a complete
+18-view system because the Data, Flow, and Labs redesign chunks have not
+started.
 
 The redesign must preserve the proven runtime and evidence foundation while
 giving every view a visual form appropriate to the concept it teaches.

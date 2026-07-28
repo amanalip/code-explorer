@@ -15,6 +15,56 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v16, 2026-07-28
+
+v16 ships **DSA LAB UI redesign Chunk 1**. LAB UI means the complete learning
+interface, but this first commit-sized chunk changes only the five Trace views.
+The six Data, four Flow, and three Labs views remain later redesign chunks.
+
+### One beginner-oriented Trace foundation
+
+Every Trace view now begins by answering the same orientation needs:
+
+- What question does this view answer?
+- Which program and recorded step is visible?
+- Which source line executed?
+- What evidence is observed, reviewed, or unavailable?
+- What should the learner inspect or try next?
+
+This shared foundation does not flatten the five views into one generic card.
+Each view receives a visual form appropriate to its subject.
+
+### Five redesigned Trace views
+
+| View | Learner-visible change |
+| --- | --- |
+| Algorithm Story | Adds a selectable recorded timeline, current observation, bounded changes, and a separate exact-source curriculum phase map |
+| Before and After | Adds created, changed, removed, and unchanged totals above the existing full-state vertical comparison cards |
+| Decisions | Connects condition, observed result, and next recorded line, then labels bounded values only as visible in scope |
+| Calls and Recursion | Shows depth, an ordered frame stack, Active and Waiting states, bounded locals, return cues, and separate reviewed context |
+| Error Coach | Uses an IDE-style diagnostic with location, source, plain-language meaning, safe experiment, and an explicit unavailable repair boundary |
+
+All five views have designed pre-run or unavailable states with an honest reason
+and three next actions. Selecting a new view or loading a new result returns its
+internal stage to the orientation header. Playback preserves internal reading
+position so long comparisons do not jump.
+
+### Reliability, accessibility, and privacy
+
+- Source and serialized values continue to render as escaped text.
+- Important state uses text and shape in addition to color.
+- Algorithm Story timeline entries are keyboard-focusable and identify the
+  selected entry with `aria-current`.
+- Decisions does not describe visible scope values as condition operands.
+- Error Coach does not invent or guarantee a repair.
+- No program, worker, trace contract, numerical limit, persistence key,
+  dependency, external request, analytics system, or privacy behavior changed.
+- Desktop light mode and 390 by 844 dark mode were inspected in a real browser.
+- Recursive depth, condition routing, an actual `IndexError`, internal
+  scrolling, and the absence of page-level horizontal overflow were verified.
+- Browser console and page-error listeners reported no application errors
+  during a repeated error run.
+
 ## v15, 2026-07-28
 
 v15 removes stale release-management information from the learner-facing DSA
