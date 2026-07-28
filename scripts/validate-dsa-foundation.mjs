@@ -167,19 +167,21 @@ expect(
   "DSA view stage is missing its focusable keyboard-scrolling contract.",
 );
 expect(
-  dsaHtml.includes("Chunk 3 implements the first 269 reviewed programs")
-    && dsaHtml.includes("remaining 266 programs"),
-  "DSA status copy does not match the verified Chunk 3 arithmetic.",
+  dsaHtml.includes("Chunk 4 implements the first 337 reviewed programs")
+    && dsaHtml.includes("remaining 198 programs"),
+  "DSA status copy does not match the verified Chunk 4 arithmetic.",
 );
 expect(
-  dsaAppSource.includes("DSA_CHUNK_THREE_PROGRAMS")
-    && dsaAppSource.includes("DSA_CHUNK_THREE_SECTIONS"),
-  "DSA controller is not integrating both Chunk 3 program and section contracts.",
+  dsaAppSource.includes("DSA_CHUNK_FOUR_PROGRAMS")
+    && dsaAppSource.includes("DSA_CHUNK_FOUR_SECTIONS"),
+  "DSA controller is not integrating both Chunk 4 program and section contracts.",
 );
 expect(
-  dsaAppSource.includes("reviewedStructureCandidate(selectedStep(), role)")
-    && dsaAppSource.includes("trie: { names: /(?:trie|root|node)/i"),
-  "Chunk 3 structure roles are not selecting a compatible reviewed variable.",
+  dsaAppSource.includes("reviewedStructureCandidate(selectedStep(), reviewedStructureRole())")
+    && dsaAppSource.includes('"union-find": { names: /(?:parent|representative|component|rank|size)/i')
+    && dsaAppSource.includes("graph: { names: /(?:graph|adjacency|matrix|edges|vertices|forest|tree)/i")
+    && dsaAppSource.includes('reviewedRole: ""'),
+  "Chunk 4 structure roles are not selecting compatible Union-Find and graph variables.",
 );
 
 // Every id read by the DSA controller must exist in the dedicated document.

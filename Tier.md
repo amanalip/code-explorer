@@ -1,16 +1,16 @@
 # Code Explorer Data Structures and Algorithms tiers
 
-This document preserves the curriculum boundary and implementation status for the separate Python Data Structures and Algorithms workspace. Chunk 3 implements the first 269 reviewed programs and the reusable runtime. Later listings remain a planning reference, not a claim that their programs are available.
+This document preserves the curriculum boundary and implementation status for the separate Python Data Structures and Algorithms workspace. Chunk 4 implements the first 337 reviewed programs and the reusable runtime. Later listings remain a planning reference, not a claim that their programs are available.
 
 ```text
 CURRENT STATUS
 
-Tier A  -> Chunk 3 implements 269 of 535 approved programs
+Tier A  -> Chunk 4 implements 337 of 535 approved programs
 Tier B  -> recorded for later evaluation
 Tier C  -> recorded as an optional specialist catalog
 
 Local DSA execution, playback, comparisons, comments, and 18 learning views work.
-The remaining 266 Tier A programs are not implemented yet.
+The remaining 198 Tier A programs are not implemented yet.
 ```
 
 ## Why the work is divided into tiers
@@ -51,7 +51,7 @@ Code Explorer landing page
 |
 +-- Start exploring Python Data Structures and Algorithms
        +-- implemented data-structures.html workspace
-       +-- 269-program Chunk 3 curriculum
+       +-- 337-program Chunk 4 curriculum
        +-- implemented 18-view runtime
        +-- later reviewed curriculum chunks
 ```
@@ -82,15 +82,15 @@ index.html
 
 The existing `README.md` remains the public beginner guide for the Python execution workspace and its 134-program curriculum. It should be linked from `workspace.html`, not from the shared landing page or the Data Structures workspace.
 
-`README_DSA.md` is the public beginner guide for the Data Structures workspace, its implemented 269-program curriculum, evidence boundaries, verified limits, and later completed curriculum chunks. It is linked from `data-structures.html`, not from the existing Python workspace.
+`README_DSA.md` is the public beginner guide for the Data Structures workspace, its implemented 337-program curriculum, evidence boundaries, verified limits, and later completed curriculum chunks. It is linked from `data-structures.html`, not from the existing Python workspace.
 
 `README_DSA.md` must not become a catalogue of unimplemented promises. Update it after each verified Tier A chunk. `Tier.md` remains the planning catalogue; `README_DSA.md` describes only learner-visible behavior that actually exists and explicitly marks unavailable behavior.
 
 Both workspace links should use the same accessible Tool Guide label and visual treatment. Their targets differ by workspace context. External GitHub links must preserve the existing privacy and `noreferrer` rules.
 
-### Implemented Chunk 3 view contract
+### Implemented Chunk 4 view contract
 
-Chunk 3 continues to render working results through the final eighteen names under four bounded areas:
+Chunk 4 continues to render working results through the final eighteen names under four bounded areas:
 
 ```text
 TRACE
@@ -202,7 +202,7 @@ Every direct lesson needs its own primary learning objective and runnable Python
 
 ### Implemented curriculum slices
 
-The first twelve direct-teaching sections are implemented and validated:
+The first sixteen direct-teaching sections are implemented and validated:
 
 | Implemented section | Programs | Status |
 | --- | ---: | --- |
@@ -218,15 +218,19 @@ The first twelve direct-teaching sections are implemented and validated:
 | Trees and binary search trees | 30 | Implemented in Chunk 3 |
 | Heaps and priority queues | 18 | Implemented in Chunk 3 |
 | Tries and string algorithms | 24 | Implemented in Chunk 3 |
-| **Implemented total** | **269** | **Executable and validated** |
+| Union-Find | 10 | Implemented in Chunk 4 |
+| Graph structures and vocabulary | 24 | Implemented in Chunk 4 |
+| Graph traversal and connectivity | 20 | Implemented in Chunk 4 |
+| Shortest paths and spanning trees | 14 | Implemented in Chunk 4 |
+| **Implemented total** | **337** | **Executable and validated** |
 
 ```text
 535 approved Tier A programs
-- 269 implemented programs
-= 266 programs remaining
+- 337 implemented programs
+= 198 programs remaining
 ```
 
-The next row in the approved catalog is Union-Find. Chunk 3 now provides reviewed tree traversals and BST updates, heap operations and priority policies, trie operations and prefix applications, string-search comparisons, exact metadata, conceptual orientations, and validators. Graph-family sections remain unavailable until their own program, event, representation, comparison, and browser evidence is complete.
+The next row in the approved catalog is Recursion. Chunk 4 now provides reviewed Union-Find operations, graph representations and vocabulary, traversal and connectivity, shortest paths, spanning trees, comparisons, exact metadata, conceptual orientations, and validators. Recursion and later algorithm-family sections remain unavailable until their own programs and browser evidence are complete.
 
 ### Program quality contract
 

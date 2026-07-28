@@ -6,12 +6,12 @@ Everything runs on the learner's device. Code Explorer does not collect learner 
 
 ## Current release status
 
-The DSA workspace is at **Chunk 3: trees, heaps, tries, and string search**.
+The DSA workspace is at **Chunk 4: Union-Find and graph algorithms**.
 
-Chunks 1 through 3 implement:
+Chunks 1 through 4 implement:
 
-- 269 reviewed and executable curriculum programs.
-- 12 ordered curriculum sections.
+- 337 reviewed and executable curriculum programs.
+- 16 ordered curriculum sections.
 - A vertical example browser with local metadata search, section counts, difficulty, line count, objective, complexity, and recommended views.
 - Local Python execution through the same isolated Pyodide worker used by the Python workspace.
 - A 3,000-step trace limit and a 30-second outer timeout.
@@ -20,14 +20,14 @@ Chunks 1 through 3 implement:
 - Automatic comments, Learning comments, wrapping, font sizing, Copy, Paste, prepared input, source persistence, and theme persistence.
 - 20 approved structure representation names and 31 stable DSA event names.
 
-Chunk 3 does **not** implement all of Tier A. The approved Tier A target is 535 programs, so 266 programs and their later structure families remain unimplemented. A planned program, structure, view extension, or algorithm in `Tier.md` is not an implemented claim.
+Chunk 4 does **not** implement all of Tier A. The approved Tier A target is 535 programs, so 198 programs and their later algorithm families remain unimplemented. A planned program, structure, view extension, or algorithm in `Tier.md` is not an implemented claim.
 
 ## Contents
 
 - [Start here](#start-here)
 - [Choose the correct workspace](#choose-the-correct-workspace)
 - [Workspace map](#workspace-map)
-- [The 269-program curriculum](#the-269-program-curriculum)
+- [The 337-program curriculum](#the-337-program-curriculum)
 - [Your first guided run](#your-first-guided-run)
 - [Editor controls](#editor-controls)
 - [Trace playback](#trace-playback)
@@ -110,9 +110,9 @@ DATA STRUCTURES AND ALGORITHMS WORKSPACE
 |   +-- Paste
 |
 +-- CURRICULUM
-|   +-- 269 reviewed programs
+|   +-- 337 reviewed programs
 |   +-- local search across complete reviewed records
-|   +-- 12 vertical section filters
+|   +-- 16 vertical section filters
 |   +-- objective and description
 |   +-- difficulty and line count
 |   +-- reviewed time and space context
@@ -203,7 +203,7 @@ Playback, Console Output, and Chunk Status keep their positions below the bounde
 
 The learning result uses a stable scrollbar gutter, so its readable width does not jump when a short view becomes long enough to scroll. Short results remain inside the same stable region without needing vertical movement. On a phone, the panel uses a shorter but still bounded height. The view-label strip can scroll horizontally, while the selected learning result scrolls vertically.
 
-## The 269-program curriculum
+## The 337-program curriculum
 
 ### Exact implemented counts
 
@@ -221,9 +221,59 @@ The learning result uses a stable scrollbar gutter, so its readable width does n
 | 10 | Trees and binary search trees | 30 | Tree vocabulary, depth-first and breadth-first traversals, shape rules, serialization, BST search, insertion, deletion, validation, rank, and height |
 | 11 | Heaps and priority queues | 18 | Array relationships, heapify, push, pop, invariant checks, top-k selection, stable scheduling, k-way merge, and construction comparisons |
 | 12 | Tries and string algorithms | 24 | Prefix insertion, lookup, deletion, autocomplete, counted paths, suffix tries, direct search, KMP, rolling hash, and string transformations |
-| **Total** | **Chunks 1 through 3** | **269** | **Reviewed sequence, linear, hashed, hierarchical, priority, prefix, and string-search curriculum** |
+| 13 | Union-Find | 10 | Make set, representative lookup, union, size and rank balancing, path compression, connectivity, components, and cycle detection |
+| 14 | Graph structures and vocabulary | 24 | Vertices, edges, direction, weights, degree, adjacency lists, matrices, edge lists, conversions, validation, walks, trails, paths, DAGs, and representation tradeoffs |
+| 15 | Graph traversal and connectivity | 20 | BFS, recursive and iterative DFS, paths, reachability, components, cycles, bipartite checks, topological sorts, grid traversal, and traversal comparisons |
+| 16 | Shortest paths and spanning trees | 14 | Relaxation, Dijkstra, DAG paths, Bellman-Ford, negative cycles, Floyd-Warshall, Kruskal, Prim, forests, and MST comparison |
+| **Total** | **Chunks 1 through 4** | **337** | **Reviewed sequence, structure, connectivity, traversal, shortest-path, and spanning-tree curriculum** |
 
-### Chunk 3 learning routes
+### Chunk 4 learning routes
+
+The 68 new programs continue the ordered curriculum with four connected routes:
+
+```text
+UNION-FIND, 10 PROGRAMS
+|
++-- create one set per item
++-- find representatives iteratively and recursively
++-- join sets with basic union, size, and rank
++-- compress parent paths
++-- answer connectivity questions and count components
++-- detect an undirected cycle
+
+GRAPH STRUCTURES AND VOCABULARY, 24 PROGRAMS
+|
++-- distinguish vertices, edges, direction, and weights
++-- build adjacency lists, matrices, and edge lists
++-- measure degree, isolation, self-loops, and parallel edges
++-- convert and validate representations
++-- distinguish walks, trails, paths, and DAG evidence
++-- compare conceptual storage and neighbor-query work
+
+GRAPH TRAVERSAL AND CONNECTIVITY, 20 PROGRAMS
+|
++-- run BFS, recursive DFS, and iterative DFS
++-- reconstruct paths, collect reachability, and count components
++-- compare DFS with Union-Find
++-- detect directed and undirected cycles
++-- check bipartite graphs and create topological orders
++-- flood-fill grids, count islands, and solve a maze
++-- compare breadth-first and depth-first visit orders
+
+SHORTEST PATHS AND SPANNING TREES, 14 PROGRAMS
+|
++-- understand one edge relaxation
++-- run Dijkstra and inspect stale heap entries
++-- reconstruct routes and preserve unreachable states
++-- reject Dijkstra when negative edges violate its precondition
++-- run DAG shortest paths and Bellman-Ford
++-- detect reachable negative cycles
++-- compute all-pairs paths with Floyd-Warshall
++-- build trees and forests with Kruskal and Prim
++-- compare two reviewed MST strategies on one graph
+```
+
+### Earlier Chunk 3 learning routes
 
 The 72 new programs are not a flat collection. Each section moves from a visible
 representation toward operations, invariants, applications, and comparisons:
@@ -282,16 +332,38 @@ My question is about...
        +-- Compare Algorithms, Complexity Lab
 ```
 
+Chunk 4 adds these useful questions:
+
+```text
+My question is about...
+|
++-- parent links, representatives, or component merging
+|      +-- Structure Canvas, Before and After, Invariant Checker
+|
++-- frontier order or visited vertices
+|      +-- Operation Journey, Algorithm Path, Step Table
+|
++-- path cost or edge relaxation
+|      +-- Before and After, Watches, Complexity Lab
+|
++-- cycles, bipartite colors, or topological validity
+|      +-- Decisions, Invariant Checker, Edge Case Lab
+|
++-- two connectivity, traversal, path, or MST strategies
+       +-- Compare Algorithms, Complexity Lab
+```
+
 Structure Canvas uses a dedicated reviewed orientation only when the editor
 source exactly matches a catalog program. Tree-family records label their root
 fields, heap-family records emphasize the observed root, and trie records label
-character edges. These are conceptual teaching labels over serialized Python
-values. They are not physical RAM addresses and they do not reveal private
-interpreter storage.
+character edges. Union-Find records orient parent collections, and graph records
+orient adjacency collections. These are conceptual teaching labels over
+serialized Python values. They are not physical RAM addresses and they do not
+reveal private interpreter storage.
 
 Every catalog program has:
 
-- A unique stable identifier from `DSA-001` through `DSA-269`.
+- A unique stable identifier from `DSA-001` through `DSA-337`.
 - A distinct title and teaching objective.
 - A section and difficulty.
 - Reviewed source code and prepared input.
@@ -322,7 +394,7 @@ DSA SEARCH INDEX
 
 This makes metadata that is not printed in full on every card discoverable. For example:
 
-- `DSA-269 KMP evidence` finds the exact reviewed direct-versus-KMP comparison through its stable ID and metadata.
+- `DSA-337 Kruskal Prim comparison` finds the final Chunk 4 comparison through its stable ID and algorithm metadata.
 - `empty list division` finds **Name an algorithm's input and output** through its reviewed edge-case metadata.
 - `O(log n) guided challenge` requires complexity and difficulty terms to match the same program.
 - A class, function, variable, or operation name can match the reviewed source.
@@ -354,7 +426,7 @@ Difficulty is editorial guidance. It is not a score, test result, or claim about
 
 ### Longer programs
 
-Short examples remain useful for atomic ideas, but the implemented catalog includes 96 programs with at least 15 meaningful source lines. Longer examples are used where setup, transformation, checks, and results need room to form one coherent lesson.
+Short examples remain useful for atomic ideas, but the implemented catalog includes 146 programs with at least 15 meaningful source lines. Every traversal lesson has at least 19 meaningful lines, and every shortest-path or spanning-tree lesson has at least 14. Longer examples are used where setup, transformation, checks, and results need room to form one coherent lesson.
 
 ### What Chunk 2 adds
 
@@ -406,6 +478,73 @@ tie policies, top-k selection, trie prefix applications, and substring-search
 strategies. Compare Algorithms suggests related reviewed programs directly.
 Selecting one loads its complete reviewed source into the editor so a comparison
 run is based on that source, not on a hidden implementation.
+
+### What Chunk 4 adds
+
+```text
+UNION-FIND FOREST
+item -> parent -> representative
+          |
+          +-- union by size or rank limits height
+          +-- path compression rewrites future routes
+
+GRAPH ADJACENCY
+vertex -> neighbor
+       -> neighbor with optional weight
+
+TRAVERSAL FRONTIERS
+BFS  uses a queue
+DFS  uses recursion or a stack
+
+WEIGHTED PATHS
+known source distance + edge weight -> candidate target distance
+
+SPANNING TREES
+Kruskal -> globally ordered edges plus Union-Find
+Prim    -> locally crossing edges plus a priority queue
+```
+
+Chunk 4 comparisons cover representative lookup forms, Union-Find
+optimizations, connectivity by traversal versus Union-Find, graph
+representations, traversal orders, topological ordering, unweighted paths,
+single-source weighted paths, and minimum spanning trees.
+
+The honesty boundary remains unchanged. A reviewed graph name, invariant,
+phase, Big O statement, or comparison is available only while the source
+exactly matches its catalog program. Edited or pasted graph code still receives
+observed trace evidence, but Code Explorer does not guess which named graph
+algorithm it implements.
+
+### Chunk 4 beginner vocabulary
+
+The catalog introduces each idea through executable programs, but these short
+definitions can help before the first run.
+
+| Term | Beginner meaning | First evidence to inspect | A useful next experiment |
+| --- | --- | --- | --- |
+| **Union-Find** | A structure that groups items into disjoint, non-overlapping sets and answers whether two items belong to the same group. It is also called a disjoint-set union structure. | Open Structure Canvas and watch the `parent` collection after a union. | Reverse the order of two unions and check whether the final groups remain equivalent. |
+| **Representative** | One chosen item that identifies a complete Union-Find group. Following parent links eventually reaches it. | Watch the value returned by `find`. | Add a longer parent chain and compare it before and after path compression. |
+| **Path compression** | A `find` optimization that rewrites visited parent links so later searches reach the representative more directly. | Compare the `parent` collection before and after repeated finds. | Disable the rewrite in a copied program and compare observed step counts. |
+| **Vertex and edge** | A vertex is an item in a graph. An edge records a relationship between two vertices. | Open Structure Canvas and Console Output for a graph-vocabulary lesson. | Add one vertex with no edges and see how isolation is represented. |
+| **Adjacency list** | A mapping from each vertex to its neighbors. It is often compact when few of the possible edges exist. | Inspect the graph variable in Variables or Structure Canvas. | Add one edge and identify exactly which neighbor collection changes. |
+| **Adjacency matrix** | A rectangular table whose row and column positions say whether two vertices are connected, sometimes with a stored weight. | Use Structures to inspect rows and indices. | Compare the same graph as a list, matrix, and edge list. |
+| **BFS** | Breadth-first search explores through a queue, visiting nearby layers before more distant layers. | Watch the queue and visit order in Operation Journey. | Change the neighbor order and compare the resulting visit order. |
+| **DFS** | Depth-first search follows one route deeply before returning to try another route. It can use recursion or an explicit stack. | Open Calls and Recursion for recursive DFS, or Watches for iterative DFS. | Run the paired BFS and DFS examples on the same graph. |
+| **Connected component** | A group of vertices that can reach one another through the graph relationships considered by the program. | Inspect the component labels or component count. | Remove a bridge edge and check whether one component becomes two. |
+| **Topological order** | An ordering of a directed acyclic graph in which every prerequisite appears before the item that depends on it. | Use Invariant Checker and inspect every directed edge. | Add a cycle and observe why a complete valid order is unavailable. |
+| **Relaxation** | A shortest-path update that asks whether one known distance plus an edge weight improves another distance. | Use Before and After on a distance update. | Increase one edge weight and check which later updates change. |
+| **Dijkstra's algorithm** | A shortest-path method for graphs whose relevant edge weights are non-negative. A negative edge breaks its required precondition. | Inspect the chosen minimum-distance vertex and the distance map. | Run the negative-weight boundary lesson before editing a Dijkstra example. |
+| **Bellman-Ford algorithm** | A shortest-path method that repeatedly relaxes edges and can report a reachable negative cycle. | Watch the distance map across passes. | Remove the negative cycle edge and compare the final result. |
+| **Negative cycle** | A reachable cycle whose total weight is below zero. Repeating it can keep reducing a route cost, so no finite shortest answer exists for affected routes. | Inspect the extra Bellman-Ford pass that still finds an improvement. | Change one weight so the cycle total becomes zero and rerun. |
+| **Floyd-Warshall algorithm** | A table-based method that considers every vertex as an allowed intermediate point to compute shortest paths between every pair. | Open Structures and watch the distance matrix. | Change one edge and find which source-target entries are affected. |
+| **Minimum spanning tree** | A minimum-total-weight set of edges that connects every vertex of a connected undirected weighted graph without a cycle. | Inspect chosen edges, total weight, and the final connectivity check. | Disconnect the graph and observe that the result becomes a spanning forest. |
+| **Kruskal's algorithm** | A minimum-spanning-tree method that considers edges from lighter to heavier and uses Union-Find to reject cycles. | Watch sorted edges and parent groups. | Create two equal-weight edges and inspect the accepted order without claiming it is the only valid tree. |
+| **Prim's algorithm** | A minimum-spanning-tree method that grows outward from a starting vertex by repeatedly choosing a light crossing edge. | Watch the visited set and priority queue. | Choose a different starting vertex and compare the final total weight. |
+
+The operation shown by one trace belongs to that program and its current input.
+For example, a BFS visit order can change when neighbor order changes even
+though the program is still BFS. Reviewed Big O is curriculum context, while
+the displayed step count is observed evidence from one run.
 
 ## Your first guided run
 
@@ -766,7 +905,7 @@ Limits protect the browser and keep explanations readable. An execution limit st
 | Compare Algorithms history | 2 run summaries | The oldest in-session summary is replaced |
 | Prepared-input text | 20,000 characters | Additional text is ignored when loaded into the local input field |
 | Active learning views | 18 | Custom learner-defined views are not supported |
-| Implemented curriculum | 269 programs | The remaining 266 Tier A programs are not selectable |
+| Implemented curriculum | 337 programs | The remaining 198 Tier A programs are not selectable |
 | Approved structure names | 20 | Unknown structures receive generic bounded presentation |
 | Stable event names | 31 | Runtime cues remain conservative when an exact DSA event is unavailable |
 
@@ -881,9 +1020,12 @@ Chunk 2  66 stack, queue, deque, linked, hash, and set programs
 Chunk 3  72 tree, BST, heap, priority-queue, trie, and string-search programs
    |
    v
+Chunk 4  68 Union-Find, graph representation, traversal, path, and MST programs
+   |
+   v
 Later chunks
    |
-   +-- complete the remaining 266 Tier A programs
+   +-- complete the remaining 198 Tier A programs
    +-- preserve the same evidence labels and limits
    +-- extend validators before making implementation claims
 ```

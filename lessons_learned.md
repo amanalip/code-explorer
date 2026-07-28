@@ -3103,6 +3103,266 @@ What to repeat:
 4. Keep exact-source context separate from observed-value selection.
 5. Add a validator source contract and a browser regression for the correction.
 
+## 93. A commit boundary can protect ambition instead of reducing it
+
+Perspective:
+- User
+- Shared
+
+Status:
+- Implemented
+
+Aman committed Chunk 3 before authorizing Chunk 4. He then clarified that
+"next chunk prep" meant generating the complete chunk, not stopping after a
+planning document. Both decisions matter.
+
+The commit boundary preserved a recoverable 269-program release. The
+clarification preserved momentum toward the complete 535-program catalog. A
+checkpoint and an ambitious destination are not opposites:
+
+```text
+verified Chunk 3 commit
+        |
+        v
+generate complete Chunk 4
+        |
+        v
+validate all earlier and new records together
+        |
+        v
+stop before Chunk 5
+```
+
+Credit belongs to the user for maintaining both requirements consistently.
+The lesson for the user is that a short phrase such as "prep" can have a
+different implementation meaning to a collaborator. Correcting it immediately
+prevented a planning-only result. The lesson for Codex is to distinguish
+contract preparation from complete chunk generation and state the boundary
+before proceeding.
+
+What to repeat:
+
+1. Begin each chunk from a clean committed state.
+2. State the exact section and program count before generating source.
+3. Clarify whether "prepare" means contracts only or complete implementation.
+4. Run cumulative validation, not only tests for newly added records.
+5. Stop before the next chunk and give the user another commit boundary.
+
+## 94. Graph learning needs a connected route, not isolated algorithm demos
+
+Perspective:
+- User
+- Shared
+
+Status:
+- Implemented
+
+The user's central curriculum argument has been that a learner should study the
+subject, not a small collection of impressive examples. Chunk 4 applies that
+idea to graphs. Starting directly with Dijkstra or minimum spanning trees would
+leave beginners guessing what a vertex, edge, adjacency list, component,
+frontier, or relaxation means.
+
+The implemented route therefore preserves dependency order:
+
+```text
+parent forests and connectivity
+        |
+        v
+graph representation and vocabulary
+        |
+        v
+traversal and components
+        |
+        v
+weighted relaxation and shortest paths
+        |
+        v
+minimum spanning trees and comparisons
+```
+
+The user learned through earlier project decisions that a larger catalog is
+useful only when it is navigable and progressive. Codex learned that graph
+quality must be reviewed across neighboring lessons: a correct BFS program can
+still be a weak curriculum record if the learner has not first seen the
+representation it traverses.
+
+What to repeat:
+
+1. Teach the representation before an algorithm that depends on it.
+2. Define vocabulary through runnable evidence.
+3. Include boundary programs for isolation, self-loops, parallel edges,
+   unreachable vertices, negative weights, and disconnected graphs.
+4. Follow one implementation with comparisons that explain different tools.
+5. Keep longer programs when complete setup-to-result reasoning requires them.
+
+## 95. Passing Python is not enough when the asserted route is ambiguous
+
+Perspective:
+- Codex
+
+Status:
+- Corrected before release
+
+The first Chunk 4 execution audit found that the weighted path-reconstruction
+lesson returned a shortest route with total cost 10, but the program asserted a
+different route that also had total cost 10. Python behaved correctly. The
+curriculum assertion was too narrow.
+
+```text
+route A -> C -> B -> E
+cost  2 + 1 + 7 = 10
+
+route A -> C -> B -> D -> E
+cost  2 + 1 + 5 + 2 = 10
+```
+
+Codex created the ambiguity by reviewing the intended route without checking
+whether another equal-cost route could be discovered first. The correction
+changed the direct `B -> E` weight so the lesson has one intended shortest
+route and the parent-chain explanation remains deterministic.
+
+This is not a reason to force unique routes in every shortest-path lesson.
+Equal-cost routes are an important edge case. When a lesson asserts one exact
+path, however, its data must support that assertion. A lesson about multiple
+valid routes should instead state that contract explicitly.
+
+What to repeat:
+
+1. Calculate every plausible competing route in small weighted fixtures.
+2. Decide whether the lesson teaches one deterministic path or several valid
+   shortest paths.
+3. Assert cost and endpoints when route choice is intentionally flexible.
+4. Assert the complete path only when input and tie behavior make it stable.
+5. Execute the program instead of trusting the intended diagram.
+
+## 96. A manually reviewed shortest distance still needs executable proof
+
+Perspective:
+- Codex
+
+Status:
+- Corrected before release
+
+The DAG shortest-path lesson initially expected a final distance of 14. The
+actual minimum was 11 through `A -> B -> D -> G -> H`. The program output made
+the mistake visible during cumulative validation.
+
+Codex caused the error by mentally following one valid route and not comparing
+all relaxed alternatives. The correction did not weaken the validator or
+change the output marker. It corrected the expected shortest value to 11 and
+reran all 337 programs.
+
+```text
+one valid route is not proof of the shortest route
+        |
+        v
+relax every edge in valid topological order
+        |
+        v
+inspect the final minimum
+        |
+        v
+make documentation and expected output agree
+```
+
+What to repeat:
+
+1. Treat shortest-path expected values as calculations that require proof.
+2. Record enough output to inspect intermediate or final distance maps.
+3. Run the same detached validator used for release.
+4. Fix the source claim or fixture, never the test merely to make it green.
+5. Preserve the correction in the changelog and lessons learned.
+
+## 97. Graph labels must describe observed containers, not invent a hidden graph
+
+Perspective:
+- Shared
+
+Status:
+- Implemented
+
+Chunk 4 extends Structure Canvas with Union-Find and graph roles. That does not
+mean Code Explorer reconstructs Python interpreter objects or recognizes every
+pasted adjacency list.
+
+For an exact reviewed program, the controller can combine two separate facts:
+
+```text
+reviewed metadata says "graph" or "union-find"
+        +
+the trace exposes a compatible serialized variable
+        |
+        v
+conceptual adjacency or parent orientation
+```
+
+For edited or pasted code, only the observed serialized value remains. Named
+algorithm phases, invariants, Big O, comparison relationships, and specialized
+curriculum orientation become unavailable. This continues the honesty rule the
+user repeatedly prioritized.
+
+The user learned that a polished graph label can look more certain than the
+evidence underneath it. Codex learned to test role selection with programs that
+contain several dictionaries, lists, heaps, parent maps, or edge collections,
+because selecting the first container can produce a convincing but incorrect
+visual.
+
+What to repeat:
+
+1. Keep reviewed roles gated by exact unchanged source.
+2. Select only from values present in the trace.
+3. Prefer semantically named compatible variables.
+4. Fall back to a generic observed layout when compatibility is uncertain.
+5. Test one representative program for every new visual role in a real browser.
+
+## 98. Exact curriculum context does not make every observed container the right visual candidate
+
+Perspective:
+- Codex
+
+Status:
+- Implemented
+
+Chunk 4 initially gated Union-Find and graph orientation behind exact reviewed
+source, but the first trace frame could contain an unrelated list before the
+`parent` or graph collection existed. The role was honest at the program level
+but incorrect for that selected frame.
+
+Codex caused this by treating these two checks as if they were equivalent:
+
+```text
+the complete program is a reviewed Union-Find lesson
+        is not the same as
+this selected frame contains the parent collection
+```
+
+The real browser test exposed the mismatch. `DSA-270` first showed the input
+`items` list with Union-Find labels. The renderer now requires both exact
+reviewed context and a compatible, semantically named value in the current
+frame. The first step remains generic. The later `parent` dictionary receives
+the specialized orientation.
+
+What the user learned:
+
+- The project's honesty boundary applies inside a reviewed program too. A
+  trustworthy label must describe the visible evidence at the selected moment.
+
+What Codex learned:
+
+- Metadata validation cannot prove that a runtime renderer selected the right
+  variable at every step. Candidate selection requires a real playback test,
+  especially before the intended structure has been created.
+
+What to repeat:
+
+1. Test the first, middle, and final frames of every new specialized role.
+2. Require type compatibility and semantic-name compatibility.
+3. Keep generic observed rendering as the safe fallback.
+4. Never attach a specialized label merely because some container exists.
+5. Record browser-discovered honesty defects as product lessons, not cosmetic
+   fixes.
+
 # Future update template
 
 Copy this section when a future task creates a reusable lesson.

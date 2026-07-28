@@ -15,6 +15,101 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v11, 2026-07-27
+
+v11 ships **Chunk 4: Union-Find and graph algorithms** for the Python Data
+Structures and Algorithms workspace. It adds 68 reviewed programs to the 269
+programs from Chunks 1 through 3. The implemented catalog now contains 337
+programs across sixteen ordered sections.
+
+### Sixty-eight new reviewed programs
+
+| Chunk 4 section | Programs | Main learning journey |
+| --- | ---: | --- |
+| Union-Find | 10 | Make set, iterative and recursive find, basic union, union by size, union by rank, path compression, connectivity, component counting, and undirected-cycle detection |
+| Graph structures and vocabulary | 24 | Vertices, edges, direction, weights, adjacency lists, matrices, edge lists, degree, boundaries, conversions, validation, paths, and representation comparisons |
+| Graph traversal and connectivity | 20 | BFS, recursive and iterative DFS, path reconstruction, reachability, components, cycles, bipartite checks, topological sorting, grids, mazes, and traversal comparisons |
+| Shortest paths and spanning trees | 14 | Relaxation, Dijkstra, unreachable states, negative-weight boundaries, DAG paths, Bellman-Ford, negative cycles, Floyd-Warshall, Kruskal, Prim, forests, and MST comparison |
+| **Chunk 4 addition** | **68** | **Reviewed connectivity, traversal, weighted-path, and spanning-tree curriculum** |
+
+The exact release arithmetic is:
+
+```text
+269 previously implemented programs
+ 68 Chunk 4 programs
+--------------------
+337 implemented programs
+
+535 approved Tier A destination
+-337 implemented programs
+--------------------
+198 programs still unavailable
+```
+
+Every new record carries executable source, a distinct objective, difficulty,
+expected result, approved structures and events, phases, invariants, edge
+cases, comparison metadata, reviewed complexity, and recommended views. Stable
+identifiers now continue through `DSA-337`.
+
+### Graph and Union-Find orientation
+
+Structure Canvas can orient exact reviewed Union-Find parent collections and
+graph adjacency collections. Candidate selection prefers compatible variables
+such as `parent`, `graph`, `adjacency`, `matrix`, `edges`, or `forest`.
+
+These labels remain conceptual overlays on observed serialized Python values.
+They are not physical RAM addresses, hidden interpreter graphs, or permission
+to identify an edited or pasted program as a named graph algorithm. Changing
+reviewed source removes the specialized curriculum context.
+
+### Curriculum comparisons
+
+Chunk 4 includes deliberate comparisons for:
+
+- Iterative and recursive representative lookup.
+- Basic, size-based, rank-based, and path-compressed Union-Find behavior.
+- DFS connectivity and Union-Find connectivity.
+- Adjacency-list, adjacency-matrix, and edge-list tradeoffs.
+- Walk, trail, and simple-path definitions.
+- BFS and DFS visit order.
+- DFS and Kahn topological sorting.
+- Unweighted and weighted shortest-path strategies.
+- Kruskal and Prim minimum spanning trees.
+
+Observed counters and paths belong only to the selected input. Reviewed Big O
+and algorithm names remain exact-source curriculum context.
+
+### Verification evidence
+
+- Structural validation confirmed 337 unique cumulative records and exact
+  Chunk 4 section counts of 10, 24, 20, and 14.
+- The depth audit found 146 cumulative programs with at least 15 meaningful
+  source lines.
+- Every traversal lesson contains at least 19 meaningful lines. Every
+  shortest-path and spanning-tree lesson contains at least 14.
+- The detached Python validator compiled and executed all 337 programs and
+  checked their expected-result markers.
+- The first execution audit caught two curriculum errors before release: an
+  equal-cost Dijkstra route contradicted a single asserted route, and a DAG
+  shortest-path expected value was not minimal. The fixture and expected
+  evidence were corrected, then the complete catalog passed.
+- Browser testing caught specialized Union-Find and graph labels appearing
+  before a compatible parent or graph value existed at an early trace step.
+  Candidate selection now stays generic until the selected frame contains a
+  semantically named compatible container.
+- JavaScript syntax, contract, whitespace, forbidden-character, privacy, and
+  browser checks cover the cumulative catalog, all 18 views, exact-source
+  honesty, both themes, and desktop and mobile layouts.
+- No analytics, telemetry, remote logging, learner-data request, dependency,
+  storage key, trace limit, timeout, or network behavior was added.
+
+### Known boundary
+
+Chunk 4 does not implement the dedicated recursion, backtracking,
+divide-and-conquer, greedy, dynamic-programming, bit-manipulation, mathematical,
+investigation, or integrated guided-challenge sections. Those 198 programs
+remain planning contracts in `Tier.md`, not selectable curriculum.
+
 ## v10, 2026-07-27
 
 v10 ships **Chunk 3: trees, heaps, tries, and string search** for the Python Data

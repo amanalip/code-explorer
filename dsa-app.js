@@ -1,35 +1,39 @@
 /**
  * Code Explorer Data Structures and Algorithms workspace controller.
  *
- * Chunk 3 connects the separate editor to 269 reviewed programs, the shared
+ * Chunk 4 connects the separate editor to 337 reviewed programs, the shared
  * bounded Python worker, trace playback, eighteen evidence-aware learning
  * views, prepared input, and non-destructive study comments. All persistence is
  * same-origin browser storage. No learner source or derived trace leaves the
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260727-14";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260727-14";
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260727-14";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260727-16";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260727-16";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260727-16";
 import {
   DSA_AREAS,
   DSA_CATALOG_TARGET,
   DSA_EVIDENCE_LABELS,
   DSA_STRUCTURE_TYPES,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260727-14";
+} from "./dsa-contracts.js?v=20260727-16";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260727-14";
+} from "./dsa-curriculum.js?v=20260727-16";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260727-14";
+} from "./dsa-curriculum-chunk2.js?v=20260727-16";
 import {
   DSA_CHUNK_THREE_PROGRAMS,
   DSA_CHUNK_THREE_SECTIONS,
-} from "./dsa-curriculum-chunk3.js?v=20260727-14";
+} from "./dsa-curriculum-chunk3.js?v=20260727-16";
+import {
+  DSA_CHUNK_FOUR_PROGRAMS,
+  DSA_CHUNK_FOUR_SECTIONS,
+} from "./dsa-curriculum-chunk4.js?v=20260727-16";
 import {
   DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
@@ -41,13 +45,14 @@ import {
   variableChanges,
   variableComparisons,
   variablesForStep,
-} from "./dsa-runtime.js?v=20260727-14";
+} from "./dsa-runtime.js?v=20260727-16";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
   ...DSA_CHUNK_ONE_SECTIONS,
   ...DSA_CHUNK_TWO_SECTIONS,
   ...DSA_CHUNK_THREE_SECTIONS,
+  ...DSA_CHUNK_FOUR_SECTIONS,
 ]);
 
 /** One immutable catalog supports matching, filtering, comparison, and counts. */
@@ -55,10 +60,11 @@ const DSA_IMPLEMENTED_PROGRAMS = Object.freeze([
   ...DSA_CHUNK_ONE_PROGRAMS,
   ...DSA_CHUNK_TWO_PROGRAMS,
   ...DSA_CHUNK_THREE_PROGRAMS,
+  ...DSA_CHUNK_FOUR_PROGRAMS,
 ]);
 
 /**
- * Prepared text indexes every reviewed field once instead of flattening 269
+ * Prepared text indexes every reviewed field once instead of flattening 337
  * complete records after every keystroke. The index and query stay in memory.
  */
 const DSA_PROGRAM_SEARCH_INDEX = new Map(
@@ -684,7 +690,7 @@ function reviewedStructureRole() {
   const roles = [
     "stack", "queue", "deque", "singly-linked-list", "doubly-linked-list",
     "circular-linked-list", "hash-table", "set", "tree", "binary-tree",
-    "binary-search-tree", "heap", "priority-queue", "trie",
+    "binary-search-tree", "heap", "priority-queue", "trie", "union-find", "graph",
   ];
   return state.activeProgram.structureTypes.find((type) => roles.includes(type)) || "";
 }
@@ -704,6 +710,8 @@ function structurePositionLabel(role, index, count) {
     return index === 0 ? "ROOT FIELD" : `FIELD ${index}`;
   }
   if (role === "trie") return index === 0 ? "ROOT EDGE" : `EDGE ${index}`;
+  if (role === "union-find") return index === 0 ? "REPRESENTATIVE" : `PARENT ${index}`;
+  if (role === "graph") return `GRAPH ENTRY ${index + 1}`;
   return String(index);
 }
 
@@ -720,7 +728,10 @@ function structurePositionLabel(role, index, count) {
  * @returns {{name: string, value: object}|null} Best bounded value candidate.
  */
 function reviewedStructureCandidate(step, role) {
-  if (!role) return structureCandidate(step);
+  if (!role) {
+    const candidate = structureCandidate(step);
+    return candidate ? { ...candidate, reviewedRole: "" } : null;
+  }
   const variables = variablesForStep(step);
   const entries = Object.entries(variables);
   const rolePreferences = {
@@ -730,24 +741,28 @@ function reviewedStructureCandidate(step, role) {
     heap: { names: /(?:heap|frontier|leaders|waiting|jobs|available)/i, shape: (value) => Array.isArray(value?.items) },
     "priority-queue": { names: /(?:heap|queue|frontier|leaders|waiting|jobs|available)/i, shape: (value) => Array.isArray(value?.items) },
     trie: { names: /(?:trie|root|node)/i, shape: (value) => Array.isArray(value?.entries) },
+    "union-find": { names: /(?:parent|representative|component|rank|size)/i, shape: (value) => Array.isArray(value?.entries) || Array.isArray(value?.items) },
+    graph: { names: /(?:graph|adjacency|matrix|edges|vertices|forest|tree)/i, shape: (value) => Array.isArray(value?.entries) || Array.isArray(value?.items) },
   };
   const preference = rolePreferences[role];
-  if (!preference) return structureCandidate(step);
+  if (!preference) {
+    const candidate = structureCandidate(step);
+    return candidate ? { ...candidate, reviewedRole: "" } : null;
+  }
   const named = entries.find(([name, value]) => preference.names.test(name) && preference.shape(value));
-  if (named) return { name: named[0], value: named[1] };
-  const compatible = entries.find(([, value]) => preference.shape(value));
-  return compatible ? { name: compatible[0], value: compatible[1] } : structureCandidate(step);
+  if (named) return { name: named[0], value: named[1], reviewedRole: role };
+  const candidate = structureCandidate(step);
+  return candidate ? { ...candidate, reviewedRole: "" } : null;
 }
 
 /** Renders one bounded container using observed values and optional reviewed orientation. */
 function renderStructureCanvas() {
-  const role = reviewedStructureRole();
-  const candidate = reviewedStructureCandidate(selectedStep(), role);
+  const candidate = reviewedStructureCandidate(selectedStep(), reviewedStructureRole());
   if (!candidate) {
     renderUnavailable("No supported structure visible", "Run a step that exposes a serialized list, tuple, set, deque, or dictionary.");
     return;
   }
-  const { name, value } = candidate;
+  const { name, value, reviewedRole: role } = candidate;
   const article = makeElement("article", "dsa-runtime-view");
   article.append(evidenceBadge("observed"));
   article.append(makeElement("h2", "", `${name} · ${value.type}`));
@@ -1488,7 +1503,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260727-14", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260727-16", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;
@@ -1720,7 +1735,7 @@ async function initialize() {
   els.dsaSectionCount.textContent = String(DSA_IMPLEMENTED_SECTIONS.length);
   els.dsaStructureCount.textContent = String(DSA_STRUCTURE_TYPES.length);
   els.dsaCatalogTarget.textContent = String(DSA_CATALOG_TARGET);
-  setRuntimeStatus("Chunk 3 ready", "ready");
+  setRuntimeStatus("Chunk 4 ready", "ready");
 }
 
 initialize();

@@ -3782,6 +3782,24 @@ main {
   border-radius: 4px 12px 12px 4px;
 }
 
+/* Union-Find cells emphasize conceptual parent links without implying RAM addresses. */
+.dsa-structure-cells.role-union-find .dsa-structure-cell {
+  border-left: 4px solid var(--mint);
+  background: color-mix(in srgb, var(--mint) 7%, var(--bg-raised));
+}
+
+/*
+ * Graph records use wider adjacency cards because a vertex can expose several
+ * neighbors or weighted edges in one bounded serialized value.
+ */
+.dsa-structure-cells.role-graph {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.dsa-structure-cells.role-graph .dsa-structure-cell {
+  border-top: 3px solid color-mix(in srgb, var(--purple) 65%, var(--line));
+}
+
 /* Operation history uses source snippets below each normalized event label. */
 .dsa-operation-list {
   display: grid;

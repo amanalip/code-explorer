@@ -22,11 +22,11 @@ Recorded execution
 
 The tool records a bounded execution first and then replays it. Playback breakpoints and timeline controls navigate the recorded trace. They do not pause the original Python interpreter.
 
-`Tier.md` records the Tier A, B, and C curriculum for the separate Data Structures workspace. Chunk 3 implements the first 269 reviewed programs across twelve sections, local execution, playback, and all 18 DSA learning views. The complete Tier A target remains 535, so 266 programs remain unimplemented. Do not treat a later listed structure, algorithm, renderer extension, or program as implemented unless code, verification, and learner-visible documentation prove it.
+`Tier.md` records the Tier A, B, and C curriculum for the separate Data Structures workspace. Chunk 4 implements the first 337 reviewed programs across sixteen sections, local execution, playback, and all 18 DSA learning views. The complete Tier A target remains 535, so 198 programs remain unimplemented. Do not treat a later listed structure, algorithm, renderer extension, or program as implemented unless code, verification, and learner-visible documentation prove it.
 
 Documentation routing is implemented: `index.html` has no ambiguous Tool Guide control, its two matching primary actions open the Python and DSA paths, `workspace.html` links to `README.md`, and `data-structures.html` links to `README_DSA.md`.
 
-The DSA guide documents every active Chunk 3 execution, serialization, display, history, comparison, explanation, complexity, persistence, platform, and curriculum boundary. It states the verified value, what is counted, why it exists, threshold behavior, whether execution stopped or presentation was shortened, what evidence remains safe, and what the learner can try next.
+The DSA guide documents every active Chunk 4 execution, serialization, display, history, comparison, explanation, complexity, persistence, platform, and curriculum boundary. It states the verified value, what is counted, why it exists, threshold behavior, whether execution stopped or presentation was shortened, what evidence remains safe, and what the learner can try next.
 
 The approved 535-program target has a curriculum quality contract. Counts alone never establish completion. Each section must progress from focused foundations through standard operations, meaningful variations, applied programs, and comparisons. Reject constant-only or name-only variations, filler lines, incoherent scripts, weak metadata, and examples whose recommended views have nothing useful to show. Validation must report line-count distributions and near-duplicate candidates, while human review must judge correctness, teaching depth, readability, coherent progression, and whether longer concepts received enough space. Short programs remain valid when the concept is genuinely atomic.
 
@@ -67,8 +67,37 @@ The approved 535-program target has a curriculum quality contract. Counts alone 
 - Bounded DSA presentation: 12 watches, 30 structure entries, 30 journey events, 80 path transitions, 120 table rows, and 2 comparison summaries.
 - `scripts/validate-dsa-foundation.mjs` checks contracts, routes, guide targets, and required HTML ids.
 - `scripts/validate-dsa-curriculum.mjs` validates exact counts, schema, uniqueness, source depth, metadata, and near-duplicate candidates.
-- `scripts/validate_dsa_curriculum.py` compiles, executes, and checks the expected result for all 269 detached programs.
-- Reviewed Structure Canvas roles now include tree, binary tree, BST, heap, priority queue, and trie. These roles decorate observed serialized values only after exact source matching; edited and pasted source stays generic.
+- `scripts/validate_dsa_curriculum.py` compiles, executes, and checks the expected result for all 337 detached programs.
+- Reviewed Structure Canvas roles now include tree, binary tree, BST, heap, priority queue, trie, Union-Find, and graph. These roles decorate observed serialized values only after exact source matching and a compatible value appears in the selected trace step. Edited and pasted source stays generic.
+
+### DSA Chunk 4 Union-Find and graph algorithms
+
+- 337 reviewed programs: 269 from Chunks 1 through 3, plus 10 Union-Find lessons, 24 graph-structure lessons, 20 traversal and connectivity lessons, and 14 shortest-path and spanning-tree lessons.
+- `dsa-curriculum-chunk4.js` owns stable IDs `DSA-270` through `DSA-337` and the exact 10, 24, 20, and 14 section contracts.
+- The new programs progress from parent forests and representation vocabulary through traversal, connectivity, weighted relaxation, shortest paths, minimum spanning trees, and explicit comparisons.
+- One hundred forty-six cumulative programs contain at least 15 meaningful source lines. All traversal lessons contain at least 19, and all shortest-path and spanning-tree lessons contain at least 14.
+- Reviewed Structure Canvas roles now include Union-Find and graph. Candidate selection prefers parent, component, graph, adjacency, matrix, edge, forest, or tree variables with a compatible serialized container.
+- A reviewed role is not enough by itself. The selected trace step must also
+  contain a semantically named compatible container. Until then, Structure
+  Canvas uses its generic observed layout.
+- Edited and pasted programs never inherit a named graph algorithm, invariant, phase, complexity claim, comparison group, or specialized orientation.
+- `scripts/validate-dsa-curriculum.mjs` now enforces 337 cumulative programs and exact Chunk 4 section counts.
+- `scripts/validate_dsa_curriculum.py` compiles, executes, and checks the expected result for all 337 detached programs.
+- Chunk 4 comparison groups cover Union-Find forms and optimizations, connectivity methods, graph representations, walk-trail-path distinctions, traversal orders, topological ordering, unweighted and weighted paths, and minimum spanning trees.
+
+Chunk 4 browser evidence:
+
+- A local metadata search for `DSA-337 Kruskal Prim comparison` returns exactly
+  the reviewed comparison program.
+- `DSA-337` records 204 trace steps for its reviewed input, reports equal MST
+  totals of 13, and uses graph orientation only after a compatible graph value
+  exists.
+- `DSA-270` begins with a generic observed `items` list. Its Union-Find
+  orientation appears at the later step containing the `parent` dictionary.
+- Editing an exact reviewed program removes the named algorithm context while
+  all 18 observed views continue rendering.
+- The bounded DSA view stage scrolls independently at desktop and 390-pixel
+  mobile widths without creating page-level horizontal overflow.
 
 ### DSA evidence flow
 
@@ -305,7 +334,11 @@ dsa-app.js
      +-- dsa-curriculum-chunk3.js
      |      +-- 3 Chunk 3 sections
      |      +-- 72 reviewed records
-     |      +-- 269 combined reviewed records
+     |
+     +-- dsa-curriculum-chunk4.js
+     |      +-- 4 Chunk 4 sections
+     |      +-- 68 reviewed records
+     |      +-- 337 combined reviewed records
      |
      +-- dsa-runtime.js
      |      +-- pure observed-evidence helpers
