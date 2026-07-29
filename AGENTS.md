@@ -168,8 +168,10 @@ For JavaScript functions, use JSDoc with parameter and return information where 
 - Prefer contextual actions, tooltips, and progressive disclosure over permanent toolbar clutter.
 - Keep bounded concept navigation vertical when all categories can fit naturally in a list. Do not require laptop or phone users to scroll a category row sideways.
 - When a dialog contains navigation and many results, give each region an explicit height and independent vertical overflow. Never let card contents escape a compressed grid row.
+- Curriculum category labels must remain at least 15 pixels at tested desktop and phone widths. Do not shrink navigation text to make a long route appear shorter.
 - Curriculum row selection is non-destructive. The editor changes only through the explicit Open in workspace action shown in the complete read-only preview.
 - On narrow screens, the curriculum explorer is a two-stage list-to-preview journey. Back must restore focus to the selected lesson.
+- Reviewed source previews must use the shared read-only IDE presentation, a minimum 16-pixel desktop source size, a 15-pixel phone source size, and bounded internal scrolling.
 - A visual teaching layer inside the editor must remain distinguishable from actual editable Python source.
 - A read-only preview that resembles an editor must say that it is read only. File chrome, visual line numbers, syntax spans, badges, and status text must remain outside copied or adopted source.
 
@@ -335,6 +337,10 @@ Use the checks that match the risk of the change. Learner-visible behavior norma
 - Confirm the DSA catalog heading reports 535 reviewed programs.
 - Confirm the DSA runtime header moves from Loading Python to Python ready using the real worker state.
 - Confirm both workspaces show the selected inbuilt question above the editor, preserve it across ordinary edits and reloads, and clear it after Paste or complete-source replacement.
+- Confirm both Examples dialogs show category labels at 15 pixels or larger and complete source at 16 pixels on desktop or 15 pixels on a narrow phone.
+- Confirm both Examples dialogs use the read-only IDE source frame with file chrome, visual line numbers, syntax color, theme-aware contrast, and a visual-only status strip.
+- Select a long DSA lesson and confirm its source scrolls inside the bounded IDE frame without moving the dialog header or creating page-level horizontal overflow.
+- Open a previewed lesson and confirm the editor receives only the original catalog source, never the IDE line numbers, file name, badges, colors, or status labels.
 
 ### Trace checks
 

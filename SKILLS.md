@@ -498,6 +498,25 @@ zero. Without that reset, reading the bottom of one long program can make a
 newly selected program appear to begin in the middle. The source box scrolls
 independently and its visual chrome never becomes copied source.
 
+Python and DSA use separate controller helpers,
+`createExampleSourceEditor()` and `createDsaExampleSourceEditor()`, over one
+visual contract. Each helper creates:
+
+- A read-only region with an explicit accessible label.
+- IDE file chrome using the existing learning-comments presentation system.
+- One safe text-node row per original source line.
+- Visual line numbers through CSS counters.
+- Lightweight syntax spans from the existing safe preview tokenizers.
+- A bounded source surface from 180 through 420 pixels on desktop and at most
+  360 pixels on a phone.
+- A visual status strip that never enters the source document.
+
+The source row uses a 16-pixel desktop floor and a 15-pixel phone size. The
+vertical category buttons use 0.96 rem text with a 54-pixel minimum height.
+These values are readability contracts, not decorative preferences. If the
+dialog's surrounding metadata scale changes, verify computed sizes rather
+than assuming inheritance remains safe.
+
 Desktop uses explicit Find, Choose, and Inspect columns. At 1,100 pixels and
 below, selection replaces navigation and list with the preview. Back removes
 that state and restores focus to `.example-card.active`. The phone route must
@@ -518,6 +537,12 @@ Regression checks:
 7. At 390 by 844, confirm list-to-preview behavior, Back focus restoration,
    preview `scrollTop` zero, and no page overflow.
 8. Repeat in light and dark themes for both catalogs.
+9. Confirm filter text computes to at least 15 pixels and source computes to
+   16 pixels on desktop and 15 pixels on the phone layout.
+10. Select a long DSA program and confirm the IDE source body scrolls while
+    the preview, dialog header, and complete page remain stable.
+11. Confirm visual line numbers, file chrome, syntax spans, and status labels
+    do not enter the editor after the explicit Open action.
 
 ### Shared catalog search
 

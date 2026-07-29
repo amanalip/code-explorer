@@ -15,6 +15,41 @@ VERSION ENTRY
 
 Version numbers describe meaningful stages of the learning tool. They are not claims that every possible Python program or browser environment is supported.
 
+## v21, 2026-07-28
+
+v21 completes the curriculum explorer readability refinement for both the
+Python and DSA learning routes.
+
+### Larger curriculum navigation
+
+- Vertical category and section labels now use approximately 15-pixel text.
+- Navigation rows use a 54-pixel minimum height so complete labels and counts
+  remain comfortable to scan.
+- The larger type applies to all 12 Python categories and all 25 DSA sections.
+
+### IDE-style reviewed source preview
+
+- Plain source boxes were replaced with theme-aware read-only IDE frames.
+- Each frame shows `main.py`, visual line numbers, Python syntax colors, a
+  written Read only state, and a visual status strip.
+- Source uses 16-pixel text on desktop and 15-pixel text on phones.
+- Long source is bounded at 420 pixels on desktop and 360 pixels on phones,
+  then scrolls inside the code frame.
+- The frame remains presentation only. Opening a lesson still transfers only
+  the exact catalog Python source.
+
+### v21 verification
+
+- Python and DSA dialogs were inspected in Light mode and Dark mode.
+- Desktop computed sizes were 15.36 pixels for category labels and 16 pixels
+  for source.
+- A 36-line DSA lesson produced an internally scrollable 420-pixel source
+  frame without page-level horizontal overflow.
+- At 390 by 844, source computed to 15 pixels, remained internally scrollable,
+  and created no page-level horizontal overflow.
+- Static validation now requires both controller-specific source-preview
+  builders and the shared IDE presentation contract.
+
 ## v20, 2026-07-28
 
 v20 ships the **shared curriculum explorer overhaul** and completes **DSA LAB

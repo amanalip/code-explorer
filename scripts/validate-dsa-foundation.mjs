@@ -220,6 +220,15 @@ expect(
     && dsaAppSource.includes("renderDsaProgramPreview("),
   "The DSA curriculum explorer is missing non-destructive selection or its explicit open action.",
 );
+// Both catalogs must use the same read-only IDE presentation contract while keeping
+// the preview renderer separate from the source-opening action.
+expect(
+  pythonAppSource.includes("createExampleSourceEditor(")
+    && dsaAppSource.includes("createDsaExampleSourceEditor(")
+    && stylesSource.includes(".example-source-editor")
+    && stylesSource.includes(".learning-comments-preview.example-source-document"),
+  "The curriculum explorers are missing the shared read-only IDE source-preview contract.",
+);
 expect(
   dsaAppSource.includes('setRuntimeStatus("Python ready", "ready")')
     && !dsaAppSource.includes('setRuntimeStatus("Tier A ready"'),

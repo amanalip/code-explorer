@@ -8,42 +8,42 @@
  * browser through application code.
  */
 
-import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-30";
-import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-30";
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-30";
+import { createPythonEditor, EDITOR_FONT_SIZES } from "./shared-editor.js?v=20260728-35";
+import { applyTheme, preferredTheme, readLocalText, toggleTheme, writeLocalText } from "./shared-ui.js?v=20260728-35";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-35";
 import {
   DSA_AREAS,
   DSA_EVIDENCE_LABELS,
   DSA_VIEWS,
-} from "./dsa-contracts.js?v=20260728-30";
+} from "./dsa-contracts.js?v=20260728-35";
 import {
   DSA_CHUNK_ONE_PROGRAMS,
   DSA_CHUNK_ONE_SECTIONS,
-} from "./dsa-curriculum.js?v=20260728-30";
+} from "./dsa-curriculum.js?v=20260728-35";
 import {
   DSA_CHUNK_TWO_PROGRAMS,
   DSA_CHUNK_TWO_SECTIONS,
-} from "./dsa-curriculum-chunk2.js?v=20260728-30";
+} from "./dsa-curriculum-chunk2.js?v=20260728-35";
 import {
   DSA_CHUNK_THREE_PROGRAMS,
   DSA_CHUNK_THREE_SECTIONS,
-} from "./dsa-curriculum-chunk3.js?v=20260728-30";
+} from "./dsa-curriculum-chunk3.js?v=20260728-35";
 import {
   DSA_CHUNK_FOUR_PROGRAMS,
   DSA_CHUNK_FOUR_SECTIONS,
-} from "./dsa-curriculum-chunk4.js?v=20260728-30";
+} from "./dsa-curriculum-chunk4.js?v=20260728-35";
 import {
   DSA_CHUNK_FIVE_PROGRAMS,
   DSA_CHUNK_FIVE_SECTIONS,
-} from "./dsa-curriculum-chunk5.js?v=20260728-30";
+} from "./dsa-curriculum-chunk5.js?v=20260728-35";
 import {
   DSA_CHUNK_SIX_PROGRAMS,
   DSA_CHUNK_SIX_SECTIONS,
-} from "./dsa-curriculum-chunk6.js?v=20260728-30";
+} from "./dsa-curriculum-chunk6.js?v=20260728-35";
 import {
   DSA_CHUNK_SEVEN_PROGRAMS,
   DSA_CHUNK_SEVEN_SECTIONS,
-} from "./dsa-curriculum-chunk7.js?v=20260728-30";
+} from "./dsa-curriculum-chunk7.js?v=20260728-35";
 import {
   DSA_COMMENT_PREFIX,
   buildDsaCommentedSource,
@@ -55,7 +55,7 @@ import {
   variableChanges,
   variableComparisons,
   variablesForStep,
-} from "./dsa-runtime.js?v=20260728-30";
+} from "./dsa-runtime.js?v=20260728-35";
 
 /** Implemented sections remain in teaching order across committed chunks. */
 const DSA_IMPLEMENTED_SECTIONS = Object.freeze([
@@ -3826,6 +3826,61 @@ function appendDsaPreviewGroup(mount, label, values) {
 }
 
 /**
+ * Builds a read-only IDE presentation for exact reviewed DSA Python source.
+ *
+ * The preview reuses the safe conservative syntax tokenizer from Learning
+ * comments. Visual line numbers and chrome remain separate from `program.code`,
+ * which is the only string the explicit Open action can place in the editor.
+ *
+ * @param {string} source Exact immutable curriculum source.
+ * @returns {HTMLElement} Theme-aware, line-numbered source preview.
+ */
+function createDsaExampleSourceEditor(source) {
+  const editor = makeElement("div", "example-source-editor");
+  editor.setAttribute("role", "region");
+  editor.setAttribute("aria-label", "Read-only DSA Python source preview");
+
+  const chrome = makeElement("div", "learning-comments-editor-chrome");
+  chrome.setAttribute("aria-hidden", "true");
+  const lights = makeElement("span", "learning-editor-lights");
+  lights.append(makeElement("i", ""), makeElement("i", ""), makeElement("i", ""));
+  const tab = makeElement("span", "learning-editor-tab");
+  tab.append(
+    makeElement("b", "", "PY"),
+    document.createTextNode(" main.py "),
+    makeElement("em", "", "reviewed DSA source"),
+  );
+  chrome.append(lights, tab, makeElement("span", "learning-editor-mode", "Read only"));
+
+  const documentView = makeElement("div", "learning-comments-preview example-source-document");
+  documentView.tabIndex = 0;
+  const lines = source.split("\n");
+  // The IDE surface grows with useful source depth and stops before a long
+  // algorithm can push the remaining curriculum context out of reach.
+  editor.style.height = `${Math.min(420, Math.max(180, 102 + (lines.length * 27)))}px`;
+  lines.forEach((line, index) => {
+    const row = makeElement("div", "learning-preview-row");
+    row.style.setProperty("--learning-preview-line", `"${index + 1}"`);
+    row.setAttribute("aria-label", `Line ${index + 1}: ${line || "blank"}`);
+    const content = makeElement("code", "learning-preview-code");
+    appendDsaPreviewTokens(content, line);
+    // Source rows retain height through CSS, so the generated-comment
+    // tokenizer's blank-line placeholder is unnecessary and is removed here.
+    if (!line.length) content.replaceChildren();
+    row.append(content);
+    documentView.append(row);
+  });
+
+  const status = makeElement("div", "learning-comments-status example-source-status");
+  status.setAttribute("aria-hidden", "true");
+  ["Python 3", `${lines.length} line${lines.length === 1 ? "" : "s"}`, "UTF-8", "LF", "Preview"].forEach((value) => {
+    status.append(makeElement("span", "", value));
+  });
+  editor.append(chrome, documentView, status);
+  return editor;
+}
+
+/**
  * Renders one complete reviewed DSA record without changing editor source.
  *
  * @param {object} program Selected immutable curriculum record.
@@ -3901,9 +3956,7 @@ function renderDsaProgramPreview(program, routePosition) {
   const sourceSection = makeElement("section", "example-preview-source");
   sourceSection.append(makeElement("h4", "", "Read-only source preview"));
   sourceSection.append(makeElement("p", "", "Inspect the complete reviewed program before deliberately loading it."));
-  const source = makeElement("pre", "");
-  source.append(makeElement("code", "", program.code));
-  sourceSection.append(source);
+  sourceSection.append(createDsaExampleSourceEditor(program.code));
   preview.append(sourceSection);
 
   const boundary = makeElement(
@@ -4011,7 +4064,7 @@ function loadProgram(program) {
 function ensureWorker() {
   if (state.worker && state.workerReadyPromise) return state.workerReadyPromise;
   setRuntimeStatus("Loading Python locally", "running");
-  state.worker = new Worker("py-worker.js?v=20260728-30", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260728-35", { type: "module" });
   state.workerReadyPromise = new Promise((resolve, reject) => {
     state.workerReadyResolve = resolve;
     state.workerReadyReject = reject;

@@ -1605,7 +1605,19 @@ PHONE EXAMPLES BROWSER
 +----------------------------------+
 ```
 
-On a wide screen, Find, Choose, and Inspect remain visible together. Each region scrolls vertically inside its own boundary. The middle rows use larger text, a stable sequence number, a concise two-line summary, difficulty, and exact source length. The preview uses comfortable reading text and shows the complete reviewed source inside its own scrollable code box.
+On a wide screen, Find, Choose, and Inspect remain visible together. Each region scrolls vertically inside its own boundary. The vertical category rows use larger 15-pixel text, generous height, a complete category name, and a visible result count. The middle rows use larger text, a stable sequence number, a concise two-line summary, difficulty, and exact source length.
+
+The complete reviewed source now appears in a read-only IDE-style frame instead of a plain white code box. It includes:
+
+- A visible `main.py` file tab and **Read only** state.
+- Visual line numbers that are not part of the Python document.
+- Lightweight Python syntax colors for keywords, strings, numbers, calls, and comments.
+- A low-glare editor surface in both Light mode and Dark mode.
+- A status strip showing Python 3, the exact line count, UTF-8, LF, and Preview.
+- A 16-pixel desktop code size and 15-pixel phone code size.
+- A bounded internal scrollbar for long programs.
+
+The file chrome, line numbers, colors, and status text are presentation only. **Open in Python workspace** still loads the exact catalog source. The preview never adds its visual line numbers or labels to the editor.
 
 On a narrow screen, Find and Choose appear first. Selecting a lesson opens Inspect as a second screen instead of compressing three columns into the phone width. **Back to program list** restores the list and keyboard focus to the selected lesson. Selecting a category returns its result list to the first program. Category names wrap inside vertical rows rather than creating horizontal navigation.
 

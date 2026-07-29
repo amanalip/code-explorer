@@ -8,7 +8,7 @@ Scope: Visual and interaction redesign of all 18 DSA learning views
 
 Companion baseline: `current state of LAB UI.md`
 
-Last implementation audit: 2026-07-28 19:44:20 EDT (-0400)
+Last implementation audit: 2026-07-28 20:20:37 EDT (-0400)
 
 ## How to read this document
 
@@ -1217,6 +1217,45 @@ one explicit editor-replacement action
 - Added Back with focus restoration to the selected list row.
 - Preserved independent vertical scrolling and zero page-level horizontal
   overflow.
+
+### Post-audit curriculum readability refinement
+
+The first completed curriculum explorer redesign improved program rows and
+the Inspect document, but a later learner review identified that the vertical
+category route still looked too small and the source box still looked like
+plain preformatted text.
+
+The correction reused the established IDE-style Learning comments visual
+language:
+
+- `createExampleSourceEditor()` builds the Python catalog source preview.
+- `createDsaExampleSourceEditor()` builds the DSA catalog source preview.
+- Both use safe text-node rendering and the existing syntax tokenizers.
+- Both show visual-only file chrome, line numbers, read-only state, and status
+  information.
+- Both use the theme-aware study editor colors instead of plain white.
+- Source type has a 16-pixel desktop floor and a 15-pixel phone size.
+- Section navigation uses larger text and a 54-pixel row minimum.
+- Long source is bounded and independently scrollable.
+
+This change deliberately did not turn the preview into a second CodeMirror
+instance. The learner cannot accidentally edit the catalog record, and the
+page avoids the extra focus, state, and performance complexity of a second
+editor. The explicit Open action remains the only source-replacement path.
+
+The important source contract is:
+
+```text
+Catalog code
+    |
+    +-- safe tokens -> visual IDE preview
+    |
+    +-- exact string -> explicit Open action -> workspace editor
+
+Visual line numbers, file chrome, and status text
+    |
+    +-- never enter the catalog code or workspace editor
+```
 
 ### Why this belongs in the LAB UI redesign
 

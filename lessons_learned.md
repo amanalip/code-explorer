@@ -5425,6 +5425,74 @@ How to verify:
 4. Repeat at 390 by 844 and confirm Back restores focus.
 5. Inspect long labels in both themes and confirm no badge overlaps.
 
+## 2026-07-28: Readability must be measured in every pane, not inferred from one redesign
+
+Perspective:
+- User
+- Codex
+- Shared
+
+Status:
+- Implemented and browser verified
+
+What happened:
+
+After the three-pane curriculum explorer shipped, Aman noticed that the
+vertical category labels still looked small and the complete source still sat
+on a plain white surface. The redesign had enlarged lesson rows and improved
+the Inspect document, but it had not applied the same reading standard to
+every pane.
+
+What the user learned:
+
+- A consistent interaction can still feel inconsistent when typography and
+  visual language differ between adjacent panes.
+- An IDE-style source surface can help recognition and reduce eye strain
+  without turning a read-only preview into an editable IDE.
+- Asking for a more pleasant code background is not superficial when the
+  learner may read dozens of lines inside it.
+
+What Codex learned:
+
+- The first IDE preview implementation still computed to about 13.4 pixels
+  because the generic learning-preview font rule appeared later in the
+  stylesheet. Visual intent is not proof of computed browser behavior.
+- A more specific source-preview selector was required to establish a real
+  16-pixel desktop floor and 15-pixel phone size.
+- The first phone test exposed a second cascade issue: the desktop 62-pixel
+  line-number gutter overrode the generic phone gutter. A source-specific
+  44-pixel phone gutter returned space to indented Python.
+- Reusing the existing Learning comments chrome and syntax tokenizer produced
+  consistency without introducing another editor instance or another source
+  state.
+
+What changed:
+
+- Curriculum category text increased to about 15.4 pixels with 54-pixel rows.
+- Python and DSA source previews gained theme-aware IDE chrome, line numbers,
+  syntax colors, read-only state, and status information.
+- Long previews now stop at a bounded height and scroll internally.
+- Visual chrome remains separate from the exact source used by Open.
+
+Credit:
+
+Aman deserves credit for checking the finished interface as a reader and
+identifying two areas the earlier overhaul did not fully improve. Codex
+deserves credit for measuring the actual computed sizes, finding the cascade
+conflicts, and correcting both desktop and phone geometry. The shared lesson
+is that UI quality improves when subjective discomfort is followed by
+objective browser evidence.
+
+How to verify:
+
+1. Open both catalogs at a desktop width and measure the filter and source
+   text.
+2. Inspect the source in Light mode and Dark mode.
+3. Open a 36-line DSA lesson and confirm the code frame scrolls internally.
+4. Repeat at 390 by 844 and confirm the source is 15 pixels with no page
+   overflow.
+5. Select Open and confirm the workspace receives only the original Python.
+
 ## 2026-07-28: A final UI audit must test the system, not only each completed chunk
 
 Perspective:

@@ -612,7 +612,11 @@ The Inspect pane explains more than a compact list row can safely hold:
 - Complete read-only Python source.
 - A visible reminder that reviewed claims disappear from runtime views after the source changes.
 
-The three desktop regions scroll independently. Long section lists do not move the lesson index, and long source does not move the dialog header. DSA rows receive extra height because algorithm labels and objectives are often longer than Python-language lesson names. The interface keeps the larger readable text rather than clipping metadata or shrinking it to fit.
+The three desktop regions scroll independently. Long section lists do not move the lesson index, and long source does not move the dialog header. DSA rows receive extra height because algorithm labels and objectives are often longer than Python-language lesson names. Section rows use larger 15-pixel labels and counts instead of shrinking a 25-section route into tiny text.
+
+The complete reviewed source uses a read-only IDE-style frame rather than a plain white code box. The frame provides a `main.py` tab, a visible **Read only** state, visual line numbers, lightweight Python syntax colors, a theme-aware low-glare background, and a status strip with Python 3, line count, UTF-8, LF, and Preview. Code is 16 pixels on desktop and 15 pixels on a narrow phone. Long programs remain inside a bounded source surface with their own scrollbar.
+
+The IDE chrome is only a visual reading aid. It is not added to the program, copied into the editor, or included in the trace. **Open in DSA workspace** continues to load the immutable catalog `code` field exactly. This distinction protects both source correctness and the reviewed exact-source contract.
 
 At tablet and phone widths, the explorer becomes a two-stage flow:
 

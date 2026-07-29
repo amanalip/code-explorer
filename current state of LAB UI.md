@@ -6,7 +6,7 @@ Document status: Living current-state audit, all five LAB UI redesign chunks shi
 
 Scope: All 18 learning views in the Data Structures and Algorithms workspace
 
-Last documentation audit: 2026-07-28 19:44:20 EDT (-0400)
+Last documentation audit: 2026-07-28 20:20:37 EDT (-0400)
 
 ## Why this document exists
 
@@ -848,6 +848,28 @@ editor. On a 390 by 844 viewport, both dialogs use a list-to-preview sequence,
 create no page-level horizontal overflow, and return keyboard focus to the
 selected row after Back. The DSA list uses 184-pixel rows so long algorithm
 labels, objectives, and the difficulty badge remain readable.
+
+### Curriculum source-reading refinement
+
+The post-Chunk 5 visual audit found two remaining problems outside the 18
+runtime views but inside the same learner journey:
+
+1. The vertical curriculum route still used type that felt too small beside
+   the newly enlarged lesson and preview text.
+2. Complete source appeared inside a plain code box that did not visually
+   connect to the IDE-style workspace and Learning comments surfaces.
+
+Both Python and DSA now use larger section buttons with a 54-pixel minimum
+height and approximately 15-pixel labels. Their complete source previews use
+the shared study-editor palette, file chrome, visual line numbers, Python
+syntax colors, a read-only label, and a compact status strip. Desktop source
+is 16 pixels. Phone source is 15 pixels.
+
+The preview is not another editor. It has no editing control, its line numbers
+are CSS presentation, and its status text is outside the program. Long source
+stops growing at 420 pixels on desktop or 360 pixels on a phone and scrolls
+inside that frame. The explicit Open action continues to load only the exact
+catalog source.
 
 ### Complete regression evidence
 

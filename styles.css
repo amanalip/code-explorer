@@ -7581,7 +7581,7 @@ main {
 /* Labels the sidebar as a recommendation rather than a completion tracker. */
 .example-curriculum-label {
   color: var(--text-dim);
-  font: 700 0.74rem/1.3 var(--mono);
+  font: 750 0.82rem/1.35 var(--mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -7598,17 +7598,17 @@ main {
 .example-filter {
   display: flex;
   width: 100%;
-  min-height: 46px;
+  min-height: 54px;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--text-soft);
   background: var(--bg-raised);
-  font: 600 0.78rem/1.35 var(--mono);
-  letter-spacing: 0.03em;
+  font: 650 0.96rem/1.4 var(--mono);
+  letter-spacing: 0.02em;
   text-align: left;
   cursor: pointer;
 }
@@ -7616,13 +7616,14 @@ main {
 /* Category totals make the larger curriculum easier to understand before filtering. */
 .example-filter-count {
   display: inline-grid;
-  min-width: 28px;
-  height: 24px;
+  min-width: 31px;
+  height: 27px;
   place-items: center;
   border-radius: 999px;
   color: var(--text-dim);
   background: var(--panel-solid);
-  font-size: 0.72rem;
+  font-size: 0.8rem;
+  font-weight: 750;
 }
 
 /* Highlights the category whose program cards are currently displayed. */
@@ -8019,17 +8020,48 @@ main {
   background: color-mix(in srgb, var(--red) 7%, var(--bg-raised));
 }
 
-.example-preview-source pre {
-  max-height: 300px;
-  margin: 0;
-  padding: 16px;
-  overflow: auto;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  color: var(--code-plain);
-  background: var(--code-bg);
-  font: 500 0.85rem/1.7 var(--mono);
-  white-space: pre;
+/*
+  Catalog source uses the same trustworthy visual language as Learning
+  comments: file chrome, safe line numbers, syntax colors, and a status strip.
+  JavaScript still opens the immutable plain source string, never these nodes.
+*/
+.example-source-editor {
+  display: grid;
+  min-height: 180px;
+  max-height: 420px;
+  overflow: hidden;
+  grid-template-rows: 42px minmax(0, 1fr) 30px;
+  border: 1px solid var(--study-editor-line);
+  border-radius: 9px;
+  background: var(--study-editor-bg);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 color-mix(in srgb, var(--text) 5%, transparent);
+}
+
+/* Source-only rows use larger type than generated study copies for relaxed reading. */
+.learning-comments-preview.example-source-document {
+  padding: 8px 0 14px;
+  /* A pixel floor prevents the source from inheriting the dialog's smaller metadata scale. */
+  font-size: clamp(15px, 1rem, 17px);
+  line-height: 1.75;
+}
+
+/* Wider source gutters keep two and three digit line numbers comfortably separated. */
+.example-source-document .learning-preview-row {
+  min-height: 30px;
+  grid-template-columns: 62px minmax(0, 1fr);
+}
+
+/* A subtle current-file tint gives the preview an IDE surface without visual noise. */
+.example-source-document .learning-preview-row:hover {
+  background: color-mix(in srgb, var(--mint) 5%, var(--study-editor-bg));
+}
+
+/* The compact status bar remains presentation only and never enters source. */
+.example-source-status {
+  justify-content: space-between;
+  font-size: 0.58rem;
 }
 
 .example-preview-open {
@@ -8985,10 +9017,31 @@ main {
     grid-template-columns: 1fr;
   }
 
-  /* The complete source remains horizontally scrollable inside its own box. */
-  .example-preview-source pre {
-    max-height: 240px;
-    font-size: 0.78rem;
+  /* The phone keeps a substantial IDE preview without consuming the full dialog. */
+  .example-source-editor {
+    max-height: 360px;
+  }
+
+  /* Source stays comfortably readable while long lines wrap inside their code column. */
+  .learning-comments-preview.example-source-document {
+    /* Keep source legible on phones without requiring the learner to zoom the whole page. */
+    font-size: 15px;
+  }
+
+  /* The source-only gutter gives more of the narrow surface back to indented Python. */
+  .example-source-document .learning-preview-row {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  /* Compact source-only padding prevents wrapped expressions from becoming one-word columns. */
+  .example-source-document .learning-preview-code {
+    padding-inline: 8px;
+  }
+
+  /* Encoding details yield to the more useful language, line count, and preview state. */
+  .example-source-status span:nth-child(3),
+  .example-source-status span:nth-child(4) {
+    display: none;
   }
 
   /* The search remains full width above the vertical mobile category list. */

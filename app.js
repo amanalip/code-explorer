@@ -10,9 +10,9 @@
 
 // The expanded curriculum lives in a dedicated data module so application
 // controllers remain readable while the library grows to 134 programs.
-import { ADDITIONAL_EXAMPLES } from "./curriculum.js?v=20260728-30";
+import { ADDITIONAL_EXAMPLES } from "./curriculum.js?v=20260728-35";
 // Both catalogs use one local-only matcher so metadata search behaves consistently.
-import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-30";
+import { catalogSearchText, matchesCatalogSearch } from "./catalog-search.js?v=20260728-35";
 
 /**
  * The initial program shown in the editor.
@@ -2281,7 +2281,7 @@ function ensureWorker() {
 
   // The version query keeps GitHub Pages and long-lived browser caches from
   // pairing a new interface with an older tracing or serialization contract.
-  state.worker = new Worker("py-worker.js?v=20260728-30", { type: "module" });
+  state.worker = new Worker("py-worker.js?v=20260728-35", { type: "module" });
   state.worker.addEventListener("message", handleWorkerMessage);
   state.worker.addEventListener("error", (event) => {
     const message = event.message || "Python worker failed to load.";
@@ -4766,6 +4766,83 @@ function appendExamplePreviewGroup(mount, label, values) {
 }
 
 /**
+ * Builds a safe IDE-style preview for one exact reviewed Python document.
+ *
+ * Line numbers, file chrome, syntax spans, and the status strip are visual
+ * teaching aids only. Opening the program still uses `example.code` directly,
+ * so presentation markup can never enter the learner's editor.
+ *
+ * @param {string} source Exact reviewed Python source.
+ * @returns {HTMLElement} Read-only editor-like presentation.
+ */
+function createExampleSourceEditor(source) {
+  const editor = document.createElement("div");
+  editor.className = "example-source-editor";
+  editor.setAttribute("role", "region");
+  editor.setAttribute("aria-label", "Read-only Python source preview");
+
+  // Familiar file chrome identifies the language and read-only state without
+  // adding buttons that could be mistaken for editor controls.
+  const chrome = document.createElement("div");
+  chrome.className = "learning-comments-editor-chrome";
+  chrome.setAttribute("aria-hidden", "true");
+  const lights = document.createElement("span");
+  lights.className = "learning-editor-lights";
+  lights.append(document.createElement("i"), document.createElement("i"), document.createElement("i"));
+  const tab = document.createElement("span");
+  tab.className = "learning-editor-tab";
+  const language = document.createElement("b");
+  language.textContent = "PY";
+  const filename = document.createTextNode(" main.py ");
+  const note = document.createElement("em");
+  note.textContent = "reviewed source";
+  tab.append(language, filename, note);
+  const mode = document.createElement("span");
+  mode.className = "learning-editor-mode";
+  mode.textContent = "Read only";
+  chrome.append(lights, tab, mode);
+
+  // Safe text nodes and the existing conservative tokenizer keep every source
+  // character intact while providing familiar syntax colors.
+  const documentView = document.createElement("div");
+  documentView.className = "learning-comments-preview example-source-document";
+  documentView.tabIndex = 0;
+  const lines = source.split("\n");
+  // Short lessons remain compact while longer programs receive a bounded
+  // scrollable surface instead of stretching the complete preview pane.
+  editor.style.height = `${Math.min(420, Math.max(180, 102 + (lines.length * 27)))}px`;
+  lines.forEach((line, index) => {
+    const row = document.createElement("div");
+    row.className = "learning-preview-row";
+    row.style.setProperty("--learning-preview-line", `"${index + 1}"`);
+    row.setAttribute("aria-label", `Line ${index + 1}: ${line || "blank"}`);
+    const content = document.createElement("code");
+    content.className = "learning-preview-code";
+    appendPythonPreviewTokens(content, line);
+    // The shared tokenizer uses one visual space for blank generated-comment
+    // rows. Catalog source rows already have a minimum height, so remove that
+    // placeholder and keep manually selected preview text byte-for-byte honest.
+    if (!line.length) content.replaceChildren();
+    row.append(content);
+    documentView.append(row);
+  });
+
+  // Static status text improves orientation but is outside the selectable
+  // source rows and cannot become part of an opened program.
+  const status = document.createElement("div");
+  status.className = "learning-comments-status example-source-status";
+  status.setAttribute("aria-hidden", "true");
+  ["Python 3", `${lines.length} line${lines.length === 1 ? "" : "s"}`, "UTF-8", "LF", "Preview"].forEach((value) => {
+    const item = document.createElement("span");
+    item.textContent = value;
+    status.append(item);
+  });
+
+  editor.append(chrome, documentView, status);
+  return editor;
+}
+
+/**
  * Loads one explicitly confirmed Python preview into the editor.
  *
  * @param {object} example Reviewed Python curriculum record.
@@ -4857,11 +4934,7 @@ function renderExamplePreview(example, routePosition) {
   sourceHeading.textContent = "Read-only source preview";
   const sourceHelp = document.createElement("p");
   sourceHelp.textContent = "Inspect the complete reviewed program here. Opening it is a separate deliberate action.";
-  const source = document.createElement("pre");
-  const code = document.createElement("code");
-  code.textContent = example.code;
-  source.append(code);
-  sourceSection.append(sourceHeading, sourceHelp, source);
+  sourceSection.append(sourceHeading, sourceHelp, createExampleSourceEditor(example.code));
   preview.append(sourceSection);
 
   const action = document.createElement("button");
